@@ -157,7 +157,7 @@ public class Main : MonoBehaviour
 			{
 				JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)enumerator.get_Current();
 				GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(jamGarrisonMobileMission.MissionRecID);
-				if (record.GarrFollowerTypeID == 4u)
+				if (record != null && record.GarrFollowerTypeID == 4u)
 				{
 					if (jamGarrisonMobileMission.MissionState == 1)
 					{
@@ -787,7 +787,7 @@ public class Main : MonoBehaviour
 			{
 				JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)enumerator.get_Current();
 				GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(jamGarrisonMobileMission.MissionRecID);
-				if (record.GarrFollowerTypeID == 4u)
+				if (record != null && record.GarrFollowerTypeID == 4u)
 				{
 					if (jamGarrisonMobileMission.MissionState == 1)
 					{

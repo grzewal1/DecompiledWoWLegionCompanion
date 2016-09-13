@@ -48,6 +48,10 @@ public class AbilityDisplay : MonoBehaviour
 
 	public void SetCountered(bool isCountered, bool playCounteredEffect = true)
 	{
+		if (isCountered && this.m_isCountered)
+		{
+			return;
+		}
 		this.m_isCountered = isCountered;
 		if (this.m_abilityIcon.get_material() != null)
 		{

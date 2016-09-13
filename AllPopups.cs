@@ -53,6 +53,8 @@ public class AllPopups : MonoBehaviour
 
 	public RegionConfirmation m_regionConfirmation;
 
+	public EncounterPopup m_encounterPopup;
+
 	private FollowerDetailView m_currentFollowerDetailView;
 
 	private void Awake()
@@ -94,6 +96,7 @@ public class AllPopups : MonoBehaviour
 		this.m_regionConfirmation.get_gameObject().SetActive(false);
 		this.m_talentTooltip.get_gameObject().SetActive(false);
 		this.HideCombatAllyDialog();
+		this.m_encounterPopup.get_gameObject().SetActive(false);
 	}
 
 	public void ShowUnassignCombatAllyConfirmationDialog()
@@ -105,6 +108,12 @@ public class AllPopups : MonoBehaviour
 	{
 		this.m_partyBuffsPopup.get_gameObject().SetActive(true);
 		this.m_partyBuffsPopup.Init(buffIDs);
+	}
+
+	public void ShowEncounterPopup(int garrEncounterID, int garrMechanicID)
+	{
+		this.m_encounterPopup.SetEncounter(garrEncounterID, garrMechanicID);
+		this.m_encounterPopup.get_gameObject().SetActive(true);
 	}
 
 	public void ShowCombatAllyDialog()

@@ -28,6 +28,10 @@ public class MissionMechanic : MonoBehaviour
 
 	public void SetCountered(bool isCountered, bool counteringFollowerIsBusy = false, bool playCounteredEffect = true)
 	{
+		if (isCountered && this.m_isCountered)
+		{
+			return;
+		}
 		if (counteringFollowerIsBusy)
 		{
 			if (!this.m_counteredIcon.get_gameObject().get_activeSelf())
