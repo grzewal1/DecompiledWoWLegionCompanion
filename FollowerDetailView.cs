@@ -29,20 +29,13 @@ public class FollowerDetailView : MonoBehaviour
 	[Header("Equipment Slots")]
 	public GameObject m_equipmentSlotsRootObject;
 
-	public GameObject m_equipmentSlotsHeader;
-
 	[Header("Misc")]
 	public FollowerListView m_followerListView;
 
 	public FollowerInventoryListView m_followerInventoryListView;
 
-	[Header("Not Obsolete?")]
-	public Text iLevelText;
-
 	[Header("More Text")]
 	public Text m_equipmentSlotsText;
-
-	public Text m_inventoryText;
 
 	[Header("Champion Only")]
 	public GameObject m_activateChampionButton;
@@ -54,15 +47,10 @@ public class FollowerDetailView : MonoBehaviour
 
 	private int m_garrFollowerID;
 
-	private string m_ilvlString;
-
 	private void Start()
 	{
 		this.m_equipmentSlotsText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_inventoryText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_ilvlString = StaticDB.GetString("ILVL", null);
-		this.m_equipmentSlotsText.set_text(StaticDB.GetString("EQUIPMENT_SLOTS", null));
-		this.m_inventoryText.set_text(StaticDB.GetString("INVENTORY", null));
+		this.m_equipmentSlotsText.set_text(StaticDB.GetString("EQUIPMENT_AND_ARMAMENTS", "Equipment and Armaments PH"));
 		Text componentInChildren = this.m_activateChampionButton.GetComponentInChildren<Text>();
 		if (componentInChildren != null)
 		{
@@ -174,19 +162,27 @@ public class FollowerDetailView : MonoBehaviour
 		{
 			Object.DestroyImmediate(componentsInChildren[i].get_gameObject());
 		}
-		this.m_equipmentSlotsHeader.get_gameObject().SetActive(false);
+		bool flag = false;
+		bool flag2 = true;
 		for (int j = 0; j < follower.AbilityID.Length; j++)
 		{
 			GarrAbilityRec record = StaticDB.garrAbilityDB.GetRecord(follower.AbilityID[j]);
 			if ((record.Flags & 1u) != 0u)
 			{
-				this.m_equipmentSlotsHeader.get_gameObject().SetActive(true);
+				flag = true;
 				GameObject gameObject = Object.Instantiate<GameObject>(this.m_equipmentSlotPrefab);
 				gameObject.get_transform().SetParent(this.m_equipmentSlotsRootObject.get_transform(), false);
 				AbilityDisplay component = gameObject.GetComponent<AbilityDisplay>();
 				component.SetAbility(follower.AbilityID[j], true, true, this);
 			}
 		}
+		bool flag3 = (follower.Flags & 8) != 0;
+		GarrFollowerRec record2 = StaticDB.garrFollowerDB.GetRecord(follower.GarrFollowerID);
+		if (flag3 || follower.FollowerLevel < MissionDetailView.GarrisonFollower_GetMaxFollowerLevel((int)record2.GarrFollowerTypeID))
+		{
+			flag2 = false;
+		}
+		this.m_equipmentSlotsText.get_gameObject().SetActive(flag || flag2);
 	}
 
 	public void SetFollower(int followerID)
@@ -194,7 +190,6 @@ public class FollowerDetailView : MonoBehaviour
 		this.m_garrFollowerID = followerID;
 		if (followerID == 0)
 		{
-			this.iLevelText.set_text(this.m_ilvlString + " ???");
 			RectTransform[] componentsInChildren = this.traitsAndAbilitiesRootObject.GetComponentsInChildren<RectTransform>(true);
 			for (int i = 0; i < componentsInChildren.Length; i++)
 			{
@@ -224,7 +219,6 @@ public class FollowerDetailView : MonoBehaviour
 			return;
 		}
 		JamGarrisonFollower jamGarrisonFollower = PersistentFollowerData.followerDictionary.get_Item(followerID);
-		this.iLevelText.set_text(this.m_ilvlString + " " + (jamGarrisonFollower.ItemLevelWeapon + jamGarrisonFollower.ItemLevelArmor) / 2);
 		string text = "Assets/BundleAssets/PortraitIcons/cid_" + record2.ID.ToString("D8") + ".png";
 		Sprite sprite = AssetBundleManager.portraitIcons.LoadAsset<Sprite>(text);
 		if (sprite != null)

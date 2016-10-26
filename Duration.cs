@@ -1,4 +1,6 @@
+using GarbageFreeStringBuilder;
 using System;
+using System.Text;
 
 public class Duration
 {
@@ -8,11 +10,15 @@ public class Duration
 
 	private int m_minutes;
 
+	private int m_remainderHours;
+
 	private int m_remainderMinutes;
 
-	private int m_duration;
+	private int m_remainderSeconds;
 
-	private string m_durationString;
+	private int m_seconds;
+
+	private StringBuilder m_sb;
 
 	private static string m_dayText;
 
@@ -60,7 +66,7 @@ public class Duration
 	{
 		get
 		{
-			return this.m_duration;
+			return this.m_seconds;
 		}
 	}
 
@@ -68,62 +74,13 @@ public class Duration
 	{
 		get
 		{
-			return this.m_durationString;
+			return (this.m_sb != null) ? this.m_sb.ToString() : string.Empty;
 		}
 	}
 
-	public Duration(int duration)
+	public Duration(int duration, bool displayLargestUnitOnly = false)
 	{
-		this.InitStrings();
-		this.m_duration = duration;
-		this.m_minutes = this.m_duration / 60;
-		this.m_hours = this.m_minutes / 60;
-		this.m_days = this.m_hours / 24;
-		this.m_remainderMinutes = ((this.m_hours <= 0) ? this.m_minutes : (this.m_minutes - 60 * this.m_hours));
-		if (this.m_days > 0)
-		{
-			this.m_durationString = string.Concat(new object[]
-			{
-				string.Empty,
-				this.m_days,
-				" ",
-				(this.m_days != 1) ? Duration.m_daysText : Duration.m_dayText
-			});
-		}
-		else if (this.m_hours > 0)
-		{
-			this.m_durationString = string.Concat(new object[]
-			{
-				string.Empty,
-				this.m_hours,
-				" ",
-				Duration.m_hourText
-			});
-		}
-		else if (this.m_minutes > 0)
-		{
-			this.m_durationString = string.Concat(new object[]
-			{
-				string.Empty,
-				this.m_minutes,
-				" ",
-				Duration.m_minuteText
-			});
-		}
-		else if (this.m_duration > 0)
-		{
-			this.m_durationString = string.Concat(new object[]
-			{
-				string.Empty,
-				this.m_duration,
-				" ",
-				Duration.m_secondText
-			});
-		}
-		else
-		{
-			this.m_durationString = string.Empty;
-		}
+		this.FormatDurationString(duration, displayLargestUnitOnly);
 	}
 
 	private void InitStrings()
@@ -147,6 +104,51 @@ public class Duration
 		if (Duration.m_secondText == null)
 		{
 			Duration.m_secondText = StaticDB.GetString("SECOND_ABBREVIATION", null);
+		}
+	}
+
+	public void FormatDurationString(int duration, bool displayLargestUnitOnly = false)
+	{
+		this.InitStrings();
+		if (this.m_sb == null)
+		{
+			this.m_sb = new StringBuilder(16);
+		}
+		this.m_sb.set_Length(0);
+		this.m_seconds = duration;
+		this.m_minutes = this.m_seconds / 60;
+		this.m_hours = this.m_minutes / 60;
+		this.m_days = this.m_hours / 24;
+		this.m_remainderHours = this.m_hours - 24 * this.m_days;
+		this.m_remainderMinutes = this.m_minutes - 60 * this.m_hours;
+		this.m_remainderSeconds = this.m_seconds - 60 * this.m_minutes;
+		if (this.m_days > 0)
+		{
+			this.m_sb.ConcatFormat("{0} {1}", this.m_days, (this.m_days != 1) ? Duration.m_daysText : Duration.m_dayText);
+			if (!displayLargestUnitOnly && this.m_remainderHours > 0)
+			{
+				this.m_sb.ConcatFormat(" {0} {1}", this.m_remainderHours, Duration.m_hourText);
+			}
+		}
+		else if (this.m_hours > 0)
+		{
+			this.m_sb.ConcatFormat("{0} {1}", this.m_hours, Duration.m_hourText);
+			if (!displayLargestUnitOnly && this.m_remainderMinutes > 0)
+			{
+				this.m_sb.ConcatFormat(" {0} {1}", this.m_remainderMinutes, Duration.m_minuteText);
+			}
+		}
+		else if (this.m_minutes > 0)
+		{
+			this.m_sb.ConcatFormat("{0} {1}", this.m_minutes, Duration.m_minuteText);
+			if (!displayLargestUnitOnly && this.m_remainderSeconds > 0)
+			{
+				this.m_sb.ConcatFormat(" {0} {1}", this.m_remainderSeconds, Duration.m_secondText);
+			}
+		}
+		else if (this.m_seconds > 0)
+		{
+			this.m_sb.ConcatFormat("{0} {1}", this.m_seconds, Duration.m_secondText);
 		}
 	}
 }

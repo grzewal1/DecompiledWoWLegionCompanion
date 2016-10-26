@@ -1,4 +1,6 @@
+using GarbageFreeStringBuilder;
 using System;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using WowJamMessages;
@@ -27,6 +29,8 @@ public class MiniMissionListItem : MonoBehaviour
 
 	public Text m_statusText;
 
+	public Text m_expirationText;
+
 	public MissionRewardDisplay m_missionRewardDisplayPrefab;
 
 	public GameObject m_previewLootGroup;
@@ -37,6 +41,14 @@ public class MiniMissionListItem : MonoBehaviour
 
 	private JamGarrisonMobileMission m_mission;
 
+	private int[] m_previewAbilityID;
+
+	private FollowerCanCounterMechanic[] m_previewCanCounterStatus;
+
+	private Duration m_missionOfferTimeRemaining;
+
+	private StringBuilder m_missionOfferTimeSB;
+
 	private void Awake()
 	{
 		this.m_missionName.set_font(GeneralHelpers.LoadFancyFont());
@@ -45,6 +57,10 @@ public class MiniMissionListItem : MonoBehaviour
 		this.m_rareMissionLabel.set_font(GeneralHelpers.LoadFancyFont());
 		this.m_statusText.set_font(GeneralHelpers.LoadStandardFont());
 		this.m_rareMissionLabel.set_text(StaticDB.GetString("RARE", "Rare!"));
+		this.m_previewAbilityID = new int[3];
+		this.m_previewCanCounterStatus = new FollowerCanCounterMechanic[3];
+		this.m_missionOfferTimeRemaining = new Duration(0, false);
+		this.m_missionOfferTimeSB = new StringBuilder(16);
 	}
 
 	public void SetMission(JamGarrisonMobileMission mission)
@@ -72,7 +88,7 @@ public class MiniMissionListItem : MonoBehaviour
 			this.m_missionTime.get_gameObject().SetActive(false);
 		}
 		this.m_previewMechanicsGroup.SetActive(!flag);
-		Duration duration = new Duration(record.MissionDuration);
+		Duration duration = new Duration(record.MissionDuration, false);
 		string text;
 		if (duration.DurationValue >= 28800)
 		{
@@ -103,6 +119,7 @@ public class MiniMissionListItem : MonoBehaviour
 			}
 		}
 		bool flag2 = (record.Flags & 1u) != 0u;
+		this.m_expirationText.get_gameObject().SetActive(flag2);
 		this.m_rareMissionLabel.get_gameObject().SetActive(flag2);
 		this.m_rareMissionHighlight.get_gameObject().SetActive(flag2);
 		if (flag2)
@@ -142,31 +159,63 @@ public class MiniMissionListItem : MonoBehaviour
 
 	public void UpdateMechanicPreview(bool missionInProgress, JamGarrisonMobileMission mission)
 	{
-		if (this.m_previewMechanicsGroup != null)
-		{
-			AbilityDisplay[] componentsInChildren = this.m_previewMechanicsGroup.GetComponentsInChildren<AbilityDisplay>(true);
-			for (int i = 0; i < componentsInChildren.Length; i++)
-			{
-				if (componentsInChildren[i] != null)
-				{
-					Object.DestroyImmediate(componentsInChildren[i].get_gameObject());
-				}
-			}
-		}
+		int num = 0;
 		if (!missionInProgress)
 		{
-			for (int j = 0; j < mission.Encounter.Length; j++)
+			for (int i = 0; i < mission.Encounter.Length; i++)
 			{
-				int id = (mission.Encounter[j].MechanicID.Length <= 0) ? 0 : mission.Encounter[j].MechanicID[0];
+				int id = (mission.Encounter[i].MechanicID.Length <= 0) ? 0 : mission.Encounter[i].MechanicID[0];
 				GarrMechanicRec record = StaticDB.garrMechanicDB.GetRecord(id);
 				if (record != null && record.GarrAbilityID != 0)
+				{
+					this.m_previewAbilityID[num] = record.GarrAbilityID;
+					this.m_previewCanCounterStatus[num] = GeneralHelpers.HasFollowerWhoCanCounter((int)record.GarrMechanicTypeID);
+					num++;
+				}
+			}
+			bool flag = true;
+			AbilityDisplay[] componentsInChildren = this.m_previewMechanicsGroup.GetComponentsInChildren<AbilityDisplay>(true);
+			if (num != componentsInChildren.Length)
+			{
+				flag = false;
+			}
+			if (flag)
+			{
+				for (int j = 0; j < componentsInChildren.Length; j++)
+				{
+					if (componentsInChildren[j] == null)
+					{
+						flag = false;
+						break;
+					}
+					if (componentsInChildren[j].GetAbilityID() != this.m_previewAbilityID[j])
+					{
+						flag = false;
+						break;
+					}
+					if (componentsInChildren[j].GetCanCounterStatus() != this.m_previewCanCounterStatus[j])
+					{
+						flag = false;
+						break;
+					}
+				}
+			}
+			if (!flag)
+			{
+				for (int k = 0; k < componentsInChildren.Length; k++)
+				{
+					if (componentsInChildren[k] != null)
+					{
+						Object.DestroyImmediate(componentsInChildren[k].get_gameObject());
+					}
+				}
+				for (int l = 0; l < num; l++)
 				{
 					GameObject gameObject = Object.Instantiate<GameObject>(this.m_previewMechanicEffectPrefab);
 					gameObject.get_transform().SetParent(this.m_previewMechanicsGroup.get_transform(), false);
 					AbilityDisplay component = gameObject.GetComponent<AbilityDisplay>();
-					component.SetAbility(record.GarrAbilityID, false, false, null);
-					FollowerCanCounterMechanic canCounterStatus = GeneralHelpers.HasFollowerWhoCanCounter((int)record.GarrMechanicTypeID);
-					component.SetCanCounterStatus(canCounterStatus);
+					component.SetAbility(this.m_previewAbilityID[l], false, false, null);
+					component.SetCanCounterStatus(this.m_previewCanCounterStatus[l]);
 				}
 			}
 		}
@@ -198,7 +247,7 @@ public class MiniMissionListItem : MonoBehaviour
 			long num = GarrisonStatus.CurrentTime() - this.m_mission.StartTime;
 			long num2 = this.m_mission.MissionDuration - num;
 			num2 = ((num2 <= 0L) ? 0L : num2);
-			Duration duration = new Duration((int)num2);
+			Duration duration = new Duration((int)num2, false);
 			if (num2 > 0L)
 			{
 				this.m_statusText.set_text(duration.DurationString + " <color=#ff0000ff>(" + StaticDB.GetString("IN_PROGRESS", null) + ")</color>");
@@ -207,6 +256,26 @@ public class MiniMissionListItem : MonoBehaviour
 			{
 				this.m_statusText.set_text("<color=#00ff00ff>(" + StaticDB.GetString("TAP_TO_COMPLETE", null) + ")</color>");
 			}
+		}
+		long num3 = GarrisonStatus.CurrentTime() - this.m_mission.OfferTime;
+		long num4 = this.m_mission.OfferDuration - num3;
+		num4 = ((num4 <= 0L) ? 0L : num4);
+		if (num4 > 0L)
+		{
+			if (this.m_expirationText.get_gameObject().get_activeSelf())
+			{
+				this.m_missionOfferTimeRemaining.FormatDurationString((int)num4, false);
+				this.m_missionOfferTimeSB.set_Length(0);
+				this.m_missionOfferTimeSB.ConcatFormat("{0}", this.m_missionOfferTimeRemaining.DurationString);
+				this.m_expirationText.set_text(this.m_missionOfferTimeSB.ToString());
+			}
+		}
+		else if (this.m_mission.MissionState == 0 && this.m_mission.OfferDuration > 0L)
+		{
+			AdventureMapPanel.instance.SelectMissionFromList(0);
+			AllPopups.instance.m_missionDialog.m_missionDetailView.get_gameObject().SetActive(false);
+			Object.DestroyImmediate(base.get_gameObject());
+			return;
 		}
 	}
 

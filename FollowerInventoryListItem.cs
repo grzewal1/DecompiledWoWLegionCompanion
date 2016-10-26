@@ -79,6 +79,8 @@ public class FollowerInventoryListItem : MonoBehaviour
 
 	private static string m_inBuildingString;
 
+	private static string m_maxiLevelString;
+
 	private void Awake()
 	{
 		if (this.m_combatAllyUnavailableDarkener != null)
@@ -125,6 +127,10 @@ public class FollowerInventoryListItem : MonoBehaviour
 		if (FollowerInventoryListItem.m_inBuildingString == null)
 		{
 			FollowerInventoryListItem.m_inBuildingString = StaticDB.GetString("IN_BUILDING", "In Building PH");
+		}
+		if (FollowerInventoryListItem.m_maxiLevelString == null)
+		{
+			FollowerInventoryListItem.m_maxiLevelString = StaticDB.GetString("MAX_ILVL", "Max iLvl PH");
 		}
 	}
 
@@ -191,6 +197,7 @@ public class FollowerInventoryListItem : MonoBehaviour
 		if (jamGarrisonFollower != null && jamGarrisonFollower.CurrentMissionID != 0)
 		{
 			this.m_useItemButtonLabel.set_text(StaticDB.GetString("ON_MISSION", null));
+			this.m_useItemButtonLabel.set_color(new Color(0.5f, 0.5f, 0.5f, 1f));
 			this.m_useItemButton.set_interactable(false);
 		}
 		else
@@ -241,6 +248,13 @@ public class FollowerInventoryListItem : MonoBehaviour
 		if (jamGarrisonFollower != null && jamGarrisonFollower.CurrentMissionID != 0)
 		{
 			this.m_useItemButtonLabel.set_text(StaticDB.GetString("ON_MISSION", null));
+			this.m_useItemButtonLabel.set_color(new Color(0.5f, 0.5f, 0.5f, 1f));
+			this.m_useItemButton.set_interactable(false);
+		}
+		else if (jamGarrisonFollower != null && (jamGarrisonFollower.ItemLevelArmor + jamGarrisonFollower.ItemLevelWeapon) / 2 >= 850)
+		{
+			this.m_useItemButtonLabel.set_text(FollowerInventoryListItem.m_maxiLevelString);
+			this.m_useItemButtonLabel.set_color(new Color(0.5f, 0.5f, 0.5f, 1f));
 			this.m_useItemButton.set_interactable(false);
 		}
 		else
@@ -256,7 +270,6 @@ public class FollowerInventoryListItem : MonoBehaviour
 		bool flag3 = this.m_combatAllyChampion.CurrentMissionID != 0;
 		bool flag4 = this.m_combatAllyChampion.CurrentBuildingID != 0;
 		bool flag5 = !flag && !flag2 && !flag3 && !flag4;
-		Debug.Log("Set Status available = " + flag5);
 		if (flag5)
 		{
 			this.m_combatAllyStatus.get_gameObject().SetActive(false);
@@ -266,22 +279,6 @@ public class FollowerInventoryListItem : MonoBehaviour
 			Debug.Log("Available");
 			return;
 		}
-		Debug.Log("Not Available");
-		Debug.Log(string.Concat(new object[]
-		{
-			string.Empty,
-			flag,
-			" ",
-			flag2,
-			" ",
-			flag3,
-			" ",
-			flag4,
-			" WORDS",
-			FollowerInventoryListItem.m_inactiveString,
-			" ",
-			FollowerInventoryListItem.m_onMissionString
-		}));
 		this.m_combatAllyStatus.get_gameObject().SetActive(true);
 		this.m_combatAllyUnavailableDarkener.get_gameObject().SetActive(true);
 		this.m_mainButton.set_enabled(false);

@@ -48,7 +48,7 @@ public class WorldQuestPanel : MonoBehaviour
 					{
 						num = 0;
 					}
-					Duration duration = new Duration(num);
+					Duration duration = new Duration(num, false);
 					this.m_worldQuestTimeText.set_text(duration.DurationString);
 					MissionRewardDisplay.InitWorldQuestRewards(mobileWorldQuest, this.m_missionRewardDisplayPrefab.get_gameObject(), this.m_lootGroupObj.get_transform());
 				}

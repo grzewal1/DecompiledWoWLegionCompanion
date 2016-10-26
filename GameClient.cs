@@ -5,15 +5,18 @@ public class GameClient : MonoBehaviour
 {
 	public GameObject pushManager;
 
+	public static GameClient instance;
+
 	private void Start()
 	{
 		if (BLPushManager.instance == null)
 		{
 			Object.Instantiate<GameObject>(this.pushManager);
 		}
+		GameClient.instance = this;
 	}
 
-	public void Register(string token, string locale)
+	public void RegisterPushManager(string token, string locale)
 	{
 		BLPushManagerBuilder bLPushManagerBuilder = ScriptableObject.CreateInstance<BLPushManagerBuilder>();
 		if (Login.m_portal.ToLower() == "wow-dev")

@@ -63,7 +63,7 @@ public class Main : MonoBehaviour
 
 	public Action<SHIPMENT_RESULT, ulong> CompleteShipmentResultAction;
 
-	public Action<int, int, int> CompleteMissionResultAction;
+	public Action<int, bool> CompleteMissionResultAction;
 
 	public Action<int, bool, int> ClaimMissionBonusResultAction;
 
@@ -95,7 +95,9 @@ public class Main : MonoBehaviour
 
 	public Action<OrderHallFilterOptionsButton> OrderHallfilterOptionsButtonSelectedAction;
 
-	public Action StartLogOutAction;
+	public Action<int, MobileClientShipmentItem> ShipmentItemPushedAction;
+
+	public Action<int> PlayerLeveledUpAction;
 
 	public GameObject m_debugButton;
 
@@ -204,7 +206,9 @@ public class Main : MonoBehaviour
 	{
 		Main expr_05 = Main.instance;
 		expr_05.GarrisonDataResetFinishedAction = (Action)Delegate.Remove(expr_05.GarrisonDataResetFinishedAction, new Action(this.HandleEnterWorld));
+		AllPanels.instance.m_troopsPanel.PurgeList();
 		AllPanels.instance.ShowAdventureMap();
+		AllPanels.instance.m_orderHallMultiPanel.m_troopsPanel.HandleOrderHallNavButtonSelected(null);
 		this.PrecacheMissionChances();
 	}
 
@@ -212,6 +216,18 @@ public class Main : MonoBehaviour
 	{
 		Main expr_05 = Main.instance;
 		expr_05.GarrisonDataResetFinishedAction = (Action)Delegate.Combine(expr_05.GarrisonDataResetFinishedAction, new Action(this.HandleEnterWorld));
+		PersistentArmamentData.ClearData();
+		PersistentBountyData.ClearData();
+		PersistentEquipmentData.ClearData();
+		PersistentFollowerData.ClearData();
+		PersistentFollowerData.ClearPreMissionFollowerData();
+		PersistentMissionData.ClearData();
+		PersistentShipmentData.ClearData();
+		PersistentTalentData.ClearData();
+		GuildData.ClearData();
+		MissionDataCache.ClearData();
+		WorldQuestData.ClearData();
+		ItemStatCache.instance.ClearItemStats();
 		this.MobileRequestData();
 	}
 
@@ -337,6 +353,10 @@ public class Main : MonoBehaviour
 		{
 			this.MobileClientWorldQuestUpdateHandler((MobileClientWorldQuestUpdate)msg);
 		}
+		else if (msg is MobileClientBountiesByWorldQuestUpdate)
+		{
+			this.MobileClientBountiesByWorldQuestUpdateHandler((MobileClientBountiesByWorldQuestUpdate)msg);
+		}
 		else if (msg is MobileClientEvaluateMissionResult)
 		{
 			this.MobileClientEvaluateMissionResultHandler((MobileClientEvaluateMissionResult)msg);
@@ -352,6 +372,10 @@ public class Main : MonoBehaviour
 		else if (msg is MobileClientSetShipmentDurationCheatResult)
 		{
 			this.MobileClientSetShipmentDurationCheatResultHandler((MobileClientSetShipmentDurationCheatResult)msg);
+		}
+		else if (msg is MobileClientShipmentPushResult)
+		{
+			this.MobileClientShipmentPushResultHandler((MobileClientShipmentPushResult)msg);
 		}
 		else if (msg is MobileClientSetMissionDurationCheatResult)
 		{
@@ -385,6 +409,10 @@ public class Main : MonoBehaviour
 		{
 			this.MobileClientWorldQuestBountiesResultHandler((MobileClientWorldQuestBountiesResult)msg);
 		}
+		else if (msg is MobileClientWorldQuestInactiveBountiesResult)
+		{
+			this.MobileClientWorldQuestInactiveBountiesResultHandler((MobileClientWorldQuestInactiveBountiesResult)msg);
+		}
 		else if (msg is MobileClientFollowerActivationDataResult)
 		{
 			this.MobileClientFollowerActivationDataResultHandler((MobileClientFollowerActivationDataResult)msg);
@@ -404,6 +432,10 @@ public class Main : MonoBehaviour
 		else if (msg is MobileClientArtifactInfoResult)
 		{
 			this.MobileClientArtifactInfoResultHandler((MobileClientArtifactInfoResult)msg);
+		}
+		else if (msg is MobileClientPlayerLevelUp)
+		{
+			this.MobileClientPlayerLevelUpHandler((MobileClientPlayerLevelUp)msg);
 		}
 		else
 		{
@@ -518,11 +550,8 @@ public class Main : MonoBehaviour
 		PersistentMissionData.UpdateMission(msg.Mission);
 		if (this.CompleteMissionResultAction != null)
 		{
-			this.CompleteMissionResultAction.Invoke(msg.GarrMissionID, msg.Result, (int)msg.MissionSuccessChance);
+			this.CompleteMissionResultAction.Invoke(msg.GarrMissionID, msg.BonusRollSucceeded);
 		}
-		MobilePlayerGarrisonDataRequest mobilePlayerGarrisonDataRequest = new MobilePlayerGarrisonDataRequest();
-		mobilePlayerGarrisonDataRequest.GarrTypeID = 3;
-		Login.instance.SendToMobileServer(mobilePlayerGarrisonDataRequest);
 		MobilePlayerRequestShipmentTypes obj = new MobilePlayerRequestShipmentTypes();
 		Login.instance.SendToMobileServer(obj);
 		MobilePlayerRequestShipments obj2 = new MobilePlayerRequestShipments();
@@ -530,6 +559,9 @@ public class Main : MonoBehaviour
 		MobilePlayerFollowerEquipmentRequest mobilePlayerFollowerEquipmentRequest = new MobilePlayerFollowerEquipmentRequest();
 		mobilePlayerFollowerEquipmentRequest.GarrFollowerTypeID = 4;
 		Login.instance.SendToMobileServer(mobilePlayerFollowerEquipmentRequest);
+		MobilePlayerGarrisonDataRequest mobilePlayerGarrisonDataRequest = new MobilePlayerGarrisonDataRequest();
+		mobilePlayerGarrisonDataRequest.GarrTypeID = 3;
+		Login.instance.SendToMobileServer(mobilePlayerGarrisonDataRequest);
 	}
 
 	private void MobileClientClaimMissionBonusResultHandler(MobileClientClaimMissionBonusResult msg)
@@ -699,13 +731,12 @@ public class Main : MonoBehaviour
 
 	public void MobileRequestData()
 	{
-		MobilePlayerGarrisonDataRequest mobilePlayerGarrisonDataRequest = new MobilePlayerGarrisonDataRequest();
-		mobilePlayerGarrisonDataRequest.GarrTypeID = 3;
-		Login.instance.SendToMobileServer(mobilePlayerGarrisonDataRequest);
 		MobilePlayerRequestShipmentTypes obj = new MobilePlayerRequestShipmentTypes();
 		Login.instance.SendToMobileServer(obj);
 		MobilePlayerRequestShipments obj2 = new MobilePlayerRequestShipments();
 		Login.instance.SendToMobileServer(obj2);
+		MobilePlayerWorldQuestBountiesRequest obj3 = new MobilePlayerWorldQuestBountiesRequest();
+		Login.instance.SendToMobileServer(obj3);
 		this.RequestWorldQuests();
 		MobilePlayerFollowerEquipmentRequest mobilePlayerFollowerEquipmentRequest = new MobilePlayerFollowerEquipmentRequest();
 		mobilePlayerFollowerEquipmentRequest.GarrFollowerTypeID = 4;
@@ -713,13 +744,14 @@ public class Main : MonoBehaviour
 		MobilePlayerFollowerArmamentsRequest mobilePlayerFollowerArmamentsRequest = new MobilePlayerFollowerArmamentsRequest();
 		mobilePlayerFollowerArmamentsRequest.GarrFollowerTypeID = 4;
 		Login.instance.SendToMobileServer(mobilePlayerFollowerArmamentsRequest);
-		MobilePlayerWorldQuestBountiesRequest obj3 = new MobilePlayerWorldQuestBountiesRequest();
-		Login.instance.SendToMobileServer(obj3);
 		MobilePlayerFollowerActivationDataRequest mobilePlayerFollowerActivationDataRequest = new MobilePlayerFollowerActivationDataRequest();
 		mobilePlayerFollowerActivationDataRequest.GarrTypeID = 3;
 		Login.instance.SendToMobileServer(mobilePlayerFollowerActivationDataRequest);
 		MobilePlayerGetArtifactInfo obj4 = new MobilePlayerGetArtifactInfo();
 		Login.instance.SendToMobileServer(obj4);
+		MobilePlayerGarrisonDataRequest mobilePlayerGarrisonDataRequest = new MobilePlayerGarrisonDataRequest();
+		mobilePlayerGarrisonDataRequest.GarrTypeID = 3;
+		Login.instance.SendToMobileServer(mobilePlayerGarrisonDataRequest);
 	}
 
 	private void UpdateDebugText()
@@ -862,10 +894,6 @@ public class Main : MonoBehaviour
 
 	public void RequestWorldQuests()
 	{
-		if (AdventureMapPanel.instance == null)
-		{
-			return;
-		}
 		MobilePlayerRequestWorldQuests obj = new MobilePlayerRequestWorldQuests();
 		Login.instance.SendToMobileServer(obj);
 	}
@@ -888,6 +916,10 @@ public class Main : MonoBehaviour
 		}
 		if (result == GARRISON_RESULT.SUCCESS)
 		{
+			MobilePlayerRequestShipmentTypes obj = new MobilePlayerRequestShipmentTypes();
+			Login.instance.SendToMobileServer(obj);
+			MobilePlayerRequestShipments obj2 = new MobilePlayerRequestShipments();
+			Login.instance.SendToMobileServer(obj2);
 			MobilePlayerGarrisonDataRequest mobilePlayerGarrisonDataRequest = new MobilePlayerGarrisonDataRequest();
 			mobilePlayerGarrisonDataRequest.GarrTypeID = 3;
 			Login.instance.SendToMobileServer(mobilePlayerGarrisonDataRequest);
@@ -937,9 +969,26 @@ public class Main : MonoBehaviour
 			if (mobileWorldQuest.StartLocationMapID == 1220)
 			{
 				WorldQuestData.AddWorldQuest(mobileWorldQuest);
+				for (int j = 0; j < Enumerable.Count<MobileWorldQuestReward>(mobileWorldQuest.Item); j++)
+				{
+					ItemStatCache.instance.GetItemStats(mobileWorldQuest.Item[j].RecordID, mobileWorldQuest.Item[j].ItemContext);
+				}
 			}
 		}
-		this.allPanels.adventureMapPanel.UpdateWorldQuests();
+	}
+
+	private void MobileClientBountiesByWorldQuestUpdateHandler(MobileClientBountiesByWorldQuestUpdate msg)
+	{
+		MobileBountiesByWorldQuest[] quest = msg.Quest;
+		for (int i = 0; i < quest.Length; i++)
+		{
+			MobileBountiesByWorldQuest bountiesByWorldQuest = quest[i];
+			PersistentBountyData.AddOrUpdateBountiesByWorldQuest(bountiesByWorldQuest);
+		}
+		if (AdventureMapPanel.instance != null)
+		{
+			AdventureMapPanel.instance.UpdateWorldQuests();
+		}
 	}
 
 	private void MobileClientEvaluateMissionResultHandler(MobileClientEvaluateMissionResult msg)
@@ -976,6 +1025,33 @@ public class Main : MonoBehaviour
 	private void MobileClientSetShipmentDurationCheatResultHandler(MobileClientSetShipmentDurationCheatResult msg)
 	{
 		AllPopups.instance.HideAllPopups();
+	}
+
+	private void MobileClientShipmentPushResultHandler(MobileClientShipmentPushResult msg)
+	{
+		Debug.Log("Shipment Push Result for item " + msg.CharShipmentID);
+		MobileClientShipmentItem[] items = msg.Items;
+		for (int i = 0; i < items.Length; i++)
+		{
+			MobileClientShipmentItem mobileClientShipmentItem = items[i];
+			Debug.Log(string.Concat(new object[]
+			{
+				"Received qty ",
+				mobileClientShipmentItem.Count,
+				" of item ",
+				mobileClientShipmentItem.ItemID,
+				" with context ",
+				mobileClientShipmentItem.Context,
+				", file ID ",
+				mobileClientShipmentItem.IconFileDataID,
+				", mailed = ",
+				mobileClientShipmentItem.Mailed
+			}));
+			if (this.ShipmentItemPushedAction != null)
+			{
+				this.ShipmentItemPushedAction.Invoke(msg.CharShipmentID, mobileClientShipmentItem);
+			}
+		}
 	}
 
 	private void MobileClientSetMissionDurationCheatResultHandler(MobileClientSetMissionDurationCheatResult msg)
@@ -1048,8 +1124,7 @@ public class Main : MonoBehaviour
 
 	private void MobileClientUseFollowerArmamentResultHandler(MobileClientUseFollowerArmamentResult msg)
 	{
-		GARRISON_RESULT result = (GARRISON_RESULT)msg.Result;
-		if (result == GARRISON_RESULT.SUCCESS)
+		if (msg.Result == 0)
 		{
 			PersistentFollowerData.AddOrUpdateFollower(msg.Follower);
 			MobilePlayerFollowerArmamentsRequest mobilePlayerFollowerArmamentsRequest = new MobilePlayerFollowerArmamentsRequest();
@@ -1058,7 +1133,7 @@ public class Main : MonoBehaviour
 		}
 		else
 		{
-			AllPopups.instance.ShowGenericPopup(StaticDB.GetString("USE_ARMAMENT_FAILED", null), result.ToString());
+			AllPopups.instance.ShowGenericPopupFull(StaticDB.GetString("USE_ARMAMENT_FAILED", null));
 		}
 		if (this.UseArmamentResultAction != null)
 		{
@@ -1086,6 +1161,10 @@ public class Main : MonoBehaviour
 		{
 			this.BountyInfoUpdatedAction.Invoke();
 		}
+	}
+
+	private void MobileClientWorldQuestInactiveBountiesResultHandler(MobileClientWorldQuestInactiveBountiesResult msg)
+	{
 	}
 
 	private void MobileClientFollowerActivationDataResultHandler(MobileClientFollowerActivationDataResult msg)
@@ -1136,6 +1215,16 @@ public class Main : MonoBehaviour
 	{
 		GarrisonStatus.ArtifactKnowledgeLevel = msg.KnowledgeLevel;
 		GarrisonStatus.ArtifactXpMultiplier = msg.XpMultiplier;
+	}
+
+	private void MobileClientPlayerLevelUpHandler(MobileClientPlayerLevelUp msg)
+	{
+		Debug.Log("Congrats, your character is now level " + msg.NewLevel);
+		AllPopups.instance.ShowLevelUpToast(msg.NewLevel);
+		if (this.PlayerLeveledUpAction != null)
+		{
+			this.PlayerLeveledUpAction.Invoke(msg.NewLevel);
+		}
 	}
 
 	public void UseEquipment(int garrFollowerID, int itemID, int replaceThisAbilityID)
@@ -1193,10 +1282,6 @@ public class Main : MonoBehaviour
 	public void Logout()
 	{
 		MissionDataCache.ClearData();
-		if (this.StartLogOutAction != null)
-		{
-			this.StartLogOutAction.Invoke();
-		}
 		AllPopups.instance.HideAllPopups();
 		AllPanels.instance.ShowOrderHallMultiPanel(false);
 		Login.instance.ReconnectToMobileServerCharacterSelect();

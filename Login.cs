@@ -461,6 +461,8 @@ public class Login : MonoBehaviour
 
 	private float m_bnLoginStartTime;
 
+	private int m_battlenetFailures;
+
 	public static string m_portal = "beta";
 
 	public bool ReturnToRecentCharacter
@@ -523,6 +525,7 @@ public class Login : MonoBehaviour
 				{
 				case Login.eLoginState.MOBILE_LOGGING_IN:
 					this.LoginLog("OnApplicationPause: Reconnecting: mobile login states");
+					this.m_battlenetFailures = 0;
 					this.m_mobileNetwork.Disconnect();
 					this.BnLoginStart(true, true, true, false);
 					break;
@@ -531,12 +534,14 @@ public class Login : MonoBehaviour
 					if (flag)
 					{
 						this.LoginLog("OnApplicationPause: Reconnecting: mobile idle state");
+						this.m_battlenetFailures = 0;
 						this.m_mobileNetwork.Disconnect();
 						this.BnLoginStart(true, true, true, false);
 					}
 					else if (this.m_mobileNetwork != null && !this.m_mobileNetwork.IsConnected)
 					{
 						this.LoginLog("OnApplicationPause: Reconnecting, not connected after short pause time of " + num2);
+						this.m_battlenetFailures = 0;
 						this.m_mobileNetwork.Disconnect();
 						this.BnLoginStart(true, true, true, false);
 					}
@@ -556,6 +561,7 @@ public class Login : MonoBehaviour
 					}
 					else if (flag)
 					{
+						this.m_battlenetFailures = 0;
 						this.LoginLog("OnApplicationPause: Reconnecting: character list wait state");
 						this.BnLoginStart(true, true, false, false);
 					}
@@ -1163,6 +1169,7 @@ public class Login : MonoBehaviour
 
 	private void BnLoginSucceeded()
 	{
+		this.m_battlenetFailures = 0;
 		SecurePlayerPrefs.SetString("WebToken", this.m_webToken, Main.uniqueIdentifier);
 		PlayerPrefs.Save();
 		BattleNet.ProcessAurora();
@@ -1173,6 +1180,42 @@ public class Login : MonoBehaviour
 		}
 		this.m_loginGameAccounts.Clear();
 		this.RequestGameAccountNames();
+	}
+
+	private void RegisterPushManager(string token, string locale)
+	{
+		BLPushManagerBuilder bLPushManagerBuilder = ScriptableObject.CreateInstance<BLPushManagerBuilder>();
+		if (Login.m_portal.ToLower() == "wow-dev")
+		{
+			bLPushManagerBuilder.isDebug = true;
+			bLPushManagerBuilder.applicationName = "test.wowcompanion";
+		}
+		else
+		{
+			bLPushManagerBuilder.isDebug = false;
+			bLPushManagerBuilder.applicationName = "wowcompanion";
+		}
+		bLPushManagerBuilder.shouldRegisterwithBPNS = true;
+		bLPushManagerBuilder.region = "US";
+		bLPushManagerBuilder.locale = locale;
+		bLPushManagerBuilder.authToken = token;
+		bLPushManagerBuilder.authRegion = "US";
+		bLPushManagerBuilder.appAccountID = string.Empty;
+		bLPushManagerBuilder.senderId = "952133414280";
+		bLPushManagerBuilder.didReceiveRegistrationTokenDelegate = new DidReceiveRegistrationTokenDelegate(this.DidReceiveRegistrationTokenHandler);
+		bLPushManagerBuilder.didReceiveDeeplinkURLDelegate = new DidReceiveDeeplinkURLDelegate(this.DidReceiveDeeplinkURLDelegateHandler);
+		BLPushManager.instance.InitWithBuilder(bLPushManagerBuilder);
+		BLPushManager.instance.RegisterForPushNotifications();
+	}
+
+	public void DidReceiveRegistrationTokenHandler(string deviceToken)
+	{
+		Debug.Log("DidReceiveRegistrationTokenHandler: device token " + deviceToken);
+	}
+
+	public void DidReceiveDeeplinkURLDelegateHandler(string url)
+	{
+		Debug.Log("DidReceiveDeeplinkURLDelegateHandler: url " + url);
 	}
 
 	public void AddGameAccountButton(EntityId gameAccount, string name, bool isBanned, bool isSuspended)
@@ -1550,7 +1593,10 @@ public class Login : MonoBehaviour
 		SecurePlayerPrefs.SetString("CharacterID", recentChar.Entry.PlayerGuid, Main.uniqueIdentifier);
 		SecurePlayerPrefs.SetString("CharacterName", recentChar.Entry.Name, Main.uniqueIdentifier);
 		PlayerPrefs.Save();
-		this.m_mobileNetwork.Disconnect();
+		if (this.m_mobileNetwork != null)
+		{
+			this.m_mobileNetwork.Disconnect();
+		}
 		this.BnLoginStart(true, true, true, false);
 	}
 
@@ -1660,12 +1706,35 @@ public class Login : MonoBehaviour
 		{
 			AllPopups.instance.ShowGenericPopupFull(popupTitle);
 		}
+		else if (this.m_battlenetFailures == 0)
+		{
+			GenericPopup.DisabledAction = (Action)Delegate.Combine(GenericPopup.DisabledAction, new Action(this.ReconnectPopupDisabledAction));
+			if (Main.instance.GetLocale() == "enUS")
+			{
+				AllPopups.instance.ShowGenericPopup("Battle.net Error", "Unable to contact Battle.net, tap anywhere to retry.");
+			}
+			else
+			{
+				AllPopups.instance.ShowGenericPopup(StaticDB.GetString("NETWORK_ERROR", null), StaticDB.GetString("CANT_CONNECT", null));
+			}
+		}
 		else
 		{
 			AllPopups.instance.ShowGenericPopup(StaticDB.GetString("NETWORK_ERROR", null), StaticDB.GetString("CANT_CONNECT", null));
 		}
+		this.m_battlenetFailures++;
 		this.SetLoginState(Login.eLoginState.IDLE);
-		Debug.Log("=================== BN Login Failed. ===================");
+		Debug.Log("=================== BN Login Failed. " + this.m_battlenetFailures + " ===================");
+	}
+
+	private void ReconnectPopupDisabledAction()
+	{
+		GenericPopup.DisabledAction = (Action)Delegate.Remove(GenericPopup.DisabledAction, new Action(this.ReconnectPopupDisabledAction));
+		if (this.m_mobileNetwork != null)
+		{
+			this.m_mobileNetwork.Disconnect();
+		}
+		this.BnLoginStart(true, true, true, false);
 	}
 
 	public void BnQuit()
@@ -1693,13 +1762,19 @@ public class Login : MonoBehaviour
 
 	public void ReconnectToMobileServerCharacterSelect()
 	{
-		this.m_mobileNetwork.Disconnect();
+		if (this.m_mobileNetwork != null)
+		{
+			this.m_mobileNetwork.Disconnect();
+		}
 		this.BnLoginStart(true, true, false, true);
 	}
 
 	public void ReconnectToMobileServerCharacter()
 	{
-		this.m_mobileNetwork.Disconnect();
+		if (this.m_mobileNetwork != null)
+		{
+			this.m_mobileNetwork.Disconnect();
+		}
 		this.m_useCachedCharacter = true;
 		this.ConnectToMobileServer(this.m_mobileServerAddress, this.m_mobileServerPort, this.m_bnetAccount, this.m_virtualRealmAddress, this.m_wowAccount, this.m_realmJoinTicket, true);
 	}

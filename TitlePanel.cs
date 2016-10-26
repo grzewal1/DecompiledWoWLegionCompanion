@@ -59,8 +59,7 @@ public class TitlePanel : MonoBehaviour
 		}
 		this.m_briefBuildText.set_text(string.Format("{0:D2}", BuildNum.CodeBuildNum));
 		this.m_buildText.set_text(string.Empty);
-		this.m_loginButtonText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_loginButtonText.set_text(StaticDB.GetString("LOGIN", null));
+		this.UpdateResumeButtonVisiblity();
 		this.m_legalText.set_font(GeneralHelpers.LoadStandardFont());
 		this.m_legalText.set_text(StaticDB.GetString("LEGAL_TEXT", "(c) 2016 Blizzard Entertainment, Inc. All rights reserved."));
 		List<Dropdown.OptionData> list = new List<Dropdown.OptionData>();
@@ -225,12 +224,23 @@ public class TitlePanel : MonoBehaviour
 
 	public void UpdateResumeButtonVisiblity()
 	{
-		this.m_resumeButton.get_gameObject().SetActive(Login.instance.HaveCachedWebToken());
-		Text componentInChildren = this.m_resumeButton.GetComponentInChildren<Text>();
-		if (componentInChildren != null)
+		bool flag = Login.instance.HaveCachedWebToken();
+		this.m_resumeButton.get_gameObject().SetActive(flag);
+		if (flag)
 		{
-			componentInChildren.set_font(GeneralHelpers.LoadStandardFont());
-			componentInChildren.set_text(StaticDB.GetString("CHARACTERS", null));
+			Text componentInChildren = this.m_resumeButton.GetComponentInChildren<Text>();
+			if (componentInChildren != null)
+			{
+				componentInChildren.set_font(GeneralHelpers.LoadStandardFont());
+				componentInChildren.set_text(StaticDB.GetString("LOGIN", null));
+				this.m_loginButtonText.set_font(GeneralHelpers.LoadStandardFont());
+				this.m_loginButtonText.set_text(StaticDB.GetString("ACCOUNT_SELECTION", null));
+			}
+		}
+		else
+		{
+			this.m_loginButtonText.set_font(GeneralHelpers.LoadStandardFont());
+			this.m_loginButtonText.set_text(StaticDB.GetString("LOGIN", null));
 		}
 	}
 }

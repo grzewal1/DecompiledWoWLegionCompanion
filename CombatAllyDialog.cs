@@ -19,8 +19,6 @@ public class CombatAllyDialog : MonoBehaviour
 
 	public Text m_titleText;
 
-	public MissionPanelSlider m_missionPanelSlider;
-
 	public void Start()
 	{
 		this.m_combatAllyCost.set_font(GeneralHelpers.LoadStandardFont());
@@ -32,11 +30,6 @@ public class CombatAllyDialog : MonoBehaviour
 		Main.instance.m_UISound.Play_ShowGenericTooltip();
 		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
 		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
-		if (this.m_missionPanelSlider.m_sliderPanel.IsShowing() || this.m_missionPanelSlider.m_sliderPanel.IsBusyMoving())
-		{
-			base.get_gameObject().SetActive(false);
-			return;
-		}
 	}
 
 	private void OnDisable()

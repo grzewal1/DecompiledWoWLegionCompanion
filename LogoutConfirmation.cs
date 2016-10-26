@@ -13,9 +13,22 @@ public class LogoutConfirmation : MonoBehaviour
 
 	public Text m_cancelText;
 
+	public bool GoToWebAuth
+	{
+		get;
+		set;
+	}
+
 	private void OnEnable()
 	{
-		this.m_logoutText.set_text(StaticDB.GetString("LOG_OUT", null));
+		if (this.GoToWebAuth)
+		{
+			this.m_logoutText.set_text(StaticDB.GetString("ACCOUNT_SELECTION", null));
+		}
+		else
+		{
+			this.m_logoutText.set_text(StaticDB.GetString("LOG_OUT", null));
+		}
 		this.m_sureText.set_text(StaticDB.GetString("ARE_YOU_SURE", null));
 		this.m_okayText.set_text(StaticDB.GetString("OK", null));
 		this.m_cancelText.set_text(StaticDB.GetString("CANCEL", null));
@@ -32,7 +45,14 @@ public class LogoutConfirmation : MonoBehaviour
 	public void OnClickOkay()
 	{
 		AllPopups.instance.HideAllPopups();
-		Login.instance.BackToAccountSelect();
+		if (this.GoToWebAuth)
+		{
+			Login.instance.StartNewLogin();
+		}
+		else
+		{
+			Login.instance.BackToAccountSelect();
+		}
 	}
 
 	public void OnClickCancel()

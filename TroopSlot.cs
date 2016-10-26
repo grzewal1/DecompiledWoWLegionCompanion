@@ -24,6 +24,8 @@ public class TroopSlot : MonoBehaviour
 
 	public Transform m_greenCheckEffectRoot;
 
+	public GameObject m_collectingSpinner;
+
 	private int m_ownedGarrFollowerID;
 
 	private bool m_training;
@@ -37,6 +39,12 @@ public class TroopSlot : MonoBehaviour
 	private ulong m_shipmentDBID;
 
 	private UiAnimMgr.UiAnimHandle m_glowLoopHandle;
+
+	private void Awake()
+	{
+		this.m_collected = false;
+		this.m_collectingSpinner.SetActive(false);
+	}
 
 	private void Start()
 	{
@@ -71,10 +79,15 @@ public class TroopSlot : MonoBehaviour
 		}
 		if (this.m_glowLoopHandle != null)
 		{
-			this.m_glowLoopHandle.GetAnim().Stop(0f);
+			UiAnimation anim = this.m_glowLoopHandle.GetAnim();
+			if (anim != null)
+			{
+				anim.Stop(0.5f);
+			}
 			this.m_glowLoopHandle = null;
 		}
 		this.m_collected = false;
+		this.m_collectingSpinner.SetActive(false);
 		this.m_ownedGarrFollowerID = ownedGarrFollowerID;
 		this.m_training = training;
 		this.m_shipmentDBID = shipmentDBID;
@@ -187,12 +200,12 @@ public class TroopSlot : MonoBehaviour
 			}
 			if (num2 > 0L)
 			{
-				Duration duration = new Duration((int)num2);
+				Duration duration = new Duration((int)num2, true);
 				this.m_timeRemainingText.set_text(duration.DurationString);
 			}
 			else if (this.m_glowLoopHandle == null)
 			{
-				this.m_glowLoopHandle = UiAnimMgr.instance.PlayAnim("MinimapLoopPulseAnim", base.get_transform(), Vector3.get_zero(), 3f, 0f);
+				this.m_glowLoopHandle = UiAnimMgr.instance.PlayAnim("MinimapLoopPulseAnim", base.get_transform(), Vector3.get_zero(), 2f, 0f);
 				this.m_timeRemainingText.set_text(StaticDB.GetString("COLLECT", null));
 				Main.instance.m_UISound.Play_TroopsReadyToast();
 			}
@@ -240,6 +253,7 @@ public class TroopSlot : MonoBehaviour
 		if (this.m_shipmentDBID != 0uL && !this.m_collected)
 		{
 			this.m_collected = true;
+			this.m_collectingSpinner.SetActive(true);
 			UiAnimMgr.instance.PlayAnim("MinimapPulseAnim", base.get_transform(), Vector3.get_zero(), 2f, 0f);
 			Main.instance.m_UISound.Play_CollectTroop();
 			MobilePlayerCompleteShipment mobilePlayerCompleteShipment = new MobilePlayerCompleteShipment();
@@ -259,6 +273,7 @@ public class TroopSlot : MonoBehaviour
 				{
 					anim.Stop(0.5f);
 				}
+				this.m_glowLoopHandle = null;
 			}
 			UiAnimMgr.instance.PlayAnim("GreenCheck", this.m_greenCheckEffectRoot, Vector3.get_zero(), 1.8f, 0f);
 			Main.instance.m_UISound.Play_GreenCheck();
@@ -270,6 +285,10 @@ public class TroopSlot : MonoBehaviour
 			this.m_timeRemainingText.get_gameObject().SetActive(false);
 			this.m_troopPortraitImage.set_material(null);
 			PersistentShipmentData.shipmentDictionary.Remove(shipmentDBID);
+			MobilePlayerRequestShipmentTypes obj = new MobilePlayerRequestShipmentTypes();
+			Login.instance.SendToMobileServer(obj);
+			MobilePlayerRequestShipments obj2 = new MobilePlayerRequestShipments();
+			Login.instance.SendToMobileServer(obj2);
 			MobilePlayerGarrisonDataRequest mobilePlayerGarrisonDataRequest = new MobilePlayerGarrisonDataRequest();
 			mobilePlayerGarrisonDataRequest.GarrTypeID = 3;
 			Login.instance.SendToMobileServer(mobilePlayerGarrisonDataRequest);

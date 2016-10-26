@@ -35,6 +35,10 @@ public class AllPanels : MonoBehaviour
 
 	public WebAuthPanel m_webAuthPanel;
 
+	public TroopsPanel m_troopsPanel;
+
+	public TalentTreePanel m_talentTreePanel;
+
 	public MissionResultsPanel m_missionResultsPanel;
 
 	private void Awake()
@@ -89,7 +93,14 @@ public class AllPanels : MonoBehaviour
 
 	public void OnClickTitleConnect()
 	{
-		Login.instance.StartNewLogin();
+		if (Login.instance.HaveCachedWebToken())
+		{
+			AllPopups.instance.ShowLogoutConfirmationPopup(true);
+		}
+		else
+		{
+			Login.instance.StartNewLogin();
+		}
 	}
 
 	public void OnClickTitleResume()
@@ -101,6 +112,11 @@ public class AllPanels : MonoBehaviour
 	{
 		this.HideAllPanels(true);
 		this.ShowOrderHallMultiPanel(true);
+	}
+
+	public void ShowMissionList()
+	{
+		this.m_orderHallMultiPanel.ShowMissionListPanel();
 	}
 
 	public void ShowRealmListPanel()
@@ -209,7 +225,7 @@ public class AllPanels : MonoBehaviour
 
 	public void OnClickCharacterSelectCancel()
 	{
-		AllPopups.instance.ShowLogoutConfirmationPopup();
+		AllPopups.instance.ShowLogoutConfirmationPopup(false);
 	}
 
 	public void OnClickConnectingCancel()

@@ -64,6 +64,8 @@ public class AdventureMapMissionSite : MonoBehaviour
 
 	private UiAnimMgr.UiAnimHandle m_selectedEffectAnimHandle;
 
+	private Duration m_missionTimeRemaining;
+
 	private void OnEnable()
 	{
 		AdventureMapPanel expr_05 = AdventureMapPanel.instance;
@@ -71,7 +73,7 @@ public class AdventureMapMissionSite : MonoBehaviour
 		Main expr_2B = Main.instance;
 		expr_2B.ClaimMissionBonusResultAction = (Action<int, bool, int>)Delegate.Combine(expr_2B.ClaimMissionBonusResultAction, new Action<int, bool, int>(this.HandleClaimMissionBonusResult));
 		Main expr_51 = Main.instance;
-		expr_51.CompleteMissionResultAction = (Action<int, int, int>)Delegate.Combine(expr_51.CompleteMissionResultAction, new Action<int, int, int>(this.HandleCompleteMissionResult));
+		expr_51.CompleteMissionResultAction = (Action<int, bool>)Delegate.Combine(expr_51.CompleteMissionResultAction, new Action<int, bool>(this.HandleCompleteMissionResult));
 		PinchZoomContentManager expr_7C = AdventureMapPanel.instance.m_pinchZoomContentManager;
 		expr_7C.ZoomFactorChanged = (Action)Delegate.Combine(expr_7C.ZoomFactorChanged, new Action(this.HandleZoomChanged));
 	}
@@ -83,7 +85,7 @@ public class AdventureMapMissionSite : MonoBehaviour
 		Main expr_2B = Main.instance;
 		expr_2B.ClaimMissionBonusResultAction = (Action<int, bool, int>)Delegate.Remove(expr_2B.ClaimMissionBonusResultAction, new Action<int, bool, int>(this.HandleClaimMissionBonusResult));
 		Main expr_51 = Main.instance;
-		expr_51.CompleteMissionResultAction = (Action<int, int, int>)Delegate.Remove(expr_51.CompleteMissionResultAction, new Action<int, int, int>(this.HandleCompleteMissionResult));
+		expr_51.CompleteMissionResultAction = (Action<int, bool>)Delegate.Remove(expr_51.CompleteMissionResultAction, new Action<int, bool>(this.HandleCompleteMissionResult));
 		PinchZoomContentManager expr_7C = AdventureMapPanel.instance.m_pinchZoomContentManager;
 		expr_7C.ZoomFactorChanged = (Action)Delegate.Remove(expr_7C.ZoomFactorChanged, new Action(this.HandleZoomChanged));
 	}
@@ -105,34 +107,12 @@ public class AdventureMapMissionSite : MonoBehaviour
 		expr_16.MissionMapSelectionChangedAction = (Action<int>)Delegate.Combine(expr_16.MissionMapSelectionChangedAction, new Action<int>(this.HandleMissionChanged));
 		this.m_missionCompleteText.set_text(StaticDB.GetString("MISSION_COMPLETE", null));
 		this.m_isStackablePreview = false;
+		this.m_missionTimeRemaining = new Duration(0, false);
 	}
 
 	private void Update()
 	{
 		this.UpdateMissionRemainingTimeDisplay();
-		Vector3[] array = new Vector3[4];
-		AdventureMapPanel.instance.m_mapViewRT.GetWorldCorners(array);
-		float num = array[2].x - array[0].x;
-		float num2 = array[2].y - array[0].y;
-		Rect rect = new Rect(array[0].x, array[0].y, num, num2);
-		Vector3[] array2 = new Vector3[4];
-		this.m_myRT.GetWorldCorners(array2);
-		float num3 = array2[2].x - array2[0].x;
-		float num4 = array2[2].y - array2[0].y;
-		Rect rect2 = new Rect(array2[0].x, array2[0].y, num3, num4);
-		if (!rect.Overlaps(rect2))
-		{
-			if (AdventureMapPanel.instance.GetCurrentMapMission() == this.m_garrMissionID)
-			{
-				AdventureMapPanel.instance.SelectMissionFromMap(0);
-			}
-			StackableMapIcon component = base.GetComponent<StackableMapIcon>();
-			if (component != null && AdventureMapPanel.instance.GetSelectedIconContainer() == component.GetContainer())
-			{
-				AdventureMapPanel.instance.SetSelectedIconContainer(null);
-			}
-			return;
-		}
 	}
 
 	private void UpdateMissionRemainingTimeDisplay()
@@ -150,8 +130,8 @@ public class AdventureMapMissionSite : MonoBehaviour
 		num2 = ((num2 <= 0L) ? 0L : num2);
 		if (!this.m_isSupportMission)
 		{
-			Duration duration = new Duration((int)num2);
-			this.m_missionTimeRemainingText.set_text(duration.DurationString);
+			this.m_missionTimeRemaining.FormatDurationString((int)num2, false);
+			this.m_missionTimeRemainingText.set_text(this.m_missionTimeRemaining.DurationString);
 		}
 		if (num2 == 0L)
 		{
@@ -316,11 +296,11 @@ public class AdventureMapMissionSite : MonoBehaviour
 		Main.instance.CompleteMission(this.m_garrMissionID);
 	}
 
-	public void HandleCompleteMissionResult(int garrMissionID, int result, int missionSuccessChance)
+	public void HandleCompleteMissionResult(int garrMissionID, bool missionSucceeded)
 	{
 		if (garrMissionID == this.m_garrMissionID)
 		{
-			this.OnMissionStatusChanged(false);
+			this.OnMissionStatusChanged(false, missionSucceeded);
 		}
 	}
 
@@ -330,7 +310,7 @@ public class AdventureMapMissionSite : MonoBehaviour
 		{
 			if (result == 0)
 			{
-				this.OnMissionStatusChanged(awardOvermax);
+				this.OnMissionStatusChanged(awardOvermax, true);
 			}
 			else
 			{
@@ -339,10 +319,10 @@ public class AdventureMapMissionSite : MonoBehaviour
 		}
 	}
 
-	public void OnMissionStatusChanged(bool awardOvermax = false)
+	public void OnMissionStatusChanged(bool awardOvermax, bool missionSucceeded)
 	{
 		JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary.get_Item(this.m_garrMissionID);
-		if (jamGarrisonMobileMission.MissionState == 6 && !this.m_claimedMyLoot)
+		if (jamGarrisonMobileMission.MissionState == 6 && !missionSucceeded)
 		{
 			Debug.Log("OnMissionStatusChanged() MISSION FAILED " + this.m_garrMissionID);
 			this.m_claimedMyLoot = true;

@@ -4,6 +4,15 @@ using UnityEngine.UI;
 
 public class OrderHallNavButton : MonoBehaviour
 {
+	public enum NavButtonType
+	{
+		missions = 0,
+		recruit = 1,
+		map = 2,
+		followers = 3,
+		talents = 4
+	}
+
 	public Image m_normalImage;
 
 	public Image m_selectedImage;
@@ -11,6 +20,12 @@ public class OrderHallNavButton : MonoBehaviour
 	public GameObject m_label;
 
 	public LayoutElement m_holderLayoutElement;
+
+	public OrderHallNavButton.NavButtonType m_navButtonType;
+
+	public GameObject m_notificationBadgeRoot;
+
+	public Text m_notificationBadgeText;
 
 	private float m_selectedSize = 106f;
 
@@ -25,6 +40,8 @@ public class OrderHallNavButton : MonoBehaviour
 	private UiAnimMgr.UiAnimHandle m_glowSpinHandle;
 
 	private UiAnimMgr.UiAnimHandle m_glowPulseHandle;
+
+	private UiAnimMgr.UiAnimHandle m_notificationPulseHandle;
 
 	private bool m_isSelected;
 
@@ -154,5 +171,77 @@ public class OrderHallNavButton : MonoBehaviour
 	public void SelectMe()
 	{
 		Main.instance.SelectOrderHallNavButton(this);
+	}
+
+	public bool IsSelected()
+	{
+		return this.m_isSelected;
+	}
+
+	private void Update()
+	{
+		switch (this.m_navButtonType)
+		{
+		case OrderHallNavButton.NavButtonType.missions:
+		{
+			int numCompletedMissions = PersistentMissionData.GetNumCompletedMissions(true);
+			if (numCompletedMissions == 0 && this.m_notificationBadgeRoot.get_activeSelf())
+			{
+				this.m_notificationBadgeRoot.SetActive(false);
+			}
+			else if (numCompletedMissions > 0)
+			{
+				if (!this.m_notificationBadgeRoot.get_activeSelf())
+				{
+					this.m_notificationBadgeRoot.SetActive(true);
+				}
+				if (this.m_notificationPulseHandle == null)
+				{
+					this.m_notificationPulseHandle = UiAnimMgr.instance.PlayAnim("MinimapLoopPulseAnim", this.m_notificationBadgeRoot.get_transform(), Vector3.get_zero(), 1f, 0f);
+				}
+				this.m_notificationBadgeText.set_text(string.Empty + numCompletedMissions);
+			}
+			break;
+		}
+		case OrderHallNavButton.NavButtonType.recruit:
+		{
+			int numReadyShipments = PersistentShipmentData.GetNumReadyShipments();
+			if (numReadyShipments == 0 && this.m_notificationBadgeRoot.get_activeSelf())
+			{
+				this.m_notificationBadgeRoot.SetActive(false);
+			}
+			else if (numReadyShipments > 0)
+			{
+				if (!this.m_notificationBadgeRoot.get_activeSelf())
+				{
+					this.m_notificationBadgeRoot.SetActive(true);
+				}
+				if (this.m_notificationPulseHandle == null)
+				{
+					this.m_notificationPulseHandle = UiAnimMgr.instance.PlayAnim("MinimapLoopPulseAnim", this.m_notificationBadgeRoot.get_transform(), Vector3.get_zero(), 1f, 0f);
+				}
+				this.m_notificationBadgeText.set_text(string.Empty + numReadyShipments);
+			}
+			break;
+		}
+		case OrderHallNavButton.NavButtonType.talents:
+		{
+			bool flag = AllPanels.instance.m_talentTreePanel.TalentIsReadyToPlayGreenCheckAnim();
+			if (!flag && this.m_notificationBadgeRoot.get_activeSelf())
+			{
+				this.m_notificationBadgeRoot.SetActive(false);
+			}
+			else if (flag && !this.m_notificationBadgeRoot.get_activeSelf())
+			{
+				this.m_notificationBadgeRoot.SetActive(true);
+				this.m_notificationBadgeText.set_text("1");
+				if (this.m_notificationPulseHandle == null)
+				{
+					this.m_notificationPulseHandle = UiAnimMgr.instance.PlayAnim("MinimapLoopPulseAnim", this.m_notificationBadgeRoot.get_transform(), Vector3.get_zero(), 1f, 0f);
+				}
+			}
+			break;
+		}
+		}
 	}
 }

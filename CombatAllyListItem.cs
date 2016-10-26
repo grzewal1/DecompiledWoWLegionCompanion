@@ -46,24 +46,16 @@ public class CombatAllyListItem : MonoBehaviour
 
 	private void OnEnable()
 	{
+		this.ClearCombatAllyDisplay();
 		this.UpdateVisuals();
-		Main expr_0B = Main.instance;
-		expr_0B.GarrisonDataResetFinishedAction = (Action)Delegate.Combine(expr_0B.GarrisonDataResetFinishedAction, new Action(this.HandleDataResetFinished));
-		Main expr_31 = Main.instance;
-		expr_31.StartLogOutAction = (Action)Delegate.Combine(expr_31.StartLogOutAction, new Action(this.HandleStartLogout));
+		Main expr_11 = Main.instance;
+		expr_11.GarrisonDataResetFinishedAction = (Action)Delegate.Combine(expr_11.GarrisonDataResetFinishedAction, new Action(this.HandleDataResetFinished));
 	}
 
 	private void OnDisable()
 	{
 		Main expr_05 = Main.instance;
 		expr_05.GarrisonDataResetFinishedAction = (Action)Delegate.Remove(expr_05.GarrisonDataResetFinishedAction, new Action(this.HandleDataResetFinished));
-		Main expr_2B = Main.instance;
-		expr_2B.StartLogOutAction = (Action)Delegate.Remove(expr_2B.StartLogOutAction, new Action(this.HandleStartLogout));
-	}
-
-	private void HandleStartLogout()
-	{
-		this.ClearCombatAllyDisplay();
 	}
 
 	public void HandleDataResetFinished()

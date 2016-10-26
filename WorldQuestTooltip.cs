@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -21,15 +22,17 @@ public class WorldQuestTooltip : MonoBehaviour
 	public Image m_expiringSoon;
 
 	[Header("World Quest Info")]
-	public Text m_worldQuestNameText;
-
-	public Text m_worldQuestTimeText;
+	private Text m_worldQuestTimeText;
 
 	public MissionRewardDisplay m_missionRewardDisplayPrefab;
 
 	public GameObject m_worldQuestObjectiveRoot;
 
 	public GameObject m_worldQuestObjectiveDisplayPrefab;
+
+	public GameObject m_bountyLogoRoot;
+
+	public BountySite m_bountyLogoPrefab;
 
 	[Header("Misc")]
 	public RewardInfoPopup m_rewardInfo;
@@ -46,7 +49,7 @@ public class WorldQuestTooltip : MonoBehaviour
 	{
 		this.m_rewardsLabel.set_font(GeneralHelpers.LoadStandardFont());
 		this.m_rewardsLabel.set_text(StaticDB.GetString("REWARDS", "Rewards"));
-		this.m_timeLeftString = StaticDB.GetString("TIME_REMAINING", null);
+		this.m_timeLeftString = StaticDB.GetString("TIME_LEFT", "Time Left: PH");
 	}
 
 	public void OnEnable()
@@ -74,28 +77,28 @@ public class WorldQuestTooltip : MonoBehaviour
 				this.m_rewardInfo.SetReward(MissionRewardDisplay.RewardType.item, mobileWorldQuestReward.RecordID, mobileWorldQuestReward.Quantity, rewardSprite, mobileWorldQuestReward.ItemContext);
 			}
 		}
-		else if (worldQuest.Money > 0)
-		{
-			Sprite iconSprite = Resources.Load<Sprite>("MiscIcons/INV_Misc_Coin_01");
-			this.m_rewardInfo.SetGold(worldQuest.Money / 10000, iconSprite);
-		}
-		else if (worldQuest.Experience > 0)
-		{
-			Sprite localizedFollowerXpIcon = GeneralHelpers.GetLocalizedFollowerXpIcon();
-			this.m_rewardInfo.SetFollowerXP(worldQuest.Experience, localizedFollowerXpIcon);
-		}
-		else
+		else if (Enumerable.Count<MobileWorldQuestReward>(worldQuest.Currency) > 0)
 		{
 			MobileWorldQuestReward[] currency = worldQuest.Currency;
 			int num2 = 0;
 			if (num2 < currency.Length)
 			{
 				MobileWorldQuestReward mobileWorldQuestReward2 = currency[num2];
-				Sprite iconSprite2 = GeneralHelpers.LoadCurrencyIcon(mobileWorldQuestReward2.RecordID);
+				Sprite iconSprite = GeneralHelpers.LoadCurrencyIcon(mobileWorldQuestReward2.RecordID);
 				CurrencyTypesRec record = StaticDB.currencyTypesDB.GetRecord(mobileWorldQuestReward2.RecordID);
 				int quantity = mobileWorldQuestReward2.Quantity / (((record.Flags & 8u) == 0u) ? 1 : 100);
-				this.m_rewardInfo.SetCurrency(mobileWorldQuestReward2.RecordID, quantity, iconSprite2);
+				this.m_rewardInfo.SetCurrency(mobileWorldQuestReward2.RecordID, quantity, iconSprite);
 			}
+		}
+		else if (worldQuest.Money > 0)
+		{
+			Sprite iconSprite2 = Resources.Load<Sprite>("MiscIcons/INV_Misc_Coin_01");
+			this.m_rewardInfo.SetGold(worldQuest.Money / 10000, iconSprite2);
+		}
+		else if (worldQuest.Experience > 0)
+		{
+			Sprite localizedFollowerXpIcon = GeneralHelpers.GetLocalizedFollowerXpIcon();
+			this.m_rewardInfo.SetFollowerXP(worldQuest.Experience, localizedFollowerXpIcon);
 		}
 	}
 
@@ -114,154 +117,210 @@ public class WorldQuestTooltip : MonoBehaviour
 			}
 		}
 		MobileWorldQuest mobileWorldQuest = (MobileWorldQuest)WorldQuestData.worldQuestDictionary.get_Item(this.m_questID);
-		this.m_worldQuestNameText.set_text(mobileWorldQuest.QuestTitle);
-		using (IEnumerator<MobileWorldQuestObjective> enumerator = Enumerable.AsEnumerable<MobileWorldQuestObjective>(mobileWorldQuest.Objective).GetEnumerator())
+		GameObject gameObject = Object.Instantiate<GameObject>(this.m_worldQuestObjectiveDisplayPrefab);
+		gameObject.get_transform().SetParent(this.m_worldQuestObjectiveRoot.get_transform(), false);
+		Text component = gameObject.GetComponent<Text>();
+		component.set_text(mobileWorldQuest.QuestTitle);
+		component.set_resizeTextMaxSize(26);
+		BountySite[] componentsInChildren2 = this.m_bountyLogoRoot.get_transform().GetComponentsInChildren<BountySite>(true);
+		BountySite[] array2 = componentsInChildren2;
+		for (int j = 0; j < array2.Length; j++)
 		{
-			while (enumerator.MoveNext())
+			BountySite bountySite = array2[j];
+			Object.DestroyImmediate(bountySite.get_gameObject());
+		}
+		if (PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(mobileWorldQuest.QuestID))
+		{
+			MobileBountiesByWorldQuest mobileBountiesByWorldQuest = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary.get_Item(mobileWorldQuest.QuestID);
+			for (int k = 0; k < mobileBountiesByWorldQuest.BountyQuestID.Length; k++)
 			{
-				MobileWorldQuestObjective current = enumerator.get_Current();
-				GameObject gameObject = Object.Instantiate<GameObject>(this.m_worldQuestObjectiveDisplayPrefab);
-				gameObject.get_transform().SetParent(this.m_worldQuestObjectiveRoot.get_transform(), false);
-				Text component = gameObject.GetComponent<Text>();
-				component.set_text("-" + current.Text);
+				IEnumerator enumerator = PersistentBountyData.bountyDictionary.get_Values().GetEnumerator();
+				try
+				{
+					while (enumerator.MoveNext())
+					{
+						MobileWorldQuestBounty mobileWorldQuestBounty = (MobileWorldQuestBounty)enumerator.get_Current();
+						if (mobileBountiesByWorldQuest.BountyQuestID[k] == mobileWorldQuestBounty.QuestID)
+						{
+							QuestV2Rec record = StaticDB.questDB.GetRecord(mobileWorldQuestBounty.QuestID);
+							if (record != null)
+							{
+								GameObject gameObject2 = Object.Instantiate<GameObject>(this.m_worldQuestObjectiveDisplayPrefab);
+								gameObject2.get_transform().SetParent(this.m_worldQuestObjectiveRoot.get_transform(), false);
+								this.m_worldQuestTimeText = gameObject2.GetComponent<Text>();
+								this.m_worldQuestTimeText.set_text(record.QuestTitle);
+								this.m_worldQuestTimeText.set_horizontalOverflow(1);
+								this.m_worldQuestTimeText.set_color(new Color(1f, 0.773f, 0f, 1f));
+								BountySite bountySite2 = Object.Instantiate<BountySite>(this.m_bountyLogoPrefab);
+								bountySite2.SetBounty(mobileWorldQuestBounty);
+								bountySite2.get_transform().SetParent(this.m_bountyLogoRoot.get_transform(), false);
+							}
+						}
+					}
+				}
+				finally
+				{
+					IDisposable disposable = enumerator as IDisposable;
+					if (disposable != null)
+					{
+						disposable.Dispose();
+					}
+				}
+			}
+		}
+		GameObject gameObject3 = Object.Instantiate<GameObject>(this.m_worldQuestObjectiveDisplayPrefab);
+		gameObject3.get_transform().SetParent(this.m_worldQuestObjectiveRoot.get_transform(), false);
+		this.m_worldQuestTimeText = gameObject3.GetComponent<Text>();
+		this.m_worldQuestTimeText.set_text(mobileWorldQuest.QuestTitle);
+		this.m_worldQuestTimeText.set_horizontalOverflow(1);
+		this.m_worldQuestTimeText.set_color(new Color(1f, 0.773f, 0f, 1f));
+		using (IEnumerator<MobileWorldQuestObjective> enumerator2 = Enumerable.AsEnumerable<MobileWorldQuestObjective>(mobileWorldQuest.Objective).GetEnumerator())
+		{
+			while (enumerator2.MoveNext())
+			{
+				MobileWorldQuestObjective current = enumerator2.get_Current();
+				GameObject gameObject4 = Object.Instantiate<GameObject>(this.m_worldQuestObjectiveDisplayPrefab);
+				gameObject4.get_transform().SetParent(this.m_worldQuestObjectiveRoot.get_transform(), false);
+				Text component2 = gameObject4.GetComponent<Text>();
+				component2.set_text("-" + current.Text);
 			}
 		}
 		this.InitRewardInfoDisplay(mobileWorldQuest);
 		this.m_endTime = (long)(mobileWorldQuest.EndTime - 900);
-		QuestInfoRec record = StaticDB.questInfoDB.GetRecord(mobileWorldQuest.QuestInfoID);
-		if (record == null)
+		QuestInfoRec record2 = StaticDB.questInfoDB.GetRecord(mobileWorldQuest.QuestInfoID);
+		if (record2 == null)
 		{
 			return;
 		}
-		bool active = (record.Modifiers & 2) != 0;
+		bool active = (record2.Modifiers & 2) != 0;
 		this.m_dragonFrame.get_gameObject().SetActive(active);
 		this.m_background.set_sprite(Resources.Load<Sprite>("NewWorldQuest/Mobile-NormalQuest"));
-		bool flag = (record.Modifiers & 1) != 0;
-		if (flag && record.Type != 3)
+		bool flag = (record2.Modifiers & 1) != 0;
+		if (flag && record2.Type != 3)
 		{
 			this.m_background.set_sprite(Resources.Load<Sprite>("NewWorldQuest/Mobile-RareQuest"));
 		}
-		bool flag2 = (record.Modifiers & 4) != 0;
-		if (flag2 && record.Type != 3)
+		bool flag2 = (record2.Modifiers & 4) != 0;
+		if (flag2 && record2.Type != 3)
 		{
 			this.m_background.set_sprite(Resources.Load<Sprite>("NewWorldQuest/Mobile-EpicQuest"));
 		}
 		int uITextureAtlasMemberID;
 		string text;
-		switch (record.Type)
+		switch (record2.Type)
 		{
 		case 1:
 		{
-			int profession = record.Profession;
+			int profession = record2.Profession;
 			switch (profession)
 			{
 			case 182:
 				uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-herbalism");
 				text = "Mobile-Herbalism";
-				goto IL_46E;
+				goto IL_6CB;
 			case 183:
 			case 184:
-				IL_259:
+				IL_4B6:
 				if (profession == 164)
 				{
 					uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-blacksmithing");
 					text = "Mobile-Blacksmithing";
-					goto IL_46E;
+					goto IL_6CB;
 				}
 				if (profession == 165)
 				{
 					uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-leatherworking");
 					text = "Mobile-Leatherworking";
-					goto IL_46E;
+					goto IL_6CB;
 				}
 				if (profession == 129)
 				{
 					uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-firstaid");
 					text = "Mobile-FirstAid";
-					goto IL_46E;
+					goto IL_6CB;
 				}
 				if (profession == 171)
 				{
 					uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-alchemy");
 					text = "Mobile-Alchemy";
-					goto IL_46E;
+					goto IL_6CB;
 				}
 				if (profession == 197)
 				{
 					uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-tailoring");
 					text = "Mobile-Tailoring";
-					goto IL_46E;
+					goto IL_6CB;
 				}
 				if (profession == 202)
 				{
 					uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-engineering");
 					text = "Mobile-Engineering";
-					goto IL_46E;
+					goto IL_6CB;
 				}
 				if (profession == 333)
 				{
 					uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-enchanting");
 					text = "Mobile-Enchanting";
-					goto IL_46E;
+					goto IL_6CB;
 				}
 				if (profession == 356)
 				{
 					uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-fishing");
 					text = "Mobile-Fishing";
-					goto IL_46E;
+					goto IL_6CB;
 				}
 				if (profession == 393)
 				{
 					uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-skinning");
 					text = "Mobile-Skinning";
-					goto IL_46E;
+					goto IL_6CB;
 				}
 				if (profession == 755)
 				{
 					uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-jewelcrafting");
 					text = "Mobile-Jewelcrafting";
-					goto IL_46E;
+					goto IL_6CB;
 				}
 				if (profession == 773)
 				{
 					uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-inscription");
 					text = "Mobile-Inscription";
-					goto IL_46E;
+					goto IL_6CB;
 				}
 				if (profession != 794)
 				{
 					uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-questmarker-questbang");
 					text = "Mobile-QuestExclamationIcon";
-					goto IL_46E;
+					goto IL_6CB;
 				}
 				uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-archaeology");
 				text = "Mobile-Archaeology";
-				goto IL_46E;
+				goto IL_6CB;
 			case 185:
 				uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-cooking");
 				text = "Mobile-Cooking";
-				goto IL_46E;
+				goto IL_6CB;
 			case 186:
 				uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-mining");
 				text = "Mobile-Mining";
-				goto IL_46E;
+				goto IL_6CB;
 			}
-			goto IL_259;
-			IL_46E:
-			goto IL_4BB;
+			goto IL_4B6;
+			IL_6CB:
+			goto IL_718;
 		}
 		case 3:
 			uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-pvp-ffa");
 			text = "Mobile-PVP";
-			goto IL_4BB;
+			goto IL_718;
 		case 4:
 			uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-icon-petbattle");
 			text = "Mobile-Pets";
-			goto IL_4BB;
+			goto IL_718;
 		}
 		uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("worldquest-questmarker-questbang");
 		text = "Mobile-QuestExclamationIcon";
-		IL_4BB:
+		IL_718:
 		if (text != null)
 		{
 			this.m_main.set_sprite(Resources.Load<Sprite>("NewWorldQuest/" + text));
@@ -281,7 +340,7 @@ public class WorldQuestTooltip : MonoBehaviour
 		{
 			num = 0;
 		}
-		Duration duration = new Duration(num);
+		Duration duration = new Duration(num, false);
 		this.m_worldQuestTimeText.set_text(this.m_timeLeftString + " " + duration.DurationString);
 		bool active = num < 4500;
 		this.m_expiringSoon.get_gameObject().SetActive(active);

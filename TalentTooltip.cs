@@ -82,7 +82,7 @@ public class TalentTooltip : MonoBehaviour
 		{
 			this.m_resourceIcon.set_sprite(sprite2);
 		}
-		Duration duration = new Duration((!abilityButton.CanRespec()) ? this.m_garrTalentRec.ResearchDurationSecs : this.m_garrTalentRec.RespecDurationSecs);
+		Duration duration = new Duration((!abilityButton.CanRespec()) ? this.m_garrTalentRec.ResearchDurationSecs : this.m_garrTalentRec.RespecDurationSecs, false);
 		this.m_researchDurationText.set_text(duration.DurationString);
 		this.m_yourResourcesDisplayObj.SetActive(false);
 		if (abilityButton.CanResearch() || abilityButton.CanRespec())
@@ -104,11 +104,11 @@ public class TalentTooltip : MonoBehaviour
 			}
 			else if (this.m_abilityButton.IsResearching())
 			{
-				Duration duration2 = new Duration((!abilityButton.IsRespec()) ? ((int)this.m_abilityButton.GetRemainingResearchTime()) : ((int)this.m_abilityButton.GetRemainingRespecTime()));
+				Duration duration2 = new Duration((!abilityButton.IsRespec()) ? ((int)this.m_abilityButton.GetRemainingResearchTime()) : ((int)this.m_abilityButton.GetRemainingRespecTime()), false);
 				this.m_statusText.set_text(string.Concat(new string[]
 				{
 					"<color=#FFC600FF>",
-					StaticDB.GetString("TIME_REMAINING", null),
+					StaticDB.GetString("TIME_LEFT", null),
 					"</color> <color=#ffffffff>",
 					duration2.DurationString,
 					"</color>"

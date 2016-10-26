@@ -60,8 +60,6 @@ public class FollowerExperienceDisplay : MonoBehaviour
 
 	private bool m_newFollowerIsMaxLevelAndMaxQuality;
 
-	private string m_iLvlString;
-
 	private void Start()
 	{
 		this.m_followerNameText.set_font(GeneralHelpers.LoadStandardFont());
@@ -98,7 +96,7 @@ public class FollowerExperienceDisplay : MonoBehaviour
 			this.m_portraitBG.get_gameObject().SetActive(false);
 			this.m_troopHeartContainerEmpty.SetActive(true);
 			this.m_troopHeartContainerFull.SetActive(true);
-			Transform[] componentsInChildren = this.m_troopHeartContainerEmpty.GetComponentsInChildren<Transform>();
+			Transform[] componentsInChildren = this.m_troopHeartContainerEmpty.GetComponentsInChildren<Transform>(true);
 			Transform[] array = componentsInChildren;
 			for (int i = 0; i < array.Length; i++)
 			{
@@ -108,7 +106,7 @@ public class FollowerExperienceDisplay : MonoBehaviour
 					Object.DestroyImmediate(transform.get_gameObject());
 				}
 			}
-			Transform[] componentsInChildren2 = this.m_troopHeartContainerFull.GetComponentsInChildren<Transform>();
+			Transform[] componentsInChildren2 = this.m_troopHeartContainerFull.GetComponentsInChildren<Transform>(true);
 			Transform[] array2 = componentsInChildren2;
 			for (int j = 0; j < array2.Length; j++)
 			{
@@ -186,12 +184,14 @@ public class FollowerExperienceDisplay : MonoBehaviour
 		}
 		CreatureRec record2 = StaticDB.creatureDB.GetRecord((GarrisonStatus.Faction() != PVP_FACTION.HORDE) ? record.AllianceCreatureID : record.HordeCreatureID);
 		this.m_followerNameText.set_text(record2.Name);
-		int num5 = (follower.ItemLevelWeapon + follower.ItemLevelArmor) / 2;
-		if (this.m_iLvlString == null)
+		if (follower.FollowerLevel < 110)
 		{
-			this.m_iLvlString = StaticDB.GetString("ITEM_LEVEL_ABBREVIATION", null);
+			this.m_iLevelText.set_text(StaticDB.GetString("LEVEL", null) + " " + follower.FollowerLevel);
 		}
-		this.m_iLevelText.set_text(this.m_iLvlString + " " + num5);
+		else
+		{
+			this.m_iLevelText.set_text(StaticDB.GetString("ILVL", null) + " " + (follower.ItemLevelArmor + follower.ItemLevelWeapon) / 2);
+		}
 		GarrClassSpecRec record3 = StaticDB.garrClassSpecDB.GetRecord((int)((GarrisonStatus.Faction() != PVP_FACTION.HORDE) ? record.AllianceGarrClassSpecID : record.HordeGarrClassSpecID));
 		this.m_classText.set_text(record3.ClassSpec);
 		Sprite atlasSprite = TextureAtlas.instance.GetAtlasSprite((int)record3.UiTextureAtlasMemberID);

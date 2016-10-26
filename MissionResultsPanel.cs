@@ -188,7 +188,7 @@ public class MissionResultsPanel : MonoBehaviour
 		long num2 = this.m_missionDurationInSeconds - num;
 		bool flag = num2 < 0L && this.m_popupView.get_gameObject().get_activeSelf();
 		num2 = ((num2 <= 0L) ? 0L : num2);
-		Duration duration = new Duration((int)num2);
+		Duration duration = new Duration((int)num2, false);
 		this.m_missionTimeRemainingText.set_text(duration.DurationString);
 		if (flag && !this.m_attemptedAutoComplete)
 		{
@@ -325,7 +325,8 @@ public class MissionResultsPanel : MonoBehaviour
 		{
 			return;
 		}
-		if (record.OvermaxRewardPackID > 0)
+		JamGarrisonMobileMission jamGarrisonMobileMission = (!PersistentMissionData.missionDictionary.ContainsKey(this.m_garrMissionID)) ? null : ((JamGarrisonMobileMission)PersistentMissionData.missionDictionary.get_Item(this.m_garrMissionID));
+		if (record.OvermaxRewardPackID > 0 && jamGarrisonMobileMission != null && jamGarrisonMobileMission.OvermaxReward.Length > 0)
 		{
 			this.m_bonusLootDisplay.SetActive(true);
 			this.m_bonusLootChanceText.set_text(string.Concat(new object[]

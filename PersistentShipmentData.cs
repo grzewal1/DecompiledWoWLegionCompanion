@@ -51,8 +51,50 @@ public class PersistentShipmentData
 		return PersistentShipmentData.instance.m_availableShipmentTypes;
 	}
 
+	public static bool ShipmentTypeForShipmentIsAvailable(int charShipmentID)
+	{
+		MobileClientShipmentType[] availableShipmentTypes = PersistentShipmentData.instance.m_availableShipmentTypes;
+		for (int i = 0; i < availableShipmentTypes.Length; i++)
+		{
+			MobileClientShipmentType mobileClientShipmentType = availableShipmentTypes[i];
+			if (mobileClientShipmentType.CharShipmentID == charShipmentID)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static void ClearData()
 	{
 		PersistentShipmentData.instance.m_shipmentDictionary.Clear();
+	}
+
+	public static int GetNumReadyShipments()
+	{
+		int num = 0;
+		IEnumerator enumerator = PersistentShipmentData.shipmentDictionary.get_Values().GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				JamCharacterShipment jamCharacterShipment = (JamCharacterShipment)enumerator.get_Current();
+				long num2 = GarrisonStatus.CurrentTime() - (long)jamCharacterShipment.CreationTime;
+				long num3 = (long)jamCharacterShipment.ShipmentDuration - num2;
+				if (num3 <= 0L)
+				{
+					num++;
+				}
+			}
+		}
+		finally
+		{
+			IDisposable disposable = enumerator as IDisposable;
+			if (disposable != null)
+			{
+				disposable.Dispose();
+			}
+		}
+		return num;
 	}
 }

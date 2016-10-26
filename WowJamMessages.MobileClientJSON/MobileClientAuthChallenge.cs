@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 
 namespace WowJamMessages.MobileClientJSON
 {
-	[FlexJamMessage(Id = 4869, Name = "MobileClientAuthChallenge", Version = 28333852u), DataContract]
+	[FlexJamMessage(Id = 4872, Name = "MobileClientAuthChallenge", Version = 33577221u), DataContract]
 	public class MobileClientAuthChallenge
 	{
 		[FlexJamMember(ArrayDimensions = 1, Name = "serverChallenge", Type = FlexJamType.UInt8), DataMember(Name = "serverChallenge")]

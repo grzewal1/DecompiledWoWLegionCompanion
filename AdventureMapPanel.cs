@@ -85,6 +85,8 @@ public class AdventureMapPanel : MonoBehaviour
 
 	public GuildChatSlider m_guildChatSlider_Bottom;
 
+	public OrderHallNavButton m_adventureMapOrderHallNavButton;
+
 	private int m_currentMapMission;
 
 	public Action<int> MissionSelectedFromMapAction;
@@ -128,10 +130,6 @@ public class AdventureMapPanel : MonoBehaviour
 	public float m_secondsMissionHasBeenSelected;
 
 	public CanvasGroup m_topLevelMapCanvasGroup;
-
-	public RectTransform m_parentViewRT;
-
-	private Vector2 m_multiPanelViewSizeDelta;
 
 	public PlayerInfoDisplay m_playerInfoDisplay;
 
@@ -298,14 +296,13 @@ public class AdventureMapPanel : MonoBehaviour
 		AdventureMapPanel.instance = this;
 		this.m_zoneID = AdventureMapPanel.eZone.None;
 		this.m_testMissionIconScale = 1f;
-		this.m_mapFilters = new bool[7];
+		this.m_mapFilters = new bool[14];
 		for (int i = 0; i < this.m_mapFilters.Length; i++)
 		{
 			this.m_mapFilters[i] = false;
 		}
 		this.EnableMapFilter(MapFilterType.All, true);
 		AllPanels.instance.m_missionResultsPanel.get_gameObject().SetActive(true);
-		Main.instance.RequestWorldQuests();
 	}
 
 	private void Start()
@@ -328,6 +325,7 @@ public class AdventureMapPanel : MonoBehaviour
 		expr_8B.MissionAddedAction = (Action<int, int>)Delegate.Combine(expr_8B.MissionAddedAction, new Action<int, int>(this.HandleMissionAdded));
 		Main expr_B1 = Main.instance;
 		expr_B1.BountyInfoUpdatedAction = (Action)Delegate.Combine(expr_B1.BountyInfoUpdatedAction, new Action(this.HandleBountyInfoUpdated));
+		AllPopups.instance.EnableMissionDialog();
 	}
 
 	private void HandleMissionAdded(int garrMissionID, int result)
@@ -517,6 +515,90 @@ public class AdventureMapPanel : MonoBehaviour
 							}
 						}
 					}
+					if (this.IsFilterEnabled(MapFilterType.Bounty_HighmountainTribes) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(mobileWorldQuest.QuestID))
+					{
+						MobileBountiesByWorldQuest mobileBountiesByWorldQuest = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary.get_Item(mobileWorldQuest.QuestID);
+						for (int num = 0; num < mobileBountiesByWorldQuest.BountyQuestID.Length; num++)
+						{
+							if (mobileBountiesByWorldQuest.BountyQuestID[num] == 42233)
+							{
+								matchesFilter = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.Bounty_CourtOfFarondis) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(mobileWorldQuest.QuestID))
+					{
+						MobileBountiesByWorldQuest mobileBountiesByWorldQuest2 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary.get_Item(mobileWorldQuest.QuestID);
+						for (int num2 = 0; num2 < mobileBountiesByWorldQuest2.BountyQuestID.Length; num2++)
+						{
+							if (mobileBountiesByWorldQuest2.BountyQuestID[num2] == 42420)
+							{
+								matchesFilter = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.Bounty_Dreamweavers) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(mobileWorldQuest.QuestID))
+					{
+						MobileBountiesByWorldQuest mobileBountiesByWorldQuest3 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary.get_Item(mobileWorldQuest.QuestID);
+						for (int num3 = 0; num3 < mobileBountiesByWorldQuest3.BountyQuestID.Length; num3++)
+						{
+							if (mobileBountiesByWorldQuest3.BountyQuestID[num3] == 42170)
+							{
+								matchesFilter = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.Bounty_Wardens) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(mobileWorldQuest.QuestID))
+					{
+						MobileBountiesByWorldQuest mobileBountiesByWorldQuest4 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary.get_Item(mobileWorldQuest.QuestID);
+						for (int num4 = 0; num4 < mobileBountiesByWorldQuest4.BountyQuestID.Length; num4++)
+						{
+							if (mobileBountiesByWorldQuest4.BountyQuestID[num4] == 42422)
+							{
+								matchesFilter = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.Bounty_Nightfallen) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(mobileWorldQuest.QuestID))
+					{
+						MobileBountiesByWorldQuest mobileBountiesByWorldQuest5 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary.get_Item(mobileWorldQuest.QuestID);
+						for (int num5 = 0; num5 < mobileBountiesByWorldQuest5.BountyQuestID.Length; num5++)
+						{
+							if (mobileBountiesByWorldQuest5.BountyQuestID[num5] == 42421)
+							{
+								matchesFilter = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.Bounty_Valarjar) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(mobileWorldQuest.QuestID))
+					{
+						MobileBountiesByWorldQuest mobileBountiesByWorldQuest6 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary.get_Item(mobileWorldQuest.QuestID);
+						for (int num6 = 0; num6 < mobileBountiesByWorldQuest6.BountyQuestID.Length; num6++)
+						{
+							if (mobileBountiesByWorldQuest6.BountyQuestID[num6] == 42234)
+							{
+								matchesFilter = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.Bounty_KirinTor) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(mobileWorldQuest.QuestID))
+					{
+						MobileBountiesByWorldQuest mobileBountiesByWorldQuest7 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary.get_Item(mobileWorldQuest.QuestID);
+						for (int num7 = 0; num7 < mobileBountiesByWorldQuest7.BountyQuestID.Length; num7++)
+						{
+							if (mobileBountiesByWorldQuest7.BountyQuestID[num7] == 43179)
+							{
+								matchesFilter = true;
+								break;
+							}
+						}
+					}
 					if (!matchesFilter)
 					{
 						continue;
@@ -524,16 +606,16 @@ public class AdventureMapPanel : MonoBehaviour
 				}
 				GameObject gameObject = Object.Instantiate<GameObject>(AdventureMapPanel.instance.m_AdvMapWorldQuestPrefab);
 				gameObject.get_transform().SetParent(this.m_missionAndWordQuestArea.get_transform(), false);
-				float num = 0.10271506f;
-				float num2 = (float)mobileWorldQuest.StartLocationY * -num;
-				float num3 = (float)mobileWorldQuest.StartLocationX * num;
-				float num4 = 1036.88037f;
-				float num5 = 597.2115f;
-				num2 += num4;
-				num3 += num5;
+				float num8 = 0.10271506f;
+				float num9 = (float)mobileWorldQuest.StartLocationY * -num8;
+				float num10 = (float)mobileWorldQuest.StartLocationX * num8;
+				float num11 = 1036.88037f;
+				float num12 = 597.2115f;
+				num9 += num11;
+				num10 += num12;
 				float width = this.m_worldMapLowDetail.get_sprite().get_textureRect().get_width();
 				float height = this.m_worldMapLowDetail.get_sprite().get_textureRect().get_height();
-				Vector2 vector = new Vector3(num2 / width, num3 / height);
+				Vector2 vector = new Vector3(num9 / width, num10 / height);
 				RectTransform component = gameObject.GetComponent<RectTransform>();
 				component.set_anchorMin(vector);
 				component.set_anchorMax(vector);
@@ -576,12 +658,6 @@ public class AdventureMapPanel : MonoBehaviour
 		{
 			this.m_secondsMissionHasBeenSelected += Time.get_deltaTime();
 		}
-		if (this.m_mapAndRewardParentViewRT.get_sizeDelta().x != this.m_parentViewRT.get_rect().get_width())
-		{
-			this.m_multiPanelViewSizeDelta = this.m_mapAndRewardParentViewRT.get_sizeDelta();
-			this.m_multiPanelViewSizeDelta.x = this.m_parentViewRT.get_rect().get_width();
-			this.m_mapAndRewardParentViewRT.set_sizeDelta(this.m_multiPanelViewSizeDelta);
-		}
 	}
 
 	private void ZoomOutTweenCallback(float newZoomFactor)
@@ -596,8 +672,7 @@ public class AdventureMapPanel : MonoBehaviour
 
 	public void CenterAndZoomOut()
 	{
-		AutoCenterItem componentInParent = base.get_gameObject().GetComponentInParent<AutoCenterItem>();
-		if (componentInParent && componentInParent.IsCentered())
+		if (this.m_adventureMapOrderHallNavButton.IsSelected())
 		{
 			this.CenterAndZoom(Vector2.get_zero(), null, false);
 		}
@@ -620,6 +695,8 @@ public class AdventureMapPanel : MonoBehaviour
 
 	public void CenterAndZoom(Vector2 tapPos, ZoneButton zoneButton, bool zoomIn)
 	{
+		iTween.Stop(this.m_mapViewContentsRT.get_gameObject());
+		iTween.Stop(base.get_gameObject());
 		this.m_lastTappedZoneButton = zoneButton;
 		Vector3[] array = new Vector3[4];
 		this.m_mapViewRT.GetWorldCorners(array);

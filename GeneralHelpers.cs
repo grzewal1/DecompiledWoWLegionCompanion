@@ -289,16 +289,19 @@ public class GeneralHelpers : MonoBehaviour
 			{
 				text += "\n\n";
 			}
-			string text2 = text;
-			text = string.Concat(new string[]
+			if (itemRec.ID != 141028 && itemRec.ID != 137565 && itemRec.ID != 137560 && itemRec.ID != 137561)
 			{
-				text2,
-				"<color=#",
-				GeneralHelpers.s_defaultColor,
-				">\"",
-				WowTextParser.parser.Parse(itemRec.Description, 0),
-				"\"</color>"
-			});
+				string text2 = text;
+				text = string.Concat(new string[]
+				{
+					text2,
+					"<color=#",
+					GeneralHelpers.s_defaultColor,
+					">\"",
+					WowTextParser.parser.Parse(itemRec.Description, 0),
+					"\"</color>"
+				});
+			}
 		}
 		return text;
 	}
@@ -563,7 +566,7 @@ public class GeneralHelpers : MonoBehaviour
 							{
 								return true;
 							}
-							if ((long)<HasFollowerWhoCanCounter>c__AnonStorey3A.garrMechanicTypeID != (long)((ulong)garrAbilityEffectRec.GarrMechanicTypeID))
+							if ((long)<HasFollowerWhoCanCounter>c__AnonStorey3C.garrMechanicTypeID != (long)((ulong)garrAbilityEffectRec.GarrMechanicTypeID))
 							{
 								return false;
 							}
@@ -573,10 +576,10 @@ public class GeneralHelpers : MonoBehaviour
 							bool flag4 = follower.CurrentBuildingID != 0;
 							if (flag || flag2 || flag3 || flag4)
 							{
-								<HasFollowerWhoCanCounter>c__AnonStorey3A.canCounterButBusy = true;
+								<HasFollowerWhoCanCounter>c__AnonStorey3C.canCounterButBusy = true;
 								return false;
 							}
-							<HasFollowerWhoCanCounter>c__AnonStorey3A.canCounterAndIsAvailable = true;
+							<HasFollowerWhoCanCounter>c__AnonStorey3C.canCounterAndIsAvailable = true;
 							return true;
 						});
 					}

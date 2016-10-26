@@ -17,20 +17,17 @@ public class TalentTreePanel : MonoBehaviour
 
 	public GameObject[] m_romanNumeralPrefabs;
 
-	public RectTransform m_parentViewRT;
-
-	public RectTransform m_panelViewRT;
-
 	private Vector2 m_multiPanelViewSizeDelta;
 
 	private bool m_needsFullInit = true;
+
+	private List<TalentTreeItem> m_talentTreeItems;
 
 	private void OnEnable()
 	{
 		Main expr_05 = Main.instance;
 		expr_05.GarrisonDataResetFinishedAction = (Action)Delegate.Combine(expr_05.GarrisonDataResetFinishedAction, new Action(this.HandleGarrisonDataResetFinished));
-		Main expr_2B = Main.instance;
-		expr_2B.StartLogOutAction = (Action)Delegate.Combine(expr_2B.StartLogOutAction, new Action(this.HandleStartLogout));
+		this.HandleEnteredWorld();
 		this.InitTalentTree();
 	}
 
@@ -38,8 +35,6 @@ public class TalentTreePanel : MonoBehaviour
 	{
 		Main expr_05 = Main.instance;
 		expr_05.GarrisonDataResetFinishedAction = (Action)Delegate.Remove(expr_05.GarrisonDataResetFinishedAction, new Action(this.HandleGarrisonDataResetFinished));
-		Main expr_2B = Main.instance;
-		expr_2B.StartLogOutAction = (Action)Delegate.Remove(expr_2B.StartLogOutAction, new Action(this.HandleStartLogout));
 	}
 
 	private void HandleGarrisonDataResetFinished()
@@ -111,7 +106,7 @@ public class TalentTreePanel : MonoBehaviour
 		return result;
 	}
 
-	private void HandleStartLogout()
+	private void HandleEnteredWorld()
 	{
 		this.m_needsFullInit = true;
 	}
@@ -153,13 +148,13 @@ public class TalentTreePanel : MonoBehaviour
 			Debug.LogError("No GarrTalentTree record found for class " + GarrisonStatus.CharacterClassID());
 			return;
 		}
-		List<TalentTreeItem> talentTreeItems = new List<TalentTreeItem>();
+		this.m_talentTreeItems = new List<TalentTreeItem>();
 		for (int k = 0; k < treeRec.MaxTiers; k++)
 		{
 			GameObject gameObject = Object.Instantiate<GameObject>(this.m_talentTreeItemPrefab);
 			gameObject.get_transform().SetParent(this.m_talentTreeItemRoot.get_transform(), false);
 			TalentTreeItem component = gameObject.GetComponent<TalentTreeItem>();
-			talentTreeItems.Add(component);
+			this.m_talentTreeItems.Add(component);
 			if (k < this.m_romanNumeralPrefabs.Length)
 			{
 				GameObject gameObject2 = Object.Instantiate<GameObject>(this.m_romanNumeralPrefabs[k]);
@@ -168,13 +163,13 @@ public class TalentTreePanel : MonoBehaviour
 		}
 		StaticDB.garrTalentDB.EnumRecordsByParentID(treeRec.ID, delegate(GarrTalentRec garrTalentRec)
 		{
-			talentTreeItems.get_Item(garrTalentRec.Tier).SetTalent(garrTalentRec);
+			this.m_talentTreeItems.get_Item(garrTalentRec.Tier).SetTalent(garrTalentRec);
 			MobilePlayerCanResearchGarrisonTalent mobilePlayerCanResearchGarrisonTalent = new MobilePlayerCanResearchGarrisonTalent();
 			mobilePlayerCanResearchGarrisonTalent.GarrTalentID = garrTalentRec.ID;
 			Login.instance.SendToMobileServer(mobilePlayerCanResearchGarrisonTalent);
 			return true;
 		});
-		using (List<TalentTreeItem>.Enumerator enumerator = talentTreeItems.GetEnumerator())
+		using (List<TalentTreeItem>.Enumerator enumerator = this.m_talentTreeItems.GetEnumerator())
 		{
 			while (enumerator.MoveNext())
 			{
@@ -201,11 +196,21 @@ public class TalentTreePanel : MonoBehaviour
 
 	private void Update()
 	{
-		if (this.m_panelViewRT.get_sizeDelta().x != this.m_parentViewRT.get_rect().get_width())
+	}
+
+	public bool TalentIsReadyToPlayGreenCheckAnim()
+	{
+		using (List<TalentTreeItem>.Enumerator enumerator = this.m_talentTreeItems.GetEnumerator())
 		{
-			this.m_multiPanelViewSizeDelta = this.m_panelViewRT.get_sizeDelta();
-			this.m_multiPanelViewSizeDelta.x = this.m_parentViewRT.get_rect().get_width();
-			this.m_panelViewRT.set_sizeDelta(this.m_multiPanelViewSizeDelta);
+			while (enumerator.MoveNext())
+			{
+				TalentTreeItem current = enumerator.get_Current();
+				if (current.m_talentButtonLeft.IsReadyToShowGreenCheckAnim() || current.m_talentButtonRight.IsReadyToShowGreenCheckAnim() || current.m_talentButtonSolo.IsReadyToShowGreenCheckAnim())
+				{
+					return true;
+				}
+			}
 		}
+		return false;
 	}
 }

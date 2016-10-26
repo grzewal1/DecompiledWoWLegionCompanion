@@ -174,24 +174,19 @@ public class TalentTreeItemAbilityButton : MonoBehaviour
 				mobilePlayerGarrisonDataRequest.GarrTypeID = 3;
 				Login.instance.SendToMobileServer(mobilePlayerGarrisonDataRequest);
 				this.m_shouldShowCheckAnim = true;
-				AutoCenterItem componentInParent = base.get_gameObject().GetComponentInParent<AutoCenterItem>();
-				if (componentInParent && !componentInParent.IsCentered() && !this.m_playedTalentToast)
+				if (!AllPanels.instance.m_orderHallMultiPanel.m_talentNavButton.IsSelected() && !this.m_playedTalentToast)
 				{
 					Main.instance.m_UISound.Play_TalentReadyToast();
 					this.m_playedTalentToast = true;
 				}
 			}
 		}
-		if (this.m_shouldShowCheckAnim && !this.m_playedShowCheckAnim)
+		if (this.m_shouldShowCheckAnim && !this.m_playedShowCheckAnim && AllPanels.instance.m_orderHallMultiPanel.m_talentNavButton.IsSelected())
 		{
-			AutoCenterItem componentInParent2 = base.get_gameObject().GetComponentInParent<AutoCenterItem>();
-			if (componentInParent2 && componentInParent2.IsCentered())
-			{
-				UiAnimMgr.instance.PlayAnim("TalentDoneAnim", base.get_transform(), Vector3.get_zero(), 1f, 0f);
-				Main.instance.m_UISound.Play_TalentReadyCheck();
-				this.m_shouldShowCheckAnim = false;
-				this.m_playedShowCheckAnim = true;
-			}
+			UiAnimMgr.instance.PlayAnim("TalentDoneAnim", base.get_transform(), Vector3.get_zero(), 1f, 0f);
+			Main.instance.m_UISound.Play_TalentReadyCheck();
+			this.m_shouldShowCheckAnim = false;
+			this.m_playedShowCheckAnim = true;
 		}
 	}
 
@@ -251,5 +246,10 @@ public class TalentTreeItemAbilityButton : MonoBehaviour
 			this.m_abilityIcon.get_material().SetFloat("_GrayscaleAmount", 0f);
 			break;
 		}
+	}
+
+	public bool IsReadyToShowGreenCheckAnim()
+	{
+		return this.m_shouldShowCheckAnim;
 	}
 }

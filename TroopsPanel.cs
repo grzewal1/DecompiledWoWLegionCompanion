@@ -1,8 +1,11 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using WowJamMessages;
 using WowJamMessages.MobileClientJSON;
 using WowJamMessages.MobilePlayerJSON;
+using WowStaticData;
 
 public class TroopsPanel : MonoBehaviour
 {
@@ -17,10 +20,6 @@ public class TroopsPanel : MonoBehaviour
 	public Text m_noRecruitsYetMessage;
 
 	public RectTransform m_panelViewRT;
-
-	public RectTransform m_parentViewRT;
-
-	private Vector2 m_multiPanelViewSizeDelta;
 
 	private void Awake()
 	{
@@ -38,7 +37,10 @@ public class TroopsPanel : MonoBehaviour
 		Main expr_51 = Main.instance;
 		expr_51.ShipmentTypesUpdatedAction = (Action)Delegate.Combine(expr_51.ShipmentTypesUpdatedAction, new Action(this.InitList));
 		Main expr_77 = Main.instance;
-		expr_77.StartLogOutAction = (Action)Delegate.Combine(expr_77.StartLogOutAction, new Action(this.HandleStartLogout));
+		expr_77.ShipmentItemPushedAction = (Action<int, MobileClientShipmentItem>)Delegate.Combine(expr_77.ShipmentItemPushedAction, new Action<int, MobileClientShipmentItem>(this.HandleShipmentItemPushed));
+		Main expr_9D = Main.instance;
+		expr_9D.OrderHallNavButtonSelectedAction = (Action<OrderHallNavButton>)Delegate.Combine(expr_9D.OrderHallNavButtonSelectedAction, new Action<OrderHallNavButton>(this.HandleOrderHallNavButtonSelected));
+		this.InitList();
 	}
 
 	private void OnDisable()
@@ -50,23 +52,30 @@ public class TroopsPanel : MonoBehaviour
 		Main expr_51 = Main.instance;
 		expr_51.ShipmentTypesUpdatedAction = (Action)Delegate.Remove(expr_51.ShipmentTypesUpdatedAction, new Action(this.InitList));
 		Main expr_77 = Main.instance;
-		expr_77.StartLogOutAction = (Action)Delegate.Remove(expr_77.StartLogOutAction, new Action(this.HandleStartLogout));
+		expr_77.ShipmentItemPushedAction = (Action<int, MobileClientShipmentItem>)Delegate.Remove(expr_77.ShipmentItemPushedAction, new Action<int, MobileClientShipmentItem>(this.HandleShipmentItemPushed));
+		Main expr_9D = Main.instance;
+		expr_9D.OrderHallNavButtonSelectedAction = (Action<OrderHallNavButton>)Delegate.Remove(expr_9D.OrderHallNavButtonSelectedAction, new Action<OrderHallNavButton>(this.HandleOrderHallNavButtonSelected));
+	}
+
+	public void HandleOrderHallNavButtonSelected(OrderHallNavButton navButton)
+	{
+		TroopsListItem[] componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>(true);
+		TroopsListItem[] array = componentsInChildren;
+		for (int i = 0; i < array.Length; i++)
+		{
+			TroopsListItem troopsListItem = array[i];
+			troopsListItem.ClearAndHideLootArea();
+		}
 	}
 
 	private void Update()
 	{
-		if (this.m_panelViewRT.get_sizeDelta().x != this.m_parentViewRT.get_rect().get_width())
-		{
-			this.m_multiPanelViewSizeDelta = this.m_panelViewRT.get_sizeDelta();
-			this.m_multiPanelViewSizeDelta.x = this.m_parentViewRT.get_rect().get_width();
-			this.m_panelViewRT.set_sizeDelta(this.m_multiPanelViewSizeDelta);
-		}
 	}
 
 	private void HandleFollowerDataChanged()
 	{
 		this.InitList();
-		TroopsListItem[] componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>();
+		TroopsListItem[] componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>(true);
 		TroopsListItem[] array = componentsInChildren;
 		for (int i = 0; i < array.Length; i++)
 		{
@@ -75,14 +84,28 @@ public class TroopsPanel : MonoBehaviour
 		}
 	}
 
-	private void HandleStartLogout()
+	private void HandleEnteredWorld()
 	{
-		TroopsListItem[] componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>();
+		TroopsListItem[] componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>(true);
 		TroopsListItem[] array = componentsInChildren;
 		for (int i = 0; i < array.Length; i++)
 		{
 			TroopsListItem troopsListItem = array[i];
 			Object.DestroyImmediate(troopsListItem.get_gameObject());
+		}
+	}
+
+	private void HandleShipmentItemPushed(int charShipmentID, MobileClientShipmentItem item)
+	{
+		TroopsListItem[] componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>(true);
+		TroopsListItem[] array = componentsInChildren;
+		for (int i = 0; i < array.Length; i++)
+		{
+			TroopsListItem troopsListItem = array[i];
+			if (troopsListItem.GetCharShipmentTypeID() == charShipmentID)
+			{
+				troopsListItem.HandleShipmentItemPushed(item);
+			}
 		}
 	}
 
@@ -97,7 +120,7 @@ public class TroopsPanel : MonoBehaviour
 		{
 			this.m_noRecruitsYetMessage.get_gameObject().SetActive(false);
 		}
-		TroopsListItem[] componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>();
+		TroopsListItem[] componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>(true);
 		TroopsListItem[] array = componentsInChildren;
 		for (int i = 0; i < array.Length; i++)
 		{
@@ -125,7 +148,7 @@ public class TroopsPanel : MonoBehaviour
 		{
 			return;
 		}
-		componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>();
+		componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>(true);
 		for (int k = 0; k < availableShipmentTypes.Length; k++)
 		{
 			bool flag2 = false;
@@ -144,10 +167,37 @@ public class TroopsPanel : MonoBehaviour
 				GameObject gameObject = Object.Instantiate<GameObject>(this.m_troopsListItemPrefab);
 				gameObject.get_transform().SetParent(this.m_troopsListContents.get_transform(), false);
 				TroopsListItem component = gameObject.GetComponent<TroopsListItem>();
-				component.SetCharShipment(availableShipmentTypes[k]);
+				component.SetCharShipment(availableShipmentTypes[k], false, null);
 				FancyEntrance component2 = component.GetComponent<FancyEntrance>();
 				component2.m_timeToDelayEntrance = this.m_listItemInitialEntranceDelay + this.m_listItemEntranceDelay * (float)k;
 				component2.Activate();
+			}
+		}
+		IEnumerator enumerator = PersistentShipmentData.shipmentDictionary.get_Values().GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				JamCharacterShipment jamCharacterShipment = (JamCharacterShipment)enumerator.get_Current();
+				if (!PersistentShipmentData.ShipmentTypeForShipmentIsAvailable(jamCharacterShipment.ShipmentRecID))
+				{
+					CharShipmentRec record = StaticDB.charShipmentDB.GetRecord(jamCharacterShipment.ShipmentRecID);
+					if (record != null)
+					{
+						GameObject gameObject2 = Object.Instantiate<GameObject>(this.m_troopsListItemPrefab);
+						gameObject2.get_transform().SetParent(this.m_troopsListContents.get_transform(), false);
+						TroopsListItem component3 = gameObject2.GetComponent<TroopsListItem>();
+						component3.SetCharShipment(null, true, record);
+					}
+				}
+			}
+		}
+		finally
+		{
+			IDisposable disposable = enumerator as IDisposable;
+			if (disposable != null)
+			{
+				disposable.Dispose();
 			}
 		}
 	}
@@ -158,6 +208,17 @@ public class TroopsPanel : MonoBehaviour
 		{
 			MobilePlayerRequestShipments obj = new MobilePlayerRequestShipments();
 			Login.instance.SendToMobileServer(obj);
+		}
+	}
+
+	public void PurgeList()
+	{
+		TroopsListItem[] componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>(true);
+		TroopsListItem[] array = componentsInChildren;
+		for (int i = 0; i < array.Length; i++)
+		{
+			TroopsListItem troopsListItem = array[i];
+			Object.DestroyImmediate(troopsListItem.get_gameObject());
 		}
 	}
 }

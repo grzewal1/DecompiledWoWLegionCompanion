@@ -58,4 +58,9 @@ public class ItemStatCache : MonoBehaviour
 			this.ItemStatCacheUpdateAction.Invoke(itemID, itemContext, stats);
 		}
 	}
+
+	public void ClearItemStats()
+	{
+		this.m_records.Clear();
+	}
 }

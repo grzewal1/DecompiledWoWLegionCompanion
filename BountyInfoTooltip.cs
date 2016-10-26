@@ -82,7 +82,7 @@ public class BountyInfoTooltip : MonoBehaviour
 			this.m_bountyName.set_text("Unknown Quest ID " + bounty.QuestID);
 			this.m_bountyDescription.set_text("Unknown Quest ID " + bounty.QuestID);
 		}
-		this.m_timeLeft.set_text(StaticDB.GetString("TIME_REMAINING", null));
+		this.m_timeLeft.set_text(StaticDB.GetString("TIME_LEFT", "Time Left: PH"));
 		RectTransform[] componentsInChildren = this.m_bountyQuestIconArea.GetComponentsInChildren<RectTransform>(true);
 		RectTransform[] array = componentsInChildren;
 		for (int i = 0; i < array.Length; i++)
@@ -139,8 +139,8 @@ public class BountyInfoTooltip : MonoBehaviour
 	{
 		long num = (long)this.m_bounty.EndTime - GarrisonStatus.CurrentTime();
 		num = ((num <= 0L) ? 0L : num);
-		Duration duration = new Duration((int)num);
-		this.m_timeLeft.set_text(StaticDB.GetString("TIME_REMAINING", null) + " " + duration.DurationString);
+		Duration duration = new Duration((int)num, false);
+		this.m_timeLeft.set_text(StaticDB.GetString("TIME_LEFT", "Time Left: PH") + " " + duration.DurationString);
 	}
 
 	private void Update()

@@ -7,10 +7,6 @@ using WowStaticData;
 
 public class MiniMissionListPanel : MonoBehaviour
 {
-	public RectTransform m_parentViewRT;
-
-	public RectTransform m_panelViewRT;
-
 	public GameObject m_miniMissionListItemPrefab;
 
 	public GameObject m_availableMissionListScrollView;
@@ -40,6 +36,12 @@ public class MiniMissionListPanel : MonoBehaviour
 	public CombatAllyListItem m_combatAllyListItem;
 
 	private Vector2 m_multiPanelViewSizeDelta;
+
+	public GameObject m_missionStartedEffectObjPrefab;
+
+	public OrderHallNavButton m_missionListOrderHallNavButton;
+
+	private GameObject m_currentMissionStartedEffectObj;
 
 	private void Awake()
 	{
@@ -83,16 +85,6 @@ public class MiniMissionListPanel : MonoBehaviour
 		this.m_inProgressMissionListScrollView.SetActive(true);
 		this.m_availableMissionsTabSelectedImage.get_gameObject().SetActive(false);
 		this.m_inProgressMissionsTabSelectedImage.get_gameObject().SetActive(true);
-	}
-
-	private void Update()
-	{
-		if (this.m_panelViewRT.get_sizeDelta().x != this.m_parentViewRT.get_rect().get_width())
-		{
-			this.m_multiPanelViewSizeDelta = this.m_panelViewRT.get_sizeDelta();
-			this.m_multiPanelViewSizeDelta.x = this.m_parentViewRT.get_rect().get_width();
-			this.m_panelViewRT.set_sizeDelta(this.m_multiPanelViewSizeDelta);
-		}
 	}
 
 	private void HandleGarrisonDataResetFinished()
@@ -202,11 +194,10 @@ public class MiniMissionListPanel : MonoBehaviour
 							else
 							{
 								gameObject.get_transform().SetParent(this.m_inProgressMission_listContents.get_transform(), false);
+								this.ShowMissionStartedAnim();
 							}
 							MiniMissionListItem component = gameObject.GetComponent<MiniMissionListItem>();
 							component.SetMission(jamGarrisonMobileMission3);
-							AutoHide autoHide = gameObject.AddComponent<AutoHide>();
-							autoHide.m_clipRT = base.get_gameObject().GetComponent<RectTransform>();
 						}
 					}
 				}
@@ -228,5 +219,20 @@ public class MiniMissionListPanel : MonoBehaviour
 		this.m_inProgressMissionsTabLabel.set_text(StaticDB.GetString("IN_PROGRESS", null) + " - " + num2);
 		this.m_noMissionsAvailableLabel.get_gameObject().SetActive(num == 0);
 		this.m_noMissionsInProgressLabel.get_gameObject().SetActive(num2 == 0);
+	}
+
+	private void ShowMissionStartedAnim()
+	{
+		if (!this.m_missionListOrderHallNavButton.IsSelected())
+		{
+			return;
+		}
+		this.m_currentMissionStartedEffectObj = Object.Instantiate<GameObject>(this.m_missionStartedEffectObjPrefab);
+		this.m_currentMissionStartedEffectObj.get_transform().SetParent(this.m_inProgressMissionsTabButton.get_transform(), false);
+		this.m_currentMissionStartedEffectObj.get_transform().set_localPosition(Vector3.get_zero());
+	}
+
+	private void Update()
+	{
 	}
 }

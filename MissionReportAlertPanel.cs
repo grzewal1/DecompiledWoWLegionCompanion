@@ -47,7 +47,7 @@ public class MissionReportAlertPanel : MonoBehaviour
 
 	private void Update()
 	{
-		this.completedMissionsText.set_text(string.Empty + PersistentMissionData.GetNumCompletedMissions() + " Completed Missions");
+		this.completedMissionsText.set_text(string.Empty + PersistentMissionData.GetNumCompletedMissions(false) + " Completed Missions");
 	}
 
 	private void OnEnable()
@@ -65,7 +65,7 @@ public class MissionReportAlertPanel : MonoBehaviour
 			this.hordeCommander.SetActive(false);
 			this.allianceCommander.SetActive(true);
 		}
-		this.completedMissionsText.set_text(string.Empty + PersistentMissionData.GetNumCompletedMissions() + " Completed Missions");
+		this.completedMissionsText.set_text(string.Empty + PersistentMissionData.GetNumCompletedMissions(false) + " Completed Missions");
 		MissionListItem[] componentsInChildren = this.completedMissionListContents.GetComponentsInChildren<MissionListItem>(true);
 		for (int i = 0; i < componentsInChildren.Length; i++)
 		{

@@ -1,6 +1,8 @@
+using GarbageFreeStringBuilder;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using WowJamMessages;
@@ -89,6 +91,10 @@ public class FollowerListItem : MonoBehaviour
 
 	private int m_itemLevel;
 
+	private Duration m_missionTimeRemaining;
+
+	private StringBuilder m_statusTextSB;
+
 	private static string m_iLvlString;
 
 	private static string m_inactiveString;
@@ -120,11 +126,6 @@ public class FollowerListItem : MonoBehaviour
 			AssetBundleManager expr_2F = AssetBundleManager.instance;
 			expr_2F.InitializedAction = (Action)Delegate.Combine(expr_2F.InitializedAction, new Action(this.OnAssetBundleManagerInitialized));
 		}
-		if (this.m_useArmamentsButton != null)
-		{
-			this.m_useArmamentsButton.SetActive(false);
-			this.m_statusText.get_gameObject().SetActive(true);
-		}
 		this.followerIDText.set_font(GeneralHelpers.LoadStandardFont());
 		this.portraitErrorText.set_font(GeneralHelpers.LoadStandardFont());
 		this.nameText.set_font(GeneralHelpers.LoadStandardFont());
@@ -135,6 +136,8 @@ public class FollowerListItem : MonoBehaviour
 		{
 			this.m_useArmamentsButtonText.set_font(GeneralHelpers.LoadStandardFont());
 		}
+		this.m_missionTimeRemaining = new Duration(0, false);
+		this.m_statusTextSB = new StringBuilder(16);
 	}
 
 	private void OnEnable()
@@ -272,7 +275,7 @@ public class FollowerListItem : MonoBehaviour
 		{
 			this.m_classIcon.set_sprite(atlasSprite);
 		}
-		Transform[] componentsInChildren = this.m_troopHeartContainer.GetComponentsInChildren<Transform>();
+		Transform[] componentsInChildren = this.m_troopHeartContainer.GetComponentsInChildren<Transform>(true);
 		Transform[] array = componentsInChildren;
 		for (int i = 0; i < array.Length; i++)
 		{
@@ -356,41 +359,33 @@ public class FollowerListItem : MonoBehaviour
 		num2 = ((num2 <= 0L) ? 0L : num2);
 		if (num2 > 0L)
 		{
-			Duration duration = new Duration((int)num2);
-			this.m_statusText.set_text(string.Concat(new object[]
-			{
-				FollowerListItem.m_iLvlString,
-				" ",
-				this.m_itemLevel,
-				" - ",
-				FollowerListItem.m_onMissionString,
-				" - ",
-				duration.DurationString
-			}));
+			this.m_missionTimeRemaining.FormatDurationString((int)num2, false);
+			this.m_statusTextSB.set_Length(0);
+			this.m_statusTextSB.ConcatFormat("{0} {1} - {2} - {3}", FollowerListItem.m_iLvlString, this.m_itemLevel, FollowerListItem.m_onMissionString, this.m_missionTimeRemaining.DurationString);
+			this.m_statusText.set_text(this.m_statusTextSB.ToString());
 		}
 		else
 		{
-			this.m_statusText.set_text(string.Concat(new object[]
-			{
-				FollowerListItem.m_iLvlString,
-				" ",
-				this.m_itemLevel,
-				" - ",
-				FollowerListItem.m_onMissionString,
-				" - ",
-				FollowerListItem.m_missionCompleteString
-			}));
+			this.m_statusTextSB.set_Length(0);
+			this.m_statusTextSB.ConcatFormat("{0} {1} - {2} - {3}", FollowerListItem.m_iLvlString, this.m_itemLevel, FollowerListItem.m_onMissionString, FollowerListItem.m_missionCompleteString);
+			this.m_statusText.set_text(this.m_statusTextSB.ToString());
 		}
 	}
 
 	private void SelectMe()
 	{
-		this.selectedImage.SetActive(true);
+		if (this.selectedImage != null)
+		{
+			this.selectedImage.SetActive(true);
+		}
 	}
 
 	public void DeselectMe()
 	{
-		this.selectedImage.SetActive(false);
+		if (this.selectedImage != null)
+		{
+			this.selectedImage.SetActive(false);
+		}
 	}
 
 	public void SelectAndReplaceExistingCombatAlly()
@@ -418,7 +413,7 @@ public class FollowerListItem : MonoBehaviour
 	{
 		if (this.m_availableForMission)
 		{
-			MissionFollowerSlotGroup componentInChildren = base.get_gameObject().get_transform().get_parent().get_parent().get_parent().get_gameObject().GetComponentInChildren<MissionFollowerSlotGroup>();
+			MissionFollowerSlotGroup componentInChildren = base.get_gameObject().get_transform().get_parent().get_parent().get_parent().get_parent().get_gameObject().GetComponentInChildren<MissionFollowerSlotGroup>();
 			if (componentInChildren != null && componentInChildren.get_gameObject().get_activeSelf())
 			{
 				this.m_inParty = componentInChildren.SetFollower(this.m_followerID, this.followerPortrait.get_overrideSprite(), this.qualityBorder.get_color(), forceReplaceFirstSlot);
@@ -603,6 +598,10 @@ public class FollowerListItem : MonoBehaviour
 
 	public void UpdateUsefulAbilitiesDisplay(int currentGarrMissionID)
 	{
+		if (!PersistentFollowerData.followerDictionary.ContainsKey(this.m_followerID))
+		{
+			return;
+		}
 		AbilityDisplay[] componentsInChildren = this.usefulAbilitiesGroup.GetComponentsInChildren<AbilityDisplay>(true);
 		for (int i = 0; i < componentsInChildren.Length; i++)
 		{
@@ -690,15 +689,6 @@ public class FollowerListItem : MonoBehaviour
 	{
 		RectTransform component = this.m_followerDetailView.traitsAndAbilitiesRootObject.GetComponent<RectTransform>();
 		this.m_followerDetailViewLayoutElement.set_minHeight(component.get_rect().get_height() + (float)this.m_followerDetailViewExtraHeight);
-		JamGarrisonFollower jamGarrisonFollower = PersistentFollowerData.followerDictionary.get_Item(this.m_followerID);
-		int num = (jamGarrisonFollower.ItemLevelWeapon + jamGarrisonFollower.ItemLevelArmor) / 2;
-		bool flag = (jamGarrisonFollower.Flags & 8) != 0;
-		GarrFollowerRec record = StaticDB.garrFollowerDB.GetRecord(jamGarrisonFollower.GarrFollowerID);
-		if (record != null && num < 850 && jamGarrisonFollower.FollowerLevel == MissionDetailView.GarrisonFollower_GetMaxFollowerLevel((int)record.GarrFollowerTypeID) && !flag)
-		{
-			this.m_useArmamentsButton.SetActive(true);
-			this.m_statusText.get_gameObject().SetActive(false);
-		}
 	}
 
 	public void ContractDetailViewComplete()
@@ -759,6 +749,16 @@ public class FollowerListItem : MonoBehaviour
 			}
 			RectTransform component = this.m_followerDetailView.traitsAndAbilitiesRootObject.GetComponent<RectTransform>();
 			OrderHallFollowersPanel.instance.ScrollListTo(-base.get_transform().get_localPosition().y - ((!flag2) ? 0f : num) - 56f);
+			bool active = true;
+			JamGarrisonFollower jamGarrisonFollower = PersistentFollowerData.followerDictionary.get_Item(this.m_followerID);
+			int num2 = (jamGarrisonFollower.ItemLevelWeapon + jamGarrisonFollower.ItemLevelArmor) / 2;
+			bool flag3 = (jamGarrisonFollower.Flags & 8) != 0;
+			GarrFollowerRec record = StaticDB.garrFollowerDB.GetRecord(jamGarrisonFollower.GarrFollowerID);
+			if (flag3 || jamGarrisonFollower.FollowerLevel < MissionDetailView.GarrisonFollower_GetMaxFollowerLevel((int)record.GarrFollowerTypeID))
+			{
+				active = false;
+			}
+			this.m_useArmamentsButton.SetActive(active);
 			iTween.ValueTo(base.get_gameObject(), iTween.Hash(new object[]
 			{
 				"name",
@@ -802,8 +802,6 @@ public class FollowerListItem : MonoBehaviour
 			iTween.StopByName(base.get_gameObject(), "FollowerDetailContract");
 			iTween.StopByName(base.get_gameObject(), "FollowerDetailContractArrow");
 			this.DeselectMe();
-			this.m_useArmamentsButton.SetActive(false);
-			this.m_statusText.get_gameObject().SetActive(true);
 			iTween.ValueTo(base.get_gameObject(), iTween.Hash(new object[]
 			{
 				"name",
