@@ -10,33 +10,37 @@ public class TroopHeartEffect : MonoBehaviour
 
 	public float m_targetScale;
 
-	public void SetHeartEffectProgress(float progress)
+	public TroopHeartEffect()
 	{
-		if (this.m_image != null)
-		{
-			Color color = this.m_image.get_color();
-			color.a = 1f - progress;
-			this.m_image.set_color(color);
-		}
-		if (this.m_canvasGroup != null)
-		{
-			this.m_canvasGroup.set_alpha(1f - progress);
-		}
-		base.get_transform().set_localScale(Vector3.get_one() * (1f + progress * (this.m_targetScale - 1f)));
 	}
 
 	public void FinishHeartEffect()
 	{
 		if (this.m_image != null)
 		{
-			Color color = this.m_image.get_color();
-			color.a = 0f;
-			this.m_image.set_color(color);
+			Color mImage = this.m_image.color;
+			mImage.a = 0f;
+			this.m_image.color = mImage;
 		}
 		if (this.m_canvasGroup != null)
 		{
-			this.m_canvasGroup.set_alpha(0f);
+			this.m_canvasGroup.alpha = 0f;
 		}
-		base.get_transform().set_localScale(Vector3.get_one() * this.m_targetScale);
+		base.transform.localScale = Vector3.one * this.m_targetScale;
+	}
+
+	public void SetHeartEffectProgress(float progress)
+	{
+		if (this.m_image != null)
+		{
+			Color mImage = this.m_image.color;
+			mImage.a = 1f - progress;
+			this.m_image.color = mImage;
+		}
+		if (this.m_canvasGroup != null)
+		{
+			this.m_canvasGroup.alpha = 1f - progress;
+		}
+		base.transform.localScale = Vector3.one * (1f + progress * (this.m_targetScale - 1f));
 	}
 }

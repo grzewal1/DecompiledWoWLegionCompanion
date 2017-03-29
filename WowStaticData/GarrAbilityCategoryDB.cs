@@ -8,73 +8,71 @@ namespace WowStaticData
 	{
 		private Hashtable m_records;
 
-		public GarrAbilityCategoryRec GetRecord(int id)
+		public GarrAbilityCategoryDB()
 		{
-			return (GarrAbilityCategoryRec)this.m_records.get_Item(id);
 		}
 
 		public void EnumRecords(Predicate<GarrAbilityCategoryRec> callback)
 		{
-			IEnumerator enumerator = this.m_records.get_Values().GetEnumerator();
+			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
 			try
 			{
 				while (enumerator.MoveNext())
 				{
-					GarrAbilityCategoryRec garrAbilityCategoryRec = (GarrAbilityCategoryRec)enumerator.get_Current();
-					if (!callback.Invoke(garrAbilityCategoryRec))
+					if (callback((GarrAbilityCategoryRec)enumerator.Current))
 					{
-						break;
+						continue;
 					}
+					break;
 				}
 			}
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
+				if (disposable == null)
 				{
-					disposable.Dispose();
 				}
+				disposable.Dispose();
 			}
+		}
+
+		public GarrAbilityCategoryRec GetRecord(int id)
+		{
+			return (GarrAbilityCategoryRec)this.m_records[id];
 		}
 
 		public bool Load(string path, AssetBundle nonLocalizedBundle, AssetBundle localizedBundle, string locale)
 		{
-			string text = string.Concat(new string[]
-			{
-				path,
-				locale,
-				"/GarrAbilityCategory_",
-				locale,
-				".txt"
-			});
+			string str = string.Concat(new string[] { path, locale, "/GarrAbilityCategory_", locale, ".txt" });
 			if (this.m_records != null)
 			{
-				Debug.Log("Already loaded static db " + text);
+				Debug.Log(string.Concat("Already loaded static db ", str));
 				return false;
 			}
-			TextAsset textAsset = localizedBundle.LoadAsset<TextAsset>(text);
+			TextAsset textAsset = localizedBundle.LoadAsset<TextAsset>(str);
 			if (textAsset == null)
 			{
-				Debug.Log("Unable to load static db " + text);
+				Debug.Log(string.Concat("Unable to load static db ", str));
 				return false;
 			}
-			string text2 = textAsset.ToString();
+			string str1 = textAsset.ToString();
 			this.m_records = new Hashtable();
 			int num = 0;
-			int num2;
+			int num1 = 0;
 			do
 			{
-				num2 = text2.IndexOf('\n', num);
-				if (num2 >= 0)
+				num = str1.IndexOf('\n', num1);
+				if (num < 0)
 				{
-					string valueLine = text2.Substring(num, num2 - num + 1).Trim();
-					GarrAbilityCategoryRec garrAbilityCategoryRec = new GarrAbilityCategoryRec();
-					garrAbilityCategoryRec.Deserialize(valueLine);
-					this.m_records.Add(garrAbilityCategoryRec.ID, garrAbilityCategoryRec);
-					num = num2 + 1;
+					continue;
 				}
+				string str2 = str1.Substring(num1, num - num1 + 1).Trim();
+				GarrAbilityCategoryRec garrAbilityCategoryRec = new GarrAbilityCategoryRec();
+				garrAbilityCategoryRec.Deserialize(str2);
+				this.m_records.Add(garrAbilityCategoryRec.ID, garrAbilityCategoryRec);
+				num1 = num + 1;
 			}
-			while (num2 > 0);
+			while (num > 0);
 			return true;
 		}
 	}

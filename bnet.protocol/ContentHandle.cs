@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace bnet.protocol
@@ -9,6 +10,33 @@ namespace bnet.protocol
 		public bool HasProtoUrl;
 
 		private string _ProtoUrl;
+
+		public byte[] Hash
+		{
+			get;
+			set;
+		}
+
+		public bool IsInitialized
+		{
+			get
+			{
+				return true;
+			}
+		}
+
+		public string ProtoUrl
+		{
+			get
+			{
+				return this._ProtoUrl;
+			}
+			set
+			{
+				this._ProtoUrl = value;
+				this.HasProtoUrl = value != null;
+			}
+		}
 
 		public uint Region
 		{
@@ -22,31 +50,8 @@ namespace bnet.protocol
 			set;
 		}
 
-		public byte[] Hash
+		public ContentHandle()
 		{
-			get;
-			set;
-		}
-
-		public string ProtoUrl
-		{
-			get
-			{
-				return this._ProtoUrl;
-			}
-			set
-			{
-				this._ProtoUrl = value;
-				this.HasProtoUrl = (value != null);
-			}
-		}
-
-		public bool IsInitialized
-		{
-			get
-			{
-				return true;
-			}
 		}
 
 		public void Deserialize(Stream stream)
@@ -56,7 +61,65 @@ namespace bnet.protocol
 
 		public static ContentHandle Deserialize(Stream stream, ContentHandle instance)
 		{
-			return ContentHandle.Deserialize(stream, instance, -1L);
+			return ContentHandle.Deserialize(stream, instance, (long)-1);
+		}
+
+		public static ContentHandle Deserialize(Stream stream, ContentHandle instance, long limit)
+		{
+			BinaryReader binaryReader = new BinaryReader(stream);
+			while (true)
+			{
+				if (limit < (long)0 || stream.Position < limit)
+				{
+					int num = stream.ReadByte();
+					if (num != -1)
+					{
+						int num1 = num;
+						if (num1 == 13)
+						{
+							instance.Region = binaryReader.ReadUInt32();
+						}
+						else if (num1 == 21)
+						{
+							instance.Usage = binaryReader.ReadUInt32();
+						}
+						else if (num1 == 26)
+						{
+							instance.Hash = ProtocolParser.ReadBytes(stream);
+						}
+						else if (num1 == 34)
+						{
+							instance.ProtoUrl = ProtocolParser.ReadString(stream);
+						}
+						else
+						{
+							Key key = ProtocolParser.ReadKey((byte)num, stream);
+							if (key.Field == 0)
+							{
+								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+							}
+							ProtocolParser.SkipKey(stream, key);
+						}
+					}
+					else
+					{
+						if (limit >= (long)0)
+						{
+							throw new EndOfStreamException();
+						}
+						break;
+					}
+				}
+				else
+				{
+					if (stream.Position != limit)
+					{
+						throw new ProtocolBufferException("Read past max limit");
+					}
+					break;
+				}
+			}
+			return instance;
 		}
 
 		public static ContentHandle DeserializeLengthDelimited(Stream stream)
@@ -68,70 +131,69 @@ namespace bnet.protocol
 
 		public static ContentHandle DeserializeLengthDelimited(Stream stream, ContentHandle instance)
 		{
-			long num = (long)((ulong)ProtocolParser.ReadUInt32(stream));
-			num += stream.get_Position();
-			return ContentHandle.Deserialize(stream, instance, num);
+			long position = (long)ProtocolParser.ReadUInt32(stream);
+			position = position + stream.Position;
+			return ContentHandle.Deserialize(stream, instance, position);
 		}
 
-		public static ContentHandle Deserialize(Stream stream, ContentHandle instance, long limit)
+		public override bool Equals(object obj)
 		{
-			BinaryReader binaryReader = new BinaryReader(stream);
-			while (limit < 0L || stream.get_Position() < limit)
+			ContentHandle contentHandle = obj as ContentHandle;
+			if (contentHandle == null)
 			{
-				int num = stream.ReadByte();
-				if (num == -1)
-				{
-					if (limit >= 0L)
-					{
-						throw new EndOfStreamException();
-					}
-					return instance;
-				}
-				else
-				{
-					int num2 = num;
-					if (num2 != 13)
-					{
-						if (num2 != 21)
-						{
-							if (num2 != 26)
-							{
-								if (num2 != 34)
-								{
-									Key key = ProtocolParser.ReadKey((byte)num, stream);
-									uint field = key.Field;
-									if (field == 0u)
-									{
-										throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-									}
-									ProtocolParser.SkipKey(stream, key);
-								}
-								else
-								{
-									instance.ProtoUrl = ProtocolParser.ReadString(stream);
-								}
-							}
-							else
-							{
-								instance.Hash = ProtocolParser.ReadBytes(stream);
-							}
-						}
-						else
-						{
-							instance.Usage = binaryReader.ReadUInt32();
-						}
-					}
-					else
-					{
-						instance.Region = binaryReader.ReadUInt32();
-					}
-				}
+				return false;
 			}
-			if (stream.get_Position() == limit)
+			if (!this.Region.Equals(contentHandle.Region))
 			{
-				return instance;
+				return false;
 			}
-			throw new ProtocolBufferException("Read past max limit");
+			if (!this.Usage.Equals(contentHandle.Usage))
+			{
+				return false;
+			}
+			if (!this.Hash.Equals(contentHandle.Hash))
+			{
+				return false;
+			}
+			if (this.HasProtoUrl == contentHandle.HasProtoUrl && (!this.HasProtoUrl || this.ProtoUrl.Equals(contentHandle.ProtoUrl)))
+			{
+				return true;
+			}
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			int hashCode = this.GetType().GetHashCode();
+			hashCode = hashCode ^ this.Region.GetHashCode();
+			hashCode = hashCode ^ this.Usage.GetHashCode();
+			hashCode = hashCode ^ this.Hash.GetHashCode();
+			if (this.HasProtoUrl)
+			{
+				hashCode = hashCode ^ this.ProtoUrl.GetHashCode();
+			}
+			return hashCode;
+		}
+
+		public uint GetSerializedSize()
+		{
+			uint num = 0;
+			num = num + 4;
+			num = num + 4;
+			num = num + ProtocolParser.SizeOfUInt32((int)this.Hash.Length) + (int)this.Hash.Length;
+			if (this.HasProtoUrl)
+			{
+				num++;
+				uint byteCount = (uint)Encoding.UTF8.GetByteCount(this.ProtoUrl);
+				num = num + ProtocolParser.SizeOfUInt32(byteCount) + byteCount;
+			}
+			num = num + 3;
+			return num;
+		}
+
+		public static ContentHandle ParseFrom(byte[] bs)
+		{
+			return ProtobufUtil.ParseFrom<ContentHandle>(bs, 0, -1);
 		}
 
 		public void Serialize(Stream stream)
@@ -155,33 +217,8 @@ namespace bnet.protocol
 			if (instance.HasProtoUrl)
 			{
 				stream.WriteByte(34);
-				ProtocolParser.WriteBytes(stream, Encoding.get_UTF8().GetBytes(instance.ProtoUrl));
+				ProtocolParser.WriteBytes(stream, Encoding.UTF8.GetBytes(instance.ProtoUrl));
 			}
-		}
-
-		public uint GetSerializedSize()
-		{
-			uint num = 0u;
-			num += 4u;
-			num += 4u;
-			num += ProtocolParser.SizeOfUInt32(this.Hash.Length) + (uint)this.Hash.Length;
-			if (this.HasProtoUrl)
-			{
-				num += 1u;
-				uint byteCount = (uint)Encoding.get_UTF8().GetByteCount(this.ProtoUrl);
-				num += ProtocolParser.SizeOfUInt32(byteCount) + byteCount;
-			}
-			return num + 3u;
-		}
-
-		public void SetRegion(uint val)
-		{
-			this.Region = val;
-		}
-
-		public void SetUsage(uint val)
-		{
-			this.Usage = val;
 		}
 
 		public void SetHash(byte[] val)
@@ -194,28 +231,14 @@ namespace bnet.protocol
 			this.ProtoUrl = val;
 		}
 
-		public override int GetHashCode()
+		public void SetRegion(uint val)
 		{
-			int num = base.GetType().GetHashCode();
-			num ^= this.Region.GetHashCode();
-			num ^= this.Usage.GetHashCode();
-			num ^= this.Hash.GetHashCode();
-			if (this.HasProtoUrl)
-			{
-				num ^= this.ProtoUrl.GetHashCode();
-			}
-			return num;
+			this.Region = val;
 		}
 
-		public override bool Equals(object obj)
+		public void SetUsage(uint val)
 		{
-			ContentHandle contentHandle = obj as ContentHandle;
-			return contentHandle != null && this.Region.Equals(contentHandle.Region) && this.Usage.Equals(contentHandle.Usage) && this.Hash.Equals(contentHandle.Hash) && this.HasProtoUrl == contentHandle.HasProtoUrl && (!this.HasProtoUrl || this.ProtoUrl.Equals(contentHandle.ProtoUrl));
-		}
-
-		public static ContentHandle ParseFrom(byte[] bs)
-		{
-			return ProtobufUtil.ParseFrom<ContentHandle>(bs, 0, -1);
+			this.Usage = val;
 		}
 	}
 }

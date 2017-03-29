@@ -9,15 +9,8 @@ public class LogPanel : MonoBehaviour
 
 	public Logger m_logger;
 
-	public void ShowPanel()
+	public LogPanel()
 	{
-		base.get_gameObject().SetActive(true);
-		this.UpdateLogDisplay();
-	}
-
-	public void ClosePanel()
-	{
-		base.get_gameObject().SetActive(false);
 	}
 
 	public void ClearLog()
@@ -26,31 +19,32 @@ public class LogPanel : MonoBehaviour
 		this.UpdateLogDisplay();
 	}
 
+	public void ClosePanel()
+	{
+		base.gameObject.SetActive(false);
+	}
+
+	public void ShowPanel()
+	{
+		base.gameObject.SetActive(true);
+		this.UpdateLogDisplay();
+	}
+
 	public void UpdateLogDisplay()
 	{
 		int num = 1;
-		this.m_logText.set_text(string.Empty);
-		using (List<string>.Enumerator enumerator = this.m_logger.LogLines.GetEnumerator())
+		this.m_logText.text = string.Empty;
+		foreach (string logLine in this.m_logger.LogLines)
 		{
-			while (enumerator.MoveNext())
+			if (num > 1)
 			{
-				string current = enumerator.get_Current();
-				if (num > 1)
-				{
-					Text expr_3D = this.m_logText;
-					expr_3D.set_text(expr_3D.get_text() + "\n\n");
-				}
-				Text expr_58 = this.m_logText;
-				string text = expr_58.get_text();
-				expr_58.set_text(string.Concat(new object[]
-				{
-					text,
-					num,
-					") ",
-					current
-				}));
-				num++;
+				Text mLogText = this.m_logText;
+				mLogText.text = string.Concat(mLogText.text, "\n\n");
 			}
+			Text text = this.m_logText;
+			string str = text.text;
+			text.text = string.Concat(new object[] { str, num, ") ", logLine });
+			num++;
 		}
 	}
 }

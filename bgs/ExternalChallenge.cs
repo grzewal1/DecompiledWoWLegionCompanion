@@ -1,9 +1,16 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace bgs
 {
 	public class ExternalChallenge
 	{
+		public ExternalChallenge Next
+		{
+			get;
+			set;
+		}
+
 		public string PayLoadType
 		{
 			get;
@@ -16,10 +23,8 @@ namespace bgs
 			set;
 		}
 
-		public ExternalChallenge Next
+		public ExternalChallenge()
 		{
-			get;
-			set;
 		}
 	}
 }

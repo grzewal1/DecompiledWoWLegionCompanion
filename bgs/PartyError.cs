@@ -14,13 +14,13 @@ namespace bgs
 
 		public BnetFeatureEvent FeatureEvent;
 
-		public PartyId PartyId;
+		public bgs.PartyId PartyId;
 
 		public string szPartyType;
 
 		public string StringData;
 
-		public PartyType PartyType
+		public bgs.PartyType PartyType
 		{
 			get
 			{

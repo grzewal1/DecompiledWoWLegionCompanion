@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class BountyLogo : MonoBehaviour
 {
+	public BountyLogo()
+	{
+	}
+
 	private void Start()
 	{
 	}

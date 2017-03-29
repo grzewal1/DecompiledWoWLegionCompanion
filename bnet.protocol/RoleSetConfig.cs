@@ -1,14 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace bnet.protocol
 {
 	public class RoleSetConfig : IProtoBuf
 	{
-		private List<Privilege> _Privilege = new List<Privilege>();
+		private List<bnet.protocol.Privilege> _Privilege = new List<bnet.protocol.Privilege>();
 
-		public List<Privilege> Privilege
+		public bool IsInitialized
+		{
+			get
+			{
+				return true;
+			}
+		}
+
+		public List<bnet.protocol.Privilege> Privilege
 		{
 			get
 			{
@@ -20,7 +29,15 @@ namespace bnet.protocol
 			}
 		}
 
-		public List<Privilege> PrivilegeList
+		public int PrivilegeCount
+		{
+			get
+			{
+				return this._Privilege.Count;
+			}
+		}
+
+		public List<bnet.protocol.Privilege> PrivilegeList
 		{
 			get
 			{
@@ -28,26 +45,24 @@ namespace bnet.protocol
 			}
 		}
 
-		public int PrivilegeCount
-		{
-			get
-			{
-				return this._Privilege.get_Count();
-			}
-		}
-
-		public RoleSet RoleSet
+		public bnet.protocol.RoleSet RoleSet
 		{
 			get;
 			set;
 		}
 
-		public bool IsInitialized
+		public RoleSetConfig()
 		{
-			get
-			{
-				return true;
-			}
+		}
+
+		public void AddPrivilege(bnet.protocol.Privilege val)
+		{
+			this._Privilege.Add(val);
+		}
+
+		public void ClearPrivilege()
+		{
+			this._Privilege.Clear();
 		}
 
 		public void Deserialize(Stream stream)
@@ -57,7 +72,64 @@ namespace bnet.protocol
 
 		public static RoleSetConfig Deserialize(Stream stream, RoleSetConfig instance)
 		{
-			return RoleSetConfig.Deserialize(stream, instance, -1L);
+			return RoleSetConfig.Deserialize(stream, instance, (long)-1);
+		}
+
+		public static RoleSetConfig Deserialize(Stream stream, RoleSetConfig instance, long limit)
+		{
+			if (instance.Privilege == null)
+			{
+				instance.Privilege = new List<bnet.protocol.Privilege>();
+			}
+			while (true)
+			{
+				if (limit < (long)0 || stream.Position < limit)
+				{
+					int num = stream.ReadByte();
+					if (num != -1)
+					{
+						int num1 = num;
+						if (num1 == 10)
+						{
+							instance.Privilege.Add(bnet.protocol.Privilege.DeserializeLengthDelimited(stream));
+						}
+						else if (num1 != 18)
+						{
+							Key key = ProtocolParser.ReadKey((byte)num, stream);
+							if (key.Field == 0)
+							{
+								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+							}
+							ProtocolParser.SkipKey(stream, key);
+						}
+						else if (instance.RoleSet != null)
+						{
+							bnet.protocol.RoleSet.DeserializeLengthDelimited(stream, instance.RoleSet);
+						}
+						else
+						{
+							instance.RoleSet = bnet.protocol.RoleSet.DeserializeLengthDelimited(stream);
+						}
+					}
+					else
+					{
+						if (limit >= (long)0)
+						{
+							throw new EndOfStreamException();
+						}
+						break;
+					}
+				}
+				else
+				{
+					if (stream.Position != limit)
+					{
+						throw new ProtocolBufferException("Read past max limit");
+					}
+					break;
+				}
+			}
+			return instance;
 		}
 
 		public static RoleSetConfig DeserializeLengthDelimited(Stream stream)
@@ -69,149 +141,9 @@ namespace bnet.protocol
 
 		public static RoleSetConfig DeserializeLengthDelimited(Stream stream, RoleSetConfig instance)
 		{
-			long num = (long)((ulong)ProtocolParser.ReadUInt32(stream));
-			num += stream.get_Position();
-			return RoleSetConfig.Deserialize(stream, instance, num);
-		}
-
-		public static RoleSetConfig Deserialize(Stream stream, RoleSetConfig instance, long limit)
-		{
-			if (instance.Privilege == null)
-			{
-				instance.Privilege = new List<Privilege>();
-			}
-			while (limit < 0L || stream.get_Position() < limit)
-			{
-				int num = stream.ReadByte();
-				if (num == -1)
-				{
-					if (limit >= 0L)
-					{
-						throw new EndOfStreamException();
-					}
-					return instance;
-				}
-				else
-				{
-					int num2 = num;
-					if (num2 != 10)
-					{
-						if (num2 != 18)
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							uint field = key.Field;
-							if (field == 0u)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-						else if (instance.RoleSet == null)
-						{
-							instance.RoleSet = RoleSet.DeserializeLengthDelimited(stream);
-						}
-						else
-						{
-							RoleSet.DeserializeLengthDelimited(stream, instance.RoleSet);
-						}
-					}
-					else
-					{
-						instance.Privilege.Add(bnet.protocol.Privilege.DeserializeLengthDelimited(stream));
-					}
-				}
-			}
-			if (stream.get_Position() == limit)
-			{
-				return instance;
-			}
-			throw new ProtocolBufferException("Read past max limit");
-		}
-
-		public void Serialize(Stream stream)
-		{
-			RoleSetConfig.Serialize(stream, this);
-		}
-
-		public static void Serialize(Stream stream, RoleSetConfig instance)
-		{
-			if (instance.Privilege.get_Count() > 0)
-			{
-				using (List<Privilege>.Enumerator enumerator = instance.Privilege.GetEnumerator())
-				{
-					while (enumerator.MoveNext())
-					{
-						Privilege current = enumerator.get_Current();
-						stream.WriteByte(10);
-						ProtocolParser.WriteUInt32(stream, current.GetSerializedSize());
-						bnet.protocol.Privilege.Serialize(stream, current);
-					}
-				}
-			}
-			if (instance.RoleSet == null)
-			{
-				throw new ArgumentNullException("RoleSet", "Required by proto specification.");
-			}
-			stream.WriteByte(18);
-			ProtocolParser.WriteUInt32(stream, instance.RoleSet.GetSerializedSize());
-			RoleSet.Serialize(stream, instance.RoleSet);
-		}
-
-		public uint GetSerializedSize()
-		{
-			uint num = 0u;
-			if (this.Privilege.get_Count() > 0)
-			{
-				using (List<Privilege>.Enumerator enumerator = this.Privilege.GetEnumerator())
-				{
-					while (enumerator.MoveNext())
-					{
-						Privilege current = enumerator.get_Current();
-						num += 1u;
-						uint serializedSize = current.GetSerializedSize();
-						num += serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
-					}
-				}
-			}
-			uint serializedSize2 = this.RoleSet.GetSerializedSize();
-			num += serializedSize2 + ProtocolParser.SizeOfUInt32(serializedSize2);
-			num += 1u;
-			return num;
-		}
-
-		public void AddPrivilege(Privilege val)
-		{
-			this._Privilege.Add(val);
-		}
-
-		public void ClearPrivilege()
-		{
-			this._Privilege.Clear();
-		}
-
-		public void SetPrivilege(List<Privilege> val)
-		{
-			this.Privilege = val;
-		}
-
-		public void SetRoleSet(RoleSet val)
-		{
-			this.RoleSet = val;
-		}
-
-		public override int GetHashCode()
-		{
-			int num = base.GetType().GetHashCode();
-			using (List<Privilege>.Enumerator enumerator = this.Privilege.GetEnumerator())
-			{
-				while (enumerator.MoveNext())
-				{
-					Privilege current = enumerator.get_Current();
-					num ^= current.GetHashCode();
-				}
-			}
-			num ^= this.RoleSet.GetHashCode();
-			return num;
+			long position = (long)ProtocolParser.ReadUInt32(stream);
+			position = position + stream.Position;
+			return RoleSetConfig.Deserialize(stream, instance, position);
 		}
 
 		public override bool Equals(object obj)
@@ -221,23 +153,91 @@ namespace bnet.protocol
 			{
 				return false;
 			}
-			if (this.Privilege.get_Count() != roleSetConfig.Privilege.get_Count())
+			if (this.Privilege.Count != roleSetConfig.Privilege.Count)
 			{
 				return false;
 			}
-			for (int i = 0; i < this.Privilege.get_Count(); i++)
+			for (int i = 0; i < this.Privilege.Count; i++)
 			{
-				if (!this.Privilege.get_Item(i).Equals(roleSetConfig.Privilege.get_Item(i)))
+				if (!this.Privilege[i].Equals(roleSetConfig.Privilege[i]))
 				{
 					return false;
 				}
 			}
-			return this.RoleSet.Equals(roleSetConfig.RoleSet);
+			if (!this.RoleSet.Equals(roleSetConfig.RoleSet))
+			{
+				return false;
+			}
+			return true;
+		}
+
+		public override int GetHashCode()
+		{
+			int hashCode = this.GetType().GetHashCode();
+			foreach (bnet.protocol.Privilege privilege in this.Privilege)
+			{
+				hashCode = hashCode ^ privilege.GetHashCode();
+			}
+			hashCode = hashCode ^ this.RoleSet.GetHashCode();
+			return hashCode;
+		}
+
+		public uint GetSerializedSize()
+		{
+			uint num = 0;
+			if (this.Privilege.Count > 0)
+			{
+				foreach (bnet.protocol.Privilege privilege in this.Privilege)
+				{
+					num++;
+					uint serializedSize = privilege.GetSerializedSize();
+					num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
+				}
+			}
+			uint serializedSize1 = this.RoleSet.GetSerializedSize();
+			num = num + serializedSize1 + ProtocolParser.SizeOfUInt32(serializedSize1);
+			num++;
+			return num;
 		}
 
 		public static RoleSetConfig ParseFrom(byte[] bs)
 		{
 			return ProtobufUtil.ParseFrom<RoleSetConfig>(bs, 0, -1);
+		}
+
+		public void Serialize(Stream stream)
+		{
+			RoleSetConfig.Serialize(stream, this);
+		}
+
+		public static void Serialize(Stream stream, RoleSetConfig instance)
+		{
+			if (instance.Privilege.Count > 0)
+			{
+				foreach (bnet.protocol.Privilege privilege in instance.Privilege)
+				{
+					stream.WriteByte(10);
+					ProtocolParser.WriteUInt32(stream, privilege.GetSerializedSize());
+					bnet.protocol.Privilege.Serialize(stream, privilege);
+				}
+			}
+			if (instance.RoleSet == null)
+			{
+				throw new ArgumentNullException("RoleSet", "Required by proto specification.");
+			}
+			stream.WriteByte(18);
+			ProtocolParser.WriteUInt32(stream, instance.RoleSet.GetSerializedSize());
+			bnet.protocol.RoleSet.Serialize(stream, instance.RoleSet);
+		}
+
+		public void SetPrivilege(List<bnet.protocol.Privilege> val)
+		{
+			this.Privilege = val;
+		}
+
+		public void SetRoleSet(bnet.protocol.RoleSet val)
+		{
+			this.RoleSet = val;
 		}
 	}
 }

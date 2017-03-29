@@ -1,66 +1,80 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "DebugEvent", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="DebugEvent", Version=28333852)]
 	public class DebugEvent
 	{
-		[FlexJamMember(Name = "eventName", Type = FlexJamType.String), DataMember(Name = "eventName")]
+		[DataMember(Name="eventName")]
+		[FlexJamMember(Name="eventName", Type=FlexJamType.String)]
 		public string EventName
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(ArrayDimensions = 1, Name = "guid", Type = FlexJamType.WowGuid), DataMember(Name = "guid")]
-		public string[] Guid
+		[DataMember(Name="eventNameHash")]
+		[FlexJamMember(Name="eventNameHash", Type=FlexJamType.Int32)]
+		public int EventNameHash
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "messageText", Type = FlexJamType.String), DataMember(Name = "messageText")]
-		public string MessageText
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "systemNameHash", Type = FlexJamType.Int32), DataMember(Name = "systemNameHash")]
-		public int SystemNameHash
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "eventTime", Type = FlexJamType.Int32), DataMember(Name = "eventTime")]
+		[DataMember(Name="eventTime")]
+		[FlexJamMember(Name="eventTime", Type=FlexJamType.Int32)]
 		public int EventTime
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "systemName", Type = FlexJamType.String), DataMember(Name = "systemName")]
-		public string SystemName
+		[DataMember(Name="guid")]
+		[FlexJamMember(ArrayDimensions=1, Name="guid", Type=FlexJamType.WowGuid)]
+		public string[] Guid
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "messageTextHash", Type = FlexJamType.Int32), DataMember(Name = "messageTextHash")]
+		[DataMember(Name="messageText")]
+		[FlexJamMember(Name="messageText", Type=FlexJamType.String)]
+		public string MessageText
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="messageTextHash")]
+		[FlexJamMember(Name="messageTextHash", Type=FlexJamType.Int32)]
 		public int MessageTextHash
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "eventNameHash", Type = FlexJamType.Int32), DataMember(Name = "eventNameHash")]
-		public int EventNameHash
+		[DataMember(Name="systemName")]
+		[FlexJamMember(Name="systemName", Type=FlexJamType.String)]
+		public string SystemName
 		{
 			get;
 			set;
+		}
+
+		[DataMember(Name="systemNameHash")]
+		[FlexJamMember(Name="systemNameHash", Type=FlexJamType.Int32)]
+		public int SystemNameHash
+		{
+			get;
+			set;
+		}
+
+		public DebugEvent()
+		{
 		}
 	}
 }

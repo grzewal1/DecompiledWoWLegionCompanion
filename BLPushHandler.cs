@@ -5,16 +5,14 @@ public class BLPushHandler : MonoBehaviour
 {
 	public static BLPushManagerBuilder builder;
 
-	public void DidReceiveRegistrationToken(string deviceToken)
+	public BLPushHandler()
 	{
-		Debug.Log("unity " + deviceToken);
-		BLPushHandler.builder.didReceiveRegistrationTokenDelegate(deviceToken);
 	}
 
-	public void DidReceiveDeeplinkURL(string url)
+	public void DidFailToLogout(string errorDescription)
 	{
-		Debug.Log("unity " + url);
-		BLPushHandler.builder.didReceiveDeeplinkURLDelegate(url);
+		Debug.Log(errorDescription);
+		BLPushHandler.builder.didFailToLogoutDelegate(errorDescription);
 	}
 
 	public void DidFailToRegisterForRemoteNotificationsWithError(string errorDescription)
@@ -23,9 +21,15 @@ public class BLPushHandler : MonoBehaviour
 		BLPushHandler.builder.didFailToRegisterForRemoteNotificationsWithErrorDelegate(errorDescription);
 	}
 
-	public void DidFailToLogout(string errorDescription)
+	public void DidReceiveDeeplinkURL(string url)
 	{
-		Debug.Log(errorDescription);
-		BLPushHandler.builder.didFailToLogoutDelegate(errorDescription);
+		Debug.Log(string.Concat("unity ", url));
+		BLPushHandler.builder.didReceiveDeeplinkURLDelegate(url);
+	}
+
+	public void DidReceiveRegistrationToken(string deviceToken)
+	{
+		Debug.Log(string.Concat("unity ", deviceToken));
+		BLPushHandler.builder.didReceiveRegistrationTokenDelegate(deviceToken);
 	}
 }

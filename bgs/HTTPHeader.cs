@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace bgs
 {
@@ -14,6 +15,10 @@ namespace bgs
 		{
 			get;
 			set;
+		}
+
+		public HTTPHeader()
+		{
 		}
 	}
 }

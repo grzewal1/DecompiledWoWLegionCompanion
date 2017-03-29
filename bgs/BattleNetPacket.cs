@@ -26,21 +26,6 @@ namespace bgs
 			this.body = b;
 		}
 
-		public Header GetHeader()
-		{
-			return this.header;
-		}
-
-		public object GetBody()
-		{
-			return this.body;
-		}
-
-		public override bool IsLoaded()
-		{
-			return this.header != null && this.body != null;
-		}
-
 		public override int Decode(byte[] bytes, int offset, int available)
 		{
 			int num = 0;
@@ -50,10 +35,10 @@ namespace bgs
 				{
 					return num;
 				}
-				this.headerSize = ((int)bytes[offset] << 8) + (int)bytes[offset + 1];
-				available -= 2;
-				num += 2;
-				offset += 2;
+				this.headerSize = (bytes[offset] << 8) + bytes[offset + 1];
+				available = available - 2;
+				num = num + 2;
+				offset = offset + 2;
 			}
 			if (this.header == null)
 			{
@@ -63,14 +48,14 @@ namespace bgs
 				}
 				this.header = new Header();
 				this.header.Deserialize(new MemoryStream(bytes, offset, this.headerSize));
-				this.bodySize = (int)((!this.header.HasSize) ? 0u : this.header.Size);
+				this.bodySize = (!this.header.HasSize ? 0 : (int)this.header.Size);
 				if (this.header == null)
 				{
 					throw new Exception("failed to parse BattleNet packet header");
 				}
-				available -= this.headerSize;
-				num += this.headerSize;
-				offset += this.headerSize;
+				available = available - this.headerSize;
+				num = num + this.headerSize;
+				offset = offset + this.headerSize;
 			}
 			if (this.body == null)
 			{
@@ -78,10 +63,10 @@ namespace bgs
 				{
 					return num;
 				}
-				byte[] array = new byte[this.bodySize];
-				Array.Copy(bytes, offset, array, 0, this.bodySize);
-				this.body = array;
-				num += this.bodySize;
+				byte[] numArray = new byte[this.bodySize];
+				Array.Copy(bytes, offset, numArray, 0, this.bodySize);
+				this.body = numArray;
+				num = num + this.bodySize;
 			}
 			return num;
 		}
@@ -94,13 +79,28 @@ namespace bgs
 			}
 			IProtoBuf protoBuf = (IProtoBuf)this.body;
 			int serializedSize = (int)this.header.GetSerializedSize();
-			int serializedSize2 = (int)protoBuf.GetSerializedSize();
-			byte[] array = new byte[2 + serializedSize + serializedSize2];
-			array[0] = (byte)(serializedSize >> 8 & 255);
-			array[1] = (byte)(serializedSize & 255);
-			this.header.Serialize(new MemoryStream(array, 2, serializedSize));
-			protoBuf.Serialize(new MemoryStream(array, 2 + serializedSize, serializedSize2));
-			return array;
+			int num = (int)protoBuf.GetSerializedSize();
+			byte[] numArray = new byte[2 + serializedSize + num];
+			numArray[0] = (byte)(serializedSize >> 8 & 255);
+			numArray[1] = (byte)(serializedSize & 255);
+			this.header.Serialize(new MemoryStream(numArray, 2, serializedSize));
+			protoBuf.Serialize(new MemoryStream(numArray, 2 + serializedSize, num));
+			return numArray;
+		}
+
+		public object GetBody()
+		{
+			return this.body;
+		}
+
+		public Header GetHeader()
+		{
+			return this.header;
+		}
+
+		public override bool IsLoaded()
+		{
+			return (this.header == null ? false : this.body != null);
 		}
 	}
 }

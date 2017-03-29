@@ -1,16 +1,17 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace JamLib
 {
 	public class FlexJamMessageAttribute : Attribute
 	{
-		public string Name
+		public int Id
 		{
 			get;
 			set;
 		}
 
-		public int Id
+		public string Name
 		{
 			get;
 			set;
@@ -20,6 +21,10 @@ namespace JamLib
 		{
 			get;
 			set;
+		}
+
+		public FlexJamMessageAttribute()
+		{
 		}
 	}
 }

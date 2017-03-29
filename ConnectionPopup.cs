@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class ConnectionPopup : MonoBehaviour
 {
+	public ConnectionPopup()
+	{
+	}
+
 	private void Start()
 	{
 	}

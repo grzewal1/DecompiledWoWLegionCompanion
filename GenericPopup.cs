@@ -13,11 +13,19 @@ public class GenericPopup : MonoBehaviour
 
 	public static Action DisabledAction;
 
-	private void Start()
+	public GenericPopup()
 	{
-		this.m_headerText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_descriptionText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_fullText.set_font(GeneralHelpers.LoadStandardFont());
+	}
+
+	private void OnDisable()
+	{
+		Main.instance.m_canvasBlurManager.RemoveBlurRef_MainCanvas();
+		Main.instance.m_canvasBlurManager.RemoveBlurRef_Level2Canvas();
+		Main.instance.m_backButtonManager.PopBackAction();
+		if (GenericPopup.DisabledAction != null)
+		{
+			GenericPopup.DisabledAction();
+		}
 	}
 
 	public void OnEnable()
@@ -28,31 +36,27 @@ public class GenericPopup : MonoBehaviour
 		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
 	}
 
-	private void OnDisable()
+	public void SetFullText(string fullText)
 	{
-		Main.instance.m_canvasBlurManager.RemoveBlurRef_MainCanvas();
-		Main.instance.m_canvasBlurManager.RemoveBlurRef_Level2Canvas();
-		Main.instance.m_backButtonManager.PopBackAction();
-		if (GenericPopup.DisabledAction != null)
-		{
-			GenericPopup.DisabledAction.Invoke();
-		}
+		this.m_headerText.gameObject.SetActive(false);
+		this.m_descriptionText.gameObject.SetActive(false);
+		this.m_fullText.gameObject.SetActive(true);
+		this.m_fullText.text = fullText;
 	}
 
 	public void SetText(string headerText, string descriptionText)
 	{
-		this.m_headerText.get_gameObject().SetActive(true);
-		this.m_descriptionText.get_gameObject().SetActive(true);
-		this.m_fullText.get_gameObject().SetActive(false);
-		this.m_headerText.set_text(headerText);
-		this.m_descriptionText.set_text(descriptionText);
+		this.m_headerText.gameObject.SetActive(true);
+		this.m_descriptionText.gameObject.SetActive(true);
+		this.m_fullText.gameObject.SetActive(false);
+		this.m_headerText.text = headerText;
+		this.m_descriptionText.text = descriptionText;
 	}
 
-	public void SetFullText(string fullText)
+	private void Start()
 	{
-		this.m_headerText.get_gameObject().SetActive(false);
-		this.m_descriptionText.get_gameObject().SetActive(false);
-		this.m_fullText.get_gameObject().SetActive(true);
-		this.m_fullText.set_text(fullText);
+		this.m_headerText.font = GeneralHelpers.LoadStandardFont();
+		this.m_descriptionText.font = GeneralHelpers.LoadStandardFont();
+		this.m_fullText.font = GeneralHelpers.LoadStandardFont();
 	}
 }

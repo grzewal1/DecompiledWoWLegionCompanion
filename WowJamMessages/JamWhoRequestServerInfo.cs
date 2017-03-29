@@ -1,31 +1,40 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamWhoRequestServerInfo", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamWhoRequestServerInfo", Version=28333852)]
 	public class JamWhoRequestServerInfo
 	{
-		[FlexJamMember(Name = "factionGroup", Type = FlexJamType.Int32), DataMember(Name = "factionGroup")]
+		[DataMember(Name="factionGroup")]
+		[FlexJamMember(Name="factionGroup", Type=FlexJamType.Int32)]
 		public int FactionGroup
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "locale", Type = FlexJamType.Int32), DataMember(Name = "locale")]
+		[DataMember(Name="locale")]
+		[FlexJamMember(Name="locale", Type=FlexJamType.Int32)]
 		public int Locale
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "requesterVirtualRealmAddress", Type = FlexJamType.UInt32), DataMember(Name = "requesterVirtualRealmAddress")]
+		[DataMember(Name="requesterVirtualRealmAddress")]
+		[FlexJamMember(Name="requesterVirtualRealmAddress", Type=FlexJamType.UInt32)]
 		public uint RequesterVirtualRealmAddress
 		{
 			get;
 			set;
+		}
+
+		public JamWhoRequestServerInfo()
+		{
 		}
 	}
 }

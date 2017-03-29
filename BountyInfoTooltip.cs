@@ -35,12 +35,8 @@ public class BountyInfoTooltip : MonoBehaviour
 
 	private MobileWorldQuestBounty m_bounty;
 
-	public void OnEnable()
+	public BountyInfoTooltip()
 	{
-		Main.instance.m_UISound.Play_ShowGenericTooltip();
-		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
-		this.m_rewardsLabel.set_text(StaticDB.GetString("REWARDS", null));
-		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
 	}
 
 	private void OnDisable()
@@ -49,102 +45,101 @@ public class BountyInfoTooltip : MonoBehaviour
 		Main.instance.m_backButtonManager.PopBackAction();
 	}
 
+	public void OnEnable()
+	{
+		Main.instance.m_UISound.Play_ShowGenericTooltip();
+		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
+		this.m_rewardsLabel.text = StaticDB.GetString("REWARDS", null);
+		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
+	}
+
 	public void SetBounty(MobileWorldQuestBounty bounty)
 	{
 		this.m_bounty = bounty;
 		Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, bounty.IconFileDataID);
-		if (sprite != null)
+		if (sprite == null)
 		{
-			this.m_bountyIconInvalidFileDataID.get_gameObject().SetActive(false);
-			this.m_bountyIcon.set_sprite(sprite);
+			this.m_bountyIconInvalidFileDataID.gameObject.SetActive(true);
+			this.m_bountyIconInvalidFileDataID.text = string.Concat(string.Empty, bounty.IconFileDataID);
 		}
 		else
 		{
-			this.m_bountyIconInvalidFileDataID.get_gameObject().SetActive(true);
-			this.m_bountyIconInvalidFileDataID.set_text(string.Empty + bounty.IconFileDataID);
+			this.m_bountyIconInvalidFileDataID.gameObject.SetActive(false);
+			this.m_bountyIcon.sprite = sprite;
 		}
 		QuestV2Rec record = StaticDB.questDB.GetRecord(bounty.QuestID);
-		if (record != null)
+		if (record == null)
 		{
-			this.m_bountyName.set_text(record.QuestTitle);
-			this.m_bountyDescription.set_text(string.Concat(new object[]
-			{
-				string.Empty,
-				bounty.NumCompleted,
-				"/",
-				bounty.NumNeeded,
-				" ",
-				record.LogDescription
-			}));
+			this.m_bountyName.text = string.Concat("Unknown Quest ID ", bounty.QuestID);
+			this.m_bountyDescription.text = string.Concat("Unknown Quest ID ", bounty.QuestID);
 		}
 		else
 		{
-			this.m_bountyName.set_text("Unknown Quest ID " + bounty.QuestID);
-			this.m_bountyDescription.set_text("Unknown Quest ID " + bounty.QuestID);
+			this.m_bountyName.text = record.QuestTitle;
+			this.m_bountyDescription.text = string.Concat(new object[] { string.Empty, bounty.NumCompleted, "/", bounty.NumNeeded, " ", record.LogDescription });
 		}
-		this.m_timeLeft.set_text(StaticDB.GetString("TIME_LEFT", "Time Left: PH"));
+		this.m_timeLeft.text = StaticDB.GetString("TIME_LEFT", "Time Left: PH");
 		RectTransform[] componentsInChildren = this.m_bountyQuestIconArea.GetComponentsInChildren<RectTransform>(true);
-		RectTransform[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			RectTransform rectTransform = array[i];
-			if (rectTransform != null && rectTransform.get_gameObject() != this.m_bountyQuestIconArea.get_gameObject())
+			RectTransform rectTransform = componentsInChildren[i];
+			if (rectTransform != null && rectTransform.gameObject != this.m_bountyQuestIconArea.gameObject)
 			{
-				Object.DestroyImmediate(rectTransform.get_gameObject());
+				UnityEngine.Object.DestroyImmediate(rectTransform.gameObject);
 			}
 		}
 		for (int j = 0; j < bounty.NumCompleted; j++)
 		{
-			GameObject gameObject = Object.Instantiate<GameObject>(this.m_bountyQuestCompleteIconPrefab);
-			gameObject.get_transform().SetParent(this.m_bountyQuestIconArea.get_transform(), false);
+			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_bountyQuestCompleteIconPrefab);
+			gameObject.transform.SetParent(this.m_bountyQuestIconArea.transform, false);
 		}
 		for (int k = 0; k < bounty.NumNeeded - bounty.NumCompleted; k++)
 		{
-			GameObject gameObject2 = Object.Instantiate<GameObject>(this.m_bountyQuestAvailableIconPrefab);
-			gameObject2.get_transform().SetParent(this.m_bountyQuestIconArea.get_transform(), false);
+			GameObject gameObject1 = UnityEngine.Object.Instantiate<GameObject>(this.m_bountyQuestAvailableIconPrefab);
+			gameObject1.transform.SetParent(this.m_bountyQuestIconArea.transform, false);
 		}
 		this.UpdateTimeRemaining();
-		if (bounty.Item.Length > 0)
+		if ((int)bounty.Item.Length <= 0)
 		{
-			ItemRec record2 = StaticDB.itemDB.GetRecord(bounty.Item[0].RecordID);
-			if (record2 != null)
-			{
-				this.m_lootName.set_text(record2.Display);
-				this.m_lootDescription.set_text(GeneralHelpers.GetItemDescription(record2));
-				Sprite sprite2 = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, record2.IconFileDataID);
-				if (sprite2 != null)
-				{
-					this.m_lootIcon.set_sprite(sprite2);
-				}
-				else if (this.m_lootIconInvalidFileDataID != null)
-				{
-					this.m_lootIconInvalidFileDataID.get_gameObject().SetActive(true);
-					this.m_lootIconInvalidFileDataID.set_text(string.Empty + record2.IconFileDataID);
-				}
-			}
-			else
-			{
-				this.m_lootName.set_text("Unknown item " + bounty.Item[0].RecordID);
-				this.m_lootDescription.set_text("Unknown item " + bounty.Item[0].RecordID);
-			}
+			this.m_lootName.text = "ERROR: Loot Not Specified";
+			this.m_lootDescription.text = "ERROR: Loot Not Specified";
 		}
 		else
 		{
-			this.m_lootName.set_text("ERROR: Loot Not Specified");
-			this.m_lootDescription.set_text("ERROR: Loot Not Specified");
+			ItemRec itemRec = StaticDB.itemDB.GetRecord(bounty.Item[0].RecordID);
+			if (itemRec == null)
+			{
+				this.m_lootName.text = string.Concat("Unknown item ", bounty.Item[0].RecordID);
+				this.m_lootDescription.text = string.Concat("Unknown item ", bounty.Item[0].RecordID);
+			}
+			else
+			{
+				this.m_lootName.text = itemRec.Display;
+				this.m_lootDescription.text = GeneralHelpers.GetItemDescription(itemRec);
+				Sprite sprite1 = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, itemRec.IconFileDataID);
+				if (sprite1 != null)
+				{
+					this.m_lootIcon.sprite = sprite1;
+				}
+				else if (this.m_lootIconInvalidFileDataID != null)
+				{
+					this.m_lootIconInvalidFileDataID.gameObject.SetActive(true);
+					this.m_lootIconInvalidFileDataID.text = string.Concat(string.Empty, itemRec.IconFileDataID);
+				}
+			}
 		}
-	}
-
-	private void UpdateTimeRemaining()
-	{
-		long num = (long)this.m_bounty.EndTime - GarrisonStatus.CurrentTime();
-		num = ((num <= 0L) ? 0L : num);
-		Duration duration = new Duration((int)num, false);
-		this.m_timeLeft.set_text(StaticDB.GetString("TIME_LEFT", "Time Left: PH") + " " + duration.DurationString);
 	}
 
 	private void Update()
 	{
 		this.UpdateTimeRemaining();
+	}
+
+	private void UpdateTimeRemaining()
+	{
+		long endTime = (long)this.m_bounty.EndTime - GarrisonStatus.CurrentTime();
+		endTime = (endTime <= (long)0 ? (long)0 : endTime);
+		Duration duration = new Duration((int)endTime, false);
+		this.m_timeLeft.text = string.Concat(StaticDB.GetString("TIME_LEFT", "Time Left: PH"), " ", duration.DurationString);
 	}
 }

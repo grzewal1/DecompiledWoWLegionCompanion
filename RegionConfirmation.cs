@@ -13,20 +13,14 @@ public class RegionConfirmation : MonoBehaviour
 
 	public Text m_cancelText;
 
-	private void OnEnable()
+	public RegionConfirmation()
 	{
-		this.m_restartText.set_text(StaticDB.GetString("RESTART_REQUIRED", "Restart Required"));
-		this.m_sureText.set_text(StaticDB.GetString("ARE_YOU_SURE", null));
-		this.m_okayText.set_text(StaticDB.GetString("OK", null));
-		this.m_cancelText.set_text(StaticDB.GetString("CANCEL", null));
-		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
-		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
 	}
 
-	private void OnDisable()
+	public void OnClickCancel()
 	{
-		Main.instance.m_canvasBlurManager.RemoveBlurRef_MainCanvas();
-		Main.instance.m_backButtonManager.PopBackAction();
+		AllPanels.instance.CancelRegionIndex();
+		AllPopups.instance.HideAllPopups();
 	}
 
 	public void OnClickOkay()
@@ -35,9 +29,19 @@ public class RegionConfirmation : MonoBehaviour
 		AllPopups.instance.HideAllPopups();
 	}
 
-	public void OnClickCancel()
+	private void OnDisable()
 	{
-		AllPanels.instance.CancelRegionIndex();
-		AllPopups.instance.HideAllPopups();
+		Main.instance.m_canvasBlurManager.RemoveBlurRef_MainCanvas();
+		Main.instance.m_backButtonManager.PopBackAction();
+	}
+
+	private void OnEnable()
+	{
+		this.m_restartText.text = StaticDB.GetString("RESTART_REQUIRED", "Restart Required");
+		this.m_sureText.text = StaticDB.GetString("ARE_YOU_SURE", null);
+		this.m_okayText.text = StaticDB.GetString("OK", null);
+		this.m_cancelText.text = StaticDB.GetString("CANCEL", null);
+		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
+		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
 	}
 }

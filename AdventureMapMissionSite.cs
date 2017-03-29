@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -66,165 +67,44 @@ public class AdventureMapMissionSite : MonoBehaviour
 
 	private Duration m_missionTimeRemaining;
 
-	private void OnEnable()
+	public AdventureMapMissionSite()
 	{
-		AdventureMapPanel expr_05 = AdventureMapPanel.instance;
-		expr_05.TestIconSizeChanged = (Action<float>)Delegate.Combine(expr_05.TestIconSizeChanged, new Action<float>(this.OnTestIconSizeChanged));
-		Main expr_2B = Main.instance;
-		expr_2B.ClaimMissionBonusResultAction = (Action<int, bool, int>)Delegate.Combine(expr_2B.ClaimMissionBonusResultAction, new Action<int, bool, int>(this.HandleClaimMissionBonusResult));
-		Main expr_51 = Main.instance;
-		expr_51.CompleteMissionResultAction = (Action<int, bool>)Delegate.Combine(expr_51.CompleteMissionResultAction, new Action<int, bool>(this.HandleCompleteMissionResult));
-		PinchZoomContentManager expr_7C = AdventureMapPanel.instance.m_pinchZoomContentManager;
-		expr_7C.ZoomFactorChanged = (Action)Delegate.Combine(expr_7C.ZoomFactorChanged, new Action(this.HandleZoomChanged));
-	}
-
-	private void OnDisable()
-	{
-		AdventureMapPanel expr_05 = AdventureMapPanel.instance;
-		expr_05.TestIconSizeChanged = (Action<float>)Delegate.Remove(expr_05.TestIconSizeChanged, new Action<float>(this.OnTestIconSizeChanged));
-		Main expr_2B = Main.instance;
-		expr_2B.ClaimMissionBonusResultAction = (Action<int, bool, int>)Delegate.Remove(expr_2B.ClaimMissionBonusResultAction, new Action<int, bool, int>(this.HandleClaimMissionBonusResult));
-		Main expr_51 = Main.instance;
-		expr_51.CompleteMissionResultAction = (Action<int, bool>)Delegate.Remove(expr_51.CompleteMissionResultAction, new Action<int, bool>(this.HandleCompleteMissionResult));
-		PinchZoomContentManager expr_7C = AdventureMapPanel.instance.m_pinchZoomContentManager;
-		expr_7C.ZoomFactorChanged = (Action)Delegate.Remove(expr_7C.ZoomFactorChanged, new Action(this.HandleZoomChanged));
-	}
-
-	private void OnTestIconSizeChanged(float newScale)
-	{
-		base.get_transform().set_localScale(Vector3.get_one() * newScale);
-	}
-
-	private void HandleZoomChanged()
-	{
-		this.m_zoomScaleRoot.set_sizeDelta(this.m_myRT.get_sizeDelta() * AdventureMapPanel.instance.m_pinchZoomContentManager.m_zoomFactor);
 	}
 
 	private void Awake()
 	{
-		this.m_selectionRing.get_gameObject().SetActive(false);
-		AdventureMapPanel expr_16 = AdventureMapPanel.instance;
-		expr_16.MissionMapSelectionChangedAction = (Action<int>)Delegate.Combine(expr_16.MissionMapSelectionChangedAction, new Action<int>(this.HandleMissionChanged));
-		this.m_missionCompleteText.set_text(StaticDB.GetString("MISSION_COMPLETE", null));
+		this.m_selectionRing.gameObject.SetActive(false);
+		this.m_missionCompleteText.text = StaticDB.GetString("MISSION_COMPLETE", null);
 		this.m_isStackablePreview = false;
 		this.m_missionTimeRemaining = new Duration(0, false);
 	}
 
-	private void Update()
+	public int GetGarrMissionID()
 	{
-		this.UpdateMissionRemainingTimeDisplay();
+		return this.m_garrMissionID;
 	}
 
-	private void UpdateMissionRemainingTimeDisplay()
+	public void HandleClaimMissionBonusResult(int garrMissionID, bool awardOvermax, int result)
 	{
-		if (!this.m_inProgressMissionGroup.get_gameObject().get_activeSelf())
+		if (garrMissionID == this.m_garrMissionID)
 		{
-			return;
-		}
-		if (this.m_missionSiteGroup != null && this.m_missionSiteGroup.get_alpha() < 0.1f)
-		{
-			return;
-		}
-		long num = GarrisonStatus.CurrentTime() - this.m_missionStartedTime;
-		long num2 = (long)this.m_missionDurationInSeconds - num;
-		num2 = ((num2 <= 0L) ? 0L : num2);
-		if (!this.m_isSupportMission)
-		{
-			this.m_missionTimeRemaining.FormatDurationString((int)num2, false);
-			this.m_missionTimeRemainingText.set_text(this.m_missionTimeRemaining.DurationString);
-		}
-		if (num2 == 0L)
-		{
-			if (this.m_isSupportMission)
+			if (result != 0)
 			{
-				if (!this.m_autoCompletedSupportMission)
-				{
-					if (AdventureMapPanel.instance.ShowMissionResultAction != null)
-					{
-						AdventureMapPanel.instance.ShowMissionResultAction.Invoke(this.m_garrMissionID, 1, false);
-					}
-					Main.instance.CompleteMission(this.m_garrMissionID);
-					this.m_autoCompletedSupportMission = true;
-				}
+				Debug.LogWarning(string.Concat("CLAIM MISSION FAILED! Result = ", (GARRISON_RESULT)result));
 			}
 			else
 			{
-				this.m_availableMissionGroup.get_gameObject().SetActive(false);
-				this.m_inProgressMissionGroup.get_gameObject().SetActive(false);
-				this.m_completeMissionGroup.get_gameObject().SetActive(true);
+				this.OnMissionStatusChanged(awardOvermax, true);
 			}
 		}
 	}
 
-	public void SetMission(int garrMissionID)
+	public void HandleCompleteMissionResult(int garrMissionID, bool missionSucceeded)
 	{
-		base.get_gameObject().set_name("AdvMapMissionSite " + garrMissionID);
-		if (!PersistentMissionData.missionDictionary.ContainsKey(garrMissionID))
+		if (garrMissionID == this.m_garrMissionID)
 		{
-			return;
+			this.OnMissionStatusChanged(false, missionSucceeded);
 		}
-		this.m_garrMissionID = garrMissionID;
-		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(garrMissionID);
-		if (record == null || !PersistentMissionData.missionDictionary.ContainsKey(garrMissionID))
-		{
-			return;
-		}
-		this.m_areaID = record.AreaID;
-		this.m_isSupportMission = false;
-		if ((record.Flags & 16u) != 0u)
-		{
-			this.m_isSupportMission = true;
-			this.m_missionTimeRemainingText.set_text("Fortified");
-		}
-		GarrMissionTypeRec record2 = StaticDB.garrMissionTypeDB.GetRecord((int)record.GarrMissionTypeID);
-		if (record2.UiTextureAtlasMemberID > 0u)
-		{
-			Sprite atlasSprite = TextureAtlas.instance.GetAtlasSprite((int)record2.UiTextureAtlasMemberID);
-			if (atlasSprite != null)
-			{
-				this.m_availableMissionTypeIcon.set_sprite(atlasSprite);
-				this.m_inProgressMissionTypeIcon.set_sprite(atlasSprite);
-			}
-		}
-		JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary.get_Item(garrMissionID);
-		if (jamGarrisonMobileMission.MissionState == 1 || jamGarrisonMobileMission.MissionState == 2)
-		{
-			this.m_missionDurationInSeconds = (int)jamGarrisonMobileMission.MissionDuration;
-		}
-		else
-		{
-			this.m_missionDurationInSeconds = record.MissionDuration;
-		}
-		this.m_missionStartedTime = jamGarrisonMobileMission.StartTime;
-		this.m_availableMissionGroup.get_gameObject().SetActive(jamGarrisonMobileMission.MissionState == 0);
-		this.m_inProgressMissionGroup.get_gameObject().SetActive(jamGarrisonMobileMission.MissionState == 1);
-		this.m_completeMissionGroup.get_gameObject().SetActive(jamGarrisonMobileMission.MissionState == 2 || jamGarrisonMobileMission.MissionState == 3);
-		if (jamGarrisonMobileMission.MissionState == 1)
-		{
-			using (Dictionary<int, JamGarrisonFollower>.Enumerator enumerator = PersistentFollowerData.followerDictionary.GetEnumerator())
-			{
-				while (enumerator.MoveNext())
-				{
-					KeyValuePair<int, JamGarrisonFollower> current = enumerator.get_Current();
-					if (current.get_Value().CurrentMissionID == garrMissionID)
-					{
-						GarrFollowerRec record3 = StaticDB.garrFollowerDB.GetRecord(current.get_Value().GarrFollowerID);
-						if (record3 != null)
-						{
-							Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.PortraitIcons, (GarrisonStatus.Faction() != PVP_FACTION.HORDE) ? record3.AllianceIconFileDataID : record3.HordeIconFileDataID);
-							if (sprite != null)
-							{
-								this.m_followerPortraitImage.set_sprite(sprite);
-							}
-							this.m_followerPortraitRingImage.GetComponent<Image>().set_enabled(true);
-							break;
-						}
-					}
-				}
-			}
-		}
-		this.m_missionLevelText.set_text(string.Empty + record.TargetLevel + ((record.TargetLevel != 110) ? string.Empty : (" (" + record.TargetItemLevel + ")")));
-		this.UpdateMissionRemainingTimeDisplay();
 	}
 
 	public void HandleMissionChanged(int newMissionID)
@@ -243,11 +123,77 @@ public class AdventureMapMissionSite : MonoBehaviour
 		}
 		if (newMissionID == this.m_garrMissionID)
 		{
-			this.m_selectedEffectAnimHandle = UiAnimMgr.instance.PlayAnim("MinimapLoopPulseAnim", this.m_selectedEffectRoot, Vector3.get_zero(), 2.5f, 0f);
+			this.m_selectedEffectAnimHandle = UiAnimMgr.instance.PlayAnim("MinimapLoopPulseAnim", this.m_selectedEffectRoot, Vector3.zero, 2.5f, 0f);
 		}
 		if (this.m_selectionRing != null)
 		{
-			this.m_selectionRing.get_gameObject().SetActive(newMissionID == this.m_garrMissionID);
+			this.m_selectionRing.gameObject.SetActive(newMissionID == this.m_garrMissionID);
+		}
+	}
+
+	private void HandleZoomChanged(bool force)
+	{
+		this.m_zoomScaleRoot.sizeDelta = this.m_myRT.sizeDelta * AdventureMapPanel.instance.m_pinchZoomContentManager.m_zoomFactor;
+	}
+
+	public void JustZoomToMission()
+	{
+		Vector2 vector2;
+		UiAnimMgr.instance.PlayAnim("MinimapPulseAnim", base.transform, Vector3.zero, 3f, 0f);
+		Main.instance.m_UISound.Play_SelectMission();
+		if (StaticDB.garrMissionDB.GetRecord(this.m_garrMissionID) == null)
+		{
+			return;
+		}
+		AdventureMapPanel adventureMapPanel = AdventureMapPanel.instance;
+		StackableMapIcon component = base.GetComponent<StackableMapIcon>();
+		StackableMapIconContainer container = null;
+		if (component != null)
+		{
+			container = component.GetContainer();
+			AdventureMapPanel.instance.SetSelectedIconContainer(container);
+		}
+		vector2 = (container == null ? new Vector2(base.transform.position.x, base.transform.position.y) : new Vector2(container.transform.position.x, container.transform.position.y));
+		adventureMapPanel.CenterAndZoom(vector2, null, true);
+	}
+
+	private void OnDisable()
+	{
+		AdventureMapPanel.instance.TestIconSizeChanged -= new Action<float>(this.OnTestIconSizeChanged);
+		AdventureMapPanel.instance.m_pinchZoomContentManager.ZoomFactorChanged -= new Action<bool>(this.HandleZoomChanged);
+		AdventureMapPanel.instance.MissionMapSelectionChangedAction -= new Action<int>(this.HandleMissionChanged);
+	}
+
+	private void OnEnable()
+	{
+		AdventureMapPanel.instance.TestIconSizeChanged += new Action<float>(this.OnTestIconSizeChanged);
+		AdventureMapPanel.instance.m_pinchZoomContentManager.ZoomFactorChanged += new Action<bool>(this.HandleZoomChanged);
+		AdventureMapPanel.instance.MissionMapSelectionChangedAction += new Action<int>(this.HandleMissionChanged);
+	}
+
+	public void OnMissionStatusChanged(bool awardOvermax, bool missionSucceeded)
+	{
+		JamGarrisonMobileMission item = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary[this.m_garrMissionID];
+		if (item.MissionState == 6 && !missionSucceeded)
+		{
+			Debug.Log(string.Concat("OnMissionStatusChanged() MISSION FAILED ", this.m_garrMissionID));
+			this.m_claimedMyLoot = true;
+			this.ShowMissionFailure();
+			return;
+		}
+		if (this.m_claimedMyLoot)
+		{
+			if (!this.m_showedMyLoot)
+			{
+				this.ShowMissionSuccess(awardOvermax);
+				this.m_showedMyLoot = true;
+			}
+			return;
+		}
+		if (item.MissionState == 2 || item.MissionState == 3)
+		{
+			Main.instance.ClaimMissionBonus(this.m_garrMissionID);
+			this.m_claimedMyLoot = true;
 		}
 	}
 
@@ -257,110 +203,112 @@ public class AdventureMapMissionSite : MonoBehaviour
 		this.JustZoomToMission();
 	}
 
-	public void JustZoomToMission()
-	{
-		UiAnimMgr.instance.PlayAnim("MinimapPulseAnim", base.get_transform(), Vector3.get_zero(), 3f, 0f);
-		Main.instance.m_UISound.Play_SelectMission();
-		if (StaticDB.garrMissionDB.GetRecord(this.m_garrMissionID) == null)
-		{
-			return;
-		}
-		AdventureMapPanel instance = AdventureMapPanel.instance;
-		StackableMapIcon component = base.GetComponent<StackableMapIcon>();
-		StackableMapIconContainer stackableMapIconContainer = null;
-		if (component != null)
-		{
-			stackableMapIconContainer = component.GetContainer();
-			AdventureMapPanel.instance.SetSelectedIconContainer(stackableMapIconContainer);
-		}
-		Vector2 tapPos;
-		if (stackableMapIconContainer != null)
-		{
-			tapPos = new Vector2(stackableMapIconContainer.get_transform().get_position().x, stackableMapIconContainer.get_transform().get_position().y);
-		}
-		else
-		{
-			tapPos = new Vector2(base.get_transform().get_position().x, base.get_transform().get_position().y);
-		}
-		instance.CenterAndZoom(tapPos, null, true);
-	}
-
 	public void OnTapCompletedMission()
 	{
-		UiAnimMgr.instance.PlayAnim("MinimapPulseAnim", base.get_transform(), Vector3.get_zero(), 3f, 0f);
+		UiAnimMgr.instance.PlayAnim("MinimapPulseAnim", base.transform, Vector3.zero, 3f, 0f);
 		Main.instance.m_UISound.Play_SelectMission();
 		if (AdventureMapPanel.instance.ShowMissionResultAction != null)
 		{
-			AdventureMapPanel.instance.ShowMissionResultAction.Invoke(this.m_garrMissionID, 1, false);
+			AdventureMapPanel.instance.ShowMissionResultAction(this.m_garrMissionID, 1, false);
 		}
 		Main.instance.CompleteMission(this.m_garrMissionID);
 	}
 
-	public void HandleCompleteMissionResult(int garrMissionID, bool missionSucceeded)
+	private void OnTestIconSizeChanged(float newScale)
 	{
-		if (garrMissionID == this.m_garrMissionID)
-		{
-			this.OnMissionStatusChanged(false, missionSucceeded);
-		}
+		base.transform.localScale = Vector3.one * newScale;
 	}
 
-	public void HandleClaimMissionBonusResult(int garrMissionID, bool awardOvermax, int result)
+	public void SetMission(int garrMissionID)
 	{
-		if (garrMissionID == this.m_garrMissionID)
+		base.gameObject.name = string.Concat("AdvMapMissionSite ", garrMissionID);
+		if (!PersistentMissionData.missionDictionary.ContainsKey(garrMissionID))
 		{
-			if (result == 0)
-			{
-				this.OnMissionStatusChanged(awardOvermax, true);
-			}
-			else
-			{
-				Debug.LogWarning("CLAIM MISSION FAILED! Result = " + (GARRISON_RESULT)result);
-			}
-		}
-	}
-
-	public void OnMissionStatusChanged(bool awardOvermax, bool missionSucceeded)
-	{
-		JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary.get_Item(this.m_garrMissionID);
-		if (jamGarrisonMobileMission.MissionState == 6 && !missionSucceeded)
-		{
-			Debug.Log("OnMissionStatusChanged() MISSION FAILED " + this.m_garrMissionID);
-			this.m_claimedMyLoot = true;
-			this.ShowMissionFailure();
 			return;
 		}
-		if (!this.m_claimedMyLoot)
+		this.m_garrMissionID = garrMissionID;
+		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(garrMissionID);
+		if (record == null || !PersistentMissionData.missionDictionary.ContainsKey(garrMissionID))
 		{
-			if (jamGarrisonMobileMission.MissionState == 2 || jamGarrisonMobileMission.MissionState == 3)
-			{
-				Main.instance.ClaimMissionBonus(this.m_garrMissionID);
-				this.m_claimedMyLoot = true;
-			}
 			return;
 		}
-		if (!this.m_showedMyLoot)
+		this.m_areaID = record.AreaID;
+		this.m_isSupportMission = false;
+		if ((record.Flags & 16) != 0)
 		{
-			this.ShowMissionSuccess(awardOvermax);
-			this.m_showedMyLoot = true;
+			this.m_isSupportMission = true;
+			this.m_missionTimeRemainingText.text = "Fortified";
+		}
+		GarrMissionTypeRec garrMissionTypeRec = StaticDB.garrMissionTypeDB.GetRecord((int)record.GarrMissionTypeID);
+		if (garrMissionTypeRec.UiTextureAtlasMemberID > 0)
+		{
+			Sprite atlasSprite = TextureAtlas.instance.GetAtlasSprite((int)garrMissionTypeRec.UiTextureAtlasMemberID);
+			if (atlasSprite != null)
+			{
+				this.m_availableMissionTypeIcon.sprite = atlasSprite;
+				this.m_inProgressMissionTypeIcon.sprite = atlasSprite;
+			}
+		}
+		JamGarrisonMobileMission item = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary[garrMissionID];
+		if (item.MissionState == 1 || item.MissionState == 2)
+		{
+			this.m_missionDurationInSeconds = (int)item.MissionDuration;
+		}
+		else
+		{
+			this.m_missionDurationInSeconds = record.MissionDuration;
+		}
+		this.m_missionStartedTime = item.StartTime;
+		this.m_availableMissionGroup.gameObject.SetActive(item.MissionState == 0);
+		this.m_inProgressMissionGroup.gameObject.SetActive(item.MissionState == 1);
+		this.m_completeMissionGroup.gameObject.SetActive((item.MissionState == 2 ? true : item.MissionState == 3));
+		if (item.MissionState == 1)
+		{
+			foreach (KeyValuePair<int, JamGarrisonFollower> keyValuePair in PersistentFollowerData.followerDictionary)
+			{
+				if (keyValuePair.Value.CurrentMissionID != garrMissionID)
+				{
+					continue;
+				}
+				GarrFollowerRec garrFollowerRec = StaticDB.garrFollowerDB.GetRecord(keyValuePair.Value.GarrFollowerID);
+				if (garrFollowerRec != null)
+				{
+					Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.PortraitIcons, (GarrisonStatus.Faction() != PVP_FACTION.HORDE ? garrFollowerRec.AllianceIconFileDataID : garrFollowerRec.HordeIconFileDataID));
+					if (sprite != null)
+					{
+						this.m_followerPortraitImage.sprite = sprite;
+					}
+					this.m_followerPortraitRingImage.GetComponent<Image>().enabled = true;
+					break;
+				}
+			}
+		}
+		this.m_missionLevelText.text = string.Concat(string.Empty, record.TargetLevel, (record.TargetLevel != 110 ? string.Empty : string.Concat(" (", record.TargetItemLevel, ")")));
+		this.UpdateMissionRemainingTimeDisplay();
+	}
+
+	public void SetPreviewMode(bool isPreview)
+	{
+		this.m_isStackablePreview = isPreview;
+		GameObject[] mStuffToHideInPreviewMode = this.m_stuffToHideInPreviewMode;
+		for (int i = 0; i < (int)mStuffToHideInPreviewMode.Length; i++)
+		{
+			mStuffToHideInPreviewMode[i].SetActive(!isPreview);
 		}
 	}
 
-	private void ShowMissionFailure()
+	public bool ShouldShowCompletedMission()
 	{
-		if (AdventureMapPanel.instance.ShowMissionResultAction != null)
+		JamGarrisonMobileMission item = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary[this.m_garrMissionID];
+		if (item.MissionState == 2 || item.MissionState == 3)
 		{
-			AdventureMapPanel.instance.ShowMissionResultAction.Invoke(this.m_garrMissionID, 3, false);
+			return true;
 		}
-		Object.Destroy(base.get_gameObject());
-	}
-
-	private void ShowMissionSuccess(bool awardOvermax)
-	{
-		if (AdventureMapPanel.instance.ShowMissionResultAction != null)
+		if (item.MissionState == 1 && GarrisonStatus.CurrentTime() - this.m_missionStartedTime >= (long)this.m_missionDurationInSeconds)
 		{
-			AdventureMapPanel.instance.ShowMissionResultAction.Invoke(this.m_garrMissionID, 2, awardOvermax);
+			return true;
 		}
-		Object.Destroy(base.get_gameObject());
+		return false;
 	}
 
 	public void ShowInProgressMissionDetails()
@@ -368,18 +316,86 @@ public class AdventureMapMissionSite : MonoBehaviour
 		Main.instance.m_UISound.Play_SelectWorldQuest();
 		if (AdventureMapPanel.instance.ShowMissionResultAction != null)
 		{
-			AdventureMapPanel.instance.ShowMissionResultAction.Invoke(this.m_garrMissionID, 0, false);
+			AdventureMapPanel.instance.ShowMissionResultAction(this.m_garrMissionID, 0, false);
 		}
 	}
 
-	public void SetPreviewMode(bool isPreview)
+	private void ShowMissionFailure()
 	{
-		this.m_isStackablePreview = isPreview;
-		GameObject[] stuffToHideInPreviewMode = this.m_stuffToHideInPreviewMode;
-		for (int i = 0; i < stuffToHideInPreviewMode.Length; i++)
+		if (AdventureMapPanel.instance.ShowMissionResultAction != null)
 		{
-			GameObject gameObject = stuffToHideInPreviewMode[i];
-			gameObject.SetActive(!isPreview);
+			AdventureMapPanel.instance.ShowMissionResultAction(this.m_garrMissionID, 3, false);
+		}
+		StackableMapIcon component = base.gameObject.GetComponent<StackableMapIcon>();
+		GameObject gameObject = base.gameObject;
+		if (component != null)
+		{
+			component.RemoveFromContainer();
+		}
+		if (gameObject != null)
+		{
+			UnityEngine.Object.Destroy(gameObject);
+		}
+	}
+
+	private void ShowMissionSuccess(bool awardOvermax)
+	{
+		if (AdventureMapPanel.instance.ShowMissionResultAction != null)
+		{
+			AdventureMapPanel.instance.ShowMissionResultAction(this.m_garrMissionID, 2, awardOvermax);
+		}
+		StackableMapIcon component = base.gameObject.GetComponent<StackableMapIcon>();
+		GameObject gameObject = base.gameObject;
+		if (component != null)
+		{
+			component.RemoveFromContainer();
+		}
+		if (gameObject != null)
+		{
+			UnityEngine.Object.Destroy(gameObject);
+		}
+	}
+
+	private void Update()
+	{
+		this.UpdateMissionRemainingTimeDisplay();
+	}
+
+	private void UpdateMissionRemainingTimeDisplay()
+	{
+		if (!this.m_inProgressMissionGroup.gameObject.activeSelf)
+		{
+			return;
+		}
+		if (this.m_missionSiteGroup != null && this.m_missionSiteGroup.alpha < 0.1f)
+		{
+			return;
+		}
+		long num = GarrisonStatus.CurrentTime() - this.m_missionStartedTime;
+		long mMissionDurationInSeconds = (long)this.m_missionDurationInSeconds - num;
+		mMissionDurationInSeconds = (mMissionDurationInSeconds <= (long)0 ? (long)0 : mMissionDurationInSeconds);
+		if (!this.m_isSupportMission)
+		{
+			this.m_missionTimeRemaining.FormatDurationString((int)mMissionDurationInSeconds, false);
+			this.m_missionTimeRemainingText.text = this.m_missionTimeRemaining.DurationString;
+		}
+		if (mMissionDurationInSeconds == 0)
+		{
+			if (!this.m_isSupportMission)
+			{
+				this.m_availableMissionGroup.gameObject.SetActive(false);
+				this.m_inProgressMissionGroup.gameObject.SetActive(false);
+				this.m_completeMissionGroup.gameObject.SetActive(true);
+			}
+			else if (!this.m_autoCompletedSupportMission)
+			{
+				if (AdventureMapPanel.instance.ShowMissionResultAction != null)
+				{
+					AdventureMapPanel.instance.ShowMissionResultAction(this.m_garrMissionID, 1, false);
+				}
+				Main.instance.CompleteMission(this.m_garrMissionID);
+				this.m_autoCompletedSupportMission = true;
+			}
 		}
 	}
 }

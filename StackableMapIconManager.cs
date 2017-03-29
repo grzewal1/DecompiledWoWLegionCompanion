@@ -10,6 +10,10 @@ public class StackableMapIconManager : MonoBehaviour
 
 	private static StackableMapIconManager s_instance;
 
+	public StackableMapIconManager()
+	{
+	}
+
 	private void Awake()
 	{
 		StackableMapIconManager.s_instance = this;
@@ -29,48 +33,45 @@ public class StackableMapIconManager : MonoBehaviour
 			return;
 		}
 		bool flag = false;
-		using (List<StackableMapIconContainer>.Enumerator enumerator = StackableMapIconManager.s_instance.m_containers.GetEnumerator())
+		foreach (StackableMapIconContainer mContainer in StackableMapIconManager.s_instance.m_containers)
 		{
-			while (enumerator.MoveNext())
+			if (mContainer != null)
 			{
-				StackableMapIconContainer current = enumerator.get_Current();
-				if (!(current == null))
+				if (mContainer.gameObject.activeSelf)
 				{
-					if (current.get_gameObject().get_activeSelf())
+					Rect worldRect = mContainer.GetWorldRect();
+					if (!icon.GetWorldRect().Overlaps(worldRect))
 					{
-						Rect worldRect = current.GetWorldRect();
-						if (icon.GetWorldRect().Overlaps(worldRect))
-						{
-							current.AddStackableMapIcon(icon);
-							icon.SetContainer(current);
-							StackableMapIconManager.s_instance.m_containers.Add(current);
-							flag = true;
-							break;
-						}
+						continue;
 					}
+					mContainer.AddStackableMapIcon(icon);
+					icon.SetContainer(mContainer);
+					StackableMapIconManager.s_instance.m_containers.Add(mContainer);
+					flag = true;
+					break;
 				}
 			}
 		}
 		if (!flag)
 		{
-			GameObject gameObject = Object.Instantiate<GameObject>(StackableMapIconManager.s_instance.m_stackableMapContainerPrefab);
-			gameObject.get_transform().SetParent(icon.get_transform().get_parent(), false);
+			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(StackableMapIconManager.s_instance.m_stackableMapContainerPrefab);
+			gameObject.transform.SetParent(icon.transform.parent, false);
 			RectTransform component = gameObject.GetComponent<RectTransform>();
-			RectTransform component2 = icon.GetComponent<RectTransform>();
-			component.set_anchorMin(component2.get_anchorMin());
-			component.set_anchorMax(component2.get_anchorMax());
-			component.set_sizeDelta(icon.m_iconBoundsRT.get_sizeDelta());
-			component.set_anchoredPosition(Vector2.get_zero());
-			StackableMapIconContainer component3 = gameObject.GetComponent<StackableMapIconContainer>();
-			if (component3 != null)
+			RectTransform rectTransform = icon.GetComponent<RectTransform>();
+			component.anchorMin = rectTransform.anchorMin;
+			component.anchorMax = rectTransform.anchorMax;
+			component.sizeDelta = icon.m_iconBoundsRT.sizeDelta;
+			component.anchoredPosition = Vector2.zero;
+			StackableMapIconContainer stackableMapIconContainer = gameObject.GetComponent<StackableMapIconContainer>();
+			if (stackableMapIconContainer == null)
 			{
-				component3.AddStackableMapIcon(icon);
-				icon.SetContainer(component3);
-				StackableMapIconManager.s_instance.m_containers.Add(component3);
+				Debug.LogError("ERROR: containerObj has no StackableMapIconContainer!!");
 			}
 			else
 			{
-				Debug.LogError("ERROR: containerObj has no StackableMapIconContainer!!");
+				stackableMapIconContainer.AddStackableMapIcon(icon);
+				icon.SetContainer(stackableMapIconContainer);
+				StackableMapIconManager.s_instance.m_containers.Add(stackableMapIconContainer);
 			}
 		}
 	}

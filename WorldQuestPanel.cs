@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using WowJamMessages.MobileClientJSON;
@@ -29,49 +30,44 @@ public class WorldQuestPanel : MonoBehaviour
 		{
 			this.m_questID = value;
 			MissionRewardDisplay[] componentsInChildren = this.m_lootGroupObj.GetComponentsInChildren<MissionRewardDisplay>(true);
-			for (int i = 0; i < componentsInChildren.Length; i++)
+			for (int i = 0; i < (int)componentsInChildren.Length; i++)
 			{
 				if (componentsInChildren[i] != null)
 				{
-					Object.DestroyImmediate(componentsInChildren[i].get_gameObject());
+					UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
 				}
 			}
 			if (this.m_questID > 0)
 			{
-				MobileWorldQuest mobileWorldQuest = (MobileWorldQuest)WorldQuestData.worldQuestDictionary.get_Item(this.m_questID);
-				if (mobileWorldQuest != null)
+				MobileWorldQuest item = (MobileWorldQuest)WorldQuestData.worldQuestDictionary[this.m_questID];
+				if (item != null)
 				{
-					this.m_worldQuestNameText.set_text(mobileWorldQuest.QuestTitle);
-					this.m_worldQuestDescriptionText.set_text(mobileWorldQuest.QuestTitle);
-					int num = (int)((long)mobileWorldQuest.EndTime - GarrisonStatus.CurrentTime());
-					if (num < 0)
+					this.m_worldQuestNameText.text = item.QuestTitle;
+					this.m_worldQuestDescriptionText.text = item.QuestTitle;
+					int endTime = (int)((long)item.EndTime - GarrisonStatus.CurrentTime());
+					if (endTime < 0)
 					{
-						num = 0;
+						endTime = 0;
 					}
-					Duration duration = new Duration(num, false);
-					this.m_worldQuestTimeText.set_text(duration.DurationString);
-					MissionRewardDisplay.InitWorldQuestRewards(mobileWorldQuest, this.m_missionRewardDisplayPrefab.get_gameObject(), this.m_lootGroupObj.get_transform());
+					Duration duration = new Duration(endTime, false);
+					this.m_worldQuestTimeText.text = duration.DurationString;
+					MissionRewardDisplay.InitWorldQuestRewards(item, this.m_missionRewardDisplayPrefab.gameObject, this.m_lootGroupObj.transform);
 				}
 			}
 		}
 	}
 
+	public WorldQuestPanel()
+	{
+	}
+
 	private void Awake()
 	{
 		this.m_sliderPanel = base.GetComponent<SliderPanel>();
-		AdventureMapPanel expr_11 = AdventureMapPanel.instance;
-		expr_11.OnZoomOutMap = (Action)Delegate.Combine(expr_11.OnZoomOutMap, new Action(this.OnZoomOutMap));
-		AdventureMapPanel expr_37 = AdventureMapPanel.instance;
-		expr_37.MissionMapSelectionChangedAction = (Action<int>)Delegate.Combine(expr_37.MissionMapSelectionChangedAction, new Action<int>(this.HandleMissionChanged));
-		AdventureMapPanel expr_5D = AdventureMapPanel.instance;
-		expr_5D.OnShowMissionRewardPanel = (Action<bool>)Delegate.Combine(expr_5D.OnShowMissionRewardPanel, new Action<bool>(this.OnShowMissionRewardPanel));
-		AdventureMapPanel expr_83 = AdventureMapPanel.instance;
-		expr_83.WorldQuestChangedAction = (Action<int>)Delegate.Combine(expr_83.WorldQuestChangedAction, new Action<int>(this.HandleWorldQuestChanged));
-	}
-
-	public void OnZoomOutMap()
-	{
-		this.m_sliderPanel.HideSliderPanel();
+		AdventureMapPanel.instance.OnZoomOutMap += new Action(this.OnZoomOutMap);
+		AdventureMapPanel.instance.MissionMapSelectionChangedAction += new Action<int>(this.HandleMissionChanged);
+		AdventureMapPanel.instance.OnShowMissionRewardPanel += new Action<bool>(this.OnShowMissionRewardPanel);
+		AdventureMapPanel.instance.WorldQuestChangedAction += new Action<int>(this.HandleWorldQuestChanged);
 	}
 
 	public void HandleMissionChanged(int garrMissionID)
@@ -82,21 +78,26 @@ public class WorldQuestPanel : MonoBehaviour
 		}
 	}
 
+	private void HandleWorldQuestChanged(int worldQuestID)
+	{
+		this.QuestID = worldQuestID;
+		if (this.QuestID == 0)
+		{
+			this.m_sliderPanel.HideSliderPanel();
+		}
+		else
+		{
+			this.m_sliderPanel.ShowSliderPanel();
+		}
+	}
+
 	private void OnShowMissionRewardPanel(bool show)
 	{
 		this.m_sliderPanel.HideSliderPanel();
 	}
 
-	private void HandleWorldQuestChanged(int worldQuestID)
+	public void OnZoomOutMap()
 	{
-		this.QuestID = worldQuestID;
-		if (this.QuestID != 0)
-		{
-			this.m_sliderPanel.ShowSliderPanel();
-		}
-		else
-		{
-			this.m_sliderPanel.HideSliderPanel();
-		}
+		this.m_sliderPanel.HideSliderPanel();
 	}
 }

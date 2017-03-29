@@ -7,29 +7,38 @@ namespace Assets.DustinHorne.JsonDotNetUnity.TestCases
 {
 	public static class TestCaseUtils
 	{
-		private static Random _rnd = new Random();
+		private static System.Random _rnd;
+
+		static TestCaseUtils()
+		{
+			TestCaseUtils._rnd = new System.Random();
+		}
 
 		public static SampleBase GetSampleBase()
 		{
-			SampleBase sampleBase = new SampleBase();
-			sampleBase.TextValue = Guid.NewGuid().ToString();
-			sampleBase.NumberValue = TestCaseUtils._rnd.Next();
+			SampleBase sampleBase = new SampleBase()
+			{
+				TextValue = Guid.NewGuid().ToString(),
+				NumberValue = TestCaseUtils._rnd.Next()
+			};
 			int num = TestCaseUtils._rnd.Next();
+			int num1 = TestCaseUtils._rnd.Next();
 			int num2 = TestCaseUtils._rnd.Next();
-			int num3 = TestCaseUtils._rnd.Next();
-			sampleBase.VectorValue = new Vector3((float)num, (float)num2, (float)num3);
+			sampleBase.VectorValue = new Vector3((float)num, (float)num1, (float)num2);
 			return sampleBase;
 		}
 
 		public static SampleChild GetSampleChid()
 		{
-			SampleChild sampleChild = new SampleChild();
-			sampleChild.TextValue = Guid.NewGuid().ToString();
-			sampleChild.NumberValue = TestCaseUtils._rnd.Next();
+			SampleChild sampleChild = new SampleChild()
+			{
+				TextValue = Guid.NewGuid().ToString(),
+				NumberValue = TestCaseUtils._rnd.Next()
+			};
 			int num = TestCaseUtils._rnd.Next();
+			int num1 = TestCaseUtils._rnd.Next();
 			int num2 = TestCaseUtils._rnd.Next();
-			int num3 = TestCaseUtils._rnd.Next();
-			sampleChild.VectorValue = new Vector3((float)num, (float)num2, (float)num3);
+			sampleChild.VectorValue = new Vector3((float)num, (float)num1, (float)num2);
 			sampleChild.ObjectDictionary = new Dictionary<int, SimpleClassObject>();
 			for (int i = 0; i < 4; i++)
 			{
@@ -39,21 +48,23 @@ namespace Assets.DustinHorne.JsonDotNetUnity.TestCases
 			sampleChild.ObjectList = new List<SimpleClassObject>();
 			for (int j = 0; j < 4; j++)
 			{
-				SimpleClassObject simpleClassObject2 = TestCaseUtils.GetSimpleClassObject();
-				sampleChild.ObjectList.Add(simpleClassObject2);
+				SimpleClassObject simpleClassObject1 = TestCaseUtils.GetSimpleClassObject();
+				sampleChild.ObjectList.Add(simpleClassObject1);
 			}
 			return sampleChild;
 		}
 
 		public static SimpleClassObject GetSimpleClassObject()
 		{
-			SimpleClassObject simpleClassObject = new SimpleClassObject();
-			simpleClassObject.TextValue = Guid.NewGuid().ToString();
-			simpleClassObject.NumberValue = TestCaseUtils._rnd.Next();
+			SimpleClassObject simpleClassObject = new SimpleClassObject()
+			{
+				TextValue = Guid.NewGuid().ToString(),
+				NumberValue = TestCaseUtils._rnd.Next()
+			};
 			int num = TestCaseUtils._rnd.Next();
+			int num1 = TestCaseUtils._rnd.Next();
 			int num2 = TestCaseUtils._rnd.Next();
-			int num3 = TestCaseUtils._rnd.Next();
-			simpleClassObject.VectorValue = new Vector3((float)num, (float)num2, (float)num3);
+			simpleClassObject.VectorValue = new Vector3((float)num, (float)num1, (float)num2);
 			return simpleClassObject;
 		}
 	}

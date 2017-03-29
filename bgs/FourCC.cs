@@ -29,41 +29,6 @@ namespace bgs
 			return fourCC;
 		}
 
-		public uint GetValue()
-		{
-			return this.m_value;
-		}
-
-		public void SetValue(uint val)
-		{
-			this.m_value = val;
-		}
-
-		public string GetString()
-		{
-			StringBuilder stringBuilder = new StringBuilder(4);
-			for (int i = 24; i >= 0; i -= 8)
-			{
-				char c = (char)(this.m_value >> i & 255u);
-				if (c != '\0')
-				{
-					stringBuilder.Append(c);
-				}
-			}
-			return stringBuilder.ToString();
-		}
-
-		public void SetString(string str)
-		{
-			this.m_value = 0u;
-			int num = 0;
-			while (num < str.get_Length() && num < 4)
-			{
-				this.m_value = (this.m_value << 8 | (uint)((byte)str.get_Chars(num)));
-				num++;
-			}
-		}
-
 		public void CopyFrom(FourCC other)
 		{
 			this.m_value = other.m_value;
@@ -76,12 +41,20 @@ namespace bgs
 				return false;
 			}
 			FourCC fourCC = obj as FourCC;
-			return fourCC != null && this.m_value == fourCC.m_value;
+			if (fourCC == null)
+			{
+				return false;
+			}
+			return this.m_value == fourCC.m_value;
 		}
 
 		public bool Equals(FourCC other)
 		{
-			return other != null && this.m_value == other.m_value;
+			if (other == null)
+			{
+				return false;
+			}
+			return this.m_value == other.m_value;
 		}
 
 		public override int GetHashCode()
@@ -89,24 +62,59 @@ namespace bgs
 			return this.m_value.GetHashCode();
 		}
 
-		public override string ToString()
+		public string GetString()
 		{
-			return this.GetString();
+			StringBuilder stringBuilder = new StringBuilder(4);
+			for (int i = 24; i >= 0; i = i - 8)
+			{
+				char mValue = (char)(this.m_value >> (i & 31) & 255);
+				if (mValue != 0)
+				{
+					stringBuilder.Append(mValue);
+				}
+			}
+			return stringBuilder.ToString();
+		}
+
+		public uint GetValue()
+		{
+			return this.m_value;
+		}
+
+		public static bool operator ==(uint val, FourCC fourCC)
+		{
+			if (fourCC == null)
+			{
+				return false;
+			}
+			return val == fourCC.m_value;
+		}
+
+		public static bool operator ==(FourCC fourCC, uint val)
+		{
+			if (fourCC == null)
+			{
+				return false;
+			}
+			return fourCC.m_value == val;
+		}
+
+		public static bool operator ==(FourCC a, FourCC b)
+		{
+			if (object.ReferenceEquals(a, b))
+			{
+				return true;
+			}
+			if (a == null || b == null)
+			{
+				return false;
+			}
+			return a.m_value == b.m_value;
 		}
 
 		public static implicit operator FourCC(uint val)
 		{
 			return new FourCC(val);
-		}
-
-		public static bool operator ==(uint val, FourCC fourCC)
-		{
-			return !(fourCC == null) && val == fourCC.m_value;
-		}
-
-		public static bool operator ==(FourCC fourCC, uint val)
-		{
-			return !(fourCC == null) && fourCC.m_value == val;
 		}
 
 		public static bool operator !=(uint val, FourCC fourCC)
@@ -119,14 +127,28 @@ namespace bgs
 			return !(fourCC == val);
 		}
 
-		public static bool operator ==(FourCC a, FourCC b)
-		{
-			return object.ReferenceEquals(a, b) || (a != null && b != null && a.m_value == b.m_value);
-		}
-
 		public static bool operator !=(FourCC a, FourCC b)
 		{
 			return !(a == b);
+		}
+
+		public void SetString(string str)
+		{
+			this.m_value = 0;
+			for (int i = 0; i < str.Length && i < 4; i++)
+			{
+				this.m_value = this.m_value << 8 | (byte)str[i];
+			}
+		}
+
+		public void SetValue(uint val)
+		{
+			this.m_value = val;
+		}
+
+		public override string ToString()
+		{
+			return this.GetString();
 		}
 	}
 }

@@ -15,11 +15,15 @@ public class EncounterPopup : MonoBehaviour
 
 	public AbilityInfoPopup m_mechanicCounterAbility;
 
+	public EncounterPopup()
+	{
+	}
+
 	private void Awake()
 	{
-		this.m_encounterTypeLabel.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_counteredByLabel.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_counteredByLabel.set_text(StaticDB.GetString("COUNTERED_BY", "Countered By:"));
+		this.m_encounterTypeLabel.font = GeneralHelpers.LoadStandardFont();
+		this.m_counteredByLabel.font = GeneralHelpers.LoadStandardFont();
+		this.m_counteredByLabel.text = StaticDB.GetString("COUNTERED_BY", "Countered By:");
 	}
 
 	public void SetEncounter(int garrEncounterID, int garrMechanicID)
@@ -28,18 +32,18 @@ public class EncounterPopup : MonoBehaviour
 		GarrMechanicRec record = StaticDB.garrMechanicDB.GetRecord(garrMechanicID);
 		if (record == null || record.GarrAbilityID == 0)
 		{
-			base.get_gameObject().SetActive(false);
+			base.gameObject.SetActive(false);
 			return;
 		}
 		this.m_mechanicEffect.SetAbility(record.GarrAbilityID);
 		int abilityToCounterMechanicType = MissionMechanic.GetAbilityToCounterMechanicType((int)record.GarrMechanicTypeID);
 		this.m_mechanicCounterAbility.SetAbility(abilityToCounterMechanicType);
-		GarrMechanicTypeRec record2 = StaticDB.garrMechanicTypeDB.GetRecord((int)record.GarrMechanicTypeID);
-		if (record2 == null)
+		GarrMechanicTypeRec garrMechanicTypeRec = StaticDB.garrMechanicTypeDB.GetRecord((int)record.GarrMechanicTypeID);
+		if (garrMechanicTypeRec == null)
 		{
-			base.get_gameObject().SetActive(false);
+			base.gameObject.SetActive(false);
 			return;
 		}
-		this.m_encounterTypeLabel.set_text(record2.Name);
+		this.m_encounterTypeLabel.text = garrMechanicTypeRec.Name;
 	}
 }

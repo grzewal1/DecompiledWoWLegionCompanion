@@ -7,8 +7,13 @@ public class DESEncryption : IEncryption
 {
 	private const int Iterations = 1000;
 
+	public DESEncryption()
+	{
+	}
+
 	public string Encrypt(string plainText, string password)
 	{
+		string base64String;
 		if (plainText == null)
 		{
 			throw new ArgumentNullException("plainText");
@@ -19,57 +24,54 @@ public class DESEncryption : IEncryption
 		}
 		DESCryptoServiceProvider dESCryptoServiceProvider = new DESCryptoServiceProvider();
 		dESCryptoServiceProvider.GenerateIV();
-		Rfc2898DeriveBytes rfc2898DeriveBytes = new Rfc2898DeriveBytes(password, dESCryptoServiceProvider.get_IV(), 1000);
-		byte[] bytes = rfc2898DeriveBytes.GetBytes(8);
-		string result;
+		Rfc2898DeriveBytes rfc2898DeriveByte = new Rfc2898DeriveBytes(password, dESCryptoServiceProvider.IV, 1000);
+		byte[] bytes = rfc2898DeriveByte.GetBytes(8);
 		using (MemoryStream memoryStream = new MemoryStream())
 		{
-			using (CryptoStream cryptoStream = new CryptoStream(memoryStream, dESCryptoServiceProvider.CreateEncryptor(bytes, dESCryptoServiceProvider.get_IV()), 1))
+			using (CryptoStream cryptoStream = new CryptoStream(memoryStream, dESCryptoServiceProvider.CreateEncryptor(bytes, dESCryptoServiceProvider.IV), CryptoStreamMode.Write))
 			{
-				memoryStream.Write(dESCryptoServiceProvider.get_IV(), 0, dESCryptoServiceProvider.get_IV().Length);
-				byte[] bytes2 = Encoding.get_UTF8().GetBytes(plainText);
-				cryptoStream.Write(bytes2, 0, bytes2.Length);
+				memoryStream.Write(dESCryptoServiceProvider.IV, 0, (int)dESCryptoServiceProvider.IV.Length);
+				byte[] numArray = Encoding.UTF8.GetBytes(plainText);
+				cryptoStream.Write(numArray, 0, (int)numArray.Length);
 				cryptoStream.FlushFinalBlock();
-				result = Convert.ToBase64String(memoryStream.ToArray());
+				base64String = Convert.ToBase64String(memoryStream.ToArray());
 			}
 		}
-		return result;
+		return base64String;
 	}
 
 	public bool TryDecrypt(string cipherText, string password, out string plainText)
 	{
+		bool flag;
 		if (string.IsNullOrEmpty(cipherText) || string.IsNullOrEmpty(password))
 		{
 			plainText = string.Empty;
 			return false;
 		}
-		bool result;
 		try
 		{
-			byte[] array = Convert.FromBase64String(cipherText);
-			using (MemoryStream memoryStream = new MemoryStream(array))
+			using (MemoryStream memoryStream = new MemoryStream(Convert.FromBase64String(cipherText)))
 			{
 				DESCryptoServiceProvider dESCryptoServiceProvider = new DESCryptoServiceProvider();
-				byte[] array2 = new byte[8];
-				memoryStream.Read(array2, 0, array2.Length);
-				Rfc2898DeriveBytes rfc2898DeriveBytes = new Rfc2898DeriveBytes(password, array2, 1000);
-				byte[] bytes = rfc2898DeriveBytes.GetBytes(8);
-				using (CryptoStream cryptoStream = new CryptoStream(memoryStream, dESCryptoServiceProvider.CreateDecryptor(bytes, array2), 0))
+				byte[] numArray = new byte[8];
+				memoryStream.Read(numArray, 0, (int)numArray.Length);
+				byte[] bytes = (new Rfc2898DeriveBytes(password, numArray, 1000)).GetBytes(8);
+				using (CryptoStream cryptoStream = new CryptoStream(memoryStream, dESCryptoServiceProvider.CreateDecryptor(bytes, numArray), CryptoStreamMode.Read))
 				{
 					using (StreamReader streamReader = new StreamReader(cryptoStream))
 					{
 						plainText = streamReader.ReadToEnd();
-						result = true;
+						flag = true;
 					}
 				}
 			}
 		}
-		catch (Exception ex)
+		catch (Exception exception)
 		{
-			Console.WriteLine(ex);
+			Console.WriteLine(exception);
 			plainText = string.Empty;
-			result = false;
+			flag = false;
 		}
-		return result;
+		return flag;
 	}
 }

@@ -1,31 +1,40 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamTrophyInfo", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamTrophyInfo", Version=28333852)]
 	public class JamTrophyInfo
 	{
-		[FlexJamMember(Name = "canUseReason", Type = FlexJamType.Int32), DataMember(Name = "canUseReason")]
-		public int CanUseReason
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "canUseData", Type = FlexJamType.Int32), DataMember(Name = "canUseData")]
+		[DataMember(Name="canUseData")]
+		[FlexJamMember(Name="canUseData", Type=FlexJamType.Int32)]
 		public int CanUseData
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "trophyID", Type = FlexJamType.Int32), DataMember(Name = "trophyID")]
+		[DataMember(Name="canUseReason")]
+		[FlexJamMember(Name="canUseReason", Type=FlexJamType.Int32)]
+		public int CanUseReason
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="trophyID")]
+		[FlexJamMember(Name="trophyID", Type=FlexJamType.Int32)]
 		public int TrophyID
 		{
 			get;
 			set;
+		}
+
+		public JamTrophyInfo()
+		{
 		}
 	}
 }

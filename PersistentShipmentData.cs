@@ -17,8 +17,10 @@ public class PersistentShipmentData
 		{
 			if (PersistentShipmentData.s_instance == null)
 			{
-				PersistentShipmentData.s_instance = new PersistentShipmentData();
-				PersistentShipmentData.s_instance.m_shipmentDictionary = new Hashtable();
+				PersistentShipmentData.s_instance = new PersistentShipmentData()
+				{
+					m_shipmentDictionary = new Hashtable()
+				};
 			}
 			return PersistentShipmentData.s_instance;
 		}
@@ -32,6 +34,14 @@ public class PersistentShipmentData
 		}
 	}
 
+	static PersistentShipmentData()
+	{
+	}
+
+	public PersistentShipmentData()
+	{
+	}
+
 	public static void AddOrUpdateShipment(JamCharacterShipment shipment)
 	{
 		if (PersistentShipmentData.instance.m_shipmentDictionary.ContainsKey(shipment.ShipmentID))
@@ -41,25 +51,29 @@ public class PersistentShipmentData
 		PersistentShipmentData.instance.m_shipmentDictionary.Add(shipment.ShipmentID, shipment);
 	}
 
-	public static void SetAvailableShipmentTypes(MobileClientShipmentType[] availableShipmentTypes)
+	public static bool CanOrderShipmentType(int charShipmentID)
 	{
-		PersistentShipmentData.instance.m_availableShipmentTypes = availableShipmentTypes;
-	}
-
-	public static MobileClientShipmentType[] GetAvailableShipmentTypes()
-	{
-		return PersistentShipmentData.instance.m_availableShipmentTypes;
-	}
-
-	public static bool ShipmentTypeForShipmentIsAvailable(int charShipmentID)
-	{
-		MobileClientShipmentType[] availableShipmentTypes = PersistentShipmentData.instance.m_availableShipmentTypes;
-		for (int i = 0; i < availableShipmentTypes.Length; i++)
+		MobileClientShipmentType[] mAvailableShipmentTypes = PersistentShipmentData.instance.m_availableShipmentTypes;
+		for (int i = 0; i < (int)mAvailableShipmentTypes.Length; i++)
 		{
-			MobileClientShipmentType mobileClientShipmentType = availableShipmentTypes[i];
+			MobileClientShipmentType mobileClientShipmentType = mAvailableShipmentTypes[i];
 			if (mobileClientShipmentType.CharShipmentID == charShipmentID)
 			{
-				return true;
+				return mobileClientShipmentType.CanOrder;
+			}
+		}
+		return false;
+	}
+
+	public static bool CanPickupShipmentType(int charShipmentID)
+	{
+		MobileClientShipmentType[] mAvailableShipmentTypes = PersistentShipmentData.instance.m_availableShipmentTypes;
+		for (int i = 0; i < (int)mAvailableShipmentTypes.Length; i++)
+		{
+			MobileClientShipmentType mobileClientShipmentType = mAvailableShipmentTypes[i];
+			if (mobileClientShipmentType.CharShipmentID == charShipmentID)
+			{
+				return mobileClientShipmentType.CanPickup;
 			}
 		}
 		return false;
@@ -70,19 +84,27 @@ public class PersistentShipmentData
 		PersistentShipmentData.instance.m_shipmentDictionary.Clear();
 	}
 
+	public static MobileClientShipmentType[] GetAvailableShipmentTypes()
+	{
+		return PersistentShipmentData.instance.m_availableShipmentTypes;
+	}
+
 	public static int GetNumReadyShipments()
 	{
 		int num = 0;
-		IEnumerator enumerator = PersistentShipmentData.shipmentDictionary.get_Values().GetEnumerator();
+		IEnumerator enumerator = PersistentShipmentData.shipmentDictionary.Values.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				JamCharacterShipment jamCharacterShipment = (JamCharacterShipment)enumerator.get_Current();
-				long num2 = GarrisonStatus.CurrentTime() - (long)jamCharacterShipment.CreationTime;
-				long num3 = (long)jamCharacterShipment.ShipmentDuration - num2;
-				if (num3 <= 0L)
+				JamCharacterShipment current = (JamCharacterShipment)enumerator.Current;
+				if (PersistentShipmentData.ShipmentTypeForShipmentIsAvailable(current.ShipmentRecID))
 				{
+					long num1 = GarrisonStatus.CurrentTime() - (long)current.CreationTime;
+					if ((long)current.ShipmentDuration - num1 > (long)0)
+					{
+						continue;
+					}
 					num++;
 				}
 			}
@@ -90,11 +112,29 @@ public class PersistentShipmentData
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable != null)
+			if (disposable == null)
 			{
-				disposable.Dispose();
 			}
+			disposable.Dispose();
 		}
 		return num;
+	}
+
+	public static void SetAvailableShipmentTypes(MobileClientShipmentType[] availableShipmentTypes)
+	{
+		PersistentShipmentData.instance.m_availableShipmentTypes = availableShipmentTypes;
+	}
+
+	public static bool ShipmentTypeForShipmentIsAvailable(int charShipmentID)
+	{
+		MobileClientShipmentType[] mAvailableShipmentTypes = PersistentShipmentData.instance.m_availableShipmentTypes;
+		for (int i = 0; i < (int)mAvailableShipmentTypes.Length; i++)
+		{
+			if (mAvailableShipmentTypes[i].CharShipmentID == charShipmentID)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

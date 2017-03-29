@@ -1,24 +1,32 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamGlobalAura", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamGlobalAura", Version=28333852)]
 	public class JamGlobalAura
 	{
-		[FlexJamMember(Name = "spellID", Type = FlexJamType.Int32), DataMember(Name = "spellID")]
+		[DataMember(Name="playerConditionID")]
+		[FlexJamMember(Name="playerConditionID", Type=FlexJamType.Int32)]
+		public int PlayerConditionID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="spellID")]
+		[FlexJamMember(Name="spellID", Type=FlexJamType.Int32)]
 		public int SpellID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "playerConditionID", Type = FlexJamType.Int32), DataMember(Name = "playerConditionID")]
-		public int PlayerConditionID
+		public JamGlobalAura()
 		{
-			get;
-			set;
 		}
 	}
 }

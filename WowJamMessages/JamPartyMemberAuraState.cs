@@ -1,38 +1,48 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamPartyMemberAuraState", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamPartyMemberAuraState", Version=28333852)]
 	public class JamPartyMemberAuraState
 	{
-		[FlexJamMember(Name = "activeFlags", Type = FlexJamType.UInt32), DataMember(Name = "activeFlags")]
+		[DataMember(Name="activeFlags")]
+		[FlexJamMember(Name="activeFlags", Type=FlexJamType.UInt32)]
 		public uint ActiveFlags
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "aura", Type = FlexJamType.Int32), DataMember(Name = "aura")]
+		[DataMember(Name="aura")]
+		[FlexJamMember(Name="aura", Type=FlexJamType.Int32)]
 		public int Aura
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "flags", Type = FlexJamType.UInt8), DataMember(Name = "flags")]
+		[DataMember(Name="flags")]
+		[FlexJamMember(Name="flags", Type=FlexJamType.UInt8)]
 		public byte Flags
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(ArrayDimensions = 1, Name = "points", Type = FlexJamType.Float), DataMember(Name = "points")]
+		[DataMember(Name="points")]
+		[FlexJamMember(ArrayDimensions=1, Name="points", Type=FlexJamType.Float)]
 		public float[] Points
 		{
 			get;
 			set;
+		}
+
+		public JamPartyMemberAuraState()
+		{
 		}
 	}
 }

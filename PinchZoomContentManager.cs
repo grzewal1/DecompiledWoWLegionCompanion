@@ -22,13 +22,93 @@ public class PinchZoomContentManager : MonoBehaviour
 
 	public float m_zoomOutThreshold;
 
-	public Action ZoomFactorChanged;
+	public Action<bool> ZoomFactorChanged;
+
+	public PinchZoomContentManager()
+	{
+	}
+
+	public void ForceZoomFactorChanged()
+	{
+		if (this.ZoomFactorChanged != null)
+		{
+			this.ZoomFactorChanged(true);
+		}
+	}
+
+	public bool IsZoomedIn()
+	{
+		MapInfo componentInChildren = base.GetComponentInChildren<MapInfo>();
+		if (componentInChildren == null)
+		{
+			return false;
+		}
+		if (Mathf.Approximately(this.m_zoomFactor, componentInChildren.m_maxZoomFactor))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	public void SetZoom(float newZoomFactor, Vector2 zoomCenter, bool bypassLegalPositionEnforcement = false)
+	{
+		Vector2 vector2 = new Vector2();
+		vector2.x = zoomCenter.x - base.transform.position.x;
+		vector2.y = zoomCenter.y - base.transform.position.y;
+		Vector2 vector21 = vector2 * (newZoomFactor / this.m_zoomFactor);
+		Vector2 vector22 = vector2 - vector21;
+		base.transform.Translate(vector22.x, vector22.y, 0f);
+		this.SetZoom(newZoomFactor, bypassLegalPositionEnforcement);
+	}
+
+	public void SetZoom(float newZoomFactor, bool bypassLegalPositionEnforcement = false)
+	{
+		Vector2 vector2 = new Vector2();
+		Vector2 vector21 = new Vector2();
+		MapInfo componentInChildren = base.GetComponentInChildren<MapInfo>();
+		componentInChildren.m_scaleRoot.transform.localScale = (Vector3.one * newZoomFactor) * componentInChildren.GetViewRelativeScale();
+		RectTransform component = componentInChildren.gameObject.GetComponent<RectTransform>();
+		this.m_zoomFactor = newZoomFactor;
+		float mZoomFactor = this.m_zoomFactor * componentInChildren.GetFillViewSize().x;
+		float single = this.m_zoomFactor * componentInChildren.GetFillViewSize().y;
+		component.sizeDelta = new Vector2(mZoomFactor, single);
+		this.m_mapViewContentsRT.sizeDelta = component.sizeDelta;
+		if (!bypassLegalPositionEnforcement)
+		{
+			Vector3[] vector3Array = new Vector3[4];
+			this.m_mapViewRT.GetWorldCorners(vector3Array);
+			float single1 = vector3Array[2].x - vector3Array[0].x;
+			float single2 = vector3Array[2].y - vector3Array[0].y;
+			vector2.x = vector3Array[0].x + single1 * 0.5f;
+			vector2.y = vector3Array[0].y + single2 * 0.5f;
+			Vector3[] vector3Array1 = new Vector3[4];
+			this.m_mapViewContentsRT.GetWorldCorners(vector3Array1);
+			float single3 = vector3Array1[2].x - vector3Array1[0].x;
+			float single4 = vector3Array1[2].y - vector3Array1[0].y;
+			vector21.x = vector3Array1[0].x + single3 * 0.5f;
+			vector21.y = vector3Array1[0].y + single4 * 0.5f;
+			float single5 = Mathf.Abs(single3 / 2f - single1 / 2f);
+			float single6 = Mathf.Abs(single4 / 2f - single2 / 2f);
+			Vector3 mMapViewContentsRT = this.m_mapViewContentsRT.position;
+			mMapViewContentsRT.x = Mathf.Clamp(mMapViewContentsRT.x, vector2.x - single5, vector2.x + single5);
+			mMapViewContentsRT.y = Mathf.Clamp(mMapViewContentsRT.y, vector2.y - single6, vector2.y + single6);
+			this.m_mapViewContentsRT.position = mMapViewContentsRT;
+		}
+		if (this.ZoomFactorChanged != null)
+		{
+			this.ZoomFactorChanged(false);
+		}
+	}
 
 	private void Update()
 	{
-		iTween component = this.m_mapViewContentsRT.GetComponent<iTween>();
-		bool flag = component != null;
-		if (Input.get_touchCount() == 2)
+		bool component = this.m_mapViewContentsRT.GetComponent<iTween>() != null;
+		if (Input.touchCount != 2)
+		{
+			this.m_isPinching = false;
+			this.m_scrollRect.enabled = true;
+		}
+		else
 		{
 			MapInfo componentInChildren = base.GetComponentInChildren<MapInfo>();
 			if (componentInChildren == null)
@@ -36,96 +116,39 @@ public class PinchZoomContentManager : MonoBehaviour
 				return;
 			}
 			Touch touch = Input.GetTouch(0);
-			Touch touch2 = Input.GetTouch(1);
+			Touch touch1 = Input.GetTouch(1);
 			if (!this.m_isPinching)
 			{
 				this.m_isPinching = true;
-				this.m_scrollRect.set_enabled(false);
+				this.m_scrollRect.enabled = false;
 			}
-			Vector2 vector = touch.get_position() - touch.get_deltaPosition();
-			Vector2 vector2 = touch2.get_position() - touch2.get_deltaPosition();
-			float magnitude = (vector - vector2).get_magnitude();
-			float magnitude2 = (touch.get_position() - touch2.get_position()).get_magnitude();
-			float num = magnitude - magnitude2;
-			float num2 = num * -this.m_zoomSpeed;
-			Vector2 vector3 = (touch.get_position() + touch2.get_position()) / 2f;
-			Ray ray = Camera.get_main().ScreenPointToRay(vector3);
+			Vector2 vector2 = touch.position - touch.deltaPosition;
+			Vector2 vector21 = touch1.position - touch1.deltaPosition;
+			float single = (vector2 - vector21).magnitude;
+			float single1 = (touch.position - touch1.position).magnitude;
+			float mZoomSpeed = (single - single1) * -this.m_zoomSpeed;
+			Vector2 vector22 = (touch.position + touch1.position) / 2f;
+			Ray ray = Camera.main.ScreenPointToRay(vector22);
 			if (AdventureMapPanel.instance.m_testEnableAutoZoomInOut)
 			{
-				if (!flag)
+				if (!component)
 				{
-					if (num2 > this.m_zoomInThreshold)
+					if (mZoomSpeed > this.m_zoomInThreshold)
 					{
-						AdventureMapPanel.instance.CenterAndZoom(ray.get_origin(), null, true);
+						AdventureMapPanel.instance.CenterAndZoom(ray.origin, null, true);
 						return;
 					}
-					if (num2 < -this.m_zoomOutThreshold)
+					if (mZoomSpeed < -this.m_zoomOutThreshold)
 					{
-						AdventureMapPanel.instance.CenterAndZoom(ray.get_origin(), null, false);
+						AdventureMapPanel.instance.CenterAndZoom(ray.origin, null, false);
 						return;
 					}
 				}
 				return;
 			}
-			float num3 = this.m_zoomFactor;
-			num3 += num2;
-			num3 = Mathf.Clamp(num3, componentInChildren.m_minZoomFactor, componentInChildren.m_maxZoomFactor);
-			this.SetZoom(num3, ray.get_origin(), false);
-		}
-		else
-		{
-			this.m_isPinching = false;
-			this.m_scrollRect.set_enabled(true);
-		}
-	}
-
-	public void SetZoom(float newZoomFactor, Vector2 zoomCenter, bool bypassLegalPositionEnforcement = false)
-	{
-		Vector2 vector;
-		vector.x = zoomCenter.x - base.get_transform().get_position().x;
-		vector.y = zoomCenter.y - base.get_transform().get_position().y;
-		Vector2 vector2 = vector * (newZoomFactor / this.m_zoomFactor);
-		Vector2 vector3 = vector - vector2;
-		base.get_transform().Translate(vector3.x, vector3.y, 0f);
-		this.SetZoom(newZoomFactor, bypassLegalPositionEnforcement);
-	}
-
-	public void SetZoom(float newZoomFactor, bool bypassLegalPositionEnforcement = false)
-	{
-		MapInfo componentInChildren = base.GetComponentInChildren<MapInfo>();
-		componentInChildren.m_scaleRoot.get_transform().set_localScale(Vector3.get_one() * newZoomFactor * componentInChildren.GetViewRelativeScale());
-		RectTransform component = componentInChildren.get_gameObject().GetComponent<RectTransform>();
-		this.m_zoomFactor = newZoomFactor;
-		float num = this.m_zoomFactor * componentInChildren.GetFillViewSize().x;
-		float num2 = this.m_zoomFactor * componentInChildren.GetFillViewSize().y;
-		component.set_sizeDelta(new Vector2(num, num2));
-		this.m_mapViewContentsRT.set_sizeDelta(component.get_sizeDelta());
-		if (!bypassLegalPositionEnforcement)
-		{
-			Vector3[] array = new Vector3[4];
-			this.m_mapViewRT.GetWorldCorners(array);
-			float num3 = array[2].x - array[0].x;
-			float num4 = array[2].y - array[0].y;
-			Vector2 vector;
-			vector.x = array[0].x + num3 * 0.5f;
-			vector.y = array[0].y + num4 * 0.5f;
-			Vector3[] array2 = new Vector3[4];
-			this.m_mapViewContentsRT.GetWorldCorners(array2);
-			float num5 = array2[2].x - array2[0].x;
-			float num6 = array2[2].y - array2[0].y;
-			Vector2 vector2;
-			vector2.x = array2[0].x + num5 * 0.5f;
-			vector2.y = array2[0].y + num6 * 0.5f;
-			float num7 = Mathf.Abs(num5 / 2f - num3 / 2f);
-			float num8 = Mathf.Abs(num6 / 2f - num4 / 2f);
-			Vector3 position = this.m_mapViewContentsRT.get_position();
-			position.x = Mathf.Clamp(position.x, vector.x - num7, vector.x + num7);
-			position.y = Mathf.Clamp(position.y, vector.y - num8, vector.y + num8);
-			this.m_mapViewContentsRT.set_position(position);
-		}
-		if (this.ZoomFactorChanged != null)
-		{
-			this.ZoomFactorChanged.Invoke();
+			float mZoomFactor = this.m_zoomFactor + mZoomSpeed;
+			mZoomFactor = Mathf.Clamp(mZoomFactor, componentInChildren.m_minZoomFactor, componentInChildren.m_maxZoomFactor);
+			this.SetZoom(mZoomFactor, ray.origin, false);
 		}
 	}
 }

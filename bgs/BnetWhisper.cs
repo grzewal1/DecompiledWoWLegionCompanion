@@ -14,24 +14,13 @@ namespace bgs
 
 		private BnetErrorInfo m_errorInfo;
 
-		public BnetGameAccountId GetSpeakerId()
+		public BnetWhisper()
 		{
-			return this.m_speakerId;
 		}
 
-		public void SetSpeakerId(BnetGameAccountId id)
+		public BnetErrorInfo GetErrorInfo()
 		{
-			this.m_speakerId = id;
-		}
-
-		public BnetGameAccountId GetReceiverId()
-		{
-			return this.m_receiverId;
-		}
-
-		public void SetReceiverId(BnetGameAccountId id)
-		{
-			this.m_receiverId = id;
+			return this.m_errorInfo;
 		}
 
 		public string GetMessage()
@@ -39,14 +28,39 @@ namespace bgs
 			return this.m_message;
 		}
 
-		public void SetMessage(string message)
+		public BnetGameAccountId GetReceiverId()
 		{
-			this.m_message = message;
+			return this.m_receiverId;
+		}
+
+		public BnetGameAccountId GetSpeakerId()
+		{
+			return this.m_speakerId;
 		}
 
 		public ulong GetTimestampMicrosec()
 		{
 			return this.m_timestampMicrosec;
+		}
+
+		public void SetErrorInfo(BnetErrorInfo errorInfo)
+		{
+			this.m_errorInfo = errorInfo;
+		}
+
+		public void SetMessage(string message)
+		{
+			this.m_message = message;
+		}
+
+		public void SetReceiverId(BnetGameAccountId id)
+		{
+			this.m_receiverId = id;
+		}
+
+		public void SetSpeakerId(BnetGameAccountId id)
+		{
+			this.m_speakerId = id;
 		}
 
 		public void SetTimestampMicrosec(ulong microsec)
@@ -56,17 +70,7 @@ namespace bgs
 
 		public void SetTimestampMilliseconds(double milliseconds)
 		{
-			this.m_timestampMicrosec = (ulong)(milliseconds * 1000.0);
-		}
-
-		public BnetErrorInfo GetErrorInfo()
-		{
-			return this.m_errorInfo;
-		}
-
-		public void SetErrorInfo(BnetErrorInfo errorInfo)
-		{
-			this.m_errorInfo = errorInfo;
+			this.m_timestampMicrosec = (ulong)(milliseconds * 1000);
 		}
 	}
 }

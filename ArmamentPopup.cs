@@ -21,11 +21,10 @@ public class ArmamentPopup : MonoBehaviour
 
 	private int m_garrFollowerID;
 
-	private MobileFollowerArmament m_item;
+	private MobileFollowerArmamentExt m_item;
 
-	public void OnEnable()
+	public ArmamentPopup()
 	{
-		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
 	}
 
 	private void OnDisable()
@@ -33,55 +32,48 @@ public class ArmamentPopup : MonoBehaviour
 		Main.instance.m_canvasBlurManager.RemoveBlurRef_MainCanvas();
 	}
 
-	public void SetArmament(MobileFollowerArmament item, int garrFollowerID)
+	public void OnEnable()
+	{
+		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
+	}
+
+	public void SetArmament(MobileFollowerArmamentExt item, int garrFollowerID)
 	{
 		this.m_garrFollowerID = garrFollowerID;
 		this.m_item = item;
 		ItemRec record = StaticDB.itemDB.GetRecord(item.ItemID);
-		this.m_armamentName.set_text(record.Display);
-		SpellTooltipRec record2 = StaticDB.spellTooltipDB.GetRecord(item.SpellID);
-		if (record2 != null)
+		this.m_armamentName.text = record.Display;
+		SpellTooltipRec spellTooltipRec = StaticDB.spellTooltipDB.GetRecord(item.SpellID);
+		if (spellTooltipRec == null)
 		{
-			this.m_armamentDescription.set_text(record2.Description);
+			this.m_armamentDescription.text = string.Concat(new object[] { "ERROR. Unknown Spell ID: ", item.SpellID, " Item ID:", item.ItemID });
 		}
 		else
 		{
-			this.m_armamentDescription.set_text(string.Concat(new object[]
-			{
-				"ERROR. Unknown Spell ID: ",
-				item.SpellID,
-				" Item ID:",
-				item.ItemID
-			}));
+			this.m_armamentDescription.text = spellTooltipRec.Description;
 		}
-		this.m_armamentDescription.set_text(WowTextParser.parser.Parse(this.m_armamentDescription.get_text(), item.SpellID));
+		this.m_armamentDescription.text = WowTextParser.parser.Parse(this.m_armamentDescription.text, item.SpellID);
 		if (this.m_iconErrorText != null)
 		{
-			this.m_iconErrorText.get_gameObject().SetActive(false);
+			this.m_iconErrorText.gameObject.SetActive(false);
 		}
 		Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, record.IconFileDataID);
 		if (sprite != null)
 		{
-			this.m_armamentIcon.set_sprite(sprite);
+			this.m_armamentIcon.sprite = sprite;
 		}
 		else if (this.m_iconErrorText != null)
 		{
-			this.m_iconErrorText.get_gameObject().SetActive(true);
-			this.m_iconErrorText.set_text(string.Empty + record.IconFileDataID);
+			this.m_iconErrorText.gameObject.SetActive(true);
+			this.m_iconErrorText.text = string.Concat(string.Empty, record.IconFileDataID);
 		}
-		this.m_armamentQuantity.set_text((item.Quantity <= 1) ? string.Empty : (string.Empty + item.Quantity));
+		this.m_armamentQuantity.text = (item.Quantity <= 1 ? string.Empty : string.Concat(string.Empty, item.Quantity));
 	}
 
 	public void UseArmament()
 	{
-		Debug.Log(string.Concat(new object[]
-		{
-			"Attempting to use armament item ",
-			this.m_item.ItemID,
-			" for follower ",
-			this.m_garrFollowerID
-		}));
+		Debug.Log(string.Concat(new object[] { "Attempting to use armament item ", this.m_item.ItemID, " for follower ", this.m_garrFollowerID }));
 		Main.instance.UseArmament(this.m_garrFollowerID, this.m_item.ItemID);
-		base.get_gameObject().SetActive(false);
+		base.gameObject.SetActive(false);
 	}
 }

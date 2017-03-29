@@ -7,88 +7,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
+using System.Runtime.CompilerServices;
 using System.Xml;
 
 namespace bgs
 {
 	public class PresenceAPI : BattleNetAPI
 	{
-		public class PresenceRefCountObject
-		{
-			public ulong objectId;
-
-			public int refCount;
-		}
-
-		private class FieldKeyToPresenceMap : Map<FieldKey, Variant>
-		{
-		}
-
-		private class EntityIdToFieldsMap : Map<bgs.types.EntityId, PresenceAPI.FieldKeyToPresenceMap>
-		{
-			public void SetCache(bgs.types.EntityId entity, FieldKey key, Variant value)
-			{
-				if (key == null)
-				{
-					return;
-				}
-				if (!base.ContainsKey(entity))
-				{
-					base[entity] = new PresenceAPI.FieldKeyToPresenceMap();
-				}
-				base[entity][key] = value;
-			}
-
-			public Variant GetCache(bgs.types.EntityId entity, FieldKey key)
-			{
-				if (key == null)
-				{
-					return null;
-				}
-				if (!base.ContainsKey(entity))
-				{
-					return null;
-				}
-				PresenceAPI.FieldKeyToPresenceMap fieldKeyToPresenceMap = base[entity];
-				if (!fieldKeyToPresenceMap.ContainsKey(key))
-				{
-					return null;
-				}
-				return fieldKeyToPresenceMap[key];
-			}
-		}
-
-		private class IndexToStringMap : Map<ulong, string>
-		{
-		}
-
-		private class RichPresenceToStringsMap : Map<RichPresence, PresenceAPI.IndexToStringMap>
-		{
-		}
-
-		public class PresenceUnsubscribeContext
-		{
-			private ulong m_objectId;
-
-			private BattleNetCSharp m_battleNet;
-
-			public PresenceUnsubscribeContext(BattleNetCSharp battleNet, ulong objectId)
-			{
-				this.m_battleNet = battleNet;
-				this.m_objectId = objectId;
-			}
-
-			public void PresenceUnsubscribeCallback(RPCContext context)
-			{
-				if (this.m_battleNet.Presence.CheckRPCCallback("PresenceUnsubscribeCallback", context))
-				{
-					this.m_battleNet.Channel.RemoveActiveChannel(this.m_objectId);
-				}
-			}
-		}
-
 		private const float CREDIT_LIMIT = -100f;
 
 		private const float COST_PER_REQUEST = 1f;
@@ -117,33 +42,9 @@ namespace bgs
 
 		private int m_numOutstandingRichPresenceStringFetches;
 
-		private ServiceDescriptor m_presenceService = new PresenceService();
+		private ServiceDescriptor m_presenceService = new bgs.RPCServices.PresenceService();
 
-		private static char[] hexChars = new char[]
-		{
-			'0',
-			'1',
-			'2',
-			'3',
-			'4',
-			'5',
-			'6',
-			'7',
-			'8',
-			'9',
-			'a',
-			'b',
-			'c',
-			'd',
-			'e',
-			'f',
-			'A',
-			'B',
-			'C',
-			'D',
-			'E',
-			'F'
-		};
+		private static char[] hexChars;
 
 		public ServiceDescriptor PresenceService
 		{
@@ -153,44 +54,14 @@ namespace bgs
 			}
 		}
 
+		static PresenceAPI()
+		{
+			PresenceAPI.hexChars = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F' };
+		}
+
 		public PresenceAPI(BattleNetCSharp battlenet) : base(battlenet, "Presence")
 		{
 			this.m_stopWatch = new Stopwatch();
-		}
-
-		public override void InitRPCListeners(RPCConnection rpcConnection)
-		{
-			base.InitRPCListeners(rpcConnection);
-		}
-
-		public override void Initialize()
-		{
-			base.Initialize();
-			this.m_stopWatch.Start();
-			this.m_lastPresenceSubscriptionSent = 0L;
-			this.m_presenceSubscriptionBalance = 0f;
-		}
-
-		public override void OnDisconnected()
-		{
-			base.OnDisconnected();
-			this.m_presenceSubscriptions.Clear();
-			this.m_presenceUpdates.Clear();
-			this.m_queuedSubscriptions.Clear();
-			this.m_stopWatch.Stop();
-			this.m_lastPresenceSubscriptionSent = 0L;
-			this.m_presenceSubscriptionBalance = 0f;
-		}
-
-		public override void Process()
-		{
-			base.Process();
-			this.HandleSubscriptionRequests();
-		}
-
-		public int PresenceSize()
-		{
-			return this.m_presenceUpdates.get_Count();
 		}
 
 		public void ClearPresence()
@@ -198,319 +69,48 @@ namespace bgs
 			this.m_presenceUpdates.Clear();
 		}
 
-		public void GetPresence([Out] PresenceUpdate[] updates)
+		private void DecrementOutstandingRichPresenceStringFetches()
 		{
-			this.m_presenceUpdates.CopyTo(updates);
-		}
-
-		public void SetPresenceBool(uint field, bool val)
-		{
-			UpdateRequest updateRequest = new UpdateRequest();
-			FieldOperation fieldOperation = new FieldOperation();
-			Field field2 = new Field();
-			FieldKey fieldKey = new FieldKey();
-			fieldKey.SetProgram(BnetProgramId.WOW.GetValue());
-			fieldKey.SetGroup(2u);
-			fieldKey.SetField(field);
-			Variant variant = new Variant();
-			variant.SetBoolValue(val);
-			field2.SetKey(fieldKey);
-			field2.SetValue(variant);
-			fieldOperation.SetField(field2);
-			updateRequest.SetEntityId(this.m_battleNet.GameAccountId);
-			updateRequest.AddFieldOperation(fieldOperation);
-			this.PublishField(updateRequest);
-		}
-
-		public void SetPresenceInt(uint field, long val)
-		{
-			UpdateRequest updateRequest = new UpdateRequest();
-			updateRequest.EntityId = this.m_battleNet.GameAccountId;
-			FieldOperation fieldOperation = new FieldOperation();
-			Field field2 = new Field();
-			FieldKey fieldKey = new FieldKey();
-			fieldKey.SetProgram(BnetProgramId.WOW.GetValue());
-			fieldKey.SetGroup(2u);
-			fieldKey.SetField(field);
-			Variant variant = new Variant();
-			variant.SetIntValue(val);
-			field2.SetKey(fieldKey);
-			field2.SetValue(variant);
-			fieldOperation.SetField(field2);
-			updateRequest.SetEntityId(this.m_battleNet.GameAccountId);
-			updateRequest.AddFieldOperation(fieldOperation);
-			this.PublishField(updateRequest);
-		}
-
-		public void SetPresenceString(uint field, string val)
-		{
-			UpdateRequest updateRequest = new UpdateRequest();
-			updateRequest.EntityId = this.m_battleNet.GameAccountId;
-			FieldOperation fieldOperation = new FieldOperation();
-			Field field2 = new Field();
-			FieldKey fieldKey = new FieldKey();
-			fieldKey.SetProgram(BnetProgramId.WOW.GetValue());
-			fieldKey.SetGroup(2u);
-			fieldKey.SetField(field);
-			Variant variant = new Variant();
-			variant.SetStringValue(val);
-			field2.SetKey(fieldKey);
-			field2.SetValue(variant);
-			fieldOperation.SetField(field2);
-			updateRequest.SetEntityId(this.m_battleNet.GameAccountId);
-			updateRequest.AddFieldOperation(fieldOperation);
-			this.PublishField(updateRequest);
-		}
-
-		public void SetPresenceBlob(uint field, byte[] val)
-		{
-			UpdateRequest updateRequest = new UpdateRequest();
-			updateRequest.EntityId = this.m_battleNet.GameAccountId;
-			FieldOperation fieldOperation = new FieldOperation();
-			Field field2 = new Field();
-			FieldKey fieldKey = new FieldKey();
-			fieldKey.SetProgram(BnetProgramId.WOW.GetValue());
-			fieldKey.SetGroup(2u);
-			fieldKey.SetField(field);
-			Variant variant = new Variant();
-			if (val == null)
+			if (this.m_numOutstandingRichPresenceStringFetches <= 0)
 			{
-				val = new byte[0];
-			}
-			variant.SetBlobValue(val);
-			field2.SetKey(fieldKey);
-			field2.SetValue(variant);
-			fieldOperation.SetField(field2);
-			updateRequest.SetEntityId(this.m_battleNet.GameAccountId);
-			updateRequest.AddFieldOperation(fieldOperation);
-			this.PublishField(updateRequest);
-		}
-
-		public void PublishRichPresence([In] RichPresenceUpdate[] updates)
-		{
-			UpdateRequest updateRequest = new UpdateRequest();
-			updateRequest.EntityId = this.m_battleNet.GameAccountId;
-			FieldOperation fieldOperation = new FieldOperation();
-			Field field = new Field();
-			FieldKey fieldKey = new FieldKey();
-			fieldKey.SetProgram(BnetProgramId.BNET.GetValue());
-			fieldKey.SetGroup(2u);
-			fieldKey.SetField(8u);
-			for (int i = 0; i < updates.Length; i++)
-			{
-				RichPresenceUpdate richPresenceUpdate = updates[i];
-				fieldKey.SetIndex(richPresenceUpdate.presenceFieldIndex);
-				RichPresence richPresence = new RichPresence();
-				richPresence.SetIndex(richPresenceUpdate.index);
-				richPresence.SetProgramId(richPresenceUpdate.programId);
-				richPresence.SetStreamId(richPresenceUpdate.streamId);
-				Variant variant = new Variant();
-				variant.SetMessageValue(ProtobufUtil.ToByteArray(richPresence));
-				field.SetKey(fieldKey);
-				field.SetValue(variant);
-				fieldOperation.SetField(field);
-				updateRequest.SetEntityId(this.m_battleNet.GameAccountId);
-				updateRequest.AddFieldOperation(fieldOperation);
-			}
-			this.PublishField(updateRequest);
-		}
-
-		private void HandleSubscriptionRequests()
-		{
-			if (this.m_queuedSubscriptions.get_Count() > 0)
-			{
-				long elapsedMilliseconds = this.m_stopWatch.get_ElapsedMilliseconds();
-				this.m_presenceSubscriptionBalance = Math.Min(0f, this.m_presenceSubscriptionBalance + (float)(elapsedMilliseconds - this.m_lastPresenceSubscriptionSent) * 0.00333333341f);
-				this.m_lastPresenceSubscriptionSent = elapsedMilliseconds;
-				List<bnet.protocol.EntityId> list = new List<bnet.protocol.EntityId>();
-				using (HashSet<bnet.protocol.EntityId>.Enumerator enumerator = this.m_queuedSubscriptions.GetEnumerator())
-				{
-					while (enumerator.MoveNext())
-					{
-						bnet.protocol.EntityId current = enumerator.get_Current();
-						if (this.m_presenceSubscriptionBalance - 1f < -100f)
-						{
-							break;
-						}
-						PresenceAPI.PresenceRefCountObject presenceRefCountObject = this.m_presenceSubscriptions[current];
-						SubscribeRequest subscribeRequest = new SubscribeRequest();
-						subscribeRequest.SetObjectId(ChannelAPI.GetNextObjectId());
-						subscribeRequest.SetEntityId(current);
-						presenceRefCountObject.objectId = subscribeRequest.ObjectId;
-						this.m_battleNet.Channel.AddActiveChannel(subscribeRequest.ObjectId, new ChannelAPI.ChannelReferenceObject(current, ChannelAPI.ChannelType.PRESENCE_CHANNEL));
-						this.m_rpcConnection.QueueRequest(this.m_presenceService.Id, 1u, subscribeRequest, new RPCContextDelegate(this.PresenceSubscribeCallback), 0u);
-						this.m_presenceSubscriptionBalance -= 1f;
-						list.Add(current);
-					}
-				}
-				using (List<bnet.protocol.EntityId>.Enumerator enumerator2 = list.GetEnumerator())
-				{
-					while (enumerator2.MoveNext())
-					{
-						bnet.protocol.EntityId current2 = enumerator2.get_Current();
-						this.m_queuedSubscriptions.Remove(current2);
-					}
-				}
-			}
-		}
-
-		public void PresenceSubscribe(bnet.protocol.EntityId entityId)
-		{
-		}
-
-		public void PresenceUnsubscribe(bnet.protocol.EntityId entityId)
-		{
-			if (this.m_presenceSubscriptions.ContainsKey(entityId))
-			{
-				this.m_presenceSubscriptions[entityId].refCount--;
-				if (this.m_presenceSubscriptions[entityId].refCount <= 0)
-				{
-					if (this.m_queuedSubscriptions.Contains(entityId))
-					{
-						this.m_queuedSubscriptions.Remove(entityId);
-						return;
-					}
-					PresenceAPI.PresenceUnsubscribeContext @object = new PresenceAPI.PresenceUnsubscribeContext(this.m_battleNet, this.m_presenceSubscriptions[entityId].objectId);
-					UnsubscribeRequest unsubscribeRequest = new UnsubscribeRequest();
-					unsubscribeRequest.SetEntityId(entityId);
-					this.m_rpcConnection.QueueRequest(this.m_presenceService.Id, 2u, unsubscribeRequest, new RPCContextDelegate(@object.PresenceUnsubscribeCallback), 0u);
-					this.m_presenceSubscriptions.Remove(entityId);
-				}
-			}
-		}
-
-		public void PublishField(UpdateRequest updateRequest)
-		{
-			this.m_rpcConnection.QueueRequest(this.m_presenceService.Id, 3u, updateRequest, new RPCContextDelegate(this.PresenceUpdateCallback), 0u);
-		}
-
-		private void PresenceSubscribeCallback(RPCContext context)
-		{
-			base.CheckRPCCallback("PresenceSubscribeCallback", context);
-		}
-
-		private void PresenceUpdateCallback(RPCContext context)
-		{
-			base.CheckRPCCallback("PresenceUpdateCallback", context);
-		}
-
-		public void HandlePresenceUpdates(ChannelState channelState, ChannelAPI.ChannelReferenceObject channelRef)
-		{
-			bgs.types.EntityId entityId;
-			entityId.hi = channelRef.m_channelData.m_channelId.High;
-			entityId.lo = channelRef.m_channelData.m_channelId.Low;
-			FieldKey fieldKey = new FieldKey();
-			fieldKey.SetProgram(BnetProgramId.BNET.GetValue());
-			fieldKey.SetGroup(1u);
-			fieldKey.SetField(3u);
-			FieldKey fieldKey2 = fieldKey;
-			List<PresenceUpdate> list = new List<PresenceUpdate>();
-			using (List<FieldOperation>.Enumerator enumerator = channelState.FieldOperationList.GetEnumerator())
-			{
-				while (enumerator.MoveNext())
-				{
-					FieldOperation current = enumerator.get_Current();
-					if (current.Operation == FieldOperation.Types.OperationType.CLEAR)
-					{
-						this.m_presenceCache.SetCache(entityId, current.Field.Key, null);
-					}
-					else
-					{
-						this.m_presenceCache.SetCache(entityId, current.Field.Key, current.Field.Value);
-					}
-					PresenceUpdate presenceUpdate = default(PresenceUpdate);
-					presenceUpdate.entityId = entityId;
-					presenceUpdate.programId = current.Field.Key.Program;
-					presenceUpdate.groupId = current.Field.Key.Group;
-					presenceUpdate.fieldId = current.Field.Key.Field;
-					presenceUpdate.index = current.Field.Key.Index;
-					presenceUpdate.boolVal = false;
-					presenceUpdate.intVal = 0L;
-					presenceUpdate.stringVal = string.Empty;
-					presenceUpdate.valCleared = false;
-					presenceUpdate.blobVal = new byte[0];
-					if (current.Operation == FieldOperation.Types.OperationType.CLEAR)
-					{
-						presenceUpdate.valCleared = true;
-						bool flag = fieldKey2.Program == current.Field.Key.Program;
-						bool flag2 = fieldKey2.Group == current.Field.Key.Group;
-						bool flag3 = fieldKey2.Field == current.Field.Key.Field;
-						if (flag && flag2 && flag3)
-						{
-							BnetEntityId entityId2 = BnetEntityId.CreateFromEntityId(presenceUpdate.entityId);
-							this.m_battleNet.Friends.RemoveFriendsActiveGameAccount(entityId2, current.Field.Key.Index);
-						}
-					}
-					else if (current.Field.Value.HasBoolValue)
-					{
-						presenceUpdate.boolVal = current.Field.Value.BoolValue;
-					}
-					else if (current.Field.Value.HasIntValue)
-					{
-						presenceUpdate.intVal = current.Field.Value.IntValue;
-					}
-					else if (current.Field.Value.HasStringValue)
-					{
-						presenceUpdate.stringVal = current.Field.Value.StringValue;
-					}
-					else if (current.Field.Value.HasFourccValue)
-					{
-						presenceUpdate.stringVal = new BnetProgramId(current.Field.Value.FourccValue).ToString();
-					}
-					else if (current.Field.Value.HasEntityidValue)
-					{
-						presenceUpdate.entityIdVal.hi = current.Field.Value.EntityidValue.High;
-						presenceUpdate.entityIdVal.lo = current.Field.Value.EntityidValue.Low;
-						bool flag4 = fieldKey2.Program == current.Field.Key.Program;
-						bool flag5 = fieldKey2.Group == current.Field.Key.Group;
-						bool flag6 = fieldKey2.Field == current.Field.Key.Field;
-						if (flag4 && flag5 && flag6)
-						{
-							BnetEntityId entityId3 = BnetEntityId.CreateFromEntityId(presenceUpdate.entityId);
-							this.m_battleNet.Friends.AddFriendsActiveGameAccount(entityId3, current.Field.Value.EntityidValue, current.Field.Key.Index);
-						}
-					}
-					else if (current.Field.Value.HasBlobValue)
-					{
-						presenceUpdate.blobVal = current.Field.Value.BlobValue;
-					}
-					else
-					{
-						if (!current.Field.Value.HasMessageValue)
-						{
-							continue;
-						}
-						if (current.Field.Key.Field == 8u)
-						{
-							this.FetchRichPresenceResource(current.Field.Value);
-							this.HandleRichPresenceUpdate(presenceUpdate, current.Field.Key);
-							continue;
-						}
-						continue;
-					}
-					list.Add(presenceUpdate);
-				}
-			}
-			list.Reverse();
-			this.m_presenceUpdates.AddRange(list);
-		}
-
-		private void HandleRichPresenceUpdate(PresenceUpdate rpUpdate, FieldKey fieldKey)
-		{
-			FieldKey fieldKey2 = new FieldKey();
-			fieldKey2.SetProgram(BnetProgramId.BNET.GetValue());
-			fieldKey2.SetGroup(2u);
-			fieldKey2.SetField(8u);
-			fieldKey2.SetIndex(0uL);
-			if (!fieldKey2.Equals(fieldKey))
-			{
+				base.ApiLog.LogWarning("Number of outstanding rich presence string fetches tracked incorrectly - decemented to negative");
 				return;
 			}
-			this.m_pendingRichPresenceUpdates.Add(rpUpdate);
+			PresenceAPI mNumOutstandingRichPresenceStringFetches = this;
+			mNumOutstandingRichPresenceStringFetches.m_numOutstandingRichPresenceStringFetches = mNumOutstandingRichPresenceStringFetches.m_numOutstandingRichPresenceStringFetches - 1;
 			this.TryToResolveRichPresence();
 		}
 
-		private bool FetchRichPresenceResource(Variant presenceValue)
+		private void DownloadCompletedCallback(byte[] data, object userContext)
+		{
+			// 
+			// Current member / type: System.Void bgs.PresenceAPI::DownloadCompletedCallback(System.Byte[],System.Object)
+			// File path: C:\Users\RenameME-4\Desktop\wow_app\wow_v1.2.0_com.blizzard.wowcompanion\assets\bin\Data\Managed\Assembly-CSharp.dll
+			// 
+			// Product version: 2017.1.116.2
+			// Exception in: System.Void DownloadCompletedCallback(System.Byte[],System.Object)
+			// 
+			// La référence d'objet n'est pas définie à une instance d'un objet.
+			//    à ..() dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 81
+			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 24
+			//    à ..Visit(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 69
+			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 498
+			//    à ..Visit(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 120
+			//    à ..Visit(IEnumerable ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 374
+			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 24
+			//    à ..Visit(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 69
+			//    à ..(DecompilationContext ,  ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 19
+			//    à ..(MethodBody ,  , ILanguage ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\DecompilationPipeline.cs:ligne 88
+			//    à ..(MethodBody , ILanguage ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\DecompilationPipeline.cs:ligne 70
+			//    à Telerik.JustDecompiler.Decompiler.Extensions.( , ILanguage , MethodBody , DecompilationContext& ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\Extensions.cs:ligne 95
+			//    à Telerik.JustDecompiler.Decompiler.Extensions.(MethodBody , ILanguage , DecompilationContext& ,  ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\Extensions.cs:ligne 58
+			//    à ..(ILanguage , MethodDefinition ,  ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\WriterContextServices\BaseWriterContextService.cs:ligne 117
+			// 
+			// mailto: JustDecompilePublicFeedback@telerik.com
+
+		}
+
+		private bool FetchRichPresenceResource(bnet.protocol.attribute.Variant presenceValue)
 		{
 			if (presenceValue == null)
 			{
@@ -526,140 +126,435 @@ namespace bgs
 			{
 				return false;
 			}
-			FourCC programId = new FourCC(richPresence.ProgramId);
-			FourCC streamId = new FourCC(richPresence.StreamId);
-			FourCC locale = new FourCC(BattleNet.Client().GetLocaleName());
+			FourCC fourCC = new FourCC(richPresence.ProgramId);
+			FourCC fourCC1 = new FourCC(richPresence.StreamId);
+			FourCC fourCC2 = new FourCC(BattleNet.Client().GetLocaleName());
 			this.IncrementOutstandingRichPresenceStringFetches();
 			ResourcesAPI resources = this.m_battleNet.Resources;
-			resources.LookupResource(programId, streamId, locale, new ResourcesAPI.ResourceLookupCallback(this.ResouceLookupCallback), richPresence);
+			resources.LookupResource(fourCC, fourCC1, fourCC2, new ResourcesAPI.ResourceLookupCallback(this.ResouceLookupCallback), richPresence);
 			return true;
 		}
 
-		private void ResouceLookupCallback(ContentHandle contentHandle, object userContext)
+		public void GetPresence([Out] PresenceUpdate[] updates)
 		{
-			if (contentHandle == null)
-			{
-				base.ApiLog.LogWarning("BN resource look up failed unable to proceed");
-				this.DecrementOutstandingRichPresenceStringFetches();
-				return;
-			}
-			base.ApiLog.LogDebug("Lookup done Region={0} Usage={1} SHA256={2}", new object[]
-			{
-				contentHandle.Region,
-				contentHandle.Usage,
-				contentHandle.Sha256Digest
-			});
-			this.m_battleNet.LocalStorage.GetFile(contentHandle, new LocalStorageAPI.DownloadCompletedCallback(this.DownloadCompletedCallback), userContext);
+			this.m_presenceUpdates.CopyTo(updates);
 		}
 
-		private void DownloadCompletedCallback(byte[] data, object userContext)
+		public void HandlePresenceUpdates(ChannelState channelState, ChannelAPI.ChannelReferenceObject channelRef)
 		{
-			if (data == null)
+			bgs.types.EntityId high = new bgs.types.EntityId();
+			high.hi = channelRef.m_channelData.m_channelId.High;
+			high.lo = channelRef.m_channelData.m_channelId.Low;
+			FieldKey fieldKey = new FieldKey();
+			fieldKey.SetProgram(BnetProgramId.BNET.GetValue());
+			fieldKey.SetGroup(1);
+			fieldKey.SetField(3);
+			FieldKey fieldKey1 = fieldKey;
+			List<PresenceUpdate> presenceUpdates = new List<PresenceUpdate>();
+			foreach (FieldOperation fieldOperationList in channelState.FieldOperationList)
 			{
-				base.ApiLog.LogWarning("Downloading of rich presence data from depot failed!");
-				this.DecrementOutstandingRichPresenceStringFetches();
-				return;
-			}
-			base.ApiLog.LogDebug("Downloading of rich presence data completed");
-			try
-			{
-				PresenceAPI.IndexToStringMap indexToStringMap = new PresenceAPI.IndexToStringMap();
-				string @string = Encoding.get_ASCII().GetString(data);
-				using (StringReader stringReader = new StringReader(@string))
+				if (fieldOperationList.Operation != FieldOperation.Types.OperationType.CLEAR)
 				{
-					using (XmlReader xmlReader = XmlReader.Create(stringReader))
+					this.m_presenceCache.SetCache(high, fieldOperationList.Field.Key, fieldOperationList.Field.Value);
+				}
+				else
+				{
+					this.m_presenceCache.SetCache(high, fieldOperationList.Field.Key, null);
+				}
+				PresenceUpdate boolValue = new PresenceUpdate()
+				{
+					entityId = high,
+					programId = fieldOperationList.Field.Key.Program,
+					groupId = fieldOperationList.Field.Key.Group,
+					fieldId = fieldOperationList.Field.Key.Field,
+					index = fieldOperationList.Field.Key.Index,
+					boolVal = false,
+					intVal = (long)0,
+					stringVal = string.Empty,
+					valCleared = false,
+					blobVal = new byte[0]
+				};
+				if (fieldOperationList.Operation == FieldOperation.Types.OperationType.CLEAR)
+				{
+					boolValue.valCleared = true;
+					bool program = fieldKey1.Program == fieldOperationList.Field.Key.Program;
+					bool group = fieldKey1.Group == fieldOperationList.Field.Key.Group;
+					bool field = fieldKey1.Field == fieldOperationList.Field.Key.Field;
+					if (program && group && field)
 					{
-						while (xmlReader.Read())
-						{
-							if (xmlReader.get_NodeType() == 1)
-							{
-								if (xmlReader.get_Name() == "e")
-								{
-									string attribute = xmlReader.GetAttribute("id");
-									string value = xmlReader.ReadElementContentAsString();
-									ulong key = Convert.ToUInt64(attribute, 10);
-									indexToStringMap[key] = value;
-								}
-							}
-						}
+						BnetEntityId bnetEntityId = BnetEntityId.CreateFromEntityId(boolValue.entityId);
+						this.m_battleNet.Friends.RemoveFriendsActiveGameAccount(bnetEntityId, fieldOperationList.Field.Key.Index);
 					}
 				}
-				PresenceAPI.RichPresenceToStringsMap richPresenceStringTables = this.m_richPresenceStringTables;
-				lock (richPresenceStringTables)
+				else if (fieldOperationList.Field.Value.HasBoolValue)
 				{
-					RichPresence key2 = (RichPresence)userContext;
-					this.m_richPresenceStringTables[key2] = indexToStringMap;
+					boolValue.boolVal = fieldOperationList.Field.Value.BoolValue;
+				}
+				else if (fieldOperationList.Field.Value.HasIntValue)
+				{
+					boolValue.intVal = fieldOperationList.Field.Value.IntValue;
+				}
+				else if (fieldOperationList.Field.Value.HasStringValue)
+				{
+					boolValue.stringVal = fieldOperationList.Field.Value.StringValue;
+				}
+				else if (fieldOperationList.Field.Value.HasFourccValue)
+				{
+					boolValue.stringVal = (new BnetProgramId(fieldOperationList.Field.Value.FourccValue)).ToString();
+				}
+				else if (fieldOperationList.Field.Value.HasEntityidValue)
+				{
+					boolValue.entityIdVal.hi = fieldOperationList.Field.Value.EntityidValue.High;
+					boolValue.entityIdVal.lo = fieldOperationList.Field.Value.EntityidValue.Low;
+					bool flag = fieldKey1.Program == fieldOperationList.Field.Key.Program;
+					bool group1 = fieldKey1.Group == fieldOperationList.Field.Key.Group;
+					bool field1 = fieldKey1.Field == fieldOperationList.Field.Key.Field;
+					if (flag && group1 && field1)
+					{
+						BnetEntityId bnetEntityId1 = BnetEntityId.CreateFromEntityId(boolValue.entityId);
+						this.m_battleNet.Friends.AddFriendsActiveGameAccount(bnetEntityId1, fieldOperationList.Field.Value.EntityidValue, fieldOperationList.Field.Key.Index);
+					}
+				}
+				else if (fieldOperationList.Field.Value.HasBlobValue)
+				{
+					boolValue.blobVal = fieldOperationList.Field.Value.BlobValue;
+				}
+				else if (!fieldOperationList.Field.Value.HasMessageValue)
+				{
+					continue;
+				}
+				else if (fieldOperationList.Field.Key.Field != 8)
+				{
+					continue;
+				}
+				else
+				{
+					this.FetchRichPresenceResource(fieldOperationList.Field.Value);
+					this.HandleRichPresenceUpdate(boolValue, fieldOperationList.Field.Key);
+					continue;
+				}
+				presenceUpdates.Add(boolValue);
+			}
+			presenceUpdates.Reverse();
+			this.m_presenceUpdates.AddRange(presenceUpdates);
+		}
+
+		private void HandleRichPresenceUpdate(PresenceUpdate rpUpdate, FieldKey fieldKey)
+		{
+			FieldKey fieldKey1 = new FieldKey();
+			fieldKey1.SetProgram(BnetProgramId.BNET.GetValue());
+			fieldKey1.SetGroup(2);
+			fieldKey1.SetField(8);
+			fieldKey1.SetIndex((ulong)0);
+			if (!fieldKey1.Equals(fieldKey))
+			{
+				return;
+			}
+			this.m_pendingRichPresenceUpdates.Add(rpUpdate);
+			this.TryToResolveRichPresence();
+		}
+
+		private void HandleSubscriptionRequests()
+		{
+			if (this.m_queuedSubscriptions.Count > 0)
+			{
+				long elapsedMilliseconds = this.m_stopWatch.ElapsedMilliseconds;
+				this.m_presenceSubscriptionBalance = Math.Min(0f, this.m_presenceSubscriptionBalance + (float)(elapsedMilliseconds - this.m_lastPresenceSubscriptionSent) * 0.00333333341f);
+				this.m_lastPresenceSubscriptionSent = elapsedMilliseconds;
+				List<bnet.protocol.EntityId> entityIds = new List<bnet.protocol.EntityId>();
+				foreach (bnet.protocol.EntityId mQueuedSubscription in this.m_queuedSubscriptions)
+				{
+					if (this.m_presenceSubscriptionBalance - 1f >= -100f)
+					{
+						PresenceAPI.PresenceRefCountObject item = this.m_presenceSubscriptions[mQueuedSubscription];
+						SubscribeRequest subscribeRequest = new SubscribeRequest();
+						subscribeRequest.SetObjectId(ChannelAPI.GetNextObjectId());
+						subscribeRequest.SetEntityId(mQueuedSubscription);
+						item.objectId = subscribeRequest.ObjectId;
+						this.m_battleNet.Channel.AddActiveChannel(subscribeRequest.ObjectId, new ChannelAPI.ChannelReferenceObject(mQueuedSubscription, ChannelAPI.ChannelType.PRESENCE_CHANNEL));
+						this.m_rpcConnection.QueueRequest(this.m_presenceService.Id, 1, subscribeRequest, new RPCContextDelegate(this.PresenceSubscribeCallback), 0);
+						PresenceAPI mPresenceSubscriptionBalance = this;
+						mPresenceSubscriptionBalance.m_presenceSubscriptionBalance = mPresenceSubscriptionBalance.m_presenceSubscriptionBalance - 1f;
+						entityIds.Add(mQueuedSubscription);
+					}
+					else
+					{
+						break;
+					}
+				}
+				foreach (bnet.protocol.EntityId entityId in entityIds)
+				{
+					this.m_queuedSubscriptions.Remove(entityId);
 				}
 			}
-			catch (Exception ex)
-			{
-				base.ApiLog.LogWarning("Failed to parse received data into rich presence strings. Ex  = {0}", new object[]
-				{
-					ex.ToString()
-				});
-			}
-			this.DecrementOutstandingRichPresenceStringFetches();
 		}
 
 		private void IncrementOutstandingRichPresenceStringFetches()
 		{
-			this.m_numOutstandingRichPresenceStringFetches++;
+			PresenceAPI mNumOutstandingRichPresenceStringFetches = this;
+			mNumOutstandingRichPresenceStringFetches.m_numOutstandingRichPresenceStringFetches = mNumOutstandingRichPresenceStringFetches.m_numOutstandingRichPresenceStringFetches + 1;
 		}
 
-		private void DecrementOutstandingRichPresenceStringFetches()
+		public override void Initialize()
 		{
-			if (this.m_numOutstandingRichPresenceStringFetches <= 0)
-			{
-				base.ApiLog.LogWarning("Number of outstanding rich presence string fetches tracked incorrectly - decemented to negative");
-				return;
-			}
-			this.m_numOutstandingRichPresenceStringFetches--;
-			this.TryToResolveRichPresence();
+			base.Initialize();
+			this.m_stopWatch.Start();
+			this.m_lastPresenceSubscriptionSent = (long)0;
+			this.m_presenceSubscriptionBalance = 0f;
 		}
 
-		private void TryToResolveRichPresence()
+		public override void InitRPCListeners(RPCConnection rpcConnection)
 		{
-			if (this.m_numOutstandingRichPresenceStringFetches == 0)
+			base.InitRPCListeners(rpcConnection);
+		}
+
+		private int LastIndexOfOccurenceFromIndex(string str, char[] testChars, int startIndex)
+		{
+			int num = -1;
+			char[] charArray = str.ToCharArray();
+			int num1 = startIndex;
+			while (num1 < (int)charArray.Length)
 			{
-				this.ResolveRichPresence();
-				if (this.m_pendingRichPresenceUpdates.get_Count() != 0)
+				char chr = charArray[num1];
+				bool flag = false;
+				char[] chrArray = PresenceAPI.hexChars;
+				int num2 = 0;
+				while (num2 < (int)chrArray.Length)
 				{
-					base.ApiLog.LogWarning("Failed to resolve rich presence strings");
-					this.m_pendingRichPresenceUpdates.Clear();
+					if (chr != chrArray[num2])
+					{
+						num2++;
+					}
+					else
+					{
+						num = num1;
+						flag = true;
+						break;
+					}
+				}
+				if (flag)
+				{
+					num1++;
+				}
+				else
+				{
+					break;
+				}
+			}
+			return num;
+		}
+
+		public override void OnDisconnected()
+		{
+			base.OnDisconnected();
+			this.m_presenceSubscriptions.Clear();
+			this.m_presenceUpdates.Clear();
+			this.m_queuedSubscriptions.Clear();
+			this.m_stopWatch.Stop();
+			this.m_lastPresenceSubscriptionSent = (long)0;
+			this.m_presenceSubscriptionBalance = 0f;
+		}
+
+		public int PresenceSize()
+		{
+			return this.m_presenceUpdates.Count;
+		}
+
+		public void PresenceSubscribe(bnet.protocol.EntityId entityId)
+		{
+		}
+
+		private void PresenceSubscribeCallback(RPCContext context)
+		{
+			base.CheckRPCCallback("PresenceSubscribeCallback", context);
+		}
+
+		public void PresenceUnsubscribe(bnet.protocol.EntityId entityId)
+		{
+			if (this.m_presenceSubscriptions.ContainsKey(entityId))
+			{
+				PresenceAPI.PresenceRefCountObject item = this.m_presenceSubscriptions[entityId];
+				item.refCount = item.refCount - 1;
+				if (this.m_presenceSubscriptions[entityId].refCount <= 0)
+				{
+					if (this.m_queuedSubscriptions.Contains(entityId))
+					{
+						this.m_queuedSubscriptions.Remove(entityId);
+						return;
+					}
+					PresenceAPI.PresenceUnsubscribeContext presenceUnsubscribeContext = new PresenceAPI.PresenceUnsubscribeContext(this.m_battleNet, this.m_presenceSubscriptions[entityId].objectId);
+					UnsubscribeRequest unsubscribeRequest = new UnsubscribeRequest();
+					unsubscribeRequest.SetEntityId(entityId);
+					this.m_rpcConnection.QueueRequest(this.m_presenceService.Id, 2, unsubscribeRequest, new RPCContextDelegate(presenceUnsubscribeContext.PresenceUnsubscribeCallback), 0);
+					this.m_presenceSubscriptions.Remove(entityId);
+				}
+			}
+		}
+
+		private void PresenceUpdateCallback(RPCContext context)
+		{
+			base.CheckRPCCallback("PresenceUpdateCallback", context);
+		}
+
+		public override void Process()
+		{
+			base.Process();
+			this.HandleSubscriptionRequests();
+		}
+
+		public void PublishField(UpdateRequest updateRequest)
+		{
+			this.m_rpcConnection.QueueRequest(this.m_presenceService.Id, 3, updateRequest, new RPCContextDelegate(this.PresenceUpdateCallback), 0);
+		}
+
+		public void PublishRichPresence([In] RichPresenceUpdate[] updates)
+		{
+			UpdateRequest updateRequest = new UpdateRequest()
+			{
+				EntityId = this.m_battleNet.GameAccountId
+			};
+			FieldOperation fieldOperation = new FieldOperation();
+			Field field = new Field();
+			FieldKey fieldKey = new FieldKey();
+			fieldKey.SetProgram(BnetProgramId.BNET.GetValue());
+			fieldKey.SetGroup(2);
+			fieldKey.SetField(8);
+			RichPresenceUpdate[] richPresenceUpdateArray = updates;
+			for (int i = 0; i < (int)richPresenceUpdateArray.Length; i++)
+			{
+				RichPresenceUpdate richPresenceUpdate = richPresenceUpdateArray[i];
+				fieldKey.SetIndex(richPresenceUpdate.presenceFieldIndex);
+				RichPresence richPresence = new RichPresence();
+				richPresence.SetIndex(richPresenceUpdate.index);
+				richPresence.SetProgramId(richPresenceUpdate.programId);
+				richPresence.SetStreamId(richPresenceUpdate.streamId);
+				bnet.protocol.attribute.Variant variant = new bnet.protocol.attribute.Variant();
+				variant.SetMessageValue(ProtobufUtil.ToByteArray(richPresence));
+				field.SetKey(fieldKey);
+				field.SetValue(variant);
+				fieldOperation.SetField(field);
+				updateRequest.SetEntityId(this.m_battleNet.GameAccountId);
+				updateRequest.AddFieldOperation(fieldOperation);
+			}
+			this.PublishField(updateRequest);
+		}
+
+		public void RequestPresenceFields(bool isGameAccountEntityId, [In] bgs.types.EntityId entityId, [In] PresenceFieldKey[] fieldList)
+		{
+			QueryRequest queryRequest = new QueryRequest();
+			bnet.protocol.EntityId entityId1 = new bnet.protocol.EntityId();
+			entityId1.SetHigh(entityId.hi);
+			entityId1.SetLow(entityId.lo);
+			queryRequest.SetEntityId(entityId1);
+			PresenceFieldKey[] presenceFieldKeyArray = fieldList;
+			for (int i = 0; i < (int)presenceFieldKeyArray.Length; i++)
+			{
+				PresenceFieldKey presenceFieldKey = presenceFieldKeyArray[i];
+				FieldKey fieldKey = new FieldKey();
+				fieldKey.SetProgram(presenceFieldKey.programId);
+				fieldKey.SetGroup(presenceFieldKey.groupId);
+				fieldKey.SetField(presenceFieldKey.fieldId);
+				fieldKey.SetIndex(presenceFieldKey.index);
+				queryRequest.AddKey(fieldKey);
+			}
+			this.m_rpcConnection.QueueRequest(this.m_presenceService.Id, 4, queryRequest, (RPCContext context) => this.RequestPresenceFieldsCallback(new bgs.types.EntityId(entityId), context), 0);
+		}
+
+		private void RequestPresenceFieldsCallback(bgs.types.EntityId entityId, RPCContext context)
+		{
+			if (base.CheckRPCCallback("RequestPresenceFieldsCallback", context))
+			{
+				foreach (Field fieldList in QueryResponse.ParseFrom(context.Payload).FieldList)
+				{
+					this.m_presenceCache.SetCache(entityId, fieldList.Key, fieldList.Value);
+					PresenceUpdate boolValue = new PresenceUpdate()
+					{
+						entityId = entityId,
+						programId = fieldList.Key.Program,
+						groupId = fieldList.Key.Group,
+						fieldId = fieldList.Key.Field,
+						index = fieldList.Key.Index,
+						boolVal = false,
+						intVal = (long)0,
+						stringVal = string.Empty,
+						valCleared = false,
+						blobVal = new byte[0]
+					};
+					if (fieldList.Value.HasBoolValue)
+					{
+						boolValue.boolVal = fieldList.Value.BoolValue;
+					}
+					else if (fieldList.Value.HasIntValue)
+					{
+						boolValue.intVal = fieldList.Value.IntValue;
+					}
+					else if (!fieldList.Value.HasFloatValue)
+					{
+						if (fieldList.Value.HasStringValue)
+						{
+							boolValue.stringVal = fieldList.Value.StringValue;
+						}
+						else if (fieldList.Value.HasBlobValue)
+						{
+							boolValue.blobVal = fieldList.Value.BlobValue;
+						}
+						else if (fieldList.Value.HasMessageValue)
+						{
+							if (fieldList.Key.Field != 8)
+							{
+								boolValue.blobVal = fieldList.Value.MessageValue;
+							}
+							else
+							{
+								this.FetchRichPresenceResource(fieldList.Value);
+								this.HandleRichPresenceUpdate(boolValue, fieldList.Key);
+							}
+						}
+						else if (fieldList.Value.HasFourccValue)
+						{
+							boolValue.stringVal = (new BnetProgramId(fieldList.Value.FourccValue)).ToString();
+						}
+						else if (!fieldList.Value.HasUintValue)
+						{
+							if (!fieldList.Value.HasEntityidValue)
+							{
+								boolValue.valCleared = true;
+							}
+							else
+							{
+								boolValue.entityIdVal.hi = fieldList.Value.EntityidValue.High;
+								boolValue.entityIdVal.lo = fieldList.Value.EntityidValue.Low;
+							}
+						}
+					}
+					this.m_presenceUpdates.Add(boolValue);
 				}
 			}
 		}
 
 		private void ResolveRichPresence()
 		{
-			if (this.m_pendingRichPresenceUpdates.get_Count() == 0)
+			string str;
+			if (this.m_pendingRichPresenceUpdates.Count == 0)
 			{
 				return;
 			}
-			List<PresenceUpdate> list = new List<PresenceUpdate>();
-			using (HashSet<PresenceUpdate>.Enumerator enumerator = this.m_pendingRichPresenceUpdates.GetEnumerator())
+			List<PresenceUpdate> presenceUpdates = new List<PresenceUpdate>();
+			foreach (PresenceUpdate mPendingRichPresenceUpdate in this.m_pendingRichPresenceUpdates)
 			{
-				while (enumerator.MoveNext())
+				if (!this.ResolveRichPresenceStrings(out str, mPendingRichPresenceUpdate.entityId, (ulong)0, 0))
 				{
-					PresenceUpdate current = enumerator.get_Current();
-					string stringVal;
-					if (this.ResolveRichPresenceStrings(out stringVal, current.entityId, 0uL, 0))
-					{
-						list.Add(current);
-						PresenceUpdate presenceUpdate = current;
-						presenceUpdate.fieldId = 1000u;
-						presenceUpdate.stringVal = stringVal;
-						this.m_presenceUpdates.Add(presenceUpdate);
-					}
+					continue;
 				}
+				presenceUpdates.Add(mPendingRichPresenceUpdate);
+				PresenceUpdate presenceUpdate = mPendingRichPresenceUpdate;
+				presenceUpdate.fieldId = 1000;
+				presenceUpdate.stringVal = str;
+				this.m_presenceUpdates.Add(presenceUpdate);
 			}
-			using (List<PresenceUpdate>.Enumerator enumerator2 = list.GetEnumerator())
+			foreach (PresenceUpdate presenceUpdate1 in presenceUpdates)
 			{
-				while (enumerator2.MoveNext())
-				{
-					PresenceUpdate current2 = enumerator2.get_Current();
-					this.m_pendingRichPresenceUpdates.Remove(current2);
-				}
+				this.m_pendingRichPresenceUpdates.Remove(presenceUpdate1);
 			}
 		}
 
@@ -668,10 +563,10 @@ namespace bgs
 			richPresenceString = string.Empty;
 			FieldKey fieldKey = new FieldKey();
 			fieldKey.SetProgram(BnetProgramId.BNET.GetValue());
-			fieldKey.SetGroup(2u);
-			fieldKey.SetField(8u);
+			fieldKey.SetGroup(2);
+			fieldKey.SetField(8);
 			fieldKey.SetIndex(index);
-			Variant cache = this.m_presenceCache.GetCache(entityId, fieldKey);
+			bnet.protocol.attribute.Variant cache = this.m_presenceCache.GetCache(entityId, fieldKey);
 			if (cache == null)
 			{
 				base.ApiLog.LogError("Expected field missing from presence cache when resolving rich presence string");
@@ -687,192 +582,272 @@ namespace bgs
 			{
 				return false;
 			}
-			PresenceAPI.IndexToStringMap indexToStringMap = this.m_richPresenceStringTables[richPresence];
-			if (!indexToStringMap.ContainsKey((ulong)richPresence.Index))
+			PresenceAPI.IndexToStringMap item = this.m_richPresenceStringTables[richPresence];
+			if (!item.ContainsKey((ulong)richPresence.Index))
 			{
 				base.ApiLog.LogWarning("Rich presence string table data is missing");
 				return false;
 			}
-			richPresenceString = indexToStringMap[(ulong)richPresence.Index];
-			if (recurseDepth < 1 && !this.SubstituteVariables(out richPresenceString, richPresenceString, entityId, recurseDepth + 1))
+			richPresenceString = item[(ulong)richPresence.Index];
+			if (recurseDepth >= 1 || this.SubstituteVariables(out richPresenceString, richPresenceString, entityId, recurseDepth + 1))
 			{
-				base.ApiLog.LogWarning("Failed to substitute rich presence variables in: {0}", new object[]
-				{
-					richPresenceString
-				});
-				return false;
+				return true;
 			}
-			return true;
+			base.ApiLog.LogWarning("Failed to substitute rich presence variables in: {0}", new object[] { richPresenceString });
+			return false;
+		}
+
+		private void ResouceLookupCallback(bgs.ContentHandle contentHandle, object userContext)
+		{
+			if (contentHandle == null)
+			{
+				base.ApiLog.LogWarning("BN resource look up failed unable to proceed");
+				this.DecrementOutstandingRichPresenceStringFetches();
+				return;
+			}
+			base.ApiLog.LogDebug("Lookup done Region={0} Usage={1} SHA256={2}", new object[] { contentHandle.Region, contentHandle.Usage, contentHandle.Sha256Digest });
+			this.m_battleNet.LocalStorage.GetFile(contentHandle, new LocalStorageAPI.DownloadCompletedCallback(this.DownloadCompletedCallback), userContext);
+		}
+
+		public void SetPresenceBlob(uint field, byte[] val)
+		{
+			UpdateRequest updateRequest = new UpdateRequest()
+			{
+				EntityId = this.m_battleNet.GameAccountId
+			};
+			FieldOperation fieldOperation = new FieldOperation();
+			Field field1 = new Field();
+			FieldKey fieldKey = new FieldKey();
+			fieldKey.SetProgram(BnetProgramId.WOW.GetValue());
+			fieldKey.SetGroup(2);
+			fieldKey.SetField(field);
+			bnet.protocol.attribute.Variant variant = new bnet.protocol.attribute.Variant();
+			if (val == null)
+			{
+				val = new byte[0];
+			}
+			variant.SetBlobValue(val);
+			field1.SetKey(fieldKey);
+			field1.SetValue(variant);
+			fieldOperation.SetField(field1);
+			updateRequest.SetEntityId(this.m_battleNet.GameAccountId);
+			updateRequest.AddFieldOperation(fieldOperation);
+			this.PublishField(updateRequest);
+		}
+
+		public void SetPresenceBool(uint field, bool val)
+		{
+			UpdateRequest updateRequest = new UpdateRequest();
+			FieldOperation fieldOperation = new FieldOperation();
+			Field field1 = new Field();
+			FieldKey fieldKey = new FieldKey();
+			fieldKey.SetProgram(BnetProgramId.WOW.GetValue());
+			fieldKey.SetGroup(2);
+			fieldKey.SetField(field);
+			bnet.protocol.attribute.Variant variant = new bnet.protocol.attribute.Variant();
+			variant.SetBoolValue(val);
+			field1.SetKey(fieldKey);
+			field1.SetValue(variant);
+			fieldOperation.SetField(field1);
+			updateRequest.SetEntityId(this.m_battleNet.GameAccountId);
+			updateRequest.AddFieldOperation(fieldOperation);
+			this.PublishField(updateRequest);
+		}
+
+		public void SetPresenceInt(uint field, long val)
+		{
+			UpdateRequest updateRequest = new UpdateRequest()
+			{
+				EntityId = this.m_battleNet.GameAccountId
+			};
+			FieldOperation fieldOperation = new FieldOperation();
+			Field field1 = new Field();
+			FieldKey fieldKey = new FieldKey();
+			fieldKey.SetProgram(BnetProgramId.WOW.GetValue());
+			fieldKey.SetGroup(2);
+			fieldKey.SetField(field);
+			bnet.protocol.attribute.Variant variant = new bnet.protocol.attribute.Variant();
+			variant.SetIntValue(val);
+			field1.SetKey(fieldKey);
+			field1.SetValue(variant);
+			fieldOperation.SetField(field1);
+			updateRequest.SetEntityId(this.m_battleNet.GameAccountId);
+			updateRequest.AddFieldOperation(fieldOperation);
+			this.PublishField(updateRequest);
+		}
+
+		public void SetPresenceString(uint field, string val)
+		{
+			UpdateRequest updateRequest = new UpdateRequest()
+			{
+				EntityId = this.m_battleNet.GameAccountId
+			};
+			FieldOperation fieldOperation = new FieldOperation();
+			Field field1 = new Field();
+			FieldKey fieldKey = new FieldKey();
+			fieldKey.SetProgram(BnetProgramId.WOW.GetValue());
+			fieldKey.SetGroup(2);
+			fieldKey.SetField(field);
+			bnet.protocol.attribute.Variant variant = new bnet.protocol.attribute.Variant();
+			variant.SetStringValue(val);
+			field1.SetKey(fieldKey);
+			field1.SetValue(variant);
+			fieldOperation.SetField(field1);
+			updateRequest.SetEntityId(this.m_battleNet.GameAccountId);
+			updateRequest.AddFieldOperation(fieldOperation);
+			this.PublishField(updateRequest);
 		}
 
 		private bool SubstituteVariables(out string substitutedString, string originalStr, bgs.types.EntityId entityId, int recurseDepth)
 		{
+			int num;
+			ulong num1;
+			string str;
+			bool flag;
 			substitutedString = originalStr;
-			int i = 0;
-			while (i < substitutedString.get_Length())
+			int num2 = 0;
+		Label1:
+			while (num2 < substitutedString.Length)
 			{
-				i = substitutedString.IndexOf("$0x", i);
-				if (i == -1)
+				num2 = substitutedString.IndexOf("$0x", num2);
+				if (num2 != -1)
+				{
+					int length = num2 + "$0x".Length;
+					int num3 = this.LastIndexOfOccurenceFromIndex(substitutedString, PresenceAPI.hexChars, length);
+					int num4 = num3 + 1 - length;
+					num = num3 + 1 - num2;
+					string str1 = substitutedString.Substring(length, num4);
+					num1 = (ulong)0;
+					try
+					{
+						num1 = Convert.ToUInt64(str1, 16);
+						goto Label0;
+					}
+					catch (Exception exception)
+					{
+						base.ApiLog.LogWarning("Failed to convert {0} to ulong when substiting rich presence variables", new object[] { str1 });
+						flag = false;
+					}
+					return flag;
+				}
+				else
 				{
 					break;
 				}
-				int num = i + "$0x".get_Length();
-				int num2 = this.LastIndexOfOccurenceFromIndex(substitutedString, PresenceAPI.hexChars, num);
-				int num3 = num2 + 1 - num;
-				int num4 = num2 + 1 - i;
-				string text = substitutedString.Substring(num, num3);
-				ulong num5 = 0uL;
-				try
-				{
-					num5 = Convert.ToUInt64(text, 16);
-				}
-				catch (Exception)
-				{
-					base.ApiLog.LogWarning("Failed to convert {0} to ulong when substiting rich presence variables", new object[]
-					{
-						text
-					});
-					bool result = false;
-					return result;
-				}
-				string text2;
-				if (!this.ResolveRichPresenceStrings(out text2, entityId, num5, recurseDepth))
-				{
-					base.ApiLog.LogWarning("Failed resolve rich presence string for \"{0}\" when substiting variables in \"{1}\"", new object[]
-					{
-						num5,
-						originalStr
-					});
-					return false;
-				}
-				string text3 = substitutedString.Substring(i, num4);
-				substitutedString = substitutedString.Replace(text3, text2);
 			}
 			return true;
+		Label0:
+			if (!this.ResolveRichPresenceStrings(out str, entityId, num1, recurseDepth))
+			{
+				base.ApiLog.LogWarning("Failed resolve rich presence string for \"{0}\" when substiting variables in \"{1}\"", new object[] { num1, originalStr });
+				return false;
+			}
+			string str2 = substitutedString.Substring(num2, num);
+			substitutedString = substitutedString.Replace(str2, str);
+			goto Label1;
 		}
 
-		private int LastIndexOfOccurenceFromIndex(string str, char[] testChars, int startIndex)
+		private void TryToResolveRichPresence()
 		{
-			int result = -1;
-			char[] array = str.ToCharArray();
-			for (int i = startIndex; i < array.Length; i++)
+			if (this.m_numOutstandingRichPresenceStringFetches == 0)
 			{
-				char c = array[i];
-				bool flag = false;
-				char[] array2 = PresenceAPI.hexChars;
-				for (int j = 0; j < array2.Length; j++)
+				this.ResolveRichPresence();
+				if (this.m_pendingRichPresenceUpdates.Count != 0)
 				{
-					char c2 = array2[j];
-					if (c == c2)
-					{
-						result = i;
-						flag = true;
-						break;
-					}
-				}
-				if (!flag)
-				{
-					break;
+					base.ApiLog.LogWarning("Failed to resolve rich presence strings");
+					this.m_pendingRichPresenceUpdates.Clear();
 				}
 			}
-			return result;
 		}
 
-		public void RequestPresenceFields(bool isGameAccountEntityId, [In] bgs.types.EntityId entityId, [In] PresenceFieldKey[] fieldList)
+		private class EntityIdToFieldsMap : Map<bgs.types.EntityId, PresenceAPI.FieldKeyToPresenceMap>
 		{
-			QueryRequest queryRequest = new QueryRequest();
-			bnet.protocol.EntityId entityId2 = new bnet.protocol.EntityId();
-			entityId2.SetHigh(entityId.hi);
-			entityId2.SetLow(entityId.lo);
-			queryRequest.SetEntityId(entityId2);
-			for (int i = 0; i < fieldList.Length; i++)
+			public EntityIdToFieldsMap()
 			{
-				PresenceFieldKey presenceFieldKey = fieldList[i];
-				FieldKey fieldKey = new FieldKey();
-				fieldKey.SetProgram(presenceFieldKey.programId);
-				fieldKey.SetGroup(presenceFieldKey.groupId);
-				fieldKey.SetField(presenceFieldKey.fieldId);
-				fieldKey.SetIndex(presenceFieldKey.index);
-				queryRequest.AddKey(fieldKey);
 			}
-			this.m_rpcConnection.QueueRequest(this.m_presenceService.Id, 4u, queryRequest, delegate(RPCContext context)
+
+			public bnet.protocol.attribute.Variant GetCache(bgs.types.EntityId entity, FieldKey key)
 			{
-				this.RequestPresenceFieldsCallback(new bgs.types.EntityId(entityId), context);
-			}, 0u);
+				if (key == null)
+				{
+					return null;
+				}
+				if (!base.ContainsKey(entity))
+				{
+					return null;
+				}
+				PresenceAPI.FieldKeyToPresenceMap item = base[entity];
+				if (!item.ContainsKey(key))
+				{
+					return null;
+				}
+				return item[key];
+			}
+
+			public void SetCache(bgs.types.EntityId entity, FieldKey key, bnet.protocol.attribute.Variant value)
+			{
+				if (key == null)
+				{
+					return;
+				}
+				if (!base.ContainsKey(entity))
+				{
+					base[entity] = new PresenceAPI.FieldKeyToPresenceMap();
+				}
+				base[entity][key] = value;
+			}
 		}
 
-		private void RequestPresenceFieldsCallback(bgs.types.EntityId entityId, RPCContext context)
+		private class FieldKeyToPresenceMap : Map<FieldKey, bnet.protocol.attribute.Variant>
 		{
-			if (base.CheckRPCCallback("RequestPresenceFieldsCallback", context))
+			public FieldKeyToPresenceMap()
 			{
-				QueryResponse queryResponse = QueryResponse.ParseFrom(context.Payload);
-				using (List<Field>.Enumerator enumerator = queryResponse.FieldList.GetEnumerator())
+			}
+		}
+
+		private class IndexToStringMap : Map<ulong, string>
+		{
+			public IndexToStringMap()
+			{
+			}
+		}
+
+		public class PresenceRefCountObject
+		{
+			public ulong objectId;
+
+			public int refCount;
+
+			public PresenceRefCountObject()
+			{
+			}
+		}
+
+		public class PresenceUnsubscribeContext
+		{
+			private ulong m_objectId;
+
+			private BattleNetCSharp m_battleNet;
+
+			public PresenceUnsubscribeContext(BattleNetCSharp battleNet, ulong objectId)
+			{
+				this.m_battleNet = battleNet;
+				this.m_objectId = objectId;
+			}
+
+			public void PresenceUnsubscribeCallback(RPCContext context)
+			{
+				if (this.m_battleNet.Presence.CheckRPCCallback("PresenceUnsubscribeCallback", context))
 				{
-					while (enumerator.MoveNext())
-					{
-						Field current = enumerator.get_Current();
-						this.m_presenceCache.SetCache(entityId, current.Key, current.Value);
-						PresenceUpdate presenceUpdate = default(PresenceUpdate);
-						presenceUpdate.entityId = entityId;
-						presenceUpdate.programId = current.Key.Program;
-						presenceUpdate.groupId = current.Key.Group;
-						presenceUpdate.fieldId = current.Key.Field;
-						presenceUpdate.index = current.Key.Index;
-						presenceUpdate.boolVal = false;
-						presenceUpdate.intVal = 0L;
-						presenceUpdate.stringVal = string.Empty;
-						presenceUpdate.valCleared = false;
-						presenceUpdate.blobVal = new byte[0];
-						if (current.Value.HasBoolValue)
-						{
-							presenceUpdate.boolVal = current.Value.BoolValue;
-						}
-						else if (current.Value.HasIntValue)
-						{
-							presenceUpdate.intVal = current.Value.IntValue;
-						}
-						else if (!current.Value.HasFloatValue)
-						{
-							if (current.Value.HasStringValue)
-							{
-								presenceUpdate.stringVal = current.Value.StringValue;
-							}
-							else if (current.Value.HasBlobValue)
-							{
-								presenceUpdate.blobVal = current.Value.BlobValue;
-							}
-							else if (current.Value.HasMessageValue)
-							{
-								if (current.Key.Field == 8u)
-								{
-									this.FetchRichPresenceResource(current.Value);
-									this.HandleRichPresenceUpdate(presenceUpdate, current.Key);
-								}
-								else
-								{
-									presenceUpdate.blobVal = current.Value.MessageValue;
-								}
-							}
-							else if (current.Value.HasFourccValue)
-							{
-								presenceUpdate.stringVal = new BnetProgramId(current.Value.FourccValue).ToString();
-							}
-							else if (!current.Value.HasUintValue)
-							{
-								if (current.Value.HasEntityidValue)
-								{
-									presenceUpdate.entityIdVal.hi = current.Value.EntityidValue.High;
-									presenceUpdate.entityIdVal.lo = current.Value.EntityidValue.Low;
-								}
-								else
-								{
-									presenceUpdate.valCleared = true;
-								}
-							}
-						}
-						this.m_presenceUpdates.Add(presenceUpdate);
-					}
+					this.m_battleNet.Channel.RemoveActiveChannel(this.m_objectId);
 				}
+			}
+		}
+
+		private class RichPresenceToStringsMap : Map<RichPresence, PresenceAPI.IndexToStringMap>
+		{
+			public RichPresenceToStringsMap()
+			{
 			}
 		}
 	}

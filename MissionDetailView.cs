@@ -1,6 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using WowJamMessages;
@@ -153,104 +156,571 @@ public class MissionDetailView : MonoBehaviour
 
 	public Action FollowerSlotsChangedAction;
 
+	static MissionDetailView()
+	{
+	}
+
+	public MissionDetailView()
+	{
+	}
+
+	public void AssignCombatAlly()
+	{
+		this.StartMission();
+	}
+
 	public void Awake()
 	{
-		this.missionNameText.set_font(GeneralHelpers.LoadStandardFont());
+		this.missionNameText.font = GeneralHelpers.LoadStandardFont();
 		if (this.missionLocationText != null)
 		{
-			this.missionLocationText.set_font(GeneralHelpers.LoadStandardFont());
+			this.missionLocationText.font = GeneralHelpers.LoadStandardFont();
 		}
 		if (this.missioniLevelText != null)
 		{
-			this.missioniLevelText.set_font(GeneralHelpers.LoadStandardFont());
+			this.missioniLevelText.font = GeneralHelpers.LoadStandardFont();
 		}
 		if (this.missionTypeText != null)
 		{
-			this.missionTypeText.set_font(GeneralHelpers.LoadStandardFont());
+			this.missionTypeText.font = GeneralHelpers.LoadStandardFont();
 		}
 		if (this.missionDescriptionText != null)
 		{
-			this.missionDescriptionText.set_font(GeneralHelpers.LoadStandardFont());
+			this.missionDescriptionText.font = GeneralHelpers.LoadStandardFont();
 		}
 		if (this.missionPercentChanceLabel != null)
 		{
-			this.missionPercentChanceLabel.set_font(GeneralHelpers.LoadStandardFont());
+			this.missionPercentChanceLabel.font = GeneralHelpers.LoadStandardFont();
 		}
 		if (this.missionPercentChanceText != null)
 		{
-			this.missionPercentChanceText.set_font(GeneralHelpers.LoadStandardFont());
-			this.missionPercentChanceLabel.set_text(StaticDB.GetString("CHANCE", "Chance"));
+			this.missionPercentChanceText.font = GeneralHelpers.LoadStandardFont();
+			this.missionPercentChanceLabel.text = StaticDB.GetString("CHANCE", "Chance");
 		}
-		this.missionCostText.set_font(GeneralHelpers.LoadStandardFont());
+		this.missionCostText.font = GeneralHelpers.LoadStandardFont();
 		if (this.m_resourcesDescText != null)
 		{
-			this.m_resourcesDescText.set_font(GeneralHelpers.LoadStandardFont());
+			this.m_resourcesDescText.font = GeneralHelpers.LoadStandardFont();
 		}
-		this.m_startMissionButtonText.set_font(GeneralHelpers.LoadStandardFont());
+		this.m_startMissionButtonText.font = GeneralHelpers.LoadStandardFont();
 		if (this.m_costDescText != null)
 		{
-			this.m_costDescText.set_font(GeneralHelpers.LoadStandardFont());
+			this.m_costDescText.font = GeneralHelpers.LoadStandardFont();
 		}
 		if (this.m_combatAllyThisIsWhatYouGetText != null)
 		{
-			this.m_combatAllyThisIsWhatYouGetText.set_font(GeneralHelpers.LoadStandardFont());
+			this.m_combatAllyThisIsWhatYouGetText.font = GeneralHelpers.LoadStandardFont();
 		}
 		if (this.m_bonusLootChanceText != null)
 		{
-			this.m_bonusLootChanceText.set_font(GeneralHelpers.LoadStandardFont());
+			this.m_bonusLootChanceText.font = GeneralHelpers.LoadStandardFont();
 		}
 		if (this.m_previewMissionNameText != null)
 		{
-			this.m_previewMissionNameText.set_font(GeneralHelpers.LoadStandardFont());
+			this.m_previewMissionNameText.font = GeneralHelpers.LoadStandardFont();
 		}
 		if (this.m_previewMissionLocationText != null)
 		{
-			this.m_previewMissionLocationText.set_font(GeneralHelpers.LoadStandardFont());
+			this.m_previewMissionLocationText.font = GeneralHelpers.LoadStandardFont();
 		}
 		if (this.m_previewMissioniLevelText != null)
 		{
-			this.m_previewMissioniLevelText.set_font(GeneralHelpers.LoadStandardFont());
+			this.m_previewMissioniLevelText.font = GeneralHelpers.LoadStandardFont();
 		}
 		if (this.m_previewMissionTimeText != null)
 		{
-			this.m_previewMissionTimeText.set_font(GeneralHelpers.LoadStandardFont());
+			this.m_previewMissionTimeText.font = GeneralHelpers.LoadStandardFont();
 		}
 		if (this.m_partyBuffsText != null)
 		{
-			this.m_partyBuffsText.set_font(GeneralHelpers.LoadStandardFont());
+			this.m_partyBuffsText.font = GeneralHelpers.LoadStandardFont();
 		}
 		if (this.m_partyDebuffsText != null)
 		{
-			this.m_partyDebuffsText.set_font(GeneralHelpers.LoadStandardFont());
+			this.m_partyDebuffsText.font = GeneralHelpers.LoadStandardFont();
 		}
 		this.m_percentChance = 0;
-		if (AssetBundleManager.instance.IsInitialized())
+		if (!AssetBundleManager.instance.IsInitialized())
 		{
-			this.OnAssetBundleManagerInitialized();
+			AssetBundleManager.instance.InitializedAction += new Action(this.OnAssetBundleManagerInitialized);
 		}
 		else
 		{
-			AssetBundleManager expr_280 = AssetBundleManager.instance;
-			expr_280.InitializedAction = (Action)Delegate.Combine(expr_280.InitializedAction, new Action(this.OnAssetBundleManagerInitialized));
+			this.OnAssetBundleManagerInitialized();
 		}
 		if (this.m_previewView != null)
 		{
 			this.m_previewView.SetActive(true);
 		}
 		Material material = new Material(this.m_grayscaleShader);
-		this.m_startMissionButton.set_material(material);
-		this.m_startMissionButton.get_material().SetFloat("_GrayscaleAmount", 0f);
+		this.m_startMissionButton.material = material;
+		this.m_startMissionButton.material.SetFloat("_GrayscaleAmount", 0f);
 	}
 
-	private void Start()
+	private static float ComputeBiasValue(float par, float max, float bias)
 	{
-		if (this.m_partyBuffsText != null)
+		if (bias < 0f)
 		{
-			this.m_partyBuffsText.set_text(StaticDB.GetString("PARTY_BUFFS", null));
+			return par + bias * par;
 		}
-		if (this.m_partyDebuffsText != null)
+		return par + bias * (max - par);
+	}
+
+	public static float ComputeFollowerBias(JamGarrisonFollower follower, int followerLevel, int followerItemLevel, int garrMissionID)
+	{
+		if ((follower.Flags & 8) != 0)
 		{
-			this.m_partyDebuffsText.set_text(StaticDB.GetString("PARTY_DEBUFFS", null));
+			return 0f;
+		}
+		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(garrMissionID);
+		if (record == null)
+		{
+			return 0f;
+		}
+		float single = MissionDetailView.ComputeFollowerLevelBias(follower, followerLevel, record.TargetLevel);
+		single = single + MissionDetailView.ComputeFollowerItemLevelBias(follower, followerItemLevel, (int)record.GarrFollowerTypeID, (int)record.TargetItemLevel);
+		return Mathf.Clamp(single, -1f, 1f);
+	}
+
+	private static float ComputeFollowerItemLevelBias(JamGarrisonFollower follower, int followerItemLevel, int garrFollowerTypeID, int targetItemLevel)
+	{
+		int num;
+		int num1;
+		float single = 0f;
+		if (follower.FollowerLevel == MissionDetailView.GarrisonFollower_GetMaxFollowerLevel(garrFollowerTypeID))
+		{
+			MissionDetailView.GarrisonFollower_GetFollowerBiasConstants(follower, out num, out num1);
+			float single1 = (float)(followerItemLevel - (targetItemLevel <= 0 ? 600 : targetItemLevel));
+			single = single + single1 / (float)num1;
+		}
+		return single;
+	}
+
+	private static float ComputeFollowerLevelBias(JamGarrisonFollower follower, int followerLevel, int targetLevel)
+	{
+		int num;
+		int num1;
+		MissionDetailView.GarrisonFollower_GetFollowerBiasConstants(follower, out num, out num1);
+		return (float)(followerLevel - targetLevel) / (float)num;
+	}
+
+	private static void GarrisonFollower_GetFollowerBiasConstants(JamGarrisonFollower follower, out int out_levelRangeBias, out int out_itemLevelRangeBias)
+	{
+		out_levelRangeBias = 1;
+		out_itemLevelRangeBias = 1;
+		GarrFollowerRec record = StaticDB.garrFollowerDB.GetRecord(follower.GarrFollowerID);
+		if (record == null)
+		{
+			return;
+		}
+		GarrFollowerTypeRec garrFollowerTypeRec = StaticDB.garrFollowerTypeDB.GetRecord((int)record.GarrFollowerTypeID);
+		if (garrFollowerTypeRec == null)
+		{
+			return;
+		}
+		out_levelRangeBias = (garrFollowerTypeRec.LevelRangeBias >= 1 ? (int)garrFollowerTypeRec.LevelRangeBias : 1);
+		out_itemLevelRangeBias = (garrFollowerTypeRec.ItemLevelRangeBias >= 1 ? (int)garrFollowerTypeRec.ItemLevelRangeBias : 1);
+	}
+
+	public static int GarrisonFollower_GetMaxFollowerLevel(int garrFollowerTypeID)
+	{
+		int followerLevel = 0;
+		StaticDB.garrFollowerLevelXPDB.EnumRecords((GarrFollowerLevelXPRec garrFollowerLevelXPRec) => {
+			if ((ulong)garrFollowerLevelXPRec.GarrFollowerTypeID == (long)garrFollowerTypeID && (followerLevel == 0 || (ulong)garrFollowerLevelXPRec.FollowerLevel > (long)followerLevel))
+			{
+				followerLevel = (int)garrFollowerLevelXPRec.FollowerLevel;
+			}
+			return true;
+		});
+		return followerLevel;
+	}
+
+	public CombatAllyMissionState GetCombatAllyMissionState()
+	{
+		return this.m_combatAllyMissionState;
+	}
+
+	public int GetCurrentMissionID()
+	{
+		return this.m_currentGarrMissionID;
+	}
+
+	private int GetTrueMissionCost(GarrMissionRec garrMissionRec)
+	{
+		int missionCost = (int)garrMissionRec.MissionCost;
+		if (this.enemyPortraitsGroup != null)
+		{
+			float actionValueFlat = 0f;
+			MissionMechanic[] componentsInChildren = this.enemyPortraitsGroup.GetComponentsInChildren<MissionMechanic>(true);
+			for (int i = 0; i < (int)componentsInChildren.Length; i++)
+			{
+				MissionMechanic missionMechanic = componentsInChildren[i];
+				if (!missionMechanic.IsCountered())
+				{
+					if (missionMechanic.AbilityID() != 0)
+					{
+						StaticDB.garrAbilityEffectDB.EnumRecordsByParentID(missionMechanic.AbilityID(), (GarrAbilityEffectRec garrAbilityEffectRec) => {
+							if (garrAbilityEffectRec.AbilityAction == 39)
+							{
+								actionValueFlat = actionValueFlat - garrAbilityEffectRec.ActionValueFlat;
+							}
+							return true;
+						});
+					}
+				}
+			}
+			missionCost = missionCost + (int)((float)missionCost * actionValueFlat);
+		}
+		return missionCost;
+	}
+
+	private int GetTrueMissionDuration(GarrMissionRec garrMissionRec, List<int> followerBuffAbilityIDs)
+	{
+		int missionDuration = garrMissionRec.MissionDuration;
+		float actionValueFlat = 0f;
+		if (this.enemyPortraitsGroup != null)
+		{
+			MissionMechanic[] componentsInChildren = this.enemyPortraitsGroup.GetComponentsInChildren<MissionMechanic>(true);
+			for (int i = 0; i < (int)componentsInChildren.Length; i++)
+			{
+				MissionMechanic missionMechanic = componentsInChildren[i];
+				if (!missionMechanic.IsCountered())
+				{
+					if (missionMechanic.AbilityID() != 0)
+					{
+						StaticDB.garrAbilityEffectDB.EnumRecordsByParentID(missionMechanic.AbilityID(), (GarrAbilityEffectRec garrAbilityEffectRec) => {
+							if (garrAbilityEffectRec.AbilityAction == 17)
+							{
+								actionValueFlat = actionValueFlat + (1f - garrAbilityEffectRec.ActionValueFlat);
+							}
+							return true;
+						});
+					}
+				}
+			}
+		}
+		foreach (int followerBuffAbilityID in followerBuffAbilityIDs)
+		{
+			StaticDB.garrAbilityEffectDB.EnumRecordsByParentID(followerBuffAbilityID, (GarrAbilityEffectRec garrAbilityEffectRec) => {
+				if (garrAbilityEffectRec.AbilityAction == 17)
+				{
+					actionValueFlat = actionValueFlat + (1f - garrAbilityEffectRec.ActionValueFlat);
+				}
+				return true;
+			});
+		}
+		missionDuration = missionDuration - (int)((float)missionDuration * actionValueFlat);
+		return missionDuration;
+	}
+
+	public void HandleMissionSelected(int garrMissionID)
+	{
+		if (garrMissionID <= 0)
+		{
+			return;
+		}
+		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(garrMissionID);
+		if (record == null)
+		{
+			Debug.LogError(string.Concat("Invalid Mission ID:", this.m_currentGarrMissionID));
+			return;
+		}
+		this.m_currentGarrMissionID = garrMissionID;
+		if (this.missionFollowerSlotGroup != null)
+		{
+			RectTransform[] componentsInChildren = this.missionFollowerSlotGroup.GetComponentsInChildren<RectTransform>(true);
+			for (int i = 0; i < (int)componentsInChildren.Length; i++)
+			{
+				if (componentsInChildren[i] != null && componentsInChildren[i] != this.missionFollowerSlotGroup.transform)
+				{
+					UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
+				}
+			}
+		}
+		if (this.enemyPortraitsGroup != null)
+		{
+			RectTransform[] rectTransformArray = this.enemyPortraitsGroup.GetComponentsInChildren<RectTransform>(true);
+			for (int j = 0; j < (int)rectTransformArray.Length; j++)
+			{
+				if (rectTransformArray[j] != null && rectTransformArray[j] != this.enemyPortraitsGroup.transform)
+				{
+					UnityEngine.Object.DestroyImmediate(rectTransformArray[j].gameObject);
+				}
+			}
+		}
+		if (this.m_previewMechanicsGroup != null)
+		{
+			AbilityDisplay[] abilityDisplayArray = this.m_previewMechanicsGroup.GetComponentsInChildren<AbilityDisplay>(true);
+			for (int k = 0; k < (int)abilityDisplayArray.Length; k++)
+			{
+				if (abilityDisplayArray[k] != null)
+				{
+					UnityEngine.Object.DestroyImmediate(abilityDisplayArray[k].gameObject);
+				}
+			}
+		}
+		if (this.treasureChestHorde != null && this.treasureChestAlliance != null)
+		{
+			if (GarrisonStatus.Faction() != PVP_FACTION.HORDE)
+			{
+				this.treasureChestHorde.SetActive(false);
+				this.treasureChestAlliance.SetActive(true);
+			}
+			else
+			{
+				this.treasureChestHorde.SetActive(true);
+				this.treasureChestAlliance.SetActive(false);
+			}
+		}
+		JamGarrisonMobileMission item = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary[garrMissionID];
+		if (this.enemyPortraitsGroup != null)
+		{
+			for (int l = 0; l < (int)item.Encounter.Length; l++)
+			{
+				GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.missionEncounterPrefab);
+				gameObject.transform.SetParent(this.enemyPortraitsGroup.transform, false);
+				MissionEncounter component = gameObject.GetComponent<MissionEncounter>();
+				int num = ((int)item.Encounter[l].MechanicID.Length <= 0 ? 0 : item.Encounter[l].MechanicID[0]);
+				component.SetEncounter(item.Encounter[l].EncounterID, num);
+				if (this.m_previewMechanicsGroup != null)
+				{
+					GarrMechanicRec garrMechanicRec = StaticDB.garrMechanicDB.GetRecord(num);
+					if (garrMechanicRec != null && garrMechanicRec.GarrAbilityID != 0)
+					{
+						GameObject gameObject1 = UnityEngine.Object.Instantiate<GameObject>(this.m_previewMechanicEffectPrefab);
+						gameObject1.transform.SetParent(this.m_previewMechanicsGroup.transform, false);
+						AbilityDisplay abilityDisplay = gameObject1.GetComponent<AbilityDisplay>();
+						abilityDisplay.SetAbility(garrMechanicRec.GarrAbilityID, false, false, null);
+						this.SetupInputForPreviewSlider(abilityDisplay.m_mainButton);
+						abilityDisplay.SetCanCounterStatus(GeneralHelpers.HasFollowerWhoCanCounter((int)garrMechanicRec.GarrMechanicTypeID));
+					}
+				}
+			}
+		}
+		this.missionNameText.text = record.Name;
+		if (this.m_previewMissionNameText != null)
+		{
+			this.m_previewMissionNameText.text = record.Name;
+		}
+		if (this.m_previewMissionLocationText != null)
+		{
+			this.m_previewMissionLocationText.text = record.Location;
+		}
+		if (this.missionDescriptionText != null)
+		{
+			this.missionDescriptionText.text = record.Description;
+		}
+		if (this.missioniLevelText != null)
+		{
+			if (record.TargetLevel >= 110)
+			{
+				this.missioniLevelText.text = string.Concat(new object[] { string.Empty, record.TargetLevel, "\n(", record.TargetItemLevel, ")" });
+			}
+			else
+			{
+				this.missioniLevelText.text = string.Concat(string.Empty, record.TargetLevel);
+			}
+		}
+		if (this.m_previewMissioniLevelText != null)
+		{
+			this.m_previewMissioniLevelText.text = string.Concat(MissionDetailView.m_iLevelText, " ", record.TargetItemLevel);
+		}
+		if (this.missionTypeImage != null)
+		{
+			GarrMissionTypeRec garrMissionTypeRec = StaticDB.garrMissionTypeDB.GetRecord((int)record.GarrMissionTypeID);
+			this.missionTypeImage.overrideSprite = TextureAtlas.instance.GetAtlasSprite((int)garrMissionTypeRec.UiTextureAtlasMemberID);
+			if (this.m_previewMissionTypeImage != null)
+			{
+				this.m_previewMissionTypeImage.overrideSprite = TextureAtlas.instance.GetAtlasSprite((int)garrMissionTypeRec.UiTextureAtlasMemberID);
+			}
+		}
+		if (this.missionEnvironmentMechanic != null)
+		{
+			this.missionEnvironmentMechanic.SetMechanicType((int)record.EnvGarrMechanicTypeID, 0, true);
+			if (record.EnvGarrMechanicTypeID != 0)
+			{
+				GarrMechanicRec record1 = StaticDB.garrMechanicDB.GetRecord((int)record.EnvGarrMechanicTypeID);
+				if (record1 != null && record1.GarrAbilityID != 0)
+				{
+					GameObject gameObject2 = UnityEngine.Object.Instantiate<GameObject>(this.m_previewMechanicEffectPrefab);
+					gameObject2.transform.SetParent(this.m_previewMechanicsGroup.transform, false);
+					AbilityDisplay component1 = gameObject2.GetComponent<AbilityDisplay>();
+					component1.SetAbility(record1.GarrAbilityID, false, false, null);
+					component1.SetCanCounterStatus(GeneralHelpers.HasFollowerWhoCanCounter((int)record1.GarrMechanicTypeID));
+				}
+			}
+		}
+		if (this.missionTypeText != null)
+		{
+			GarrMechanicTypeRec garrMechanicTypeRec = StaticDB.garrMechanicTypeDB.GetRecord((int)record.EnvGarrMechanicTypeID);
+			if (garrMechanicTypeRec == null)
+			{
+				this.missionTypeText.gameObject.SetActive(false);
+			}
+			else
+			{
+				this.missionTypeText.gameObject.SetActive(true);
+				this.missionTypeText.text = string.Concat(new string[] { "<color=#ffff00ff>", MissionDetailView.m_typeText, ": </color><color=#ffffffff>", garrMechanicTypeRec.Name, "</color>" });
+			}
+		}
+		Sprite sprite = GeneralHelpers.LoadCurrencyIcon(1220);
+		if (sprite != null)
+		{
+			this.m_resourceIcon_MissionCost.sprite = sprite;
+		}
+		if (this.missionFollowerSlotGroup != null)
+		{
+			for (int m = 0; (long)m < (ulong)record.MaxFollowers; m++)
+			{
+				GameObject gameObject3 = UnityEngine.Object.Instantiate<GameObject>(this.missionFollowerSlotPrefab);
+				gameObject3.transform.SetParent(this.missionFollowerSlotGroup.transform, false);
+				MissionFollowerSlot missionFollowerSlot = gameObject3.GetComponent<MissionFollowerSlot>();
+				missionFollowerSlot.m_missionDetailView = this;
+				missionFollowerSlot.m_enemyPortraitsGroup = this.enemyPortraitsGroup;
+			}
+		}
+		if (!this.m_isCombatAlly && record.UiTextureKitID > 0)
+		{
+			UiTextureKitRec uiTextureKitRec = StaticDB.uiTextureKitDB.GetRecord((int)record.UiTextureKitID);
+			this.m_scrollingEnvironment_Back.enabled = false;
+			this.m_scrollingEnvironment_Mid.enabled = false;
+			this.m_scrollingEnvironment_Fore.enabled = false;
+			int uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID(string.Concat("_", uiTextureKitRec.KitPrefix, "-Back"));
+			if (uITextureAtlasMemberID > 0)
+			{
+				Sprite atlasSprite = TextureAtlas.instance.GetAtlasSprite(uITextureAtlasMemberID);
+				if (atlasSprite != null)
+				{
+					this.m_scrollingEnvironment_Back.enabled = true;
+					this.m_scrollingEnvironment_Back.sprite = atlasSprite;
+				}
+			}
+			int uITextureAtlasMemberID1 = TextureAtlas.GetUITextureAtlasMemberID(string.Concat("_", uiTextureKitRec.KitPrefix, "-Mid"));
+			if (uITextureAtlasMemberID1 > 0)
+			{
+				Sprite atlasSprite1 = TextureAtlas.instance.GetAtlasSprite(uITextureAtlasMemberID1);
+				if (atlasSprite1 != null)
+				{
+					this.m_scrollingEnvironment_Mid.enabled = true;
+					this.m_scrollingEnvironment_Mid.sprite = atlasSprite1;
+				}
+			}
+			int num1 = TextureAtlas.GetUITextureAtlasMemberID(string.Concat("_", uiTextureKitRec.KitPrefix, "-Fore"));
+			if (num1 > 0)
+			{
+				Sprite sprite1 = TextureAtlas.instance.GetAtlasSprite(num1);
+				if (sprite1 != null)
+				{
+					this.m_scrollingEnvironment_Fore.enabled = true;
+					this.m_scrollingEnvironment_Fore.sprite = sprite1;
+				}
+			}
+		}
+		else if ((record.Flags & 16) == 0)
+		{
+			Debug.LogWarning(string.Concat(new object[] { "DATA ERROR: Mission UITextureKit Not Set for mission ID:", record.ID, " - ", record.Name }));
+			Debug.LogWarning("This means the scrolling background images will show the wrong location");
+		}
+		this.UpdateMissionStatus();
+		if (this.m_lootGroupObj == null || this.m_missionRewardDisplayPrefab == null)
+		{
+			return;
+		}
+		MissionRewardDisplay[] missionRewardDisplayArray = this.m_lootGroupObj.GetComponentsInChildren<MissionRewardDisplay>(true);
+		for (int n = 0; n < (int)missionRewardDisplayArray.Length; n++)
+		{
+			if (missionRewardDisplayArray[n] != null)
+			{
+				UnityEngine.Object.DestroyImmediate(missionRewardDisplayArray[n].gameObject);
+			}
+		}
+		if (this.m_previewLootGroup != null)
+		{
+			MissionRewardDisplay[] componentsInChildren1 = this.m_previewLootGroup.GetComponentsInChildren<MissionRewardDisplay>(true);
+			for (int o = 0; o < (int)componentsInChildren1.Length; o++)
+			{
+				if (componentsInChildren1[o] != null)
+				{
+					UnityEngine.Object.DestroyImmediate(componentsInChildren1[o].gameObject);
+				}
+			}
+		}
+		if (!PersistentMissionData.missionDictionary.ContainsKey(this.m_currentGarrMissionID))
+		{
+			return;
+		}
+		MissionRewardDisplay.InitMissionRewards(this.m_missionRewardDisplayPrefab.gameObject, this.m_lootGroupObj.transform, item.Reward);
+		if (this.m_previewLootGroup != null)
+		{
+			MissionRewardDisplay.InitMissionRewards(this.m_missionRewardDisplayPrefab.gameObject, this.m_previewLootGroup.transform, item.Reward);
+		}
+		this.InitBonusRewardDisplay(record, this.m_percentChance);
+	}
+
+	public void HideMissionDetailView()
+	{
+		Main.instance.m_UISound.Play_CloseButton();
+		base.gameObject.SetActive(false);
+	}
+
+	private void InitBonusRewardDisplay(GarrMissionRec garrMissionRec, int missionSuccessChance)
+	{
+		JamGarrisonMobileMission item;
+		this.m_bonusLootDisplay.SetActive(false);
+		if (garrMissionRec == null)
+		{
+			return;
+		}
+		if (StaticDB.rewardPackDB.GetRecord(garrMissionRec.OvermaxRewardPackID) == null)
+		{
+			return;
+		}
+		if (!PersistentMissionData.missionDictionary.ContainsKey(garrMissionRec.ID))
+		{
+			item = null;
+		}
+		else
+		{
+			item = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary[garrMissionRec.ID];
+		}
+		JamGarrisonMobileMission jamGarrisonMobileMission = item;
+		if (garrMissionRec.OvermaxRewardPackID > 0 && jamGarrisonMobileMission != null && (int)jamGarrisonMobileMission.OvermaxReward.Length > 0)
+		{
+			this.m_bonusLootDisplay.SetActive(true);
+			this.m_bonusLootChanceText.text = string.Concat(new object[] { "<color=#ffff00ff>", StaticDB.GetString("BONUS", "Bonus:"), " </color>\n<color=#ff8600ff>", Math.Max(0, missionSuccessChance - 100), "%</color>" });
+			if (PersistentMissionData.missionDictionary.ContainsKey(this.m_currentGarrMissionID) && (int)jamGarrisonMobileMission.OvermaxReward.Length > 0)
+			{
+				JamGarrisonMissionReward overmaxReward = jamGarrisonMobileMission.OvermaxReward[0];
+				if (overmaxReward.ItemID > 0)
+				{
+					this.m_bonusMissionRewardDisplay.InitReward(MissionRewardDisplay.RewardType.item, overmaxReward.ItemID, (int)overmaxReward.ItemQuantity, 0, overmaxReward.ItemFileDataID);
+				}
+				else if (overmaxReward.FollowerXP > 0)
+				{
+					this.m_bonusMissionRewardDisplay.InitReward(MissionRewardDisplay.RewardType.followerXP, 0, (int)overmaxReward.FollowerXP, 0, 0);
+				}
+				else if (overmaxReward.CurrencyQuantity > 0)
+				{
+					if (overmaxReward.CurrencyType != 0)
+					{
+						CurrencyTypesRec record = StaticDB.currencyTypesDB.GetRecord(overmaxReward.CurrencyType);
+						int currencyQuantity = (int)((ulong)overmaxReward.CurrencyQuantity / (long)(((record.Flags & 8) == 0 ? 1 : 100)));
+						this.m_bonusMissionRewardDisplay.InitReward(MissionRewardDisplay.RewardType.currency, overmaxReward.CurrencyType, currencyQuantity, 0, 0);
+					}
+					else
+					{
+						this.m_bonusMissionRewardDisplay.InitReward(MissionRewardDisplay.RewardType.gold, 0, (int)(overmaxReward.CurrencyQuantity / 10000), 0, 0);
+					}
+				}
+			}
+		}
+	}
+
+	public void NotifyFollowerSlotsChanged()
+	{
+		if (this.FollowerSlotsChangedAction != null)
+		{
+			this.FollowerSlotsChangedAction();
 		}
 	}
 
@@ -265,54 +735,160 @@ public class MissionDetailView : MonoBehaviour
 		{
 			MissionDetailView.m_typeText = StaticDB.GetString("TYPE", null);
 		}
-		this.m_startMissionButtonText.set_text(StaticDB.GetString("START_MISSION", null));
+		this.m_startMissionButtonText.text = StaticDB.GetString("START_MISSION", null);
 		if (this.m_costDescText != null)
 		{
-			this.m_costDescText.set_text(StaticDB.GetString("COST", null));
+			this.m_costDescText.text = StaticDB.GetString("COST", null);
 		}
 		MissionDetailView.m_iLevelText = StaticDB.GetString("ITEM_LEVEL_ABBREVIATION", null);
-	}
-
-	private void OnEnable()
-	{
-		if (!this.m_isCombatAlly)
-		{
-			if (this.m_usedForMissionList)
-			{
-				AdventureMapPanel expr_1B = AdventureMapPanel.instance;
-				expr_1B.MissionSelectedFromListAction = (Action<int>)Delegate.Combine(expr_1B.MissionSelectedFromListAction, new Action<int>(this.HandleMissionSelected));
-			}
-			else
-			{
-				AdventureMapPanel expr_46 = AdventureMapPanel.instance;
-				expr_46.MissionSelectedFromMapAction = (Action<int>)Delegate.Combine(expr_46.MissionSelectedFromMapAction, new Action<int>(this.HandleMissionSelected));
-			}
-			if (Main.instance != null)
-			{
-				Main expr_7C = Main.instance;
-				expr_7C.MissionSuccessChanceChangedAction = (Action<int>)Delegate.Combine(expr_7C.MissionSuccessChanceChangedAction, new Action<int>(this.OnMissionSuccessChanceChanged));
-			}
-		}
 	}
 
 	private void OnDisable()
 	{
 		if (!this.m_isCombatAlly)
 		{
-			if (this.m_usedForMissionList)
+			if (!this.m_usedForMissionList)
 			{
-				AdventureMapPanel expr_1B = AdventureMapPanel.instance;
-				expr_1B.MissionSelectedFromListAction = (Action<int>)Delegate.Remove(expr_1B.MissionSelectedFromListAction, new Action<int>(this.HandleMissionSelected));
+				AdventureMapPanel.instance.MissionSelectedFromMapAction -= new Action<int>(this.HandleMissionSelected);
 			}
 			else
 			{
-				AdventureMapPanel expr_46 = AdventureMapPanel.instance;
-				expr_46.MissionSelectedFromMapAction = (Action<int>)Delegate.Remove(expr_46.MissionSelectedFromMapAction, new Action<int>(this.HandleMissionSelected));
+				AdventureMapPanel.instance.MissionSelectedFromListAction -= new Action<int>(this.HandleMissionSelected);
 			}
 			if (Main.instance != null)
 			{
-				Main expr_7C = Main.instance;
-				expr_7C.MissionSuccessChanceChangedAction = (Action<int>)Delegate.Remove(expr_7C.MissionSuccessChanceChangedAction, new Action<int>(this.OnMissionSuccessChanceChanged));
+				Main.instance.MissionSuccessChanceChangedAction -= new Action<int>(this.OnMissionSuccessChanceChanged);
+			}
+		}
+		Main.instance.m_backButtonManager.PopBackAction();
+	}
+
+	private void OnEnable()
+	{
+		if (!this.m_isCombatAlly)
+		{
+			if (!this.m_usedForMissionList)
+			{
+				AdventureMapPanel.instance.MissionSelectedFromMapAction += new Action<int>(this.HandleMissionSelected);
+			}
+			else
+			{
+				AdventureMapPanel.instance.MissionSelectedFromListAction += new Action<int>(this.HandleMissionSelected);
+			}
+			if (Main.instance != null)
+			{
+				Main.instance.MissionSuccessChanceChangedAction += new Action<int>(this.OnMissionSuccessChanceChanged);
+			}
+		}
+		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideMissionDialog, null);
+	}
+
+	private void OnMissionSuccessChanceChanged(int newChance)
+	{
+		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(this.m_currentGarrMissionID);
+		if (record == null)
+		{
+			Debug.LogError(string.Concat("Invalid Mission ID:", this.m_currentGarrMissionID));
+			return;
+		}
+		if ((record.Flags & 16) != 0)
+		{
+			return;
+		}
+		this.m_missionChanceSpinner.SetActive(false);
+		this.missionPercentChanceText.text = string.Concat(newChance, "%");
+		this.m_lootBorderNormal.SetActive(newChance < 100);
+		this.m_lootBorderLitUp.SetActive(newChance >= 100);
+		if (newChance >= 0)
+		{
+			this.missionPercentChanceText.color = Color.green;
+			this.missionPercentChanceLabel.color = Color.green;
+		}
+		else
+		{
+			this.missionPercentChanceText.color = Color.red;
+			this.missionPercentChanceLabel.color = Color.red;
+		}
+		if (this.m_percentChance < 100 && newChance >= 100)
+		{
+			Main.instance.m_UISound.Play_100Percent();
+		}
+		else if (this.m_percentChance >= 200 || newChance < 200)
+		{
+			newChance <= this.m_percentChance;
+		}
+		else
+		{
+			Main.instance.m_UISound.Play_200Percent();
+		}
+		this.m_bonusLootChanceText.text = string.Concat(new object[] { "<color=#ffff00ff>", StaticDB.GetString("BONUS", "Bonus:"), " </color>\n<color=#ff8600ff>", Math.Max(0, newChance - 100), "%</color>" });
+		this.m_percentChance = newChance;
+	}
+
+	public void OnPartyBuffSectionTapped()
+	{
+		List<int> nums = new List<int>();
+		MissionFollowerSlot[] componentsInChildren = this.missionFollowerSlotGroup.GetComponentsInChildren<MissionFollowerSlot>(true);
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
+		{
+			int currentGarrFollowerID = componentsInChildren[i].GetCurrentGarrFollowerID();
+			if (currentGarrFollowerID != 0)
+			{
+				int[] buffsForCurrentMission = GeneralHelpers.GetBuffsForCurrentMission(currentGarrFollowerID, this.m_currentGarrMissionID, this.missionFollowerSlotGroup);
+				for (int j = 0; j < (int)buffsForCurrentMission.Length; j++)
+				{
+					nums.Add(buffsForCurrentMission[j]);
+				}
+			}
+		}
+		AllPopups.instance.ShowPartyBuffsPopup(nums.ToArray());
+	}
+
+	public void SetCombatAllyMissionState(CombatAllyMissionState state)
+	{
+		this.m_combatAllyMissionState = state;
+		switch (state)
+		{
+			case CombatAllyMissionState.notAvailable:
+			{
+				Text[] componentsInChildren = this.m_combatAllyNotAvailableStuff.GetComponentsInChildren<Text>(true);
+				if (componentsInChildren[0] != null)
+				{
+					componentsInChildren[0].text = StaticDB.GetString("COMBAT_ALLY_UNAVAILABLE", null);
+				}
+				this.m_combatAllyNotAvailableStuff.SetActive(true);
+				this.m_combatAllyAvailableStuff.SetActive(false);
+				break;
+			}
+			case CombatAllyMissionState.available:
+			{
+				this.m_combatAllyNotAvailableStuff.SetActive(false);
+				this.m_combatAllyAvailableStuff.SetActive(true);
+				this.m_assignCombatAllyStuff.SetActive(true);
+				this.m_unassignCombatAllyStuff.SetActive(false);
+				break;
+			}
+			case CombatAllyMissionState.inProgress:
+			{
+				this.m_combatAllyNotAvailableStuff.SetActive(false);
+				this.m_combatAllyAvailableStuff.SetActive(true);
+				int garrFollowerID = 0;
+				foreach (JamGarrisonFollower value in PersistentFollowerData.followerDictionary.Values)
+				{
+					if (value.CurrentMissionID != this.m_currentGarrMissionID)
+					{
+						continue;
+					}
+					Debug.LogWarning(string.Concat("Combat Ally ID FOUND: ", value.GarrFollowerID));
+					garrFollowerID = value.GarrFollowerID;
+					break;
+				}
+				MissionFollowerSlot[] missionFollowerSlotArray = base.gameObject.GetComponentsInChildren<MissionFollowerSlot>(true);
+				Debug.LogWarning(string.Concat("missionfollowerSlots found: ", (int)missionFollowerSlotArray.Length));
+				missionFollowerSlotArray[0].SetFollower(garrFollowerID);
+				this.m_assignCombatAllyStuff.SetActive(false);
+				this.m_unassignCombatAllyStuff.SetActive(true);
+				break;
 			}
 		}
 	}
@@ -323,744 +899,45 @@ public class MissionDetailView : MonoBehaviour
 		{
 			return;
 		}
-		EventTrigger eventTrigger = button.get_gameObject().AddComponent<EventTrigger>();
-		EventTrigger.Entry entry = new EventTrigger.Entry();
-		entry.eventID = 13;
-		entry.callback.AddListener(delegate(BaseEventData eventData)
+		EventTrigger eventTrigger = button.gameObject.AddComponent<EventTrigger>();
+		EventTrigger.Entry entry = new EventTrigger.Entry()
 		{
-			this.m_missionPanelSlider.m_sliderPanel.OnBeginDrag(eventData);
-		});
-		entry.callback.AddListener(delegate(BaseEventData eventData)
+			eventID = EventTriggerType.BeginDrag
+		};
+		entry.callback.AddListener((BaseEventData eventData) => this.m_missionPanelSlider.m_sliderPanel.OnBeginDrag(eventData));
+		entry.callback.AddListener((BaseEventData eventData) => this.m_missionPanelSlider.StopTheBounce());
+		entry.callback.AddListener((BaseEventData eventData) => button.enabled = false);
+		eventTrigger.triggers.Add(entry);
+		EventTrigger.Entry entry1 = new EventTrigger.Entry()
 		{
-			this.m_missionPanelSlider.StopTheBounce();
-		});
-		entry.callback.AddListener(delegate(BaseEventData eventData)
+			eventID = EventTriggerType.Drag
+		};
+		entry1.callback.AddListener((BaseEventData eventData) => this.m_missionPanelSlider.m_sliderPanel.OnDrag(eventData));
+		eventTrigger.triggers.Add(entry1);
+		EventTrigger.Entry entry2 = new EventTrigger.Entry()
 		{
-			button.set_enabled(false);
-		});
-		eventTrigger.get_triggers().Add(entry);
-		EventTrigger.Entry entry2 = new EventTrigger.Entry();
-		entry2.eventID = 5;
-		entry2.callback.AddListener(delegate(BaseEventData eventData)
-		{
-			this.m_missionPanelSlider.m_sliderPanel.OnDrag(eventData);
-		});
-		eventTrigger.get_triggers().Add(entry2);
-		EventTrigger.Entry entry3 = new EventTrigger.Entry();
-		entry3.eventID = 14;
-		entry3.callback.AddListener(delegate(BaseEventData eventData)
-		{
-			this.m_missionPanelSlider.m_sliderPanel.MissionPanelSlider_HandleAutopositioning_Bottom();
-		});
-		entry3.callback.AddListener(delegate(BaseEventData eventData)
-		{
-			button.set_enabled(true);
-		});
-		eventTrigger.get_triggers().Add(entry3);
+			eventID = EventTriggerType.EndDrag
+		};
+		entry2.callback.AddListener((BaseEventData eventData) => this.m_missionPanelSlider.m_sliderPanel.MissionPanelSlider_HandleAutopositioning_Bottom());
+		entry2.callback.AddListener((BaseEventData eventData) => button.enabled = true);
+		eventTrigger.triggers.Add(entry2);
 	}
 
-	private int GetTrueMissionCost(GarrMissionRec garrMissionRec)
+	private void Start()
 	{
-		int num = (int)garrMissionRec.MissionCost;
-		if (this.enemyPortraitsGroup != null)
+		if (this.m_partyBuffsText != null)
 		{
-			float actionFlat = 0f;
-			MissionMechanic[] componentsInChildren = this.enemyPortraitsGroup.GetComponentsInChildren<MissionMechanic>(true);
-			MissionMechanic[] array = componentsInChildren;
-			for (int i = 0; i < array.Length; i++)
-			{
-				MissionMechanic missionMechanic = array[i];
-				if (!missionMechanic.IsCountered())
-				{
-					if (missionMechanic.AbilityID() != 0)
-					{
-						StaticDB.garrAbilityEffectDB.EnumRecordsByParentID(missionMechanic.AbilityID(), delegate(GarrAbilityEffectRec garrAbilityEffectRec)
-						{
-							if (garrAbilityEffectRec.AbilityAction == 39u)
-							{
-								actionFlat -= garrAbilityEffectRec.ActionValueFlat;
-							}
-							return true;
-						});
-					}
-				}
-			}
-			num += (int)((float)num * actionFlat);
+			this.m_partyBuffsText.text = StaticDB.GetString("PARTY_BUFFS", null);
 		}
-		return num;
-	}
-
-	private int GetTrueMissionDuration(GarrMissionRec garrMissionRec, List<int> followerBuffAbilityIDs)
-	{
-		int num = garrMissionRec.MissionDuration;
-		float actionFlat = 0f;
-		if (this.enemyPortraitsGroup != null)
+		if (this.m_partyDebuffsText != null)
 		{
-			MissionMechanic[] componentsInChildren = this.enemyPortraitsGroup.GetComponentsInChildren<MissionMechanic>(true);
-			MissionMechanic[] array = componentsInChildren;
-			for (int i = 0; i < array.Length; i++)
-			{
-				MissionMechanic missionMechanic = array[i];
-				if (!missionMechanic.IsCountered())
-				{
-					if (missionMechanic.AbilityID() != 0)
-					{
-						StaticDB.garrAbilityEffectDB.EnumRecordsByParentID(missionMechanic.AbilityID(), delegate(GarrAbilityEffectRec garrAbilityEffectRec)
-						{
-							if (garrAbilityEffectRec.AbilityAction == 17u)
-							{
-								actionFlat += 1f - garrAbilityEffectRec.ActionValueFlat;
-							}
-							return true;
-						});
-					}
-				}
-			}
+			this.m_partyDebuffsText.text = StaticDB.GetString("PARTY_DEBUFFS", null);
 		}
-		using (List<int>.Enumerator enumerator = followerBuffAbilityIDs.GetEnumerator())
-		{
-			while (enumerator.MoveNext())
-			{
-				int current = enumerator.get_Current();
-				StaticDB.garrAbilityEffectDB.EnumRecordsByParentID(current, delegate(GarrAbilityEffectRec garrAbilityEffectRec)
-				{
-					if (garrAbilityEffectRec.AbilityAction == 17u)
-					{
-						actionFlat += 1f - garrAbilityEffectRec.ActionValueFlat;
-					}
-					return true;
-				});
-			}
-		}
-		num -= (int)((float)num * actionFlat);
-		return num;
-	}
-
-	public void HandleMissionSelected(int garrMissionID)
-	{
-		if (garrMissionID <= 0)
-		{
-			return;
-		}
-		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(garrMissionID);
-		if (record == null)
-		{
-			Debug.LogError("Invalid Mission ID:" + this.m_currentGarrMissionID);
-			return;
-		}
-		this.m_currentGarrMissionID = garrMissionID;
-		if (this.missionFollowerSlotGroup != null)
-		{
-			RectTransform[] componentsInChildren = this.missionFollowerSlotGroup.GetComponentsInChildren<RectTransform>(true);
-			for (int i = 0; i < componentsInChildren.Length; i++)
-			{
-				if (componentsInChildren[i] != null && componentsInChildren[i] != this.missionFollowerSlotGroup.get_transform())
-				{
-					Object.DestroyImmediate(componentsInChildren[i].get_gameObject());
-				}
-			}
-		}
-		if (this.enemyPortraitsGroup != null)
-		{
-			RectTransform[] componentsInChildren2 = this.enemyPortraitsGroup.GetComponentsInChildren<RectTransform>(true);
-			for (int j = 0; j < componentsInChildren2.Length; j++)
-			{
-				if (componentsInChildren2[j] != null && componentsInChildren2[j] != this.enemyPortraitsGroup.get_transform())
-				{
-					Object.DestroyImmediate(componentsInChildren2[j].get_gameObject());
-				}
-			}
-		}
-		if (this.m_previewMechanicsGroup != null)
-		{
-			AbilityDisplay[] componentsInChildren3 = this.m_previewMechanicsGroup.GetComponentsInChildren<AbilityDisplay>(true);
-			for (int k = 0; k < componentsInChildren3.Length; k++)
-			{
-				if (componentsInChildren3[k] != null)
-				{
-					Object.DestroyImmediate(componentsInChildren3[k].get_gameObject());
-				}
-			}
-		}
-		if (this.treasureChestHorde != null && this.treasureChestAlliance != null)
-		{
-			if (GarrisonStatus.Faction() == PVP_FACTION.HORDE)
-			{
-				this.treasureChestHorde.SetActive(true);
-				this.treasureChestAlliance.SetActive(false);
-			}
-			else
-			{
-				this.treasureChestHorde.SetActive(false);
-				this.treasureChestAlliance.SetActive(true);
-			}
-		}
-		JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary.get_Item(garrMissionID);
-		if (this.enemyPortraitsGroup != null)
-		{
-			for (int l = 0; l < jamGarrisonMobileMission.Encounter.Length; l++)
-			{
-				GameObject gameObject = Object.Instantiate<GameObject>(this.missionEncounterPrefab);
-				gameObject.get_transform().SetParent(this.enemyPortraitsGroup.get_transform(), false);
-				MissionEncounter component = gameObject.GetComponent<MissionEncounter>();
-				int num = (jamGarrisonMobileMission.Encounter[l].MechanicID.Length <= 0) ? 0 : jamGarrisonMobileMission.Encounter[l].MechanicID[0];
-				component.SetEncounter(jamGarrisonMobileMission.Encounter[l].EncounterID, num);
-				if (this.m_previewMechanicsGroup != null)
-				{
-					GarrMechanicRec record2 = StaticDB.garrMechanicDB.GetRecord(num);
-					if (record2 != null && record2.GarrAbilityID != 0)
-					{
-						GameObject gameObject2 = Object.Instantiate<GameObject>(this.m_previewMechanicEffectPrefab);
-						gameObject2.get_transform().SetParent(this.m_previewMechanicsGroup.get_transform(), false);
-						AbilityDisplay component2 = gameObject2.GetComponent<AbilityDisplay>();
-						component2.SetAbility(record2.GarrAbilityID, false, false, null);
-						this.SetupInputForPreviewSlider(component2.m_mainButton);
-						FollowerCanCounterMechanic canCounterStatus = GeneralHelpers.HasFollowerWhoCanCounter((int)record2.GarrMechanicTypeID);
-						component2.SetCanCounterStatus(canCounterStatus);
-					}
-				}
-			}
-		}
-		this.missionNameText.set_text(record.Name);
-		if (this.m_previewMissionNameText != null)
-		{
-			this.m_previewMissionNameText.set_text(record.Name);
-		}
-		if (this.m_previewMissionLocationText != null)
-		{
-			this.m_previewMissionLocationText.set_text(record.Location);
-		}
-		if (this.missionDescriptionText != null)
-		{
-			this.missionDescriptionText.set_text(record.Description);
-		}
-		if (this.missioniLevelText != null)
-		{
-			if (record.TargetLevel < 110)
-			{
-				this.missioniLevelText.set_text(string.Empty + record.TargetLevel);
-			}
-			else
-			{
-				this.missioniLevelText.set_text(string.Concat(new object[]
-				{
-					string.Empty,
-					record.TargetLevel,
-					"\n(",
-					record.TargetItemLevel,
-					")"
-				}));
-			}
-		}
-		if (this.m_previewMissioniLevelText != null)
-		{
-			this.m_previewMissioniLevelText.set_text(MissionDetailView.m_iLevelText + " " + record.TargetItemLevel);
-		}
-		if (this.missionTypeImage != null)
-		{
-			GarrMissionTypeRec record3 = StaticDB.garrMissionTypeDB.GetRecord((int)record.GarrMissionTypeID);
-			this.missionTypeImage.set_overrideSprite(TextureAtlas.instance.GetAtlasSprite((int)record3.UiTextureAtlasMemberID));
-			if (this.m_previewMissionTypeImage != null)
-			{
-				this.m_previewMissionTypeImage.set_overrideSprite(TextureAtlas.instance.GetAtlasSprite((int)record3.UiTextureAtlasMemberID));
-			}
-		}
-		if (this.missionEnvironmentMechanic != null)
-		{
-			this.missionEnvironmentMechanic.SetMechanicType((int)record.EnvGarrMechanicTypeID, 0, true);
-			if (record.EnvGarrMechanicTypeID != 0u)
-			{
-				GarrMechanicRec record4 = StaticDB.garrMechanicDB.GetRecord((int)record.EnvGarrMechanicTypeID);
-				if (record4 != null && record4.GarrAbilityID != 0)
-				{
-					GameObject gameObject3 = Object.Instantiate<GameObject>(this.m_previewMechanicEffectPrefab);
-					gameObject3.get_transform().SetParent(this.m_previewMechanicsGroup.get_transform(), false);
-					AbilityDisplay component3 = gameObject3.GetComponent<AbilityDisplay>();
-					component3.SetAbility(record4.GarrAbilityID, false, false, null);
-					FollowerCanCounterMechanic canCounterStatus2 = GeneralHelpers.HasFollowerWhoCanCounter((int)record4.GarrMechanicTypeID);
-					component3.SetCanCounterStatus(canCounterStatus2);
-				}
-			}
-		}
-		if (this.missionTypeText != null)
-		{
-			GarrMechanicTypeRec record5 = StaticDB.garrMechanicTypeDB.GetRecord((int)record.EnvGarrMechanicTypeID);
-			if (record5 != null)
-			{
-				this.missionTypeText.get_gameObject().SetActive(true);
-				this.missionTypeText.set_text(string.Concat(new string[]
-				{
-					"<color=#ffff00ff>",
-					MissionDetailView.m_typeText,
-					": </color><color=#ffffffff>",
-					record5.Name,
-					"</color>"
-				}));
-			}
-			else
-			{
-				this.missionTypeText.get_gameObject().SetActive(false);
-			}
-		}
-		Sprite sprite = GeneralHelpers.LoadCurrencyIcon(1220);
-		if (sprite != null)
-		{
-			this.m_resourceIcon_MissionCost.set_sprite(sprite);
-		}
-		if (this.missionFollowerSlotGroup != null)
-		{
-			int num2 = 0;
-			while ((long)num2 < (long)((ulong)record.MaxFollowers))
-			{
-				GameObject gameObject4 = Object.Instantiate<GameObject>(this.missionFollowerSlotPrefab);
-				gameObject4.get_transform().SetParent(this.missionFollowerSlotGroup.get_transform(), false);
-				MissionFollowerSlot component4 = gameObject4.GetComponent<MissionFollowerSlot>();
-				component4.m_missionDetailView = this;
-				component4.m_enemyPortraitsGroup = this.enemyPortraitsGroup;
-				num2++;
-			}
-		}
-		if (!this.m_isCombatAlly && record.UiTextureKitID > 0u)
-		{
-			UiTextureKitRec record6 = StaticDB.uiTextureKitDB.GetRecord((int)record.UiTextureKitID);
-			this.m_scrollingEnvironment_Back.set_enabled(false);
-			this.m_scrollingEnvironment_Mid.set_enabled(false);
-			this.m_scrollingEnvironment_Fore.set_enabled(false);
-			int uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID("_" + record6.KitPrefix + "-Back");
-			if (uITextureAtlasMemberID > 0)
-			{
-				Sprite atlasSprite = TextureAtlas.instance.GetAtlasSprite(uITextureAtlasMemberID);
-				if (atlasSprite != null)
-				{
-					this.m_scrollingEnvironment_Back.set_enabled(true);
-					this.m_scrollingEnvironment_Back.set_sprite(atlasSprite);
-				}
-			}
-			int uITextureAtlasMemberID2 = TextureAtlas.GetUITextureAtlasMemberID("_" + record6.KitPrefix + "-Mid");
-			if (uITextureAtlasMemberID2 > 0)
-			{
-				Sprite atlasSprite2 = TextureAtlas.instance.GetAtlasSprite(uITextureAtlasMemberID2);
-				if (atlasSprite2 != null)
-				{
-					this.m_scrollingEnvironment_Mid.set_enabled(true);
-					this.m_scrollingEnvironment_Mid.set_sprite(atlasSprite2);
-				}
-			}
-			int uITextureAtlasMemberID3 = TextureAtlas.GetUITextureAtlasMemberID("_" + record6.KitPrefix + "-Fore");
-			if (uITextureAtlasMemberID3 > 0)
-			{
-				Sprite atlasSprite3 = TextureAtlas.instance.GetAtlasSprite(uITextureAtlasMemberID3);
-				if (atlasSprite3 != null)
-				{
-					this.m_scrollingEnvironment_Fore.set_enabled(true);
-					this.m_scrollingEnvironment_Fore.set_sprite(atlasSprite3);
-				}
-			}
-		}
-		else if ((record.Flags & 16u) == 0u)
-		{
-			Debug.LogWarning(string.Concat(new object[]
-			{
-				"DATA ERROR: Mission UITextureKit Not Set for mission ID:",
-				record.ID,
-				" - ",
-				record.Name
-			}));
-			Debug.LogWarning("This means the scrolling background images will show the wrong location");
-		}
-		this.UpdateMissionStatus();
-		if (this.m_lootGroupObj == null || this.m_missionRewardDisplayPrefab == null)
-		{
-			return;
-		}
-		MissionRewardDisplay[] componentsInChildren4 = this.m_lootGroupObj.GetComponentsInChildren<MissionRewardDisplay>(true);
-		for (int m = 0; m < componentsInChildren4.Length; m++)
-		{
-			if (componentsInChildren4[m] != null)
-			{
-				Object.DestroyImmediate(componentsInChildren4[m].get_gameObject());
-			}
-		}
-		if (this.m_previewLootGroup != null)
-		{
-			MissionRewardDisplay[] componentsInChildren5 = this.m_previewLootGroup.GetComponentsInChildren<MissionRewardDisplay>(true);
-			for (int n = 0; n < componentsInChildren5.Length; n++)
-			{
-				if (componentsInChildren5[n] != null)
-				{
-					Object.DestroyImmediate(componentsInChildren5[n].get_gameObject());
-				}
-			}
-		}
-		if (!PersistentMissionData.missionDictionary.ContainsKey(this.m_currentGarrMissionID))
-		{
-			return;
-		}
-		MissionRewardDisplay.InitMissionRewards(this.m_missionRewardDisplayPrefab.get_gameObject(), this.m_lootGroupObj.get_transform(), jamGarrisonMobileMission.Reward);
-		if (this.m_previewLootGroup != null)
-		{
-			MissionRewardDisplay.InitMissionRewards(this.m_missionRewardDisplayPrefab.get_gameObject(), this.m_previewLootGroup.get_transform(), jamGarrisonMobileMission.Reward);
-		}
-		this.InitBonusRewardDisplay(record, this.m_percentChance);
-	}
-
-	public void UpdateMissionStatus()
-	{
-		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(this.m_currentGarrMissionID);
-		if (record == null)
-		{
-			return;
-		}
-		if ((record.Flags & 16u) == 0u)
-		{
-			if (this.enemyPortraitsGroup != null)
-			{
-				MissionMechanic[] componentsInChildren = this.enemyPortraitsGroup.GetComponentsInChildren<MissionMechanic>(true);
-				if (componentsInChildren == null)
-				{
-					return;
-				}
-				AbilityDisplay[] componentsInChildren2 = this.enemyPortraitsGroup.GetComponentsInChildren<AbilityDisplay>(true);
-				if (componentsInChildren2 == null)
-				{
-					return;
-				}
-				MissionMechanicTypeCounter[] componentsInChildren3 = base.get_gameObject().GetComponentsInChildren<MissionMechanicTypeCounter>(true);
-				if (componentsInChildren3 == null)
-				{
-					return;
-				}
-				for (int i = 0; i < componentsInChildren.Length; i++)
-				{
-					bool isCountered = false;
-					for (int j = 0; j < componentsInChildren3.Length; j++)
-					{
-						componentsInChildren3[j].usedIcon.get_gameObject().SetActive(false);
-						if (componentsInChildren3[j].countersMissionMechanicTypeID == componentsInChildren[i].m_missionMechanicTypeID)
-						{
-							isCountered = true;
-							break;
-						}
-					}
-					componentsInChildren[i].SetCountered(isCountered, false, true);
-					componentsInChildren2[i].SetCountered(isCountered, true);
-				}
-			}
-			MissionFollowerSlot[] componentsInChildren4 = base.get_gameObject().GetComponentsInChildren<MissionFollowerSlot>(true);
-			List<JamGarrisonFollower> list = new List<JamGarrisonFollower>();
-			for (int k = 0; k < componentsInChildren4.Length; k++)
-			{
-				int currentGarrFollowerID = componentsInChildren4[k].GetCurrentGarrFollowerID();
-				if (PersistentFollowerData.followerDictionary.ContainsKey(currentGarrFollowerID))
-				{
-					JamGarrisonFollower jamGarrisonFollower = PersistentFollowerData.followerDictionary.get_Item(currentGarrFollowerID);
-					list.Add(jamGarrisonFollower);
-				}
-			}
-			MobilePlayerEvaluateMission mobilePlayerEvaluateMission = new MobilePlayerEvaluateMission();
-			mobilePlayerEvaluateMission.GarrMissionID = this.m_currentGarrMissionID;
-			mobilePlayerEvaluateMission.GarrFollowerID = new int[list.get_Count()];
-			int num = 0;
-			using (List<JamGarrisonFollower>.Enumerator enumerator = list.GetEnumerator())
-			{
-				while (enumerator.MoveNext())
-				{
-					JamGarrisonFollower current = enumerator.get_Current();
-					mobilePlayerEvaluateMission.GarrFollowerID[num++] = current.GarrFollowerID;
-				}
-			}
-			Login.instance.SendToMobileServer(mobilePlayerEvaluateMission);
-			if (this.missionPercentChanceText != null)
-			{
-				this.missionPercentChanceText.set_text("%");
-				this.m_missionChanceSpinner.SetActive(true);
-			}
-			if (this.m_partyBuffGroup != null)
-			{
-				AbilityDisplay[] componentsInChildren5 = this.m_partyBuffGroup.GetComponentsInChildren<AbilityDisplay>(true);
-				AbilityDisplay[] array = componentsInChildren5;
-				for (int l = 0; l < array.Length; l++)
-				{
-					AbilityDisplay abilityDisplay = array[l];
-					Object.DestroyImmediate(abilityDisplay.get_gameObject());
-				}
-			}
-			if (this.m_partyDebuffGroup != null)
-			{
-				AbilityDisplay[] componentsInChildren6 = this.m_partyDebuffGroup.GetComponentsInChildren<AbilityDisplay>(true);
-				AbilityDisplay[] array2 = componentsInChildren6;
-				for (int m = 0; m < array2.Length; m++)
-				{
-					AbilityDisplay abilityDisplay2 = array2[m];
-					Object.DestroyImmediate(abilityDisplay2.get_gameObject());
-				}
-			}
-			List<int> list2 = new List<int>();
-			int num2 = 0;
-			int num3 = 0;
-			int num4 = 0;
-			MissionFollowerSlot[] componentsInChildren7 = this.missionFollowerSlotGroup.GetComponentsInChildren<MissionFollowerSlot>(true);
-			MissionFollowerSlot[] array3 = componentsInChildren7;
-			for (int n = 0; n < array3.Length; n++)
-			{
-				MissionFollowerSlot missionFollowerSlot = array3[n];
-				int currentGarrFollowerID2 = missionFollowerSlot.GetCurrentGarrFollowerID();
-				if (currentGarrFollowerID2 != 0)
-				{
-					int[] buffsForCurrentMission = GeneralHelpers.GetBuffsForCurrentMission(currentGarrFollowerID2, this.m_currentGarrMissionID, this.missionFollowerSlotGroup);
-					num2 += buffsForCurrentMission.Length;
-					int[] array4 = buffsForCurrentMission;
-					for (int num5 = 0; num5 < array4.Length; num5++)
-					{
-						int num6 = array4[num5];
-						list2.Add(num6);
-						GameObject gameObject = Object.Instantiate<GameObject>(this.m_mechanicEffectDisplayPrefab);
-						gameObject.get_transform().SetParent(this.m_partyBuffGroup.get_transform(), false);
-						AbilityDisplay component = gameObject.GetComponent<AbilityDisplay>();
-						component.SetAbility(num6, false, false, null);
-					}
-					JamGarrisonFollower jamGarrisonFollower2 = PersistentFollowerData.followerDictionary.get_Item(currentGarrFollowerID2);
-					if ((jamGarrisonFollower2.Flags & 8) == 0)
-					{
-						num4++;
-					}
-				}
-			}
-			if (this.m_partyBuffGroup != null)
-			{
-				this.m_partyBuffGroup.SetActive(num2 > 0);
-			}
-			if (this.m_partyDebuffGroup != null)
-			{
-				this.m_partyDebuffGroup.SetActive(num3 > 0);
-			}
-			int trueMissionCost = this.GetTrueMissionCost(record);
-			this.missionCostText.set_text(GarrisonStatus.Resources().ToString("N0") + " / " + trueMissionCost.ToString("N0"));
-			int numActiveChampions = GeneralHelpers.GetNumActiveChampions();
-			int maxActiveChampions = GeneralHelpers.GetMaxActiveChampions();
-			this.m_isOverMaxChampionSoftCap = false;
-			this.m_needMoreResources = false;
-			this.m_needAtLeastOneChampion = false;
-			if (numActiveChampions > maxActiveChampions)
-			{
-				this.m_isOverMaxChampionSoftCap = true;
-			}
-			if (GarrisonStatus.Resources() < trueMissionCost)
-			{
-				this.m_needMoreResources = true;
-			}
-			if (num4 < 1)
-			{
-				this.m_needAtLeastOneChampion = true;
-			}
-			if (this.m_needMoreResources)
-			{
-				this.missionCostText.set_color(Color.get_red());
-			}
-			else
-			{
-				this.missionCostText.set_color(Color.get_white());
-			}
-			bool flag = !this.m_isOverMaxChampionSoftCap && !this.m_needMoreResources && !this.m_needAtLeastOneChampion;
-			if (flag)
-			{
-				this.m_startMissionButton.get_material().SetFloat("_GrayscaleAmount", 0f);
-				this.m_startMissionButtonText.set_color(new Color(1f, 0.8588f, 0f, 1f));
-				Shadow component2 = this.m_startMissionButtonText.GetComponent<Shadow>();
-				component2.set_enabled(true);
-			}
-			else
-			{
-				this.m_startMissionButton.get_material().SetFloat("_GrayscaleAmount", 1f);
-				this.m_startMissionButtonText.set_color(Color.get_gray());
-				Shadow component3 = this.m_startMissionButtonText.GetComponent<Shadow>();
-				component3.set_enabled(false);
-			}
-			int trueMissionDuration = this.GetTrueMissionDuration(record, list2);
-			Duration duration = new Duration(trueMissionDuration, false);
-			if (this.missionLocationText != null)
-			{
-				this.missionLocationText.set_text(string.Concat(new object[]
-				{
-					StaticDB.GetString("XP", "XP:"),
-					" ",
-					record.BaseFollowerXP,
-					" (<color=#ff8600ff>",
-					duration.DurationString,
-					"</color>)"
-				}));
-			}
-			if (this.m_previewMissionTimeText != null)
-			{
-				this.m_previewMissionTimeText.set_text(string.Concat(new string[]
-				{
-					"<color=#ffff00ff>",
-					MissionDetailView.m_timeText,
-					": </color><color=#ff8600ff>",
-					duration.DurationString,
-					"</color>"
-				}));
-			}
-			return;
-		}
-		MissionFollowerSlot componentInChildren = base.get_gameObject().GetComponentInChildren<MissionFollowerSlot>(true);
-		if (componentInChildren == null)
-		{
-			return;
-		}
-		if (componentInChildren.IsOccupied())
-		{
-			if (this.missionDescriptionText != null)
-			{
-				this.missionDescriptionText.get_gameObject().SetActive(false);
-			}
-			this.m_combatAllyThisIsWhatYouGetText.get_gameObject().SetActive(true);
-			this.m_combatAllySupportSpellDisplay.get_gameObject().SetActive(true);
-			int currentGarrFollowerID3 = componentInChildren.GetCurrentGarrFollowerID();
-			int zoneSupportSpellID = PersistentFollowerData.followerDictionary.get_Item(currentGarrFollowerID3).ZoneSupportSpellID;
-			this.m_combatAllySupportSpellDisplay.SetSpell(zoneSupportSpellID);
-		}
-		else
-		{
-			if (this.missionDescriptionText != null)
-			{
-				this.missionDescriptionText.get_gameObject().SetActive(true);
-			}
-			this.m_combatAllyThisIsWhatYouGetText.get_gameObject().SetActive(false);
-			this.m_combatAllySupportSpellDisplay.get_gameObject().SetActive(false);
-		}
-	}
-
-	public void OnPartyBuffSectionTapped()
-	{
-		List<int> list = new List<int>();
-		MissionFollowerSlot[] componentsInChildren = this.missionFollowerSlotGroup.GetComponentsInChildren<MissionFollowerSlot>(true);
-		MissionFollowerSlot[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
-		{
-			MissionFollowerSlot missionFollowerSlot = array[i];
-			int currentGarrFollowerID = missionFollowerSlot.GetCurrentGarrFollowerID();
-			if (currentGarrFollowerID != 0)
-			{
-				int[] buffsForCurrentMission = GeneralHelpers.GetBuffsForCurrentMission(currentGarrFollowerID, this.m_currentGarrMissionID, this.missionFollowerSlotGroup);
-				int[] array2 = buffsForCurrentMission;
-				for (int j = 0; j < array2.Length; j++)
-				{
-					int num = array2[j];
-					list.Add(num);
-				}
-			}
-		}
-		AllPopups.instance.ShowPartyBuffsPopup(list.ToArray());
-	}
-
-	private void OnMissionSuccessChanceChanged(int newChance)
-	{
-		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(this.m_currentGarrMissionID);
-		if (record == null)
-		{
-			Debug.LogError("Invalid Mission ID:" + this.m_currentGarrMissionID);
-			return;
-		}
-		if ((record.Flags & 16u) != 0u)
-		{
-			return;
-		}
-		this.m_missionChanceSpinner.SetActive(false);
-		this.missionPercentChanceText.set_text(newChance + "%");
-		this.m_lootBorderNormal.SetActive(newChance < 100);
-		this.m_lootBorderLitUp.SetActive(newChance >= 100);
-		if (newChance < 0)
-		{
-			this.missionPercentChanceText.set_color(Color.get_red());
-			this.missionPercentChanceLabel.set_color(Color.get_red());
-		}
-		else
-		{
-			this.missionPercentChanceText.set_color(Color.get_green());
-			this.missionPercentChanceLabel.set_color(Color.get_green());
-		}
-		if (this.m_percentChance < 100 && newChance >= 100)
-		{
-			Main.instance.m_UISound.Play_100Percent();
-		}
-		else if (this.m_percentChance < 200 && newChance >= 200)
-		{
-			Main.instance.m_UISound.Play_200Percent();
-		}
-		else if (newChance > this.m_percentChance)
-		{
-		}
-		this.m_bonusLootChanceText.set_text(string.Concat(new object[]
-		{
-			"<color=#ffff00ff>",
-			StaticDB.GetString("BONUS", "Bonus:"),
-			" </color>\n<color=#ff8600ff>",
-			Math.Max(0, newChance - 100),
-			"%</color>"
-		}));
-		this.m_percentChance = newChance;
-	}
-
-	private void InitBonusRewardDisplay(GarrMissionRec garrMissionRec, int missionSuccessChance)
-	{
-		this.m_bonusLootDisplay.SetActive(false);
-		if (garrMissionRec == null)
-		{
-			return;
-		}
-		if (StaticDB.rewardPackDB.GetRecord(garrMissionRec.OvermaxRewardPackID) == null)
-		{
-			return;
-		}
-		JamGarrisonMobileMission jamGarrisonMobileMission = (!PersistentMissionData.missionDictionary.ContainsKey(garrMissionRec.ID)) ? null : ((JamGarrisonMobileMission)PersistentMissionData.missionDictionary.get_Item(garrMissionRec.ID));
-		if (garrMissionRec.OvermaxRewardPackID > 0 && jamGarrisonMobileMission != null && jamGarrisonMobileMission.OvermaxReward.Length > 0)
-		{
-			this.m_bonusLootDisplay.SetActive(true);
-			this.m_bonusLootChanceText.set_text(string.Concat(new object[]
-			{
-				"<color=#ffff00ff>",
-				StaticDB.GetString("BONUS", "Bonus:"),
-				" </color>\n<color=#ff8600ff>",
-				Math.Max(0, missionSuccessChance - 100),
-				"%</color>"
-			}));
-			if (PersistentMissionData.missionDictionary.ContainsKey(this.m_currentGarrMissionID) && jamGarrisonMobileMission.OvermaxReward.Length > 0)
-			{
-				JamGarrisonMissionReward jamGarrisonMissionReward = jamGarrisonMobileMission.OvermaxReward[0];
-				if (jamGarrisonMissionReward.ItemID > 0)
-				{
-					this.m_bonusMissionRewardDisplay.InitReward(MissionRewardDisplay.RewardType.item, jamGarrisonMissionReward.ItemID, (int)jamGarrisonMissionReward.ItemQuantity, 0, jamGarrisonMissionReward.ItemFileDataID);
-				}
-				else if (jamGarrisonMissionReward.FollowerXP > 0u)
-				{
-					this.m_bonusMissionRewardDisplay.InitReward(MissionRewardDisplay.RewardType.followerXP, 0, (int)jamGarrisonMissionReward.FollowerXP, 0, 0);
-				}
-				else if (jamGarrisonMissionReward.CurrencyQuantity > 0u)
-				{
-					if (jamGarrisonMissionReward.CurrencyType == 0)
-					{
-						this.m_bonusMissionRewardDisplay.InitReward(MissionRewardDisplay.RewardType.gold, 0, (int)(jamGarrisonMissionReward.CurrencyQuantity / 10000u), 0, 0);
-					}
-					else
-					{
-						CurrencyTypesRec record = StaticDB.currencyTypesDB.GetRecord(jamGarrisonMissionReward.CurrencyType);
-						int rewardQuantity = (int)((ulong)jamGarrisonMissionReward.CurrencyQuantity / (ulong)(((record.Flags & 8u) == 0u) ? 1L : 100L));
-						this.m_bonusMissionRewardDisplay.InitReward(MissionRewardDisplay.RewardType.currency, jamGarrisonMissionReward.CurrencyType, rewardQuantity, 0, 0);
-					}
-				}
-			}
-		}
-	}
-
-	public void AssignCombatAlly()
-	{
-		this.StartMission();
 	}
 
 	public void StartMission()
 	{
-		if (this.m_isOverMaxChampionSoftCap || this.m_needMoreResources || this.m_needAtLeastOneChampion)
+		if ((this.m_isOverMaxChampionSoftCap || this.m_needMoreResources ? 1 : (int)this.m_needAtLeastOneChampion) != 0)
 		{
 			if (this.m_isOverMaxChampionSoftCap)
 			{
@@ -1077,180 +954,234 @@ public class MissionDetailView : MonoBehaviour
 			return;
 		}
 		Main.instance.m_UISound.Play_StartMission();
-		MissionFollowerSlot[] componentsInChildren = base.get_gameObject().GetComponentsInChildren<MissionFollowerSlot>(true);
-		List<ulong> list = new List<ulong>();
-		for (int i = 0; i < componentsInChildren.Length; i++)
+		MissionFollowerSlot[] componentsInChildren = base.gameObject.GetComponentsInChildren<MissionFollowerSlot>(true);
+		List<ulong> nums = new List<ulong>();
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
 			int currentGarrFollowerID = componentsInChildren[i].GetCurrentGarrFollowerID();
 			if (PersistentFollowerData.followerDictionary.ContainsKey(currentGarrFollowerID))
 			{
-				JamGarrisonFollower jamGarrisonFollower = PersistentFollowerData.followerDictionary.get_Item(currentGarrFollowerID);
-				list.Add(jamGarrisonFollower.DbID);
+				nums.Add(PersistentFollowerData.followerDictionary[currentGarrFollowerID].DbID);
 			}
 		}
-		Main.instance.StartMission(this.m_currentGarrMissionID, list.ToArray());
+		Main.instance.StartMission(this.m_currentGarrMissionID, nums.ToArray());
 		AdventureMapPanel.instance.SelectMissionFromMap(0);
 		AdventureMapPanel.instance.SelectMissionFromList(0);
 		AdventureMapPanel.instance.SetSelectedIconContainer(null);
 		Main.instance.allPanels.ShowMissionList();
 	}
 
-	public CombatAllyMissionState GetCombatAllyMissionState()
-	{
-		return this.m_combatAllyMissionState;
-	}
-
-	public void SetCombatAllyMissionState(CombatAllyMissionState state)
-	{
-		this.m_combatAllyMissionState = state;
-		switch (state)
-		{
-		case CombatAllyMissionState.notAvailable:
-		{
-			Text[] componentsInChildren = this.m_combatAllyNotAvailableStuff.GetComponentsInChildren<Text>(true);
-			if (componentsInChildren[0] != null)
-			{
-				componentsInChildren[0].set_text(StaticDB.GetString("COMBAT_ALLY_UNAVAILABLE", null));
-			}
-			this.m_combatAllyNotAvailableStuff.SetActive(true);
-			this.m_combatAllyAvailableStuff.SetActive(false);
-			break;
-		}
-		case CombatAllyMissionState.available:
-			this.m_combatAllyNotAvailableStuff.SetActive(false);
-			this.m_combatAllyAvailableStuff.SetActive(true);
-			this.m_assignCombatAllyStuff.SetActive(true);
-			this.m_unassignCombatAllyStuff.SetActive(false);
-			break;
-		case CombatAllyMissionState.inProgress:
-		{
-			this.m_combatAllyNotAvailableStuff.SetActive(false);
-			this.m_combatAllyAvailableStuff.SetActive(true);
-			int follower = 0;
-			using (Dictionary<int, JamGarrisonFollower>.ValueCollection.Enumerator enumerator = PersistentFollowerData.followerDictionary.get_Values().GetEnumerator())
-			{
-				while (enumerator.MoveNext())
-				{
-					JamGarrisonFollower current = enumerator.get_Current();
-					if (current.CurrentMissionID == this.m_currentGarrMissionID)
-					{
-						Debug.LogWarning("Combat Ally ID FOUND: " + current.GarrFollowerID);
-						follower = current.GarrFollowerID;
-						break;
-					}
-				}
-			}
-			MissionFollowerSlot[] componentsInChildren2 = base.get_gameObject().GetComponentsInChildren<MissionFollowerSlot>(true);
-			Debug.LogWarning("missionfollowerSlots found: " + componentsInChildren2.Length);
-			componentsInChildren2[0].SetFollower(follower);
-			this.m_assignCombatAllyStuff.SetActive(false);
-			this.m_unassignCombatAllyStuff.SetActive(true);
-			break;
-		}
-		}
-	}
-
 	public void UnassignCombatAlly()
 	{
 		Main.instance.CompleteMission(this.m_currentGarrMissionID);
 		this.SetCombatAllyMissionState(CombatAllyMissionState.available);
-		MissionFollowerSlot[] componentsInChildren = base.get_gameObject().GetComponentsInChildren<MissionFollowerSlot>(true);
+		MissionFollowerSlot[] componentsInChildren = base.gameObject.GetComponentsInChildren<MissionFollowerSlot>(true);
 		componentsInChildren[0].SetFollower(0);
 	}
 
-	public int GetCurrentMissionID()
+	public void UpdateMissionStatus()
 	{
-		return this.m_currentGarrMissionID;
-	}
-
-	public static float ComputeFollowerBias(JamGarrisonFollower follower, int followerLevel, int followerItemLevel, int garrMissionID)
-	{
-		bool flag = (follower.Flags & 8) != 0;
-		if (flag)
-		{
-			return 0f;
-		}
-		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(garrMissionID);
+		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(this.m_currentGarrMissionID);
 		if (record == null)
 		{
-			return 0f;
+			return;
 		}
-		float num = MissionDetailView.ComputeFollowerLevelBias(follower, followerLevel, record.TargetLevel);
-		num += MissionDetailView.ComputeFollowerItemLevelBias(follower, followerItemLevel, (int)record.GarrFollowerTypeID, (int)record.TargetItemLevel);
-		return Mathf.Clamp(num, -1f, 1f);
-	}
-
-	public static int GarrisonFollower_GetMaxFollowerLevel(int garrFollowerTypeID)
-	{
-		int maxLevel = 0;
-		StaticDB.garrFollowerLevelXPDB.EnumRecords(delegate(GarrFollowerLevelXPRec garrFollowerLevelXPRec)
+		if ((record.Flags & 16) != 0)
 		{
-			if ((ulong)garrFollowerLevelXPRec.GarrFollowerTypeID == (ulong)((long)garrFollowerTypeID) && (maxLevel == 0 || (ulong)garrFollowerLevelXPRec.FollowerLevel > (ulong)((long)maxLevel)))
+			MissionFollowerSlot componentInChildren = base.gameObject.GetComponentInChildren<MissionFollowerSlot>(true);
+			if (componentInChildren == null)
 			{
-				maxLevel = (int)garrFollowerLevelXPRec.FollowerLevel;
+				return;
 			}
-			return true;
-		});
-		return maxLevel;
-	}
-
-	private static float ComputeFollowerItemLevelBias(JamGarrisonFollower follower, int followerItemLevel, int garrFollowerTypeID, int targetItemLevel)
-	{
-		float num = 0f;
-		if (follower.FollowerLevel == MissionDetailView.GarrisonFollower_GetMaxFollowerLevel(garrFollowerTypeID))
-		{
-			int num2;
-			int num3;
-			MissionDetailView.GarrisonFollower_GetFollowerBiasConstants(follower, out num2, out num3);
-			int num4 = (targetItemLevel <= 0) ? 600 : targetItemLevel;
-			float num5 = (float)(followerItemLevel - num4);
-			num5 /= (float)num3;
-			num += num5;
-		}
-		return num;
-	}
-
-	private static float ComputeFollowerLevelBias(JamGarrisonFollower follower, int followerLevel, int targetLevel)
-	{
-		int num;
-		int num2;
-		MissionDetailView.GarrisonFollower_GetFollowerBiasConstants(follower, out num, out num2);
-		float num3 = (float)(followerLevel - targetLevel);
-		return num3 / (float)num;
-	}
-
-	private static float ComputeBiasValue(float par, float max, float bias)
-	{
-		if (bias < 0f)
-		{
-			return par + bias * par;
-		}
-		return par + bias * (max - par);
-	}
-
-	private static void GarrisonFollower_GetFollowerBiasConstants(JamGarrisonFollower follower, out int out_levelRangeBias, out int out_itemLevelRangeBias)
-	{
-		out_levelRangeBias = 1;
-		out_itemLevelRangeBias = 1;
-		GarrFollowerRec record = StaticDB.garrFollowerDB.GetRecord(follower.GarrFollowerID);
-		if (record == null)
-		{
+			if (!componentInChildren.IsOccupied())
+			{
+				if (this.missionDescriptionText != null)
+				{
+					this.missionDescriptionText.gameObject.SetActive(true);
+				}
+				this.m_combatAllyThisIsWhatYouGetText.gameObject.SetActive(false);
+				this.m_combatAllySupportSpellDisplay.gameObject.SetActive(false);
+			}
+			else
+			{
+				if (this.missionDescriptionText != null)
+				{
+					this.missionDescriptionText.gameObject.SetActive(false);
+				}
+				this.m_combatAllyThisIsWhatYouGetText.gameObject.SetActive(true);
+				this.m_combatAllySupportSpellDisplay.gameObject.SetActive(true);
+				int currentGarrFollowerID = componentInChildren.GetCurrentGarrFollowerID();
+				int zoneSupportSpellID = PersistentFollowerData.followerDictionary[currentGarrFollowerID].ZoneSupportSpellID;
+				this.m_combatAllySupportSpellDisplay.SetSpell(zoneSupportSpellID);
+			}
 			return;
 		}
-		GarrFollowerTypeRec record2 = StaticDB.garrFollowerTypeDB.GetRecord((int)record.GarrFollowerTypeID);
-		if (record2 == null)
+		if (this.enemyPortraitsGroup != null)
 		{
-			return;
+			MissionMechanic[] componentsInChildren = this.enemyPortraitsGroup.GetComponentsInChildren<MissionMechanic>(true);
+			if (componentsInChildren == null)
+			{
+				return;
+			}
+			AbilityDisplay[] abilityDisplayArray = this.enemyPortraitsGroup.GetComponentsInChildren<AbilityDisplay>(true);
+			if (abilityDisplayArray == null)
+			{
+				return;
+			}
+			MissionMechanicTypeCounter[] missionMechanicTypeCounterArray = base.gameObject.GetComponentsInChildren<MissionMechanicTypeCounter>(true);
+			if (missionMechanicTypeCounterArray == null)
+			{
+				return;
+			}
+			for (int i = 0; i < (int)componentsInChildren.Length; i++)
+			{
+				bool flag = false;
+				int num = 0;
+				while (num < (int)missionMechanicTypeCounterArray.Length)
+				{
+					missionMechanicTypeCounterArray[num].usedIcon.gameObject.SetActive(false);
+					if (missionMechanicTypeCounterArray[num].countersMissionMechanicTypeID != componentsInChildren[i].m_missionMechanicTypeID)
+					{
+						num++;
+					}
+					else
+					{
+						flag = true;
+						break;
+					}
+				}
+				componentsInChildren[i].SetCountered(flag, false, true);
+				abilityDisplayArray[i].SetCountered(flag, true);
+			}
 		}
-		out_levelRangeBias = (int)((record2.LevelRangeBias >= 1u) ? record2.LevelRangeBias : 1u);
-		out_itemLevelRangeBias = (int)((record2.ItemLevelRangeBias >= 1u) ? record2.ItemLevelRangeBias : 1u);
-	}
-
-	public void NotifyFollowerSlotsChanged()
-	{
-		if (this.FollowerSlotsChangedAction != null)
+		MissionFollowerSlot[] missionFollowerSlotArray = base.gameObject.GetComponentsInChildren<MissionFollowerSlot>(true);
+		List<JamGarrisonFollower> jamGarrisonFollowers = new List<JamGarrisonFollower>();
+		for (int j = 0; j < (int)missionFollowerSlotArray.Length; j++)
 		{
-			this.FollowerSlotsChangedAction.Invoke();
+			int currentGarrFollowerID1 = missionFollowerSlotArray[j].GetCurrentGarrFollowerID();
+			if (PersistentFollowerData.followerDictionary.ContainsKey(currentGarrFollowerID1))
+			{
+				jamGarrisonFollowers.Add(PersistentFollowerData.followerDictionary[currentGarrFollowerID1]);
+			}
+		}
+		MobilePlayerEvaluateMission mobilePlayerEvaluateMission = new MobilePlayerEvaluateMission()
+		{
+			GarrMissionID = this.m_currentGarrMissionID,
+			GarrFollowerID = new int[jamGarrisonFollowers.Count]
+		};
+		int num1 = 0;
+		foreach (JamGarrisonFollower jamGarrisonFollower in jamGarrisonFollowers)
+		{
+			int num2 = num1;
+			num1 = num2 + 1;
+			mobilePlayerEvaluateMission.GarrFollowerID[num2] = jamGarrisonFollower.GarrFollowerID;
+		}
+		Login.instance.SendToMobileServer(mobilePlayerEvaluateMission);
+		if (this.missionPercentChanceText != null)
+		{
+			this.missionPercentChanceText.text = "%";
+			this.m_missionChanceSpinner.SetActive(true);
+		}
+		if (this.m_partyBuffGroup != null)
+		{
+			AbilityDisplay[] componentsInChildren1 = this.m_partyBuffGroup.GetComponentsInChildren<AbilityDisplay>(true);
+			for (int k = 0; k < (int)componentsInChildren1.Length; k++)
+			{
+				UnityEngine.Object.DestroyImmediate(componentsInChildren1[k].gameObject);
+			}
+		}
+		if (this.m_partyDebuffGroup != null)
+		{
+			AbilityDisplay[] abilityDisplayArray1 = this.m_partyDebuffGroup.GetComponentsInChildren<AbilityDisplay>(true);
+			for (int l = 0; l < (int)abilityDisplayArray1.Length; l++)
+			{
+				UnityEngine.Object.DestroyImmediate(abilityDisplayArray1[l].gameObject);
+			}
+		}
+		List<int> nums = new List<int>();
+		int length = 0;
+		int num3 = 0;
+		int num4 = 0;
+		MissionFollowerSlot[] missionFollowerSlotArray1 = this.missionFollowerSlotGroup.GetComponentsInChildren<MissionFollowerSlot>(true);
+		for (int m = 0; m < (int)missionFollowerSlotArray1.Length; m++)
+		{
+			int currentGarrFollowerID2 = missionFollowerSlotArray1[m].GetCurrentGarrFollowerID();
+			if (currentGarrFollowerID2 != 0)
+			{
+				int[] buffsForCurrentMission = GeneralHelpers.GetBuffsForCurrentMission(currentGarrFollowerID2, this.m_currentGarrMissionID, this.missionFollowerSlotGroup);
+				length = length + (int)buffsForCurrentMission.Length;
+				int[] numArray = buffsForCurrentMission;
+				for (int n = 0; n < (int)numArray.Length; n++)
+				{
+					int num5 = numArray[n];
+					nums.Add(num5);
+					GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_mechanicEffectDisplayPrefab);
+					gameObject.transform.SetParent(this.m_partyBuffGroup.transform, false);
+					gameObject.GetComponent<AbilityDisplay>().SetAbility(num5, false, false, null);
+				}
+				if ((PersistentFollowerData.followerDictionary[currentGarrFollowerID2].Flags & 8) == 0)
+				{
+					num4++;
+				}
+			}
+		}
+		if (this.m_partyBuffGroup != null)
+		{
+			this.m_partyBuffGroup.SetActive(length > 0);
+		}
+		if (this.m_partyDebuffGroup != null)
+		{
+			this.m_partyDebuffGroup.SetActive(num3 > 0);
+		}
+		int trueMissionCost = this.GetTrueMissionCost(record);
+		Text text = this.missionCostText;
+		int num6 = GarrisonStatus.Resources();
+		text.text = string.Concat(num6.ToString("N0"), " / ", trueMissionCost.ToString("N0"));
+		int numActiveChampions = GeneralHelpers.GetNumActiveChampions();
+		int maxActiveFollowers = GarrisonStatus.GetMaxActiveFollowers();
+		this.m_isOverMaxChampionSoftCap = false;
+		this.m_needMoreResources = false;
+		this.m_needAtLeastOneChampion = false;
+		if (numActiveChampions > maxActiveFollowers)
+		{
+			this.m_isOverMaxChampionSoftCap = true;
+		}
+		if (GarrisonStatus.Resources() < trueMissionCost)
+		{
+			this.m_needMoreResources = true;
+		}
+		if (num4 < 1)
+		{
+			this.m_needAtLeastOneChampion = true;
+		}
+		if (!this.m_needMoreResources)
+		{
+			this.missionCostText.color = Color.white;
+		}
+		else
+		{
+			this.missionCostText.color = Color.red;
+		}
+		if ((this.m_isOverMaxChampionSoftCap || this.m_needMoreResources ? 1 : (int)this.m_needAtLeastOneChampion) != 0)
+		{
+			this.m_startMissionButton.material.SetFloat("_GrayscaleAmount", 1f);
+			this.m_startMissionButtonText.color = Color.gray;
+			this.m_startMissionButtonText.GetComponent<Shadow>().enabled = false;
+		}
+		else
+		{
+			this.m_startMissionButton.material.SetFloat("_GrayscaleAmount", 0f);
+			this.m_startMissionButtonText.color = new Color(1f, 0.8588f, 0f, 1f);
+			this.m_startMissionButtonText.GetComponent<Shadow>().enabled = true;
+		}
+		Duration duration = new Duration(this.GetTrueMissionDuration(record, nums), false);
+		if (this.missionLocationText != null)
+		{
+			this.missionLocationText.text = string.Concat(new object[] { StaticDB.GetString("XP", "XP:"), " ", record.BaseFollowerXP, " (<color=#ff8600ff>", duration.DurationString, "</color>)" });
+		}
+		if (this.m_previewMissionTimeText != null)
+		{
+			this.m_previewMissionTimeText.text = string.Concat(new string[] { "<color=#ffff00ff>", MissionDetailView.m_timeText, ": </color><color=#ff8600ff>", duration.DurationString, "</color>" });
 		}
 	}
 }

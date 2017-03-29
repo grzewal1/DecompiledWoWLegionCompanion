@@ -14,8 +14,10 @@ public class WorldQuestData
 		{
 			if (WorldQuestData.s_instance == null)
 			{
-				WorldQuestData.s_instance = new WorldQuestData();
-				WorldQuestData.s_instance.m_worldQuestDictionary = new Hashtable();
+				WorldQuestData.s_instance = new WorldQuestData()
+				{
+					m_worldQuestDictionary = new Hashtable()
+				};
 			}
 			return WorldQuestData.s_instance;
 		}
@@ -27,6 +29,14 @@ public class WorldQuestData
 		{
 			return WorldQuestData.instance.m_worldQuestDictionary;
 		}
+	}
+
+	static WorldQuestData()
+	{
+	}
+
+	public WorldQuestData()
+	{
 	}
 
 	public static void AddWorldQuest(MobileWorldQuest worldQuest)

@@ -4,7 +4,7 @@ namespace bgs
 {
 	public enum InviteRequestRemovedReason
 	{
-		ACCEPTED = 0,
-		IGNORED = 1
+		ACCEPTED,
+		IGNORED
 	}
 }

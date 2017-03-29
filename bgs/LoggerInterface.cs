@@ -5,10 +5,10 @@ namespace bgs
 {
 	public interface LoggerInterface
 	{
-		void Log(LogLevel logLevel, string str);
+		void ClearLogEvents();
 
 		List<string> GetLogEvents();
 
-		void ClearLogEvents();
+		void Log(LogLevel logLevel, string str);
 	}
 }

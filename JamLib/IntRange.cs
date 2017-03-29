@@ -1,20 +1,24 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace JamLib
 {
-	[FlexJamStruct(Name = "CiRange"), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="CiRange")]
 	public struct IntRange
 	{
-		[FlexJamMember(Name = "l", Type = FlexJamType.Int32), DataMember(Name = "l")]
-		public int Low
+		[DataMember(Name="h")]
+		[FlexJamMember(Name="h", Type=FlexJamType.Int32)]
+		public int High
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "h", Type = FlexJamType.Int32), DataMember(Name = "h")]
-		public int High
+		[DataMember(Name="l")]
+		[FlexJamMember(Name="l", Type=FlexJamType.Int32)]
+		public int Low
 		{
 			get;
 			set;

@@ -22,7 +22,7 @@ namespace bnet.protocol
 			set
 			{
 				this._AccountId = value;
-				this.HasAccountId = (value != null);
+				this.HasAccountId = value != null;
 			}
 		}
 
@@ -35,7 +35,7 @@ namespace bnet.protocol
 			set
 			{
 				this._GameAccountId = value;
-				this.HasGameAccountId = (value != null);
+				this.HasGameAccountId = value != null;
 			}
 		}
 
@@ -47,6 +47,10 @@ namespace bnet.protocol
 			}
 		}
 
+		public Identity()
+		{
+		}
+
 		public void Deserialize(Stream stream)
 		{
 			Identity.Deserialize(stream, this);
@@ -54,7 +58,67 @@ namespace bnet.protocol
 
 		public static Identity Deserialize(Stream stream, Identity instance)
 		{
-			return Identity.Deserialize(stream, instance, -1L);
+			return Identity.Deserialize(stream, instance, (long)-1);
+		}
+
+		public static Identity Deserialize(Stream stream, Identity instance, long limit)
+		{
+			while (true)
+			{
+				if (limit < (long)0 || stream.Position < limit)
+				{
+					int num = stream.ReadByte();
+					if (num != -1)
+					{
+						int num1 = num;
+						if (num1 == 10)
+						{
+							if (instance.AccountId != null)
+							{
+								EntityId.DeserializeLengthDelimited(stream, instance.AccountId);
+							}
+							else
+							{
+								instance.AccountId = EntityId.DeserializeLengthDelimited(stream);
+							}
+						}
+						else if (num1 != 18)
+						{
+							Key key = ProtocolParser.ReadKey((byte)num, stream);
+							if (key.Field == 0)
+							{
+								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+							}
+							ProtocolParser.SkipKey(stream, key);
+						}
+						else if (instance.GameAccountId != null)
+						{
+							EntityId.DeserializeLengthDelimited(stream, instance.GameAccountId);
+						}
+						else
+						{
+							instance.GameAccountId = EntityId.DeserializeLengthDelimited(stream);
+						}
+					}
+					else
+					{
+						if (limit >= (long)0)
+						{
+							throw new EndOfStreamException();
+						}
+						break;
+					}
+				}
+				else
+				{
+					if (stream.Position != limit)
+					{
+						throw new ProtocolBufferException("Read past max limit");
+					}
+					break;
+				}
+			}
+			return instance;
 		}
 
 		public static Identity DeserializeLengthDelimited(Stream stream)
@@ -66,63 +130,64 @@ namespace bnet.protocol
 
 		public static Identity DeserializeLengthDelimited(Stream stream, Identity instance)
 		{
-			long num = (long)((ulong)ProtocolParser.ReadUInt32(stream));
-			num += stream.get_Position();
-			return Identity.Deserialize(stream, instance, num);
+			long position = (long)ProtocolParser.ReadUInt32(stream);
+			position = position + stream.Position;
+			return Identity.Deserialize(stream, instance, position);
 		}
 
-		public static Identity Deserialize(Stream stream, Identity instance, long limit)
+		public override bool Equals(object obj)
 		{
-			while (limit < 0L || stream.get_Position() < limit)
+			Identity identity = obj as Identity;
+			if (identity == null)
 			{
-				int num = stream.ReadByte();
-				if (num == -1)
-				{
-					if (limit >= 0L)
-					{
-						throw new EndOfStreamException();
-					}
-					return instance;
-				}
-				else
-				{
-					int num2 = num;
-					if (num2 != 10)
-					{
-						if (num2 != 18)
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							uint field = key.Field;
-							if (field == 0u)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-						else if (instance.GameAccountId == null)
-						{
-							instance.GameAccountId = EntityId.DeserializeLengthDelimited(stream);
-						}
-						else
-						{
-							EntityId.DeserializeLengthDelimited(stream, instance.GameAccountId);
-						}
-					}
-					else if (instance.AccountId == null)
-					{
-						instance.AccountId = EntityId.DeserializeLengthDelimited(stream);
-					}
-					else
-					{
-						EntityId.DeserializeLengthDelimited(stream, instance.AccountId);
-					}
-				}
+				return false;
 			}
-			if (stream.get_Position() == limit)
+			if (this.HasAccountId != identity.HasAccountId || this.HasAccountId && !this.AccountId.Equals(identity.AccountId))
 			{
-				return instance;
+				return false;
 			}
-			throw new ProtocolBufferException("Read past max limit");
+			if (this.HasGameAccountId == identity.HasGameAccountId && (!this.HasGameAccountId || this.GameAccountId.Equals(identity.GameAccountId)))
+			{
+				return true;
+			}
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			int hashCode = this.GetType().GetHashCode();
+			if (this.HasAccountId)
+			{
+				hashCode = hashCode ^ this.AccountId.GetHashCode();
+			}
+			if (this.HasGameAccountId)
+			{
+				hashCode = hashCode ^ this.GameAccountId.GetHashCode();
+			}
+			return hashCode;
+		}
+
+		public uint GetSerializedSize()
+		{
+			uint num = 0;
+			if (this.HasAccountId)
+			{
+				num++;
+				uint serializedSize = this.AccountId.GetSerializedSize();
+				num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
+			}
+			if (this.HasGameAccountId)
+			{
+				num++;
+				uint serializedSize1 = this.GameAccountId.GetSerializedSize();
+				num = num + serializedSize1 + ProtocolParser.SizeOfUInt32(serializedSize1);
+			}
+			return num;
+		}
+
+		public static Identity ParseFrom(byte[] bs)
+		{
+			return ProtobufUtil.ParseFrom<Identity>(bs, 0, -1);
 		}
 
 		public void Serialize(Stream stream)
@@ -146,24 +211,6 @@ namespace bnet.protocol
 			}
 		}
 
-		public uint GetSerializedSize()
-		{
-			uint num = 0u;
-			if (this.HasAccountId)
-			{
-				num += 1u;
-				uint serializedSize = this.AccountId.GetSerializedSize();
-				num += serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
-			}
-			if (this.HasGameAccountId)
-			{
-				num += 1u;
-				uint serializedSize2 = this.GameAccountId.GetSerializedSize();
-				num += serializedSize2 + ProtocolParser.SizeOfUInt32(serializedSize2);
-			}
-			return num;
-		}
-
 		public void SetAccountId(EntityId val)
 		{
 			this.AccountId = val;
@@ -172,31 +219,6 @@ namespace bnet.protocol
 		public void SetGameAccountId(EntityId val)
 		{
 			this.GameAccountId = val;
-		}
-
-		public override int GetHashCode()
-		{
-			int num = base.GetType().GetHashCode();
-			if (this.HasAccountId)
-			{
-				num ^= this.AccountId.GetHashCode();
-			}
-			if (this.HasGameAccountId)
-			{
-				num ^= this.GameAccountId.GetHashCode();
-			}
-			return num;
-		}
-
-		public override bool Equals(object obj)
-		{
-			Identity identity = obj as Identity;
-			return identity != null && this.HasAccountId == identity.HasAccountId && (!this.HasAccountId || this.AccountId.Equals(identity.AccountId)) && this.HasGameAccountId == identity.HasGameAccountId && (!this.HasGameAccountId || this.GameAccountId.Equals(identity.GameAccountId));
-		}
-
-		public static Identity ParseFrom(byte[] bs)
-		{
-			return ProtobufUtil.ParseFrom<Identity>(bs, 0, -1);
 		}
 	}
 }

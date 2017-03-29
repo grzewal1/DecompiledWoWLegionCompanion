@@ -5,11 +5,13 @@ namespace bgs
 {
 	public class BnetAccountId : BnetEntityId
 	{
-		public static BnetAccountId CreateFromEntityId(EntityId src)
+		public BnetAccountId()
 		{
-			BnetAccountId bnetAccountId = new BnetAccountId();
-			bnetAccountId.CopyFrom(src);
-			return bnetAccountId;
+		}
+
+		public new BnetAccountId Clone()
+		{
+			return (BnetAccountId)base.Clone();
 		}
 
 		public static BnetAccountId CreateFromBnetEntityId(BnetEntityId src)
@@ -19,9 +21,11 @@ namespace bgs
 			return bnetAccountId;
 		}
 
-		public BnetAccountId Clone()
+		public static new BnetAccountId CreateFromEntityId(EntityId src)
 		{
-			return (BnetAccountId)base.Clone();
+			BnetAccountId bnetAccountId = new BnetAccountId();
+			bnetAccountId.CopyFrom(src);
+			return bnetAccountId;
 		}
 	}
 }

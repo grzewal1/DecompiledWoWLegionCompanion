@@ -1,19 +1,23 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace JamLib
 {
-	[FlexJamStruct(Name = "vector2"), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="vector2")]
 	public struct Vector2
 	{
-		[FlexJamMember(Name = "x", Type = FlexJamType.Float), DataMember(Name = "x")]
+		[DataMember(Name="x")]
+		[FlexJamMember(Name="x", Type=FlexJamType.Float)]
 		public float X
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "y", Type = FlexJamType.Float), DataMember(Name = "y")]
+		[DataMember(Name="y")]
+		[FlexJamMember(Name="y", Type=FlexJamType.Float)]
 		public float Y
 		{
 			get;

@@ -1,17 +1,24 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamWhoWord", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamWhoWord", Version=28333852)]
 	public class JamWhoWord
 	{
-		[FlexJamMember(Name = "word", Type = FlexJamType.String), DataMember(Name = "word")]
+		[DataMember(Name="word")]
+		[FlexJamMember(Name="word", Type=FlexJamType.String)]
 		public string Word
 		{
 			get;
 			set;
+		}
+
+		public JamWhoWord()
+		{
 		}
 	}
 }

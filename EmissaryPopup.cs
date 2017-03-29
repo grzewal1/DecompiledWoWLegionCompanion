@@ -7,24 +7,20 @@ public class EmissaryPopup : MonoBehaviour
 {
 	public Text m_descriptionText;
 
+	public EmissaryPopup()
+	{
+	}
+
 	public void FactionUpdate(MobileClientEmissaryFactionUpdate msg)
 	{
-		this.m_descriptionText.set_text(string.Empty);
+		this.m_descriptionText.text = string.Empty;
 		MobileEmissaryFaction[] faction = msg.Faction;
-		for (int i = 0; i < faction.Length; i++)
+		for (int i = 0; i < (int)faction.Length; i++)
 		{
 			MobileEmissaryFaction mobileEmissaryFaction = faction[i];
-			Text expr_28 = this.m_descriptionText;
-			string text = expr_28.get_text();
-			expr_28.set_text(string.Concat(new object[]
-			{
-				text,
-				"FactionID:\t",
-				mobileEmissaryFaction.FactionID,
-				"\t Standing:\t",
-				mobileEmissaryFaction.FactionAmount,
-				"\n"
-			}));
+			Text mDescriptionText = this.m_descriptionText;
+			string str = mDescriptionText.text;
+			mDescriptionText.text = string.Concat(new object[] { str, "FactionID:\t", mobileEmissaryFaction.FactionID, "\t Standing:\t", mobileEmissaryFaction.FactionAmount, "\n" });
 		}
 	}
 }

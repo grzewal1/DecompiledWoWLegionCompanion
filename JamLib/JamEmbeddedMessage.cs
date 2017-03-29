@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace JamLib
 {
@@ -8,6 +9,10 @@ namespace JamLib
 		{
 			get;
 			set;
+		}
+
+		public JamEmbeddedMessage()
+		{
 		}
 	}
 }

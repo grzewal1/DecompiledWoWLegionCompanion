@@ -8,90 +8,96 @@ namespace WowStaticData
 	{
 		private Hashtable m_records;
 
-		public GarrFollowerQualityRec GetRecord(int id)
+		public GarrFollowerQualityDB()
 		{
-			return (GarrFollowerQualityRec)this.m_records.get_Item(id);
 		}
 
 		public void EnumRecords(Predicate<GarrFollowerQualityRec> callback)
 		{
-			IEnumerator enumerator = this.m_records.get_Values().GetEnumerator();
+			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
 			try
 			{
 				while (enumerator.MoveNext())
 				{
-					GarrFollowerQualityRec garrFollowerQualityRec = (GarrFollowerQualityRec)enumerator.get_Current();
-					if (!callback.Invoke(garrFollowerQualityRec))
+					if (callback((GarrFollowerQualityRec)enumerator.Current))
 					{
-						break;
+						continue;
 					}
+					break;
 				}
 			}
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
+				if (disposable == null)
 				{
-					disposable.Dispose();
 				}
+				disposable.Dispose();
 			}
 		}
 
 		public void EnumRecordsByParentID(int parentID, Predicate<GarrFollowerQualityRec> callback)
 		{
-			IEnumerator enumerator = this.m_records.get_Values().GetEnumerator();
+			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
 			try
 			{
 				while (enumerator.MoveNext())
 				{
-					GarrFollowerQualityRec garrFollowerQualityRec = (GarrFollowerQualityRec)enumerator.get_Current();
-					if ((ulong)garrFollowerQualityRec.Quality == (ulong)((long)parentID) && !callback.Invoke(garrFollowerQualityRec))
+					GarrFollowerQualityRec current = (GarrFollowerQualityRec)enumerator.Current;
+					if ((ulong)current.Quality != (long)parentID || callback(current))
 					{
-						break;
+						continue;
 					}
+					break;
 				}
 			}
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
+				if (disposable == null)
 				{
-					disposable.Dispose();
 				}
+				disposable.Dispose();
 			}
+		}
+
+		public GarrFollowerQualityRec GetRecord(int id)
+		{
+			return (GarrFollowerQualityRec)this.m_records[id];
 		}
 
 		public bool Load(string path, AssetBundle nonLocalizedBundle, AssetBundle localizedBundle, string locale)
 		{
-			string text = path + "NonLocalized/GarrFollowerQuality.txt";
+			string str = string.Concat(path, "NonLocalized/GarrFollowerQuality.txt");
 			if (this.m_records != null)
 			{
-				Debug.Log("Already loaded static db " + text);
+				Debug.Log(string.Concat("Already loaded static db ", str));
 				return false;
 			}
-			TextAsset textAsset = nonLocalizedBundle.LoadAsset<TextAsset>(text);
+			TextAsset textAsset = nonLocalizedBundle.LoadAsset<TextAsset>(str);
 			if (textAsset == null)
 			{
-				Debug.Log("Unable to load static db " + text);
+				Debug.Log(string.Concat("Unable to load static db ", str));
 				return false;
 			}
-			string text2 = textAsset.ToString();
+			string str1 = textAsset.ToString();
 			this.m_records = new Hashtable();
 			int num = 0;
-			int num2;
+			int num1 = 0;
 			do
 			{
-				num2 = text2.IndexOf('\n', num);
-				if (num2 >= 0)
+				num = str1.IndexOf('\n', num1);
+				if (num < 0)
 				{
-					string valueLine = text2.Substring(num, num2 - num + 1).Trim();
-					GarrFollowerQualityRec garrFollowerQualityRec = new GarrFollowerQualityRec();
-					garrFollowerQualityRec.Deserialize(valueLine);
-					this.m_records.Add(garrFollowerQualityRec.ID, garrFollowerQualityRec);
-					num = num2 + 1;
+					continue;
 				}
+				string str2 = str1.Substring(num1, num - num1 + 1).Trim();
+				GarrFollowerQualityRec garrFollowerQualityRec = new GarrFollowerQualityRec();
+				garrFollowerQualityRec.Deserialize(str2);
+				this.m_records.Add(garrFollowerQualityRec.ID, garrFollowerQualityRec);
+				num1 = num + 1;
 			}
-			while (num2 > 0);
+			while (num > 0);
 			return true;
 		}
 	}

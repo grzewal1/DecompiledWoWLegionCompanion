@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace JamLib
 {
@@ -22,84 +23,86 @@ namespace JamLib
 
 		static MessageFactory()
 		{
-			IEnumerable<Type> enumerable = Enumerable.Where<Type>(Assembly.GetExecutingAssembly().GetTypes(), (Type t) => t.get_Namespace() != null && t.get_Namespace().StartsWith("WowJamMessages") && t.get_IsClass());
-			MessageFactory.s_messageDictionary = Enumerable.ToDictionary<Type, string>(enumerable, (Type t) => t.get_Name());
+			IEnumerable<Type> types = 
+				from t in (IEnumerable<Type>)Assembly.GetExecutingAssembly().GetTypes()
+				where (t.Namespace == null || !t.Namespace.StartsWith("WowJamMessages") ? false : t.IsClass)
+				select t;
+			MessageFactory.s_messageDictionary = types.ToDictionary<Type, string>((Type t) => t.Name);
 			MessageFactory.s_jsonSerializerSettings = new JsonSerializerSettings();
-			List<JsonConverter> list = new List<JsonConverter>();
-			list.Add(new StringEnumConverter());
-			list.Add(new JamEmbeddedMessageConverter());
-			list.Add(new ByteArrayConverter());
-			MessageFactory.s_jsonSerializerSettings.Converters = list;
-		}
-
-		public static Type GetMessageType(string nameSpace, string nameType)
-		{
-			return Type.GetType(nameSpace + "." + nameType);
-		}
-
-		public static Type GetMessageType(string nameType)
-		{
-			Type result;
-			MessageFactory.s_messageDictionary.TryGetValue(nameType, ref result);
-			return result;
+			List<JsonConverter> jsonConverters = new List<JsonConverter>()
+			{
+				new StringEnumConverter(),
+				new JamEmbeddedMessageConverter(),
+				new ByteArrayConverter()
+			};
+			MessageFactory.s_jsonSerializerSettings.Converters = jsonConverters;
 		}
 
 		public static object Deserialize(string message)
 		{
+			object obj;
 			int num = message.IndexOf(':');
 			if (num <= 0)
 			{
 				return null;
 			}
-			string text = message.Substring(0, num);
-			string text2 = message.Substring(num + 1);
-			if (text.get_Length() <= 0 || text2.get_Length() <= 0)
+			string str = message.Substring(0, num);
+			string str1 = message.Substring(num + 1);
+			if (str.Length <= 0 || str1.Length <= 0)
 			{
 				return null;
 			}
-			Type messageType = MessageFactory.GetMessageType(text);
+			Type messageType = MessageFactory.GetMessageType(str);
 			if (messageType == null)
 			{
 				return null;
 			}
 			try
 			{
-				return JsonConvert.DeserializeObject(text2, messageType, MessageFactory.s_jsonSerializerSettings);
+				obj = JsonConvert.DeserializeObject(str1, messageType, MessageFactory.s_jsonSerializerSettings);
 			}
-			catch (Exception ex)
+			catch (Exception exception)
 			{
-				Console.WriteLine(ex);
+				Console.WriteLine(exception);
+				return null;
 			}
-			return null;
+			return obj;
+		}
+
+		public static MessageDispatch GetDispatcher(Type handlerType)
+		{
+			IEnumerable<Type> types = MessageFactory.s_messageDictionary.Values.Where<Type>((Type t) => {
+				MethodInfo method = handlerType.GetMethod(string.Concat(t.Name, "Handler"));
+				return (method == null || (int)method.GetParameters().Length != 1 ? false : method.GetParameters()[0].ParameterType == t);
+			});
+			Dictionary<Type, MethodInfo> dictionary = types.ToDictionary<Type, Type, MethodInfo>((Type t) => t, (Type t) => handlerType.GetMethod(string.Concat(t.Name, "Handler")));
+			return (object handler, object message) => {
+				MethodInfo methodInfo;
+				if (!dictionary.TryGetValue(message.GetType(), out methodInfo))
+				{
+					return false;
+				}
+				methodInfo.Invoke(handler, new object[] { message });
+				return true;
+			};
+		}
+
+		public static Type GetMessageType(string nameSpace, string nameType)
+		{
+			return Type.GetType(string.Concat(nameSpace, ".", nameType));
+		}
+
+		public static Type GetMessageType(string nameType)
+		{
+			Type type;
+			MessageFactory.s_messageDictionary.TryGetValue(nameType, out type);
+			return type;
 		}
 
 		public static string Serialize(object message)
 		{
 			Type type = message.GetType();
-			return type.get_Name() + ":" + JsonConvert.SerializeObject(message, Formatting.None, MessageFactory.s_jsonSerializerSettings);
-		}
-
-		public static MessageDispatch GetDispatcher(Type handlerType)
-		{
-			IEnumerable<Type> enumerable = Enumerable.Where<Type>(MessageFactory.s_messageDictionary.get_Values(), delegate(Type t)
-			{
-				MethodInfo method = handlerType.GetMethod(t.get_Name() + "Handler");
-				return method != null && method.GetParameters().Length == 1 && method.GetParameters()[0].get_ParameterType() == t;
-			});
-			Dictionary<Type, MethodInfo> dispatchDictionary = Enumerable.ToDictionary<Type, Type, MethodInfo>(enumerable, (Type t) => t, (Type t) => handlerType.GetMethod(t.get_Name() + "Handler"));
-			return delegate(object handler, object message)
-			{
-				MethodInfo methodInfo;
-				if (dispatchDictionary.TryGetValue(message.GetType(), ref methodInfo))
-				{
-					methodInfo.Invoke(handler, new object[]
-					{
-						message
-					});
-					return true;
-				}
-				return false;
-			};
+			return string.Concat(type.Name, ":", JsonConvert.SerializeObject(message, Formatting.None, MessageFactory.s_jsonSerializerSettings));
 		}
 	}
 }

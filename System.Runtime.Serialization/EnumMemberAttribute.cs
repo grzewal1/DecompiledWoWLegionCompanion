@@ -2,21 +2,25 @@ using System;
 
 namespace System.Runtime.Serialization
 {
-	[AttributeUsage]
+	[AttributeUsage(AttributeTargets.Field, Inherited=false, AllowMultiple=false)]
 	public sealed class EnumMemberAttribute : Attribute
 	{
-		private string value;
+		private string @value;
 
 		public string Value
 		{
 			get
 			{
-				return this.value;
+				return this.@value;
 			}
 			set
 			{
-				this.value = value;
+				this.@value = value;
 			}
+		}
+
+		public EnumMemberAttribute()
+		{
 		}
 	}
 }

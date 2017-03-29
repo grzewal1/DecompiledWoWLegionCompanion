@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using WowStaticData;
 
@@ -26,9 +27,91 @@ public class TextureAtlas
 		}
 	}
 
+	static TextureAtlas()
+	{
+	}
+
+	public TextureAtlas()
+	{
+	}
+
+	public Sprite GetAtlasSprite(int memberID)
+	{
+		Dictionary<int, Sprite> nums;
+		Sprite sprite;
+		memberID = this.GetOverrideMemberID(memberID);
+		UiTextureAtlasMemberRec record = StaticDB.uiTextureAtlasMemberDB.GetRecord(memberID);
+		if (record == null)
+		{
+			Debug.LogWarning(string.Concat("GetAtlasSprite(): Unknown member ID ", memberID));
+			return null;
+		}
+		this.m_atlas.TryGetValue((int)record.UiTextureAtlasID, out nums);
+		if (nums == null)
+		{
+			Debug.LogWarning(string.Concat("GetAtlasSprite(): Unknown atlas ID ", record.UiTextureAtlasID));
+			return null;
+		}
+		nums.TryGetValue(record.ID, out sprite);
+		return sprite;
+	}
+
+	private int GetOverrideMemberID(int memberID)
+	{
+		switch (memberID)
+		{
+			case 6128:
+			{
+				memberID = 6100;
+				break;
+			}
+			case 6129:
+			{
+				memberID = 6127;
+				break;
+			}
+			case 6130:
+			{
+				memberID = 6126;
+				break;
+			}
+			case 6131:
+			{
+				memberID = 6095;
+				break;
+			}
+			case 6132:
+			{
+				memberID = 6097;
+				break;
+			}
+		}
+		return memberID;
+	}
+
 	public static Sprite GetSprite(int memberID)
 	{
 		return TextureAtlas.instance.GetAtlasSprite(memberID);
+	}
+
+	public static int GetUITextureAtlasMemberID(string atlasMemberName)
+	{
+		int d = 0;
+		TextureAtlas.instance.m_atlasMemberIDCache.TryGetValue(atlasMemberName, out d);
+		if (d > 0)
+		{
+			return d;
+		}
+		StaticDB.uiTextureAtlasMemberDB.EnumRecords((UiTextureAtlasMemberRec memberRec) => {
+			if (memberRec.CommittedName == null || atlasMemberName == null || !(memberRec.CommittedName.ToLower() == atlasMemberName.ToLower()))
+			{
+				return true;
+			}
+			d = memberRec.ID;
+			TextureAtlas.instance.m_atlasMemberIDCache.Add(atlasMemberName, memberRec.ID);
+			return false;
+		});
+		return d;
 	}
 
 	private void InitAtlas()
@@ -39,110 +122,38 @@ public class TextureAtlas
 			return;
 		}
 		this.m_atlas = new Dictionary<int, Dictionary<int, Sprite>>();
-		TextAsset textAsset = Resources.Load("TextureAtlas/AtlasDirectory") as TextAsset;
-		string text = textAsset.ToString();
+		string str = (Resources.Load("TextureAtlas/AtlasDirectory") as TextAsset).ToString();
 		int num = 0;
-		int num2;
-		string text2;
-		while (true)
+		int num1 = 0;
+		do
 		{
-			num2 = text.IndexOf('\n', num);
-			if (num2 >= 0)
+			num = str.IndexOf('\n', num1);
+			if (num < 0)
 			{
-				text2 = text.Substring(num, num2 - num + 1).Trim();
-				string text3 = text2.Substring(text2.get_Length() - 10);
-				int num3 = Convert.ToInt32(text3);
-				Sprite[] array = Resources.LoadAll<Sprite>("TextureAtlas/" + text2);
-				if (array.Length <= 0)
-				{
-					break;
-				}
-				Dictionary<int, Sprite> dictionary = new Dictionary<int, Sprite>();
-				Sprite[] array2 = array;
-				for (int i = 0; i < array2.Length; i++)
-				{
-					Sprite sprite = array2[i];
-					int num4 = Convert.ToInt32(sprite.get_name());
-					dictionary.Add(num4, sprite);
-				}
-				this.m_atlas.Add(num3, dictionary);
-				num = num2 + 1;
+				continue;
 			}
-			if (num2 <= 0)
+			string str1 = str.Substring(num1, num - num1 + 1).Trim();
+			string str2 = str1.Substring(str1.Length - 10);
+			int num2 = Convert.ToInt32(str2);
+			Sprite[] spriteArray = Resources.LoadAll<Sprite>(string.Concat("TextureAtlas/", str1));
+			if ((int)spriteArray.Length <= 0)
 			{
-				goto Block_5;
+				Debug.Log(string.Concat("Found no sprites in atlas ", str1));
+				num1 = num + 1;
+				throw new Exception(string.Concat("Atlas in Resources folder is missing or has no sprites: ", str1));
 			}
+			Dictionary<int, Sprite> nums = new Dictionary<int, Sprite>();
+			Sprite[] spriteArray1 = spriteArray;
+			for (int i = 0; i < (int)spriteArray1.Length; i++)
+			{
+				Sprite sprite = spriteArray1[i];
+				nums.Add(Convert.ToInt32(sprite.name), sprite);
+			}
+			this.m_atlas.Add(num2, nums);
+			num1 = num + 1;
 		}
-		Debug.Log("Found no sprites in atlas " + text2);
-		num = num2 + 1;
-		throw new Exception("Atlas in Resources folder is missing or has no sprites: " + text2);
-		Block_5:
+		while (num > 0);
 		this.m_atlasMemberIDCache = new Dictionary<string, int>();
 		TextureAtlas.s_initialized = true;
-	}
-
-	private int GetOverrideMemberID(int memberID)
-	{
-		switch (memberID)
-		{
-		case 6128:
-			memberID = 6100;
-			break;
-		case 6129:
-			memberID = 6127;
-			break;
-		case 6130:
-			memberID = 6126;
-			break;
-		case 6131:
-			memberID = 6095;
-			break;
-		case 6132:
-			memberID = 6097;
-			break;
-		}
-		return memberID;
-	}
-
-	public Sprite GetAtlasSprite(int memberID)
-	{
-		memberID = this.GetOverrideMemberID(memberID);
-		UiTextureAtlasMemberRec record = StaticDB.uiTextureAtlasMemberDB.GetRecord(memberID);
-		if (record == null)
-		{
-			Debug.LogWarning("GetAtlasSprite(): Unknown member ID " + memberID);
-			return null;
-		}
-		Dictionary<int, Sprite> dictionary;
-		this.m_atlas.TryGetValue((int)record.UiTextureAtlasID, ref dictionary);
-		if (dictionary == null)
-		{
-			Debug.LogWarning("GetAtlasSprite(): Unknown atlas ID " + record.UiTextureAtlasID);
-			return null;
-		}
-		Sprite result;
-		dictionary.TryGetValue(record.ID, ref result);
-		return result;
-	}
-
-	public static int GetUITextureAtlasMemberID(string atlasMemberName)
-	{
-		int textureAtlasMemberID = 0;
-		TextureAtlas.instance.m_atlasMemberIDCache.TryGetValue(atlasMemberName, ref textureAtlasMemberID);
-		if (textureAtlasMemberID > 0)
-		{
-			return textureAtlasMemberID;
-		}
-		StaticDB.uiTextureAtlasMemberDB.EnumRecords(delegate(UiTextureAtlasMemberRec memberRec)
-		{
-			if (memberRec.CommittedName != null && atlasMemberName != null && memberRec.CommittedName.ToLower() == atlasMemberName.ToLower())
-			{
-				textureAtlasMemberID = memberRec.ID;
-				TextureAtlas.instance.m_atlasMemberIDCache.Add(atlasMemberName, memberRec.ID);
-				return false;
-			}
-			return true;
-		});
-		return textureAtlasMemberID;
 	}
 }

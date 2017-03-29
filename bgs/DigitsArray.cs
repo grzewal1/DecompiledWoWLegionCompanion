@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace bgs
 {
@@ -7,17 +8,17 @@ namespace bgs
 	{
 		private uint[] m_data;
 
-		internal static readonly uint AllBits;
+		internal readonly static uint AllBits;
 
-		internal static readonly uint HiBitSet;
+		internal readonly static uint HiBitSet;
 
 		private int m_dataUsed;
 
-		internal static int DataSizeOf
+		internal int Count
 		{
 			get
 			{
-				return 4;
+				return (int)this.m_data.Length;
 			}
 		}
 
@@ -29,19 +30,11 @@ namespace bgs
 			}
 		}
 
-		internal uint this[int index]
+		internal static int DataSizeOf
 		{
 			get
 			{
-				if (index < this.m_dataUsed)
-				{
-					return this.m_data[index];
-				}
-				return (!this.IsNegative) ? 0u : DigitsArray.AllBits;
-			}
-			set
-			{
-				this.m_data[index] = value;
+				return 4;
 			}
 		}
 
@@ -57,11 +50,11 @@ namespace bgs
 			}
 		}
 
-		internal int Count
+		internal bool IsNegative
 		{
 			get
 			{
-				return this.m_data.Length;
+				return (this.m_data[(int)this.m_data.Length - 1] & DigitsArray.HiBitSet) == DigitsArray.HiBitSet;
 			}
 		}
 
@@ -69,16 +62,48 @@ namespace bgs
 		{
 			get
 			{
-				return this.m_dataUsed == 0 || (this.m_dataUsed == 1 && this.m_data[0] == 0u);
+				bool flag;
+				if (this.m_dataUsed == 0)
+				{
+					flag = true;
+				}
+				else
+				{
+					flag = (this.m_dataUsed != 1 ? false : this.m_data[0] == 0);
+				}
+				return flag;
 			}
 		}
 
-		internal bool IsNegative
+		internal uint this[int index]
 		{
 			get
 			{
-				return (this.m_data[this.m_data.Length - 1] & DigitsArray.HiBitSet) == DigitsArray.HiBitSet;
+				uint allBits;
+				if (index < this.m_dataUsed)
+				{
+					return this.m_data[index];
+				}
+				if (!this.IsNegative)
+				{
+					allBits = 0;
+				}
+				else
+				{
+					allBits = DigitsArray.AllBits;
+				}
+				return allBits;
 			}
+			set
+			{
+				this.m_data[index] = value;
+			}
+		}
+
+		static DigitsArray()
+		{
+			DigitsArray.AllBits = -1;
+			DigitsArray.HiBitSet = (uint)(1 << (DigitsArray.DataSizeBits - 1 & 31));
 		}
 
 		internal DigitsArray(int size)
@@ -93,8 +118,8 @@ namespace bgs
 
 		internal DigitsArray(uint[] copyFrom)
 		{
-			this.Allocate(copyFrom.Length);
-			this.CopyFrom(copyFrom, 0, 0, copyFrom.Length);
+			this.Allocate((int)copyFrom.Length);
+			this.CopyFrom(copyFrom, 0, 0, (int)copyFrom.Length);
 			this.ResetDataUsed();
 		}
 
@@ -102,12 +127,6 @@ namespace bgs
 		{
 			this.Allocate(copyFrom.Count, copyFrom.DataUsed);
 			Array.Copy(copyFrom.m_data, 0, this.m_data, 0, copyFrom.Count);
-		}
-
-		static DigitsArray()
-		{
-			DigitsArray.AllBits = 4294967295u;
-			DigitsArray.HiBitSet = 1u << DigitsArray.DataSizeBits - 1;
 		}
 
 		public void Allocate(int size)
@@ -133,63 +152,29 @@ namespace bgs
 
 		internal void ResetDataUsed()
 		{
-			this.m_dataUsed = this.m_data.Length;
-			if (this.IsNegative)
+			this.m_dataUsed = (int)this.m_data.Length;
+			if (!this.IsNegative)
 			{
-				while (this.m_dataUsed > 1 && this.m_data[this.m_dataUsed - 1] == DigitsArray.AllBits)
+				while (this.m_dataUsed > 1 && this.m_data[this.m_dataUsed - 1] == 0)
 				{
-					this.m_dataUsed--;
-				}
-				this.m_dataUsed++;
-			}
-			else
-			{
-				while (this.m_dataUsed > 1 && this.m_data[this.m_dataUsed - 1] == 0u)
-				{
-					this.m_dataUsed--;
+					DigitsArray mDataUsed = this;
+					mDataUsed.m_dataUsed = mDataUsed.m_dataUsed - 1;
 				}
 				if (this.m_dataUsed == 0)
 				{
 					this.m_dataUsed = 1;
 				}
 			}
-		}
-
-		internal int ShiftRight(int shiftCount)
-		{
-			return DigitsArray.ShiftRight(this.m_data, shiftCount);
-		}
-
-		internal static int ShiftRight(uint[] buffer, int shiftCount)
-		{
-			int num = DigitsArray.DataSizeBits;
-			int num2 = 0;
-			int num3 = buffer.Length;
-			while (num3 > 1 && buffer[num3 - 1] == 0u)
+			else
 			{
-				num3--;
-			}
-			for (int i = shiftCount; i > 0; i -= num)
-			{
-				if (i < num)
+				while (this.m_dataUsed > 1 && this.m_data[this.m_dataUsed - 1] == DigitsArray.AllBits)
 				{
-					num = i;
-					num2 = DigitsArray.DataSizeBits - num;
+					DigitsArray digitsArray = this;
+					digitsArray.m_dataUsed = digitsArray.m_dataUsed - 1;
 				}
-				ulong num4 = 0uL;
-				for (int j = num3 - 1; j >= 0; j--)
-				{
-					ulong num5 = (ulong)buffer[j] >> num;
-					num5 |= num4;
-					num4 = (ulong)buffer[j] << num2;
-					buffer[j] = (uint)num5;
-				}
+				DigitsArray mDataUsed1 = this;
+				mDataUsed1.m_dataUsed = mDataUsed1.m_dataUsed + 1;
 			}
-			while (num3 > 1 && buffer[num3 - 1] == 0u)
-			{
-				num3--;
-			}
-			return num3;
 		}
 
 		internal int ShiftLeft(int shiftCount)
@@ -199,66 +184,104 @@ namespace bgs
 
 		internal static int ShiftLeft(uint[] buffer, int shiftCount)
 		{
-			int num = DigitsArray.DataSizeBits;
-			int num2 = buffer.Length;
-			while (num2 > 1 && buffer[num2 - 1] == 0u)
+			int dataSizeBits = DigitsArray.DataSizeBits;
+			int length = (int)buffer.Length;
+			while (length > 1 && buffer[length - 1] == 0)
 			{
-				num2--;
+				length--;
 			}
-			for (int i = shiftCount; i > 0; i -= num)
+			for (int i = shiftCount; i > 0; i = i - dataSizeBits)
 			{
-				if (i < num)
+				if (i < dataSizeBits)
 				{
-					num = i;
+					dataSizeBits = i;
 				}
-				ulong num3 = 0uL;
-				for (int j = 0; j < num2; j++)
+				ulong num = (ulong)0;
+				for (int j = 0; j < length; j++)
 				{
-					ulong num4 = (ulong)buffer[j] << num;
-					num4 |= num3;
-					buffer[j] = (uint)(num4 & (ulong)DigitsArray.AllBits);
-					num3 = num4 >> DigitsArray.DataSizeBits;
+					ulong num1 = (ulong)buffer[j] << (dataSizeBits & 63);
+					num1 = num1 | num;
+					buffer[j] = (uint)(num1 & (ulong)DigitsArray.AllBits);
+					num = num1 >> (DigitsArray.DataSizeBits & 63);
 				}
-				if (num3 != 0uL)
+				if (num != 0)
 				{
-					if (num2 + 1 > buffer.Length)
+					if (length + 1 > (int)buffer.Length)
 					{
 						throw new OverflowException();
 					}
-					buffer[num2] = (uint)num3;
-					num2++;
+					buffer[length] = (uint)num;
+					length++;
+					num = (ulong)0;
 				}
 			}
-			return num2;
+			return length;
 		}
 
 		internal int ShiftLeftWithoutOverflow(int shiftCount)
 		{
-			List<uint> list = new List<uint>(this.m_data);
-			int num = DigitsArray.DataSizeBits;
-			for (int i = shiftCount; i > 0; i -= num)
+			List<uint> nums = new List<uint>(this.m_data);
+			int dataSizeBits = DigitsArray.DataSizeBits;
+			for (int i = shiftCount; i > 0; i = i - dataSizeBits)
 			{
-				if (i < num)
+				if (i < dataSizeBits)
 				{
-					num = i;
+					dataSizeBits = i;
 				}
-				ulong num2 = 0uL;
-				for (int j = 0; j < list.get_Count(); j++)
+				ulong num = (ulong)0;
+				for (int j = 0; j < nums.Count; j++)
 				{
-					ulong num3 = (ulong)list.get_Item(j) << num;
-					num3 |= num2;
-					list.set_Item(j, (uint)(num3 & (ulong)DigitsArray.AllBits));
-					num2 = num3 >> DigitsArray.DataSizeBits;
+					ulong item = (ulong)nums[j] << (dataSizeBits & 63);
+					item = item | num;
+					nums[j] = (uint)(item & (ulong)DigitsArray.AllBits);
+					num = item >> (DigitsArray.DataSizeBits & 63);
 				}
-				if (num2 != 0uL)
+				if (num != 0)
 				{
-					list.Add(0u);
-					list.set_Item(list.get_Count() - 1, (uint)num2);
+					nums.Add(0);
+					nums[nums.Count - 1] = (uint)num;
 				}
 			}
-			this.m_data = new uint[list.get_Count()];
-			list.CopyTo(this.m_data);
-			return this.m_data.Length;
+			this.m_data = new uint[nums.Count];
+			nums.CopyTo(this.m_data);
+			return (int)this.m_data.Length;
+		}
+
+		internal int ShiftRight(int shiftCount)
+		{
+			return DigitsArray.ShiftRight(this.m_data, shiftCount);
+		}
+
+		internal static int ShiftRight(uint[] buffer, int shiftCount)
+		{
+			int dataSizeBits = DigitsArray.DataSizeBits;
+			int num = 0;
+			int length = (int)buffer.Length;
+			while (length > 1 && buffer[length - 1] == 0)
+			{
+				length--;
+			}
+			for (int i = shiftCount; i > 0; i = i - dataSizeBits)
+			{
+				if (i < dataSizeBits)
+				{
+					dataSizeBits = i;
+					num = DigitsArray.DataSizeBits - dataSizeBits;
+				}
+				ulong num1 = (ulong)0;
+				for (int j = length - 1; j >= 0; j--)
+				{
+					ulong num2 = (ulong)buffer[j] >> (dataSizeBits & 63);
+					num2 = num2 | num1;
+					num1 = (ulong)buffer[j] << (num & 63);
+					buffer[j] = (uint)num2;
+				}
+			}
+			while (length > 1 && buffer[length - 1] == 0)
+			{
+				length--;
+			}
+			return length;
 		}
 	}
 }

@@ -11,5 +11,9 @@ namespace bgs
 		public string RequesterName;
 
 		public BnetGameAccountId RequesterId;
+
+		public InviteRequest()
+		{
+		}
 	}
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using WowStatConstants;
 using WowStaticData;
@@ -29,6 +30,8 @@ public class GarrisonStatus
 
 	private static int s_followerActivationGoldCost;
 
+	private static int s_maxActiveFollowers;
+
 	public static int ArtifactKnowledgeLevel
 	{
 		get;
@@ -41,56 +44,62 @@ public class GarrisonStatus
 		set;
 	}
 
-	public static void SetGarrisonServerConnectTime(long serverTime)
+	static GarrisonStatus()
 	{
-		GarrisonStatus.s_serverConnectTime = serverTime;
-		GarrisonStatus.s_clientConnectTime = (long)Time.get_realtimeSinceStartup();
 	}
 
-	public static long CurrentTime()
+	public GarrisonStatus()
 	{
-		return GarrisonStatus.s_serverConnectTime + ((long)Time.get_realtimeSinceStartup() - GarrisonStatus.s_clientConnectTime);
 	}
 
-	public static void SetFaction(int faction)
+	public static int CharacterClassID()
 	{
-		GarrisonStatus.s_faction = faction;
+		return GarrisonStatus.s_characterClassID;
+	}
+
+	public static string CharacterClassName()
+	{
+		return GarrisonStatus.s_characterClassName;
+	}
+
+	public static int CharacterLevel()
+	{
+		return GarrisonStatus.s_characterLevel;
+	}
+
+	public static string CharacterName()
+	{
+		return GarrisonStatus.s_characterName;
 	}
 
 	public static void CheatFastForwardOneHour()
 	{
-		GarrisonStatus.s_serverConnectTime += 3600L;
+		GarrisonStatus.s_serverConnectTime = GarrisonStatus.s_serverConnectTime + (long)3600;
 	}
 
-	public static void SetCurrencies(int gold, int oil, int resources)
+	public static long CurrentTime()
 	{
-		GarrisonStatus.s_gold = gold;
-		GarrisonStatus.s_oil = oil;
-		GarrisonStatus.s_resources = resources;
+		return GarrisonStatus.s_serverConnectTime + ((long)Time.realtimeSinceStartup - GarrisonStatus.s_clientConnectTime);
 	}
 
-	public static void SetCharacterName(string name)
+	public static PVP_FACTION Faction()
 	{
-		GarrisonStatus.s_characterName = name;
+		return (PVP_FACTION)GarrisonStatus.s_faction;
 	}
 
-	public static void SetCharacterLevel(int level)
+	public static int GetFollowerActivationGoldCost()
 	{
-		GarrisonStatus.s_characterLevel = level;
+		return GarrisonStatus.s_followerActivationGoldCost;
 	}
 
-	public static void SetCharacterClass(int charClassID)
+	public static int GetMaxActiveFollowers()
 	{
-		GarrisonStatus.s_characterClassID = charClassID;
-		ChrClassesRec record = StaticDB.chrClassesDB.GetRecord(charClassID);
-		if (record != null)
-		{
-			GarrisonStatus.s_characterClassName = record.Name;
-		}
-		else
-		{
-			GarrisonStatus.s_characterClassName = string.Empty;
-		}
+		return GarrisonStatus.s_maxActiveFollowers;
+	}
+
+	public static int GetRemainingFollowerActivations()
+	{
+		return GarrisonStatus.s_remainingFollowerActivations;
 	}
 
 	public static int Gold()
@@ -108,29 +117,40 @@ public class GarrisonStatus
 		return GarrisonStatus.s_resources;
 	}
 
-	public static string CharacterName()
+	public static void SetCharacterClass(int charClassID)
 	{
-		return GarrisonStatus.s_characterName;
+		GarrisonStatus.s_characterClassID = charClassID;
+		ChrClassesRec record = StaticDB.chrClassesDB.GetRecord(charClassID);
+		if (record == null)
+		{
+			GarrisonStatus.s_characterClassName = string.Empty;
+		}
+		else
+		{
+			GarrisonStatus.s_characterClassName = record.Name;
+		}
 	}
 
-	public static int CharacterLevel()
+	public static void SetCharacterLevel(int level)
 	{
-		return GarrisonStatus.s_characterLevel;
+		GarrisonStatus.s_characterLevel = level;
 	}
 
-	public static int CharacterClassID()
+	public static void SetCharacterName(string name)
 	{
-		return GarrisonStatus.s_characterClassID;
+		GarrisonStatus.s_characterName = name;
 	}
 
-	public static string CharacterClassName()
+	public static void SetCurrencies(int gold, int oil, int resources)
 	{
-		return GarrisonStatus.s_characterClassName;
+		GarrisonStatus.s_gold = gold;
+		GarrisonStatus.s_oil = oil;
+		GarrisonStatus.s_resources = resources;
 	}
 
-	public static PVP_FACTION Faction()
+	public static void SetFaction(int faction)
 	{
-		return (PVP_FACTION)GarrisonStatus.s_faction;
+		GarrisonStatus.s_faction = faction;
 	}
 
 	public static void SetFollowerActivationInfo(int remainingActivations, int activationGoldCost)
@@ -139,13 +159,14 @@ public class GarrisonStatus
 		GarrisonStatus.s_followerActivationGoldCost = activationGoldCost;
 	}
 
-	public static int GetRemainingFollowerActivations()
+	public static void SetGarrisonServerConnectTime(long serverTime)
 	{
-		return GarrisonStatus.s_remainingFollowerActivations;
+		GarrisonStatus.s_serverConnectTime = serverTime;
+		GarrisonStatus.s_clientConnectTime = (long)Time.realtimeSinceStartup;
 	}
 
-	public static int GetFollowerActivationGoldCost()
+	public static void SetMaxActiveFollowers(int maxActiveFollowers)
 	{
-		return GarrisonStatus.s_followerActivationGoldCost;
+		GarrisonStatus.s_maxActiveFollowers = maxActiveFollowers;
 	}
 }

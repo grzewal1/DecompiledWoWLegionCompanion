@@ -5,5 +5,8 @@ namespace MiniJSON
 {
 	public class JsonList : List<object>
 	{
+		public JsonList()
+		{
+		}
 	}
 }

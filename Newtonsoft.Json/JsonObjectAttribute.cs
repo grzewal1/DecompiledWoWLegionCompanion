@@ -2,12 +2,12 @@ using System;
 
 namespace Newtonsoft.Json
 {
-	[AttributeUsage]
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface, AllowMultiple=false)]
 	public sealed class JsonObjectAttribute : JsonContainerAttribute
 	{
-		private MemberSerialization _memberSerialization;
+		private Newtonsoft.Json.MemberSerialization _memberSerialization;
 
-		public MemberSerialization MemberSerialization
+		public Newtonsoft.Json.MemberSerialization MemberSerialization
 		{
 			get
 			{
@@ -23,7 +23,7 @@ namespace Newtonsoft.Json
 		{
 		}
 
-		public JsonObjectAttribute(MemberSerialization memberSerialization)
+		public JsonObjectAttribute(Newtonsoft.Json.MemberSerialization memberSerialization)
 		{
 			this.MemberSerialization = memberSerialization;
 		}

@@ -9,35 +9,38 @@ public class ButtonSwipe : MonoBehaviour
 
 	public float m_currentTouchX;
 
+	public ButtonSwipe()
+	{
+	}
+
 	public void OnBeginDrag()
 	{
-		RectTransform component = base.GetComponent<RectTransform>();
-		this.m_initialX = component.get_localPosition().x;
-		if (Input.get_touchCount() > 0)
+		this.m_initialX = base.GetComponent<RectTransform>().localPosition.x;
+		if (Input.touchCount <= 0)
 		{
-			this.m_initialTouchX = Input.GetTouch(0).get_position().x;
+			this.m_initialTouchX = Input.mousePosition.x;
 		}
 		else
 		{
-			this.m_initialTouchX = Input.get_mousePosition().x;
+			this.m_initialTouchX = Input.GetTouch(0).position.x;
 		}
 	}
 
 	public void OnDrag()
 	{
-		if (Input.get_touchCount() > 0)
+		if (Input.touchCount <= 0)
 		{
-			this.m_currentTouchX = Input.GetTouch(0).get_position().x;
+			this.m_currentTouchX = Input.mousePosition.x;
 		}
 		else
 		{
-			this.m_currentTouchX = Input.get_mousePosition().x;
+			this.m_currentTouchX = Input.GetTouch(0).position.x;
 		}
-		float num = this.m_currentTouchX - this.m_initialTouchX;
+		float mCurrentTouchX = this.m_currentTouchX - this.m_initialTouchX;
 		RectTransform component = base.GetComponent<RectTransform>();
-		Vector3 localPosition = component.get_localPosition();
-		localPosition.x = this.m_initialX + num;
-		component.set_localPosition(localPosition);
+		Vector3 mInitialX = component.localPosition;
+		mInitialX.x = this.m_initialX + mCurrentTouchX;
+		component.localPosition = mInitialX;
 	}
 
 	public void OnEndDrag()

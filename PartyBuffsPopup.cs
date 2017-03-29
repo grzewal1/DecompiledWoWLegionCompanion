@@ -11,18 +11,31 @@ public class PartyBuffsPopup : MonoBehaviour
 
 	public GameObject m_partyBuffRoot;
 
-	private void Awake()
+	public PartyBuffsPopup()
 	{
-		this.m_partyBuffsLabel.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_partyBuffsLabel.set_text(StaticDB.GetString("PARTY_BUFFS", "Party Buffs [PH]"));
 	}
 
-	public void OnEnable()
+	private void Awake()
 	{
-		Main.instance.m_UISound.Play_ShowGenericTooltip();
-		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
-		Main.instance.m_canvasBlurManager.AddBlurRef_Level2Canvas();
-		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
+		this.m_partyBuffsLabel.font = GeneralHelpers.LoadStandardFont();
+		this.m_partyBuffsLabel.text = StaticDB.GetString("PARTY_BUFFS", "Party Buffs [PH]");
+	}
+
+	public void Init(int[] buffIDs)
+	{
+		PartyBuffDisplay[] componentsInChildren = this.m_partyBuffRoot.GetComponentsInChildren<PartyBuffDisplay>(true);
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
+		{
+			UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
+		}
+		int[] numArray = buffIDs;
+		for (int j = 0; j < (int)numArray.Length; j++)
+		{
+			int num = numArray[j];
+			PartyBuffDisplay partyBuffDisplay = UnityEngine.Object.Instantiate<PartyBuffDisplay>(this.m_partyBuffDisplayPrefab);
+			partyBuffDisplay.transform.SetParent(this.m_partyBuffRoot.transform, false);
+			partyBuffDisplay.SetAbility(num);
+		}
 	}
 
 	private void OnDisable()
@@ -32,21 +45,11 @@ public class PartyBuffsPopup : MonoBehaviour
 		Main.instance.m_backButtonManager.PopBackAction();
 	}
 
-	public void Init(int[] buffIDs)
+	public void OnEnable()
 	{
-		PartyBuffDisplay[] componentsInChildren = this.m_partyBuffRoot.GetComponentsInChildren<PartyBuffDisplay>(true);
-		PartyBuffDisplay[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
-		{
-			PartyBuffDisplay partyBuffDisplay = array[i];
-			Object.DestroyImmediate(partyBuffDisplay.get_gameObject());
-		}
-		for (int j = 0; j < buffIDs.Length; j++)
-		{
-			int ability = buffIDs[j];
-			PartyBuffDisplay partyBuffDisplay2 = Object.Instantiate<PartyBuffDisplay>(this.m_partyBuffDisplayPrefab);
-			partyBuffDisplay2.get_transform().SetParent(this.m_partyBuffRoot.get_transform(), false);
-			partyBuffDisplay2.SetAbility(ability);
-		}
+		Main.instance.m_UISound.Play_ShowGenericTooltip();
+		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
+		Main.instance.m_canvasBlurManager.AddBlurRef_Level2Canvas();
+		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
 	}
 }

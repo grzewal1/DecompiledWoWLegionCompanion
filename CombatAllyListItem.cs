@@ -29,38 +29,35 @@ public class CombatAllyListItem : MonoBehaviour
 
 	private int m_combatAllyMissionID;
 
+	public CombatAllyListItem()
+	{
+	}
+
 	private void Awake()
 	{
-		this.m_combatAllyLabel.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_assignChampionText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_championName.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_combatAllyAbilityText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_combatAbilityName.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_unassignCombatAllyButtonLabel.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_combatAllyLabel.set_text(StaticDB.GetString("COMBAT_ALLY", null));
-		this.m_assignChampionText.set_text(StaticDB.GetString("ORDER_HALL_ZONE_SUPPORT_DESCRIPTION_2", null));
-		this.m_combatAllyAbilityText.set_text(StaticDB.GetString("COMBAT_ALLY_ABILITY", null));
-		this.m_unassignCombatAllyButtonLabel.set_text(StaticDB.GetString("UNASSIGN", null));
+		this.m_combatAllyLabel.font = GeneralHelpers.LoadStandardFont();
+		this.m_assignChampionText.font = GeneralHelpers.LoadStandardFont();
+		this.m_championName.font = GeneralHelpers.LoadStandardFont();
+		this.m_combatAllyAbilityText.font = GeneralHelpers.LoadStandardFont();
+		this.m_combatAbilityName.font = GeneralHelpers.LoadStandardFont();
+		this.m_unassignCombatAllyButtonLabel.font = GeneralHelpers.LoadStandardFont();
+		this.m_combatAllyLabel.text = StaticDB.GetString("COMBAT_ALLY", null);
+		this.m_assignChampionText.text = StaticDB.GetString("ORDER_HALL_ZONE_SUPPORT_DESCRIPTION_2", null);
+		this.m_combatAllyAbilityText.text = StaticDB.GetString("COMBAT_ALLY_ABILITY", null);
+		this.m_unassignCombatAllyButtonLabel.text = StaticDB.GetString("UNASSIGN", null);
 		this.UpdateVisuals();
 	}
 
-	private void OnEnable()
+	private void ClearCombatAllyDisplay()
 	{
-		this.ClearCombatAllyDisplay();
-		this.UpdateVisuals();
-		Main expr_11 = Main.instance;
-		expr_11.GarrisonDataResetFinishedAction = (Action)Delegate.Combine(expr_11.GarrisonDataResetFinishedAction, new Action(this.HandleDataResetFinished));
-	}
-
-	private void OnDisable()
-	{
-		Main expr_05 = Main.instance;
-		expr_05.GarrisonDataResetFinishedAction = (Action)Delegate.Remove(expr_05.GarrisonDataResetFinishedAction, new Action(this.HandleDataResetFinished));
-	}
-
-	public void HandleDataResetFinished()
-	{
-		this.UpdateVisuals();
+		this.m_combatAllySlot.SetFollower(0);
+		this.m_combatAllyLabel.gameObject.SetActive(true);
+		this.m_assignChampionText.gameObject.SetActive(true);
+		this.m_championName.gameObject.SetActive(false);
+		this.m_combatAllyAbilityText.gameObject.SetActive(false);
+		this.m_combatAbilityName.gameObject.SetActive(false);
+		this.m_combatAllySupportSpellDisplay.gameObject.SetActive(false);
+		this.m_unassignCombatAllyButton.SetActive(false);
 	}
 
 	public void HandleCompleteMissionResult(int garrMissionID, int result, int missionSuccessChance)
@@ -68,87 +65,90 @@ public class CombatAllyListItem : MonoBehaviour
 		this.UpdateVisuals();
 	}
 
-	private void ClearCombatAllyDisplay()
+	public void HandleDataResetFinished()
 	{
-		this.m_combatAllySlot.SetFollower(0);
-		this.m_combatAllyLabel.get_gameObject().SetActive(true);
-		this.m_assignChampionText.get_gameObject().SetActive(true);
-		this.m_championName.get_gameObject().SetActive(false);
-		this.m_combatAllyAbilityText.get_gameObject().SetActive(false);
-		this.m_combatAbilityName.get_gameObject().SetActive(false);
-		this.m_combatAllySupportSpellDisplay.get_gameObject().SetActive(false);
-		this.m_unassignCombatAllyButton.SetActive(false);
+		this.UpdateVisuals();
+	}
+
+	private void OnDisable()
+	{
+		Main.instance.GarrisonDataResetFinishedAction -= new Action(this.HandleDataResetFinished);
+	}
+
+	private void OnEnable()
+	{
+		this.ClearCombatAllyDisplay();
+		this.UpdateVisuals();
+		Main.instance.GarrisonDataResetFinishedAction += new Action(this.HandleDataResetFinished);
+	}
+
+	public void UnassignCombatAlly()
+	{
+		Main.instance.CompleteMission(this.m_combatAllyMissionID);
 	}
 
 	public void UpdateVisuals()
 	{
 		CombatAllyMissionState combatAllyMissionState = CombatAllyMissionState.notAvailable;
-		IEnumerator enumerator = PersistentMissionData.missionDictionary.get_Values().GetEnumerator();
+		IEnumerator enumerator = PersistentMissionData.missionDictionary.Values.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)enumerator.get_Current();
-				GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(jamGarrisonMobileMission.MissionRecID);
+				JamGarrisonMobileMission current = (JamGarrisonMobileMission)enumerator.Current;
+				GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(current.MissionRecID);
 				if (record != null)
 				{
-					if ((record.Flags & 16u) != 0u)
+					if ((record.Flags & 16) == 0)
 					{
-						this.m_combatAllyMissionID = jamGarrisonMobileMission.MissionRecID;
-						if (jamGarrisonMobileMission.MissionState == 1)
-						{
-							combatAllyMissionState = CombatAllyMissionState.inProgress;
-						}
-						else
-						{
-							combatAllyMissionState = CombatAllyMissionState.available;
-						}
-						break;
+						continue;
 					}
+					this.m_combatAllyMissionID = current.MissionRecID;
+					combatAllyMissionState = (current.MissionState != 1 ? CombatAllyMissionState.available : CombatAllyMissionState.inProgress);
+					break;
 				}
 			}
 		}
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable != null)
+			if (disposable == null)
 			{
-				disposable.Dispose();
 			}
+			disposable.Dispose();
 		}
-		if (combatAllyMissionState == CombatAllyMissionState.inProgress)
-		{
-			using (Dictionary<int, JamGarrisonFollower>.ValueCollection.Enumerator enumerator2 = PersistentFollowerData.followerDictionary.get_Values().GetEnumerator())
-			{
-				while (enumerator2.MoveNext())
-				{
-					JamGarrisonFollower current = enumerator2.get_Current();
-					if (current.CurrentMissionID == this.m_combatAllyMissionID)
-					{
-						this.m_combatAllySlot.SetFollower(current.GarrFollowerID);
-						this.m_combatAllyLabel.get_gameObject().SetActive(false);
-						this.m_assignChampionText.get_gameObject().SetActive(false);
-						this.m_championName.get_gameObject().SetActive(true);
-						GarrFollowerRec record2 = StaticDB.garrFollowerDB.GetRecord(current.GarrFollowerID);
-						CreatureRec record3 = StaticDB.creatureDB.GetRecord((GarrisonStatus.Faction() != PVP_FACTION.ALLIANCE) ? record2.HordeCreatureID : record2.AllianceCreatureID);
-						this.m_championName.set_text(record3.Name);
-						this.m_championName.set_color(GeneralHelpers.GetQualityColor(current.Quality));
-						this.m_combatAllySupportSpellDisplay.get_gameObject().SetActive(true);
-						this.m_combatAllySupportSpellDisplay.SetSpell(current.ZoneSupportSpellID);
-						this.m_unassignCombatAllyButton.SetActive(true);
-						break;
-					}
-				}
-			}
-		}
-		else
+		if (combatAllyMissionState != CombatAllyMissionState.inProgress)
 		{
 			this.ClearCombatAllyDisplay();
 		}
-	}
-
-	public void UnassignCombatAlly()
-	{
-		Main.instance.CompleteMission(this.m_combatAllyMissionID);
+		else
+		{
+			foreach (JamGarrisonFollower value in PersistentFollowerData.followerDictionary.Values)
+			{
+				if (value.CurrentMissionID != this.m_combatAllyMissionID)
+				{
+					continue;
+				}
+				this.m_combatAllySlot.SetFollower(value.GarrFollowerID);
+				this.m_combatAllyLabel.gameObject.SetActive(false);
+				this.m_assignChampionText.gameObject.SetActive(false);
+				this.m_championName.gameObject.SetActive(true);
+				GarrFollowerRec garrFollowerRec = StaticDB.garrFollowerDB.GetRecord(value.GarrFollowerID);
+				CreatureRec creatureRec = StaticDB.creatureDB.GetRecord((GarrisonStatus.Faction() != PVP_FACTION.ALLIANCE ? garrFollowerRec.HordeCreatureID : garrFollowerRec.AllianceCreatureID));
+				if (value.Quality == 6 && garrFollowerRec.TitleName != null && garrFollowerRec.TitleName.Length > 0)
+				{
+					this.m_championName.text = garrFollowerRec.TitleName;
+				}
+				else if (garrFollowerRec != null)
+				{
+					this.m_championName.text = creatureRec.Name;
+				}
+				this.m_championName.color = GeneralHelpers.GetQualityColor(value.Quality);
+				this.m_combatAllySupportSpellDisplay.gameObject.SetActive(true);
+				this.m_combatAllySupportSpellDisplay.SetSpell(value.ZoneSupportSpellID);
+				this.m_unassignCombatAllyButton.SetActive(true);
+				break;
+			}
+		}
 	}
 }

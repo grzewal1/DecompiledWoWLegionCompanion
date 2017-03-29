@@ -7,24 +7,28 @@ namespace DustinHorne.Json.Examples
 {
 	public class JNSimpleObjectSample
 	{
+		public JNSimpleObjectSample()
+		{
+		}
+
 		public void Sample()
 		{
-			JNSimpleObjectModel jNSimpleObjectModel = new JNSimpleObjectModel();
-			jNSimpleObjectModel.IntValue = 5;
-			jNSimpleObjectModel.FloatValue = 4.98f;
-			jNSimpleObjectModel.StringValue = "Simple Object";
-			JNSimpleObjectModel arg_4F_0 = jNSimpleObjectModel;
-			List<int> list = new List<int>();
-			list.Add(4);
-			list.Add(7);
-			list.Add(25);
-			list.Add(34);
-			arg_4F_0.IntList = list;
-			jNSimpleObjectModel.ObjectType = JNObjectType.BaseClass;
-			JNSimpleObjectModel value = jNSimpleObjectModel;
-			string value2 = JsonConvert.SerializeObject(value);
-			JNSimpleObjectModel jNSimpleObjectModel2 = JsonConvert.DeserializeObject<JNSimpleObjectModel>(value2);
-			Debug.Log(jNSimpleObjectModel2.IntList.get_Count());
+			JNSimpleObjectModel jNSimpleObjectModel = new JNSimpleObjectModel()
+			{
+				IntValue = 5,
+				FloatValue = 4.98f,
+				StringValue = "Simple Object",
+				IntList = new List<int>()
+				{
+					4,
+					7,
+					25,
+					34
+				},
+				ObjectType = JNObjectType.BaseClass
+			};
+			JNSimpleObjectModel jNSimpleObjectModel1 = JsonConvert.DeserializeObject<JNSimpleObjectModel>(JsonConvert.SerializeObject(jNSimpleObjectModel));
+			Debug.Log(jNSimpleObjectModel1.IntList.Count);
 		}
 	}
 }

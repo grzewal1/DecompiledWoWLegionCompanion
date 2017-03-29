@@ -7,4 +7,8 @@ public class FollowerListHeader : MonoBehaviour
 	public Text m_title;
 
 	public Text m_count;
+
+	public FollowerListHeader()
+	{
+	}
 }

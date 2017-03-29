@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using WowJamMessages;
@@ -14,13 +15,15 @@ public class FollowerExperienceDisplay : MonoBehaviour
 
 	public Image m_qualityBorder;
 
+	public Image m_qualityBorder_TitleQuality;
+
 	public Image m_levelBorder;
+
+	public Image m_levelBorder_TitleQuality;
 
 	public Text m_followerNameText;
 
 	public Text m_iLevelText;
-
-	public Text m_XPLabel;
 
 	public Image m_classIcon;
 
@@ -60,27 +63,78 @@ public class FollowerExperienceDisplay : MonoBehaviour
 
 	private bool m_newFollowerIsMaxLevelAndMaxQuality;
 
-	private void Start()
+	public FollowerExperienceDisplay()
 	{
-		this.m_followerNameText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_iLevelText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_classText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_xpAmountText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_toNextLevelOrUpgradeText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_XPLabel.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_XPLabel.set_text(StaticDB.GetString("XP2", null));
 	}
 
-	private void OnEnable()
+	public int GetFollowerID()
 	{
-		FancyNumberDisplay expr_06 = this.m_fancyNumberDisplay;
-		expr_06.TimerUpdateAction = (Action<int>)Delegate.Combine(expr_06.TimerUpdateAction, new Action<int>(this.SetFillValue));
+		return this.m_followerID;
 	}
 
 	private void OnDisable()
 	{
-		FancyNumberDisplay expr_06 = this.m_fancyNumberDisplay;
-		expr_06.TimerUpdateAction = (Action<int>)Delegate.Remove(expr_06.TimerUpdateAction, new Action<int>(this.SetFillValue));
+		this.m_fancyNumberDisplay.TimerUpdateAction -= new Action<int>(this.SetFillValue);
+	}
+
+	private void OnEnable()
+	{
+		this.m_fancyNumberDisplay.TimerUpdateAction += new Action<int>(this.SetFillValue);
+	}
+
+	private void SetFillValue(int newXPRemainingUntilNextLevel)
+	{
+		float single = 0f;
+		if (newXPRemainingUntilNextLevel == 0 && this.m_currentCap != this.m_newCap)
+		{
+			if (!this.m_showedLevelUpEffect)
+			{
+				Main.instance.m_UISound.Play_ChampionLevelUp();
+				UiAnimMgr.instance.PlayAnim("FlameGlowPulse", this.m_followerPortrait.transform, Vector3.zero, 2f, 0f);
+				UiAnimMgr.instance.PlayAnim("MinimapPulseAnim", this.m_followerPortrait.transform, Vector3.zero, 2f, 0f);
+				this.m_showedLevelUpEffect = true;
+			}
+			JamGarrisonFollower item = PersistentFollowerData.followerDictionary[this.m_followerID];
+			this.SetFollowerAppearance(item, this.m_newCapIsQuality, this.m_newFollowerIsMaxLevelAndMaxQuality, false, 0f);
+			this.m_currentCap = this.m_newCap;
+			this.m_fancyNumberDisplay.SetValue((int)this.m_newCap, true, 0f);
+			this.m_fancyNumberDisplay.SetValue((int)(this.m_newCap - item.Xp), 0f);
+		}
+		this.m_xpAmountText.text = string.Concat(new object[] { string.Empty, (long)((ulong)this.m_currentCap - (long)newXPRemainingUntilNextLevel), "\\", this.m_currentCap });
+		single = Mathf.Clamp01((float)((ulong)this.m_currentCap - (long)newXPRemainingUntilNextLevel) / (float)((float)this.m_currentCap));
+		this.m_progressBarFillImage.fillAmount = single;
+	}
+
+	public void SetFollower(JamGarrisonFollower oldFollower, JamGarrisonFollower newFollower, float initialEffectDelay)
+	{
+		this.m_followerID = oldFollower.GarrFollowerID;
+		if ((oldFollower.Flags & 8) != 0)
+		{
+			JamGarrisonFollower jamGarrisonFollower = newFollower ?? new JamGarrisonFollower()
+			{
+				GarrFollowerID = oldFollower.GarrFollowerID,
+				Quality = oldFollower.Quality,
+				Durability = 0
+			};
+			this.SetFollowerAppearance(jamGarrisonFollower, false, false, true, initialEffectDelay);
+			return;
+		}
+		this.m_showedLevelUpEffect = false;
+		bool flag = false;
+		bool flag1 = false;
+		GeneralHelpers.GetXpCapInfo(oldFollower.FollowerLevel, oldFollower.Quality, out this.m_currentCap, out flag1, out flag);
+		this.SetFollowerAppearance(oldFollower, flag1, flag, false, initialEffectDelay);
+		GeneralHelpers.GetXpCapInfo(newFollower.FollowerLevel, newFollower.Quality, out this.m_newCap, out this.m_newCapIsQuality, out this.m_newFollowerIsMaxLevelAndMaxQuality);
+		this.m_fancyNumberDisplay.SetNumberLabel(StaticDB.GetString("XP2", null));
+		this.m_fancyNumberDisplay.SetValue((int)(this.m_currentCap - oldFollower.Xp), true, 0f);
+		if (oldFollower.FollowerLevel != newFollower.FollowerLevel || oldFollower.Quality != newFollower.Quality)
+		{
+			this.m_fancyNumberDisplay.SetValue(0, initialEffectDelay);
+		}
+		else
+		{
+			this.m_fancyNumberDisplay.SetValue((int)(this.m_currentCap - newFollower.Xp), initialEffectDelay);
+		}
 	}
 
 	private void SetFollowerAppearance(JamGarrisonFollower follower, bool nextCapIsForQuality, bool isMaxLevelAndMaxQuality, bool isTroop, float initialEntranceDelay)
@@ -91,198 +145,147 @@ public class FollowerExperienceDisplay : MonoBehaviour
 		this.m_expiredPortraitX.SetActive(false);
 		if (isTroop)
 		{
-			this.m_levelBorder.get_gameObject().SetActive(false);
+			this.m_levelBorder.gameObject.SetActive(false);
 			this.m_progressBarObj.SetActive(false);
-			this.m_portraitBG.get_gameObject().SetActive(false);
+			this.m_portraitBG.gameObject.SetActive(false);
 			this.m_troopHeartContainerEmpty.SetActive(true);
 			this.m_troopHeartContainerFull.SetActive(true);
 			Transform[] componentsInChildren = this.m_troopHeartContainerEmpty.GetComponentsInChildren<Transform>(true);
-			Transform[] array = componentsInChildren;
-			for (int i = 0; i < array.Length; i++)
+			for (int i = 0; i < (int)componentsInChildren.Length; i++)
 			{
-				Transform transform = array[i];
-				if (transform != this.m_troopHeartContainerEmpty.get_transform())
+				Transform transforms = componentsInChildren[i];
+				if (transforms != this.m_troopHeartContainerEmpty.transform)
 				{
-					Object.DestroyImmediate(transform.get_gameObject());
+					UnityEngine.Object.DestroyImmediate(transforms.gameObject);
 				}
 			}
-			Transform[] componentsInChildren2 = this.m_troopHeartContainerFull.GetComponentsInChildren<Transform>(true);
-			Transform[] array2 = componentsInChildren2;
-			for (int j = 0; j < array2.Length; j++)
+			Transform[] transformArrays = this.m_troopHeartContainerFull.GetComponentsInChildren<Transform>(true);
+			for (int j = 0; j < (int)transformArrays.Length; j++)
 			{
-				Transform transform2 = array2[j];
-				if (transform2 != this.m_troopHeartContainerFull.get_transform())
+				Transform transforms1 = transformArrays[j];
+				if (transforms1 != this.m_troopHeartContainerFull.transform)
 				{
-					Object.DestroyImmediate(transform2.get_gameObject());
+					UnityEngine.Object.DestroyImmediate(transforms1.gameObject);
 				}
 			}
-			float num = 0.15f;
-			JamGarrisonFollower jamGarrisonFollower = PersistentFollowerData.preMissionFollowerDictionary.get_Item(follower.GarrFollowerID);
-			for (int k = 0; k < jamGarrisonFollower.Durability; k++)
+			float single = 0.15f;
+			JamGarrisonFollower item = PersistentFollowerData.preMissionFollowerDictionary[follower.GarrFollowerID];
+			for (int k = 0; k < item.Durability; k++)
 			{
-				GameObject gameObject = Object.Instantiate<GameObject>(this.m_troopHeartPrefab);
-				gameObject.get_transform().SetParent(this.m_troopHeartContainerFull.get_transform(), false);
+				GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_troopHeartPrefab);
+				gameObject.transform.SetParent(this.m_troopHeartContainerFull.transform, false);
 				if (k >= follower.Durability)
 				{
-					float num2 = initialEntranceDelay + (float)(jamGarrisonFollower.Durability - (k - follower.Durability)) * num;
-					float num3 = 2f;
-					iTween.ValueTo(gameObject, iTween.Hash(new object[]
-					{
-						"name",
-						"fade",
-						"from",
-						0f,
-						"to",
-						1f,
-						"time",
-						num3,
-						"easetype",
-						iTween.EaseType.easeOutCubic,
-						"delay",
-						num2,
-						"onupdatetarget",
-						gameObject,
-						"onupdate",
-						"SetHeartEffectProgress",
-						"oncomplete",
-						"FinishHeartEffect"
-					}));
+					float single1 = initialEntranceDelay + (float)(item.Durability - (k - follower.Durability)) * single;
+					float single2 = 2f;
+					iTween.ValueTo(gameObject, iTween.Hash(new object[] { "name", "fade", "from", 0f, "to", 1f, "time", single2, "easetype", iTween.EaseType.easeOutCubic, "delay", single1, "onupdatetarget", gameObject, "onupdate", "SetHeartEffectProgress", "oncomplete", "FinishHeartEffect" }));
 				}
 			}
 			for (int l = 0; l < record.Vitality; l++)
 			{
-				GameObject gameObject2 = Object.Instantiate<GameObject>(this.m_troopEmptyHeartPrefab);
-				gameObject2.get_transform().SetParent(this.m_troopHeartContainerEmpty.get_transform(), false);
+				GameObject gameObject1 = UnityEngine.Object.Instantiate<GameObject>(this.m_troopEmptyHeartPrefab);
+				gameObject1.transform.SetParent(this.m_troopHeartContainerEmpty.transform, false);
 			}
 			if (follower.Durability <= 0)
 			{
-				DelayedUIAnim delayedUIAnim = base.get_gameObject().AddComponent<DelayedUIAnim>();
-				float num4 = initialEntranceDelay + (float)(jamGarrisonFollower.Durability - follower.Durability) * num + 1f;
-				delayedUIAnim.Init(num4, "RedFailX", "SFX/UI_Mission_Fail_Red_X", this.m_followerPortrait.get_transform(), 1.5f);
-				DelayedObjectEnable delayedObjectEnable = base.get_gameObject().AddComponent<DelayedObjectEnable>();
-				delayedObjectEnable.Init(num4 + 0.25f, this.m_expiredPortraitX);
+				DelayedUIAnim delayedUIAnim = base.gameObject.AddComponent<DelayedUIAnim>();
+				float single3 = initialEntranceDelay + (float)(item.Durability - follower.Durability) * single + 1f;
+				delayedUIAnim.Init(single3, "RedFailX", "SFX/UI_Mission_Fail_Red_X", this.m_followerPortrait.transform, 1.5f, 0.3f);
+				DelayedObjectEnable delayedObjectEnable = base.gameObject.AddComponent<DelayedObjectEnable>();
+				delayedObjectEnable.Init(single3 + 0.25f, this.m_expiredPortraitX);
 			}
 		}
-		int iconFileDataID = (GarrisonStatus.Faction() != PVP_FACTION.HORDE) ? record.AllianceIconFileDataID : record.HordeIconFileDataID;
-		Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.PortraitIcons, iconFileDataID);
+		Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.PortraitIcons, (GarrisonStatus.Faction() != PVP_FACTION.HORDE ? record.AllianceIconFileDataID : record.HordeIconFileDataID));
 		if (sprite != null)
 		{
-			this.m_followerPortrait.set_sprite(sprite);
+			this.m_followerPortrait.sprite = sprite;
 		}
-		if (isTroop)
+		if (!isTroop)
 		{
-			this.m_qualityBorder.get_gameObject().SetActive(false);
-			this.m_levelBorder.get_gameObject().SetActive(false);
-			this.m_followerNameText.set_color(Color.get_white());
-		}
-		else
-		{
+			if (follower.Quality != 6)
+			{
+				this.m_qualityBorder_TitleQuality.gameObject.SetActive(false);
+				this.m_levelBorder_TitleQuality.gameObject.SetActive(false);
+				this.m_qualityBorder.gameObject.SetActive(true);
+				this.m_levelBorder.gameObject.SetActive(true);
+			}
+			else
+			{
+				this.m_qualityBorder_TitleQuality.gameObject.SetActive(true);
+				this.m_levelBorder_TitleQuality.gameObject.SetActive(true);
+				this.m_qualityBorder.gameObject.SetActive(false);
+				this.m_levelBorder.gameObject.SetActive(false);
+			}
 			Color qualityColor = GeneralHelpers.GetQualityColor(follower.Quality);
-			this.m_qualityBorder.set_color(qualityColor);
-			this.m_levelBorder.set_color(qualityColor);
-			this.m_followerNameText.set_color(qualityColor);
-		}
-		CreatureRec record2 = StaticDB.creatureDB.GetRecord((GarrisonStatus.Faction() != PVP_FACTION.HORDE) ? record.AllianceCreatureID : record.HordeCreatureID);
-		this.m_followerNameText.set_text(record2.Name);
-		if (follower.FollowerLevel < 110)
-		{
-			this.m_iLevelText.set_text(StaticDB.GetString("LEVEL", null) + " " + follower.FollowerLevel);
+			this.m_qualityBorder.color = qualityColor;
+			this.m_levelBorder.color = qualityColor;
+			this.m_followerNameText.color = qualityColor;
 		}
 		else
 		{
-			this.m_iLevelText.set_text(StaticDB.GetString("ILVL", null) + " " + (follower.ItemLevelArmor + follower.ItemLevelWeapon) / 2);
+			this.m_qualityBorder_TitleQuality.gameObject.SetActive(false);
+			this.m_levelBorder_TitleQuality.gameObject.SetActive(false);
+			this.m_qualityBorder.gameObject.SetActive(false);
+			this.m_levelBorder.gameObject.SetActive(false);
+			this.m_followerNameText.color = Color.white;
+			this.m_iLevelText.gameObject.SetActive(false);
 		}
-		GarrClassSpecRec record3 = StaticDB.garrClassSpecDB.GetRecord((int)((GarrisonStatus.Faction() != PVP_FACTION.HORDE) ? record.AllianceGarrClassSpecID : record.HordeGarrClassSpecID));
-		this.m_classText.set_text(record3.ClassSpec);
-		Sprite atlasSprite = TextureAtlas.instance.GetAtlasSprite((int)record3.UiTextureAtlasMemberID);
+		CreatureRec creatureRec = StaticDB.creatureDB.GetRecord((GarrisonStatus.Faction() != PVP_FACTION.HORDE ? record.AllianceCreatureID : record.HordeCreatureID));
+		if (follower.Quality == 6 && record.TitleName != null && record.TitleName.Length > 0)
+		{
+			this.m_followerNameText.text = record.TitleName;
+		}
+		else if (record != null)
+		{
+			this.m_followerNameText.text = creatureRec.Name;
+		}
+		if (follower.FollowerLevel >= 110)
+		{
+			Text mILevelText = this.m_iLevelText;
+			string str = StaticDB.GetString("ILVL", null);
+			int itemLevelArmor = (follower.ItemLevelArmor + follower.ItemLevelWeapon) / 2;
+			mILevelText.text = string.Concat(str, " ", itemLevelArmor.ToString());
+		}
+		else
+		{
+			Text text = this.m_iLevelText;
+			string str1 = StaticDB.GetString("LEVEL", null);
+			int followerLevel = follower.FollowerLevel;
+			text.text = GeneralHelpers.TextOrderString(str1, followerLevel.ToString());
+		}
+		GarrClassSpecRec garrClassSpecRec = StaticDB.garrClassSpecDB.GetRecord((GarrisonStatus.Faction() != PVP_FACTION.HORDE ? (int)record.AllianceGarrClassSpecID : (int)record.HordeGarrClassSpecID));
+		this.m_classText.text = garrClassSpecRec.ClassSpec;
+		Sprite atlasSprite = TextureAtlas.instance.GetAtlasSprite((int)garrClassSpecRec.UiTextureAtlasMemberID);
 		if (atlasSprite != null)
 		{
-			this.m_classIcon.set_sprite(atlasSprite);
+			this.m_classIcon.sprite = atlasSprite;
 		}
 		if (!isTroop)
 		{
 			if (isMaxLevelAndMaxQuality)
 			{
 				this.m_progressBarObj.SetActive(false);
-				this.m_toNextLevelOrUpgradeText.set_text(string.Empty);
+				this.m_toNextLevelOrUpgradeText.text = string.Empty;
 			}
-			else if (nextCapIsForQuality)
+			else if (!nextCapIsForQuality)
 			{
 				this.m_progressBarObj.SetActive(true);
-				this.m_toNextLevelOrUpgradeText.set_text(StaticDB.GetString("TO_NEXT_UPGRADE", string.Empty));
+				this.m_toNextLevelOrUpgradeText.text = StaticDB.GetString("TO_NEXT_LEVEL", string.Empty);
 			}
 			else
 			{
 				this.m_progressBarObj.SetActive(true);
-				this.m_toNextLevelOrUpgradeText.set_text(StaticDB.GetString("TO_NEXT_LEVEL", string.Empty));
+				this.m_toNextLevelOrUpgradeText.text = StaticDB.GetString("TO_NEXT_UPGRADE", string.Empty);
 			}
 		}
 	}
 
-	public void SetFollower(JamGarrisonFollower oldFollower, JamGarrisonFollower newFollower, float initialEffectDelay)
+	private void Start()
 	{
-		this.m_followerID = oldFollower.GarrFollowerID;
-		bool flag = (oldFollower.Flags & 8) != 0;
-		if (flag)
-		{
-			JamGarrisonFollower jamGarrisonFollower = newFollower;
-			if (jamGarrisonFollower == null)
-			{
-				jamGarrisonFollower = new JamGarrisonFollower();
-				jamGarrisonFollower.GarrFollowerID = oldFollower.GarrFollowerID;
-				jamGarrisonFollower.Quality = oldFollower.Quality;
-				jamGarrisonFollower.Durability = 0;
-			}
-			this.SetFollowerAppearance(jamGarrisonFollower, false, false, true, initialEffectDelay);
-			return;
-		}
-		this.m_showedLevelUpEffect = false;
-		bool isMaxLevelAndMaxQuality = false;
-		bool nextCapIsForQuality = false;
-		GeneralHelpers.GetXpCapInfo(oldFollower.FollowerLevel, oldFollower.Quality, out this.m_currentCap, out nextCapIsForQuality, out isMaxLevelAndMaxQuality);
-		this.SetFollowerAppearance(oldFollower, nextCapIsForQuality, isMaxLevelAndMaxQuality, false, initialEffectDelay);
-		GeneralHelpers.GetXpCapInfo(newFollower.FollowerLevel, newFollower.Quality, out this.m_newCap, out this.m_newCapIsQuality, out this.m_newFollowerIsMaxLevelAndMaxQuality);
-		this.m_fancyNumberDisplay.SetValue((int)(this.m_currentCap - (uint)oldFollower.Xp), true, 0f);
-		if (oldFollower.FollowerLevel != newFollower.FollowerLevel || oldFollower.Quality != newFollower.Quality)
-		{
-			this.m_fancyNumberDisplay.SetValue(0, initialEffectDelay);
-		}
-		else
-		{
-			this.m_fancyNumberDisplay.SetValue((int)(this.m_currentCap - (uint)newFollower.Xp), initialEffectDelay);
-		}
-	}
-
-	private void SetFillValue(int newXPRemainingUntilNextLevel)
-	{
-		if (newXPRemainingUntilNextLevel == 0 && this.m_currentCap != this.m_newCap)
-		{
-			if (!this.m_showedLevelUpEffect)
-			{
-				Main.instance.m_UISound.Play_ChampionLevelUp();
-				UiAnimMgr.instance.PlayAnim("FlameGlowPulse", this.m_followerPortrait.get_transform(), Vector3.get_zero(), 2f, 0f);
-				UiAnimMgr.instance.PlayAnim("MinimapPulseAnim", this.m_followerPortrait.get_transform(), Vector3.get_zero(), 2f, 0f);
-				this.m_showedLevelUpEffect = true;
-			}
-			JamGarrisonFollower jamGarrisonFollower = PersistentFollowerData.followerDictionary.get_Item(this.m_followerID);
-			this.SetFollowerAppearance(jamGarrisonFollower, this.m_newCapIsQuality, this.m_newFollowerIsMaxLevelAndMaxQuality, false, 0f);
-			this.m_currentCap = this.m_newCap;
-			this.m_fancyNumberDisplay.SetValue((int)this.m_newCap, true, 0f);
-			this.m_fancyNumberDisplay.SetValue((int)(this.m_newCap - (uint)jamGarrisonFollower.Xp), 0f);
-		}
-		this.m_xpAmountText.set_text(string.Concat(new object[]
-		{
-			string.Empty,
-			(long)((ulong)this.m_currentCap - (ulong)((long)newXPRemainingUntilNextLevel)),
-			"\\",
-			this.m_currentCap
-		}));
-		float fillAmount = Mathf.Clamp01((float)((ulong)this.m_currentCap - (ulong)((long)newXPRemainingUntilNextLevel)) / this.m_currentCap);
-		this.m_progressBarFillImage.set_fillAmount(fillAmount);
-	}
-
-	public int GetFollowerID()
-	{
-		return this.m_followerID;
+		this.m_followerNameText.font = GeneralHelpers.LoadStandardFont();
+		this.m_iLevelText.font = GeneralHelpers.LoadStandardFont();
+		this.m_classText.font = GeneralHelpers.LoadStandardFont();
+		this.m_xpAmountText.font = GeneralHelpers.LoadStandardFont();
+		this.m_toNextLevelOrUpgradeText.font = GeneralHelpers.LoadStandardFont();
 	}
 }

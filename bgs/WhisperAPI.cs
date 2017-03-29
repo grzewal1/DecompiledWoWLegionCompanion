@@ -4,7 +4,6 @@ using bnet.protocol.attribute;
 using bnet.protocol.notification;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace bgs
 {
@@ -16,14 +15,29 @@ namespace bgs
 		{
 		}
 
-		public override void InitRPCListeners(RPCConnection rpcConnection)
+		public void ClearWhispers()
 		{
-			base.InitRPCListeners(rpcConnection);
+			this.m_whispers.Clear();
+		}
+
+		public void GetWhisperInfo(ref WhisperInfo info)
+		{
+			info.whisperSize = this.m_whispers.Count;
+		}
+
+		public void GetWhispers([Out] BnetWhisper[] whispers)
+		{
+			this.m_whispers.CopyTo(whispers, 0);
 		}
 
 		public override void Initialize()
 		{
 			base.Initialize();
+		}
+
+		public override void InitRPCListeners(RPCConnection rpcConnection)
+		{
+			base.InitRPCListeners(rpcConnection);
 		}
 
 		public override void OnDisconnected()
@@ -46,17 +60,17 @@ namespace bgs
 			bnetWhisper.SetReceiverId(BnetGameAccountId.CreateFromProtocol(notification.TargetId));
 			for (int i = 0; i < notification.AttributeCount; i++)
 			{
-				Attribute attribute = notification.Attribute.get_Item(i);
-				if (attribute.Name == "whisper")
+				bnet.protocol.attribute.Attribute item = notification.Attribute[i];
+				if (item.Name == "whisper")
 				{
-					bnetWhisper.SetMessage(attribute.Value.StringValue);
+					bnetWhisper.SetMessage(item.Value.StringValue);
 				}
 			}
 			if (string.IsNullOrEmpty(bnetWhisper.GetMessage()))
 			{
 				return;
 			}
-			bnetWhisper.SetTimestampMilliseconds(TimeUtils.GetElapsedTimeSinceEpoch(default(DateTime?)).get_TotalMilliseconds());
+			bnetWhisper.SetTimestampMilliseconds(TimeUtils.GetElapsedTimeSinceEpoch(null).TotalMilliseconds);
 			this.m_whispers.Add(bnetWhisper);
 		}
 
@@ -72,35 +86,20 @@ namespace bgs
 			entityId.SetLow(gameAccount.GetLo());
 			entityId.SetHigh(gameAccount.GetHi());
 			notification.SetTargetId(entityId);
-			Attribute attribute = new Attribute();
+			bnet.protocol.attribute.Attribute attribute = new bnet.protocol.attribute.Attribute();
 			attribute.SetName("whisper");
-			Variant variant = new Variant();
+			bnet.protocol.attribute.Variant variant = new bnet.protocol.attribute.Variant();
 			variant.SetStringValue(message);
 			attribute.SetValue(variant);
 			notification.AddAttribute(attribute);
-			this.m_rpcConnection.QueueRequest(this.m_battleNet.NotificationService.Id, 1u, notification, new RPCContextDelegate(this.WhisperSentCallback), 0u);
-			BnetGameAccountId speakerId = BnetGameAccountId.CreateFromEntityId(BattleNet.GetMyGameAccountId());
+			this.m_rpcConnection.QueueRequest(this.m_battleNet.NotificationService.Id, 1, notification, new RPCContextDelegate(this.WhisperSentCallback), 0);
+			BnetGameAccountId bnetGameAccountId = BnetGameAccountId.CreateFromEntityId(BattleNet.GetMyGameAccountId());
 			BnetWhisper bnetWhisper = new BnetWhisper();
-			bnetWhisper.SetSpeakerId(speakerId);
+			bnetWhisper.SetSpeakerId(bnetGameAccountId);
 			bnetWhisper.SetReceiverId(gameAccount);
 			bnetWhisper.SetMessage(message);
-			bnetWhisper.SetTimestampMilliseconds(TimeUtils.GetElapsedTimeSinceEpoch(default(DateTime?)).get_TotalMilliseconds());
+			bnetWhisper.SetTimestampMilliseconds(TimeUtils.GetElapsedTimeSinceEpoch(null).TotalMilliseconds);
 			this.m_whispers.Add(bnetWhisper);
-		}
-
-		public void GetWhisperInfo(ref WhisperInfo info)
-		{
-			info.whisperSize = this.m_whispers.get_Count();
-		}
-
-		public void GetWhispers([Out] BnetWhisper[] whispers)
-		{
-			this.m_whispers.CopyTo(whispers, 0);
-		}
-
-		public void ClearWhispers()
-		{
-			this.m_whispers.Clear();
 		}
 
 		private void WhisperSentCallback(RPCContext context)
@@ -108,7 +107,7 @@ namespace bgs
 			BattleNetErrors status = (BattleNetErrors)context.Header.Status;
 			if (status != BattleNetErrors.ERROR_OK)
 			{
-				base.ApiLog.LogWarning("Battle.net Whisper API C#: Failed to SendWhisper. " + status);
+				base.ApiLog.LogWarning(string.Concat("Battle.net Whisper API C#: Failed to SendWhisper. ", status));
 				this.m_battleNet.EnqueueErrorInfo(BnetFeature.Whisper, BnetFeatureEvent.Whisper_OnSend, status, context.Context);
 			}
 		}

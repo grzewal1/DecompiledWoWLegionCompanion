@@ -20,6 +20,30 @@ public class ItemStatCache : MonoBehaviour
 		}
 	}
 
+	static ItemStatCache()
+	{
+	}
+
+	public ItemStatCache()
+	{
+	}
+
+	public void AddMobileItemStats(int itemID, int itemContext, MobileItemStats stats)
+	{
+		if (this.m_records[itemID] != null)
+		{
+			this.m_records[itemID] = stats;
+		}
+		else
+		{
+			this.m_records.Add(itemID, stats);
+		}
+		if (this.ItemStatCacheUpdateAction != null)
+		{
+			this.ItemStatCacheUpdateAction(itemID, itemContext, stats);
+		}
+	}
+
 	private void Awake()
 	{
 		this.m_records = new Hashtable();
@@ -29,38 +53,24 @@ public class ItemStatCache : MonoBehaviour
 		}
 	}
 
-	public MobileItemStats GetItemStats(int itemID, int itemContext)
-	{
-		MobileItemStats mobileItemStats = (MobileItemStats)this.m_records.get_Item(itemID);
-		if (mobileItemStats != null)
-		{
-			return mobileItemStats;
-		}
-		MobilePlayerGetItemTooltipInfo mobilePlayerGetItemTooltipInfo = new MobilePlayerGetItemTooltipInfo();
-		mobilePlayerGetItemTooltipInfo.ItemID = itemID;
-		mobilePlayerGetItemTooltipInfo.ItemContext = itemContext;
-		Login.instance.SendToMobileServer(mobilePlayerGetItemTooltipInfo);
-		return null;
-	}
-
-	public void AddMobileItemStats(int itemID, int itemContext, MobileItemStats stats)
-	{
-		if (this.m_records.get_Item(itemID) == null)
-		{
-			this.m_records.Add(itemID, stats);
-		}
-		else
-		{
-			this.m_records.set_Item(itemID, stats);
-		}
-		if (this.ItemStatCacheUpdateAction != null)
-		{
-			this.ItemStatCacheUpdateAction.Invoke(itemID, itemContext, stats);
-		}
-	}
-
 	public void ClearItemStats()
 	{
 		this.m_records.Clear();
+	}
+
+	public MobileItemStats GetItemStats(int itemID, int itemContext)
+	{
+		MobileItemStats item = (MobileItemStats)this.m_records[itemID];
+		if (item != null)
+		{
+			return item;
+		}
+		MobilePlayerGetItemTooltipInfo mobilePlayerGetItemTooltipInfo = new MobilePlayerGetItemTooltipInfo()
+		{
+			ItemID = itemID,
+			ItemContext = itemContext
+		};
+		Login.instance.SendToMobileServer(mobilePlayerGetItemTooltipInfo);
+		return null;
 	}
 }

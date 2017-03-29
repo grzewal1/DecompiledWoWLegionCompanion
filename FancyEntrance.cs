@@ -8,6 +8,10 @@ public class FancyEntrance : MonoBehaviour
 
 	public float m_timeToDelayEntrance;
 
+	public GameObject m_objectToNotifyOnBegin;
+
+	public string m_notifyOnBeginCallbackName;
+
 	[Header("Fade In")]
 	public CanvasGroup m_fadeInCanvasGroup;
 
@@ -37,38 +41,46 @@ public class FancyEntrance : MonoBehaviour
 
 	private bool m_active;
 
-	private void OnEnable()
-	{
-		this.Reset();
-	}
+	private bool m_calledStartCallback;
 
-	public void Reset()
+	public FancyEntrance()
 	{
-		iTween.StopByName(base.get_gameObject(), "FancyAppearancePunch");
-		if (this.m_activateOnEnable)
-		{
-			this.Activate();
-		}
 	}
 
 	public void Activate()
 	{
+		base.gameObject.transform.localScale = Vector3.one;
 		this.m_entranceDelayDuration = this.m_timeToDelayEntrance;
 		this.m_fadeInTimeElapsed = 0f;
-		this.m_fadeInCanvasGroup.set_alpha(0f);
+		this.m_fadeInCanvasGroup.alpha = 0f;
 		this.m_punchedScale = false;
 		this.m_scaledUp = false;
 		this.m_active = true;
 	}
 
+	private void OnEnable()
+	{
+		this.Reset();
+	}
+
 	private void OnPunchScaleComplete()
 	{
-		base.get_gameObject().get_transform().set_localScale(Vector3.get_one());
+		base.gameObject.transform.localScale = Vector3.one;
 	}
 
 	private void OnScaleUpComplete()
 	{
-		base.get_gameObject().get_transform().set_localScale(Vector3.get_one());
+		base.gameObject.transform.localScale = Vector3.one;
+	}
+
+	public void Reset()
+	{
+		iTween.StopByName(base.gameObject, "FancyAppearancePunch");
+		this.m_calledStartCallback = false;
+		if (this.m_activateOnEnable)
+		{
+			this.Activate();
+		}
 	}
 
 	private void Update()
@@ -77,58 +89,40 @@ public class FancyEntrance : MonoBehaviour
 		{
 			return;
 		}
-		if (!this.m_fadeInCanvasGroup.get_interactable())
+		if (!this.m_fadeInCanvasGroup.interactable)
 		{
 			return;
 		}
-		this.m_entranceDelayDuration -= Time.get_deltaTime();
+		FancyEntrance mEntranceDelayDuration = this;
+		mEntranceDelayDuration.m_entranceDelayDuration = mEntranceDelayDuration.m_entranceDelayDuration - Time.deltaTime;
 		if (this.m_entranceDelayDuration > 0f)
 		{
 			return;
 		}
 		this.m_entranceDelayDuration = 0f;
+		if (!this.m_calledStartCallback)
+		{
+			if (this.m_objectToNotifyOnBegin != null && this.m_notifyOnBeginCallbackName != null)
+			{
+				this.m_objectToNotifyOnBegin.BroadcastMessage(this.m_notifyOnBeginCallbackName, SendMessageOptions.DontRequireReceiver);
+			}
+			this.m_calledStartCallback = true;
+		}
 		if (this.m_fadeInTimeElapsed < this.m_fadeInTime)
 		{
-			this.m_fadeInTimeElapsed += Time.get_deltaTime();
-			float alpha = Mathf.Clamp(this.m_fadeInTimeElapsed / this.m_fadeInTime, 0f, 1f);
-			this.m_fadeInCanvasGroup.set_alpha(alpha);
+			FancyEntrance mFadeInTimeElapsed = this;
+			mFadeInTimeElapsed.m_fadeInTimeElapsed = mFadeInTimeElapsed.m_fadeInTimeElapsed + Time.deltaTime;
+			float single = Mathf.Clamp(this.m_fadeInTimeElapsed / this.m_fadeInTime, 0f, 1f);
+			this.m_fadeInCanvasGroup.alpha = single;
 		}
 		if (this.m_punchScale && !this.m_punchedScale)
 		{
-			iTween.PunchScale(base.get_gameObject(), iTween.Hash(new object[]
-			{
-				"name",
-				"FancyAppearancePunch",
-				"x",
-				this.m_punchScaleAmount,
-				"y",
-				this.m_punchScaleAmount,
-				"z",
-				this.m_punchScaleAmount,
-				"time",
-				this.m_punchScaleDuration,
-				"oncomplete",
-				"OnPunchScaleComplete"
-			}));
+			iTween.PunchScale(base.gameObject, iTween.Hash(new object[] { "name", "FancyAppearancePunch", "x", this.m_punchScaleAmount, "y", this.m_punchScaleAmount, "z", this.m_punchScaleAmount, "time", this.m_punchScaleDuration, "oncomplete", "OnPunchScaleComplete" }));
 			this.m_punchedScale = true;
 		}
 		if (this.m_scaleUp && !this.m_scaledUp)
 		{
-			iTween.ScaleFrom(base.get_gameObject(), iTween.Hash(new object[]
-			{
-				"name",
-				"FancyAppearanceScaleUp",
-				"x",
-				this.m_scaleUpFrom,
-				"y",
-				this.m_scaleUpFrom,
-				"z",
-				this.m_scaleUpFrom,
-				"time",
-				this.m_scaleUpDuration,
-				"oncomplete",
-				"OnScaleUpComplete"
-			}));
+			iTween.ScaleFrom(base.gameObject, iTween.Hash(new object[] { "name", "FancyAppearanceScaleUp", "x", this.m_scaleUpFrom, "y", this.m_scaleUpFrom, "z", this.m_scaleUpFrom, "time", this.m_scaleUpDuration, "oncomplete", "OnScaleUpComplete" }));
 			this.m_scaledUp = true;
 		}
 	}

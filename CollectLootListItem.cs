@@ -6,16 +6,20 @@ public class CollectLootListItem : MonoBehaviour
 {
 	public Text completedMissionsText;
 
-	private void Start()
-	{
-	}
-
-	private void Update()
+	public CollectLootListItem()
 	{
 	}
 
 	public void CompleteAllMissions()
 	{
 		Main.instance.CompleteAllMissions();
+	}
+
+	private void Start()
+	{
+	}
+
+	private void Update()
+	{
 	}
 }

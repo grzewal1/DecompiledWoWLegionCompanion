@@ -1,101 +1,120 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamWhoRequest", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamWhoRequest", Version=28333852)]
 	public class JamWhoRequest
 	{
-		[FlexJamMember(ArrayDimensions = 1, Name = "words", Type = FlexJamType.Struct), DataMember(Name = "words")]
-		public JamWhoWord[] Words
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Optional = true, Name = "serverInfo", Type = FlexJamType.Struct), DataMember(Name = "serverInfo")]
-		public JamWhoRequestServerInfo[] ServerInfo
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "minLevel", Type = FlexJamType.Int32), DataMember(Name = "minLevel")]
-		public int MinLevel
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "classFilter", Type = FlexJamType.Int32), DataMember(Name = "classFilter")]
+		[DataMember(Name="classFilter")]
+		[FlexJamMember(Name="classFilter", Type=FlexJamType.Int32)]
 		public int ClassFilter
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "showEnemies", Type = FlexJamType.Bool), DataMember(Name = "showEnemies")]
-		public bool ShowEnemies
+		[DataMember(Name="exactName")]
+		[FlexJamMember(Name="exactName", Type=FlexJamType.Bool)]
+		public bool ExactName
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "guildVirtualRealmName", Type = FlexJamType.String), DataMember(Name = "guildVirtualRealmName")]
-		public string GuildVirtualRealmName
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "showArenaPlayers", Type = FlexJamType.Bool), DataMember(Name = "showArenaPlayers")]
-		public bool ShowArenaPlayers
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "maxLevel", Type = FlexJamType.Int32), DataMember(Name = "maxLevel")]
-		public int MaxLevel
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "name", Type = FlexJamType.String), DataMember(Name = "name")]
-		public string Name
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "guild", Type = FlexJamType.String), DataMember(Name = "guild")]
+		[DataMember(Name="guild")]
+		[FlexJamMember(Name="guild", Type=FlexJamType.String)]
 		public string Guild
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "raceFilter", Type = FlexJamType.Int32), DataMember(Name = "raceFilter")]
+		[DataMember(Name="guildVirtualRealmName")]
+		[FlexJamMember(Name="guildVirtualRealmName", Type=FlexJamType.String)]
+		public string GuildVirtualRealmName
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="maxLevel")]
+		[FlexJamMember(Name="maxLevel", Type=FlexJamType.Int32)]
+		public int MaxLevel
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="minLevel")]
+		[FlexJamMember(Name="minLevel", Type=FlexJamType.Int32)]
+		public int MinLevel
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="name")]
+		[FlexJamMember(Name="name", Type=FlexJamType.String)]
+		public string Name
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="raceFilter")]
+		[FlexJamMember(Name="raceFilter", Type=FlexJamType.Int32)]
 		public int RaceFilter
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "virtualRealmName", Type = FlexJamType.String), DataMember(Name = "virtualRealmName")]
+		[DataMember(Name="serverInfo")]
+		[FlexJamMember(Optional=true, Name="serverInfo", Type=FlexJamType.Struct)]
+		public JamWhoRequestServerInfo[] ServerInfo
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="showArenaPlayers")]
+		[FlexJamMember(Name="showArenaPlayers", Type=FlexJamType.Bool)]
+		public bool ShowArenaPlayers
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="showEnemies")]
+		[FlexJamMember(Name="showEnemies", Type=FlexJamType.Bool)]
+		public bool ShowEnemies
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="virtualRealmName")]
+		[FlexJamMember(Name="virtualRealmName", Type=FlexJamType.String)]
 		public string VirtualRealmName
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "exactName", Type = FlexJamType.Bool), DataMember(Name = "exactName")]
-		public bool ExactName
+		[DataMember(Name="words")]
+		[FlexJamMember(ArrayDimensions=1, Name="words", Type=FlexJamType.Struct)]
+		public JamWhoWord[] Words
 		{
 			get;
 			set;
+		}
+
+		public JamWhoRequest()
+		{
 		}
 	}
 }

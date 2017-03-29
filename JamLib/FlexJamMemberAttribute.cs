@@ -1,10 +1,23 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace JamLib
 {
 	public class FlexJamMemberAttribute : Attribute
 	{
+		public int ArrayDimensions
+		{
+			get;
+			set;
+		}
+
 		public string Name
+		{
+			get;
+			set;
+		}
+
+		public bool Optional
 		{
 			get;
 			set;
@@ -16,16 +29,8 @@ namespace JamLib
 			set;
 		}
 
-		public int ArrayDimensions
+		public FlexJamMemberAttribute()
 		{
-			get;
-			set;
-		}
-
-		public bool Optional
-		{
-			get;
-			set;
 		}
 	}
 }

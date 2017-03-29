@@ -6,10 +6,10 @@ namespace bgs
 	public enum PartyType
 	{
 		[Description("default")]
-		DEFAULT = 0,
+		DEFAULT,
 		[Description("FriendlyGame")]
-		FRIENDLY_CHALLENGE = 1,
+		FRIENDLY_CHALLENGE,
 		[Description("SpectatorParty")]
-		SPECTATOR_PARTY = 2
+		SPECTATOR_PARTY
 	}
 }

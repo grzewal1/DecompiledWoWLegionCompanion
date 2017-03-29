@@ -10,41 +10,9 @@ public class BLPushManager : MonoBehaviour
 
 	private AndroidJavaObject currentContext;
 
-	[DllImport("__Internal")]
-	private static extern void SetApplicationName(string applicationName);
-
-	[DllImport("__Internal")]
-	private static extern void InitializePushManagerBuilderUnity();
-
-	[DllImport("__Internal")]
-	private static extern void SetRegion(string region);
-
-	[DllImport("__Internal")]
-	private static extern void SetLocale(string locale);
-
-	[DllImport("__Internal")]
-	private static extern void SetAuthRegion(string authRegion);
-
-	[DllImport("__Internal")]
-	private static extern void SetAuthToken(string authToken);
-
-	[DllImport("__Internal")]
-	private static extern void SetAppAccountId(string appAccountId);
-
-	[DllImport("__Internal")]
-	private static extern void SetUnityPushEventHandler();
-
-	[DllImport("__Internal")]
-	private static extern void InitializePushManager();
-
-	[DllImport("__Internal")]
-	private static extern void RegisterForPushNotificationsIOS();
-
-	[DllImport("__Internal")]
-	private static extern void SetShouldRegisterWithBPNS(bool shouldRegisterWithBPNS);
-
-	[DllImport("__Internal")]
-	private static extern void SetIsDebug(bool isDebug);
+	public BLPushManager()
+	{
+	}
 
 	private void Awake()
 	{
@@ -54,18 +22,24 @@ public class BLPushManager : MonoBehaviour
 		}
 		else if (BLPushManager.instance != this)
 		{
-			Object.Destroy(base.get_gameObject());
+			UnityEngine.Object.Destroy(base.gameObject);
 		}
-		Object.DontDestroyOnLoad(base.get_gameObject());
-		base.set_name("BLPushManager");
+		UnityEngine.Object.DontDestroyOnLoad(base.gameObject);
+		base.name = "BLPushManager";
 	}
+
+	[DllImport("__Internal", CharSet=CharSet.None, ExactSpelling=false)]
+	private static extern void InitializePushManager();
+
+	[DllImport("__Internal", CharSet=CharSet.None, ExactSpelling=false)]
+	private static extern void InitializePushManagerBuilderUnity();
 
 	public void InitWithBuilder(BLPushManagerBuilder builder)
 	{
 		BLPushHandler.builder = builder;
-		if (Application.get_platform() != 11)
+		if (Application.platform != RuntimePlatform.Android)
 		{
-			if (Application.get_platform() == 8)
+			if (Application.platform == RuntimePlatform.IPhonePlayer)
 			{
 				BLPushManager.InitializePushManagerBuilderUnity();
 				BLPushManager.SetApplicationName(builder.applicationName);
@@ -82,41 +56,61 @@ public class BLPushManager : MonoBehaviour
 		}
 	}
 
+	public void RegisterForPushNotifications()
+	{
+		if (Application.platform == RuntimePlatform.Android)
+		{
+			this.RegisterForPushNotificationsAndroid();
+		}
+		else if (Application.platform == RuntimePlatform.IPhonePlayer)
+		{
+			BLPushManager.RegisterForPushNotificationsIOS();
+		}
+	}
+
 	public void RegisterForPushNotificationsAndroid()
 	{
 		using (AndroidJavaClass androidJavaClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
 		{
 			this.currentContext = androidJavaClass.GetStatic<AndroidJavaObject>("currentActivity");
 		}
-		using (AndroidJavaClass androidJavaClass2 = new AndroidJavaClass("com.blizzard.pushlibrary.BlizzardPush"))
+		using (AndroidJavaClass androidJavaClass1 = new AndroidJavaClass("com.blizzard.pushlibrary.BlizzardPush"))
 		{
-			if (androidJavaClass2 != null)
+			if (androidJavaClass1 != null)
 			{
-				BLPushManagerBuilder builder = BLPushHandler.builder;
-				androidJavaClass2.CallStatic("initialize", new object[]
-				{
-					this.currentContext,
-					builder.applicationName,
-					builder.senderId,
-					builder.region,
-					builder.locale,
-					builder.authRegion,
-					builder.authToken,
-					builder.appAccountID
-				});
+				BLPushManagerBuilder bLPushManagerBuilder = BLPushHandler.builder;
+				androidJavaClass1.CallStatic("initialize", new object[] { this.currentContext, bLPushManagerBuilder.applicationName, bLPushManagerBuilder.senderId, bLPushManagerBuilder.region, bLPushManagerBuilder.locale, bLPushManagerBuilder.authRegion, bLPushManagerBuilder.authToken, bLPushManagerBuilder.appAccountID });
 			}
 		}
 	}
 
-	public void RegisterForPushNotifications()
-	{
-		if (Application.get_platform() == 11)
-		{
-			this.RegisterForPushNotificationsAndroid();
-		}
-		else if (Application.get_platform() == 8)
-		{
-			BLPushManager.RegisterForPushNotificationsIOS();
-		}
-	}
+	[DllImport("__Internal", CharSet=CharSet.None, ExactSpelling=false)]
+	private static extern void RegisterForPushNotificationsIOS();
+
+	[DllImport("__Internal", CharSet=CharSet.None, ExactSpelling=false)]
+	private static extern void SetAppAccountId(string appAccountId);
+
+	[DllImport("__Internal", CharSet=CharSet.None, ExactSpelling=false)]
+	private static extern void SetApplicationName(string applicationName);
+
+	[DllImport("__Internal", CharSet=CharSet.None, ExactSpelling=false)]
+	private static extern void SetAuthRegion(string authRegion);
+
+	[DllImport("__Internal", CharSet=CharSet.None, ExactSpelling=false)]
+	private static extern void SetAuthToken(string authToken);
+
+	[DllImport("__Internal", CharSet=CharSet.None, ExactSpelling=false)]
+	private static extern void SetIsDebug(bool isDebug);
+
+	[DllImport("__Internal", CharSet=CharSet.None, ExactSpelling=false)]
+	private static extern void SetLocale(string locale);
+
+	[DllImport("__Internal", CharSet=CharSet.None, ExactSpelling=false)]
+	private static extern void SetRegion(string region);
+
+	[DllImport("__Internal", CharSet=CharSet.None, ExactSpelling=false)]
+	private static extern void SetShouldRegisterWithBPNS(bool shouldRegisterWithBPNS);
+
+	[DllImport("__Internal", CharSet=CharSet.None, ExactSpelling=false)]
+	private static extern void SetUnityPushEventHandler();
 }

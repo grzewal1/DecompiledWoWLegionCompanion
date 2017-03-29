@@ -5,34 +5,18 @@ namespace bgs
 {
 	public class Logger
 	{
+		public Logger()
+		{
+		}
+
+		public void ClearLogEvents()
+		{
+			LogAdapter.ClearLogEvents();
+		}
+
 		public LogLevel GetDefaultLevel()
 		{
 			return LogLevel.Debug;
-		}
-
-		public void Print(string format, params object[] args)
-		{
-			LogLevel defaultLevel = this.GetDefaultLevel();
-			this.Print(defaultLevel, format, args);
-		}
-
-		public void Print(LogLevel level, string format, params object[] args)
-		{
-			string message;
-			if (args.Length == 0)
-			{
-				message = format;
-			}
-			else
-			{
-				message = string.Format(format, args);
-			}
-			this.Print(level, message);
-		}
-
-		public void Print(LogLevel level, string message)
-		{
-			LogAdapter.Log(level, message);
 		}
 
 		public List<string> GetLogEvents()
@@ -40,9 +24,21 @@ namespace bgs
 			return LogAdapter.GetLogEvents();
 		}
 
-		public void ClearLogEvents()
+		public void Print(string format, params object[] args)
 		{
-			LogAdapter.ClearLogEvents();
+			this.Print(this.GetDefaultLevel(), format, args);
+		}
+
+		public void Print(LogLevel level, string format, params object[] args)
+		{
+			string str;
+			str = ((int)args.Length != 0 ? string.Format(format, args) : format);
+			this.Print(level, str);
+		}
+
+		public void Print(LogLevel level, string message)
+		{
+			LogAdapter.Log(level, message);
 		}
 	}
 }

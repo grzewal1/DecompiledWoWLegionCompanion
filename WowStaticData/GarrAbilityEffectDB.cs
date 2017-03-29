@@ -8,90 +8,96 @@ namespace WowStaticData
 	{
 		private Hashtable m_records;
 
-		public GarrAbilityEffectRec GetRecord(int id)
+		public GarrAbilityEffectDB()
 		{
-			return (GarrAbilityEffectRec)this.m_records.get_Item(id);
 		}
 
 		public void EnumRecords(Predicate<GarrAbilityEffectRec> callback)
 		{
-			IEnumerator enumerator = this.m_records.get_Values().GetEnumerator();
+			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
 			try
 			{
 				while (enumerator.MoveNext())
 				{
-					GarrAbilityEffectRec garrAbilityEffectRec = (GarrAbilityEffectRec)enumerator.get_Current();
-					if (!callback.Invoke(garrAbilityEffectRec))
+					if (callback((GarrAbilityEffectRec)enumerator.Current))
 					{
-						break;
+						continue;
 					}
+					break;
 				}
 			}
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
+				if (disposable == null)
 				{
-					disposable.Dispose();
 				}
+				disposable.Dispose();
 			}
 		}
 
 		public void EnumRecordsByParentID(int parentID, Predicate<GarrAbilityEffectRec> callback)
 		{
-			IEnumerator enumerator = this.m_records.get_Values().GetEnumerator();
+			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
 			try
 			{
 				while (enumerator.MoveNext())
 				{
-					GarrAbilityEffectRec garrAbilityEffectRec = (GarrAbilityEffectRec)enumerator.get_Current();
-					if ((ulong)garrAbilityEffectRec.GarrAbilityID == (ulong)((long)parentID) && !callback.Invoke(garrAbilityEffectRec))
+					GarrAbilityEffectRec current = (GarrAbilityEffectRec)enumerator.Current;
+					if ((ulong)current.GarrAbilityID != (long)parentID || callback(current))
 					{
-						break;
+						continue;
 					}
+					break;
 				}
 			}
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
+				if (disposable == null)
 				{
-					disposable.Dispose();
 				}
+				disposable.Dispose();
 			}
+		}
+
+		public GarrAbilityEffectRec GetRecord(int id)
+		{
+			return (GarrAbilityEffectRec)this.m_records[id];
 		}
 
 		public bool Load(string path, AssetBundle nonLocalizedBundle, AssetBundle localizedBundle, string locale)
 		{
-			string text = path + "NonLocalized/GarrAbilityEffect.txt";
+			string str = string.Concat(path, "NonLocalized/GarrAbilityEffect.txt");
 			if (this.m_records != null)
 			{
-				Debug.Log("Already loaded static db " + text);
+				Debug.Log(string.Concat("Already loaded static db ", str));
 				return false;
 			}
-			TextAsset textAsset = nonLocalizedBundle.LoadAsset<TextAsset>(text);
+			TextAsset textAsset = nonLocalizedBundle.LoadAsset<TextAsset>(str);
 			if (textAsset == null)
 			{
-				Debug.Log("Unable to load static db " + text);
+				Debug.Log(string.Concat("Unable to load static db ", str));
 				return false;
 			}
-			string text2 = textAsset.ToString();
+			string str1 = textAsset.ToString();
 			this.m_records = new Hashtable();
 			int num = 0;
-			int num2;
+			int num1 = 0;
 			do
 			{
-				num2 = text2.IndexOf('\n', num);
-				if (num2 >= 0)
+				num = str1.IndexOf('\n', num1);
+				if (num < 0)
 				{
-					string valueLine = text2.Substring(num, num2 - num + 1).Trim();
-					GarrAbilityEffectRec garrAbilityEffectRec = new GarrAbilityEffectRec();
-					garrAbilityEffectRec.Deserialize(valueLine);
-					this.m_records.Add(garrAbilityEffectRec.ID, garrAbilityEffectRec);
-					num = num2 + 1;
+					continue;
 				}
+				string str2 = str1.Substring(num1, num - num1 + 1).Trim();
+				GarrAbilityEffectRec garrAbilityEffectRec = new GarrAbilityEffectRec();
+				garrAbilityEffectRec.Deserialize(str2);
+				this.m_records.Add(garrAbilityEffectRec.ID, garrAbilityEffectRec);
+				num1 = num + 1;
 			}
-			while (num2 > 0);
+			while (num > 0);
 			return true;
 		}
 	}

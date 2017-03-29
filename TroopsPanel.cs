@@ -21,87 +21,62 @@ public class TroopsPanel : MonoBehaviour
 
 	public RectTransform m_panelViewRT;
 
+	public TroopsPanel()
+	{
+	}
+
 	private void Awake()
 	{
-		this.m_noRecruitsYetMessage.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_noRecruitsYetMessage.set_text(StaticDB.GetString("NO_RECRUITS_AVAILABLE_YET", "You have no recruits available yet."));
+		this.m_noRecruitsYetMessage.font = GeneralHelpers.LoadStandardFont();
+		this.m_noRecruitsYetMessage.text = StaticDB.GetString("NO_RECRUITS_AVAILABLE_YET", "You have no recruits available yet.");
 		this.InitList();
 	}
 
-	public void OnEnable()
-	{
-		Main expr_05 = Main.instance;
-		expr_05.CreateShipmentResultAction = (Action<int>)Delegate.Combine(expr_05.CreateShipmentResultAction, new Action<int>(this.HandleRecruitResult));
-		Main expr_2B = Main.instance;
-		expr_2B.FollowerDataChangedAction = (Action)Delegate.Combine(expr_2B.FollowerDataChangedAction, new Action(this.HandleFollowerDataChanged));
-		Main expr_51 = Main.instance;
-		expr_51.ShipmentTypesUpdatedAction = (Action)Delegate.Combine(expr_51.ShipmentTypesUpdatedAction, new Action(this.InitList));
-		Main expr_77 = Main.instance;
-		expr_77.ShipmentItemPushedAction = (Action<int, MobileClientShipmentItem>)Delegate.Combine(expr_77.ShipmentItemPushedAction, new Action<int, MobileClientShipmentItem>(this.HandleShipmentItemPushed));
-		Main expr_9D = Main.instance;
-		expr_9D.OrderHallNavButtonSelectedAction = (Action<OrderHallNavButton>)Delegate.Combine(expr_9D.OrderHallNavButtonSelectedAction, new Action<OrderHallNavButton>(this.HandleOrderHallNavButtonSelected));
-		this.InitList();
-	}
-
-	private void OnDisable()
-	{
-		Main expr_05 = Main.instance;
-		expr_05.CreateShipmentResultAction = (Action<int>)Delegate.Remove(expr_05.CreateShipmentResultAction, new Action<int>(this.HandleRecruitResult));
-		Main expr_2B = Main.instance;
-		expr_2B.FollowerDataChangedAction = (Action)Delegate.Remove(expr_2B.FollowerDataChangedAction, new Action(this.HandleFollowerDataChanged));
-		Main expr_51 = Main.instance;
-		expr_51.ShipmentTypesUpdatedAction = (Action)Delegate.Remove(expr_51.ShipmentTypesUpdatedAction, new Action(this.InitList));
-		Main expr_77 = Main.instance;
-		expr_77.ShipmentItemPushedAction = (Action<int, MobileClientShipmentItem>)Delegate.Remove(expr_77.ShipmentItemPushedAction, new Action<int, MobileClientShipmentItem>(this.HandleShipmentItemPushed));
-		Main expr_9D = Main.instance;
-		expr_9D.OrderHallNavButtonSelectedAction = (Action<OrderHallNavButton>)Delegate.Remove(expr_9D.OrderHallNavButtonSelectedAction, new Action<OrderHallNavButton>(this.HandleOrderHallNavButtonSelected));
-	}
-
-	public void HandleOrderHallNavButtonSelected(OrderHallNavButton navButton)
+	private void HandleEnteredWorld()
 	{
 		TroopsListItem[] componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>(true);
-		TroopsListItem[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			TroopsListItem troopsListItem = array[i];
-			troopsListItem.ClearAndHideLootArea();
+			UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
 		}
-	}
-
-	private void Update()
-	{
 	}
 
 	private void HandleFollowerDataChanged()
 	{
 		this.InitList();
 		TroopsListItem[] componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>(true);
-		TroopsListItem[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			TroopsListItem troopsListItem = array[i];
-			troopsListItem.HandleFollowerDataChanged();
+			componentsInChildren[i].HandleFollowerDataChanged();
 		}
 	}
 
-	private void HandleEnteredWorld()
+	public void HandleOrderHallNavButtonSelected(OrderHallNavButton navButton)
 	{
 		TroopsListItem[] componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>(true);
-		TroopsListItem[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			TroopsListItem troopsListItem = array[i];
-			Object.DestroyImmediate(troopsListItem.get_gameObject());
+			TroopsListItem troopsListItem = componentsInChildren[i];
+			troopsListItem.ClearAndHideLootArea();
+			troopsListItem.AddInventoryItems();
+		}
+	}
+
+	private void HandleRecruitResult(int result)
+	{
+		if (result == 0)
+		{
+			MobilePlayerRequestShipments mobilePlayerRequestShipment = new MobilePlayerRequestShipments();
+			Login.instance.SendToMobileServer(mobilePlayerRequestShipment);
 		}
 	}
 
 	private void HandleShipmentItemPushed(int charShipmentID, MobileClientShipmentItem item)
 	{
 		TroopsListItem[] componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>(true);
-		TroopsListItem[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			TroopsListItem troopsListItem = array[i];
+			TroopsListItem troopsListItem = componentsInChildren[i];
 			if (troopsListItem.GetCharShipmentTypeID() == charShipmentID)
 			{
 				troopsListItem.HandleShipmentItemPushed(item);
@@ -112,27 +87,32 @@ public class TroopsPanel : MonoBehaviour
 	private void InitList()
 	{
 		MobileClientShipmentType[] availableShipmentTypes = PersistentShipmentData.GetAvailableShipmentTypes();
-		if (availableShipmentTypes == null || availableShipmentTypes.Length == 0)
+		if (availableShipmentTypes == null || (int)availableShipmentTypes.Length == 0)
 		{
-			this.m_noRecruitsYetMessage.get_gameObject().SetActive(true);
+			this.m_noRecruitsYetMessage.gameObject.SetActive(true);
 		}
 		else
 		{
-			this.m_noRecruitsYetMessage.get_gameObject().SetActive(false);
+			this.m_noRecruitsYetMessage.gameObject.SetActive(false);
 		}
 		TroopsListItem[] componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>(true);
-		TroopsListItem[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
+		TroopsListItem[] troopsListItemArray = componentsInChildren;
+		for (int i = 0; i < (int)troopsListItemArray.Length; i++)
 		{
-			TroopsListItem troopsListItem = array[i];
+			TroopsListItem troopsListItem = troopsListItemArray[i];
 			bool flag = true;
 			if (availableShipmentTypes != null)
 			{
-				MobileClientShipmentType[] array2 = availableShipmentTypes;
-				for (int j = 0; j < array2.Length; j++)
+				MobileClientShipmentType[] mobileClientShipmentTypeArray = availableShipmentTypes;
+				int num = 0;
+				while (num < (int)mobileClientShipmentTypeArray.Length)
 				{
-					MobileClientShipmentType mobileClientShipmentType = array2[j];
-					if (troopsListItem.GetCharShipmentTypeID() == mobileClientShipmentType.CharShipmentID)
+					MobileClientShipmentType mobileClientShipmentType = mobileClientShipmentTypeArray[num];
+					if (troopsListItem.GetCharShipmentTypeID() != mobileClientShipmentType.CharShipmentID)
+					{
+						num++;
+					}
+					else
 					{
 						flag = false;
 						break;
@@ -141,7 +121,7 @@ public class TroopsPanel : MonoBehaviour
 			}
 			if (flag)
 			{
-				Object.DestroyImmediate(troopsListItem.get_gameObject());
+				UnityEngine.Object.DestroyImmediate(troopsListItem.gameObject);
 			}
 		}
 		if (availableShipmentTypes == null)
@@ -149,45 +129,61 @@ public class TroopsPanel : MonoBehaviour
 			return;
 		}
 		componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>(true);
-		for (int k = 0; k < availableShipmentTypes.Length; k++)
+		for (int j = 0; j < (int)availableShipmentTypes.Length; j++)
 		{
-			bool flag2 = false;
-			TroopsListItem[] array3 = componentsInChildren;
-			for (int l = 0; l < array3.Length; l++)
+			bool flag1 = false;
+			TroopsListItem[] troopsListItemArray1 = componentsInChildren;
+			int num1 = 0;
+			while (num1 < (int)troopsListItemArray1.Length)
 			{
-				TroopsListItem troopsListItem2 = array3[l];
-				if (troopsListItem2.GetCharShipmentTypeID() == availableShipmentTypes[k].CharShipmentID)
+				if (troopsListItemArray1[num1].GetCharShipmentTypeID() != availableShipmentTypes[j].CharShipmentID)
 				{
-					flag2 = true;
+					num1++;
+				}
+				else
+				{
+					flag1 = true;
 					break;
 				}
 			}
-			if (!flag2)
+			if (!flag1)
 			{
-				GameObject gameObject = Object.Instantiate<GameObject>(this.m_troopsListItemPrefab);
-				gameObject.get_transform().SetParent(this.m_troopsListContents.get_transform(), false);
+				GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_troopsListItemPrefab);
+				gameObject.transform.SetParent(this.m_troopsListContents.transform, false);
 				TroopsListItem component = gameObject.GetComponent<TroopsListItem>();
-				component.SetCharShipment(availableShipmentTypes[k], false, null);
-				FancyEntrance component2 = component.GetComponent<FancyEntrance>();
-				component2.m_timeToDelayEntrance = this.m_listItemInitialEntranceDelay + this.m_listItemEntranceDelay * (float)k;
-				component2.Activate();
+				component.SetCharShipment(availableShipmentTypes[j], false, null);
+				FancyEntrance mListItemInitialEntranceDelay = component.GetComponent<FancyEntrance>();
+				mListItemInitialEntranceDelay.m_timeToDelayEntrance = this.m_listItemInitialEntranceDelay + this.m_listItemEntranceDelay * (float)j;
+				mListItemInitialEntranceDelay.Activate();
 			}
 		}
-		IEnumerator enumerator = PersistentShipmentData.shipmentDictionary.get_Values().GetEnumerator();
+		IEnumerator enumerator = PersistentShipmentData.shipmentDictionary.Values.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				JamCharacterShipment jamCharacterShipment = (JamCharacterShipment)enumerator.get_Current();
-				if (!PersistentShipmentData.ShipmentTypeForShipmentIsAvailable(jamCharacterShipment.ShipmentRecID))
+				JamCharacterShipment current = (JamCharacterShipment)enumerator.Current;
+				if (!PersistentShipmentData.ShipmentTypeForShipmentIsAvailable(current.ShipmentRecID))
 				{
-					CharShipmentRec record = StaticDB.charShipmentDB.GetRecord(jamCharacterShipment.ShipmentRecID);
-					if (record != null)
+					bool flag2 = true;
+					bool flag3 = false;
+					if (current.ShipmentRecID < 372 || current.ShipmentRecID > 383)
 					{
-						GameObject gameObject2 = Object.Instantiate<GameObject>(this.m_troopsListItemPrefab);
-						gameObject2.get_transform().SetParent(this.m_troopsListContents.get_transform(), false);
-						TroopsListItem component3 = gameObject2.GetComponent<TroopsListItem>();
-						component3.SetCharShipment(null, true, record);
+						flag2 = false;
+					}
+					if (current.ShipmentRecID == 178 || current.ShipmentRecID == 179 || current.ShipmentRecID == 180 || current.ShipmentRecID == 192 || current.ShipmentRecID == 194 || current.ShipmentRecID == 195)
+					{
+						flag3 = true;
+					}
+					if (flag2 || flag3)
+					{
+						CharShipmentRec record = StaticDB.charShipmentDB.GetRecord(current.ShipmentRecID);
+						if (record != null)
+						{
+							GameObject gameObject1 = UnityEngine.Object.Instantiate<GameObject>(this.m_troopsListItemPrefab);
+							gameObject1.transform.SetParent(this.m_troopsListContents.transform, false);
+							gameObject1.GetComponent<TroopsListItem>().SetCharShipment(null, true, record);
+						}
 					}
 				}
 			}
@@ -195,30 +191,42 @@ public class TroopsPanel : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable != null)
+			if (disposable == null)
 			{
-				disposable.Dispose();
 			}
+			disposable.Dispose();
 		}
 	}
 
-	private void HandleRecruitResult(int result)
+	private void OnDisable()
 	{
-		if (result == 0)
-		{
-			MobilePlayerRequestShipments obj = new MobilePlayerRequestShipments();
-			Login.instance.SendToMobileServer(obj);
-		}
+		Main.instance.CreateShipmentResultAction -= new Action<int>(this.HandleRecruitResult);
+		Main.instance.FollowerDataChangedAction -= new Action(this.HandleFollowerDataChanged);
+		Main.instance.ShipmentTypesUpdatedAction -= new Action(this.InitList);
+		Main.instance.ShipmentItemPushedAction -= new Action<int, MobileClientShipmentItem>(this.HandleShipmentItemPushed);
+		Main.instance.OrderHallNavButtonSelectedAction -= new Action<OrderHallNavButton>(this.HandleOrderHallNavButtonSelected);
+	}
+
+	public void OnEnable()
+	{
+		Main.instance.CreateShipmentResultAction += new Action<int>(this.HandleRecruitResult);
+		Main.instance.FollowerDataChangedAction += new Action(this.HandleFollowerDataChanged);
+		Main.instance.ShipmentTypesUpdatedAction += new Action(this.InitList);
+		Main.instance.ShipmentItemPushedAction += new Action<int, MobileClientShipmentItem>(this.HandleShipmentItemPushed);
+		Main.instance.OrderHallNavButtonSelectedAction += new Action<OrderHallNavButton>(this.HandleOrderHallNavButtonSelected);
+		this.InitList();
 	}
 
 	public void PurgeList()
 	{
 		TroopsListItem[] componentsInChildren = this.m_troopsListContents.GetComponentsInChildren<TroopsListItem>(true);
-		TroopsListItem[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			TroopsListItem troopsListItem = array[i];
-			Object.DestroyImmediate(troopsListItem.get_gameObject());
+			UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
 		}
+	}
+
+	private void Update()
+	{
 	}
 }

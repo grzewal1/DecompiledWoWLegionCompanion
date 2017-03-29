@@ -1,24 +1,32 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamAuctionListFilterClass", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamAuctionListFilterClass", Version=28333852)]
 	public class JamAuctionListFilterClass
 	{
-		[FlexJamMember(Name = "itemClass", Type = FlexJamType.Int32), DataMember(Name = "itemClass")]
+		[DataMember(Name="itemClass")]
+		[FlexJamMember(Name="itemClass", Type=FlexJamType.Int32)]
 		public int ItemClass
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(ArrayDimensions = 1, Name = "subClasses", Type = FlexJamType.Struct), DataMember(Name = "subClasses")]
+		[DataMember(Name="subClasses")]
+		[FlexJamMember(ArrayDimensions=1, Name="subClasses", Type=FlexJamType.Struct)]
 		public JamAuctionListFilterSubClass[] SubClasses
 		{
 			get;
 			set;
+		}
+
+		public JamAuctionListFilterClass()
+		{
 		}
 	}
 }

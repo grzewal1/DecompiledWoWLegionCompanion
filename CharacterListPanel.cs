@@ -10,12 +10,16 @@ public class CharacterListPanel : MonoBehaviour
 
 	public CharacterListView m_characterListView;
 
+	public CharacterListPanel()
+	{
+	}
+
 	private void Start()
 	{
-		this.m_titleText.set_font(GeneralHelpers.LoadFancyFont());
-		this.m_titleText.set_text(StaticDB.GetString("CHARACTER_SELECTION", null));
-		this.m_cancelText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_cancelText.set_text(StaticDB.GetString("LOG_OUT", null));
+		this.m_titleText.font = GeneralHelpers.LoadFancyFont();
+		this.m_titleText.text = StaticDB.GetString("CHARACTER_SELECTION", null);
+		this.m_cancelText.font = GeneralHelpers.LoadStandardFont();
+		this.m_cancelText.text = StaticDB.GetString("LOG_OUT", null);
 	}
 
 	private void Update()

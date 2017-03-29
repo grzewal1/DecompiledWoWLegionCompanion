@@ -5,29 +5,12 @@ using bnet.protocol.friends;
 using bnet.protocol.invitation;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace bgs
 {
 	public class FriendsAPI : BattleNetAPI
 	{
-		public enum InviteAction
-		{
-			INVITE_ACCEPT = 1,
-			INVITE_REVOKE = 2,
-			INVITE_DECLINE = 3,
-			INVITE_IGNORE = 4
-		}
-
-		private enum FriendsAPIState
-		{
-			NOT_SET = 0,
-			INITIALIZING = 1,
-			INITIALIZED = 2,
-			FAILED_TO_INITIALIZE = 3
-		}
-
-		private ServiceDescriptor m_friendsService = new FriendsService();
+		private ServiceDescriptor m_friendsService = new bgs.RPCServices.FriendsService();
 
 		private ServiceDescriptor m_friendsNotifyService = new FriendsNotify();
 
@@ -49,14 +32,6 @@ namespace bgs
 
 		private Map<BnetEntityId, Map<ulong, bnet.protocol.EntityId>> m_friendEntityId = new Map<BnetEntityId, Map<ulong, bnet.protocol.EntityId>>();
 
-		public ServiceDescriptor FriendsService
-		{
-			get
-			{
-				return this.m_friendsService;
-			}
-		}
-
 		public ServiceDescriptor FriendsNotifyService
 		{
 			get
@@ -65,11 +40,11 @@ namespace bgs
 			}
 		}
 
-		public bool IsInitialized
+		public ServiceDescriptor FriendsService
 		{
 			get
 			{
-				return this.m_state == FriendsAPI.FriendsAPIState.INITIALIZED || this.m_state == FriendsAPI.FriendsAPIState.FAILED_TO_INITIALIZE;
+				return this.m_friendsService;
 			}
 		}
 
@@ -85,17 +60,221 @@ namespace bgs
 			}
 		}
 
+		public bool IsInitialized
+		{
+			get
+			{
+				if (this.m_state == FriendsAPI.FriendsAPIState.INITIALIZED)
+				{
+					return true;
+				}
+				if (this.m_state == FriendsAPI.FriendsAPIState.FAILED_TO_INITIALIZE)
+				{
+					return true;
+				}
+				return false;
+			}
+		}
+
 		public FriendsAPI(BattleNetCSharp battlenet) : base(battlenet, "Friends")
 		{
 		}
 
-		public override void InitRPCListeners(RPCConnection rpcConnection)
+		private void AcceptInvitation(ulong inviteId)
 		{
-			base.InitRPCListeners(rpcConnection);
-			rpcConnection.RegisterServiceMethodListener(this.m_friendsNotifyService.Id, 1u, new RPCContextDelegate(this.NotifyFriendAddedListenerCallback));
-			rpcConnection.RegisterServiceMethodListener(this.m_friendsNotifyService.Id, 2u, new RPCContextDelegate(this.NotifyFriendRemovedListenerCallback));
-			rpcConnection.RegisterServiceMethodListener(this.m_friendsNotifyService.Id, 3u, new RPCContextDelegate(this.NotifyReceivedInvitationAddedCallback));
-			rpcConnection.RegisterServiceMethodListener(this.m_friendsNotifyService.Id, 4u, new RPCContextDelegate(this.NotifyReceivedInvitationRemovedCallback));
+			GenericRequest genericRequest = new GenericRequest();
+			genericRequest.SetInvitationId(inviteId);
+			GenericRequest genericRequest1 = genericRequest;
+			if (!genericRequest1.IsInitialized)
+			{
+				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to AcceptInvitation.");
+				this.m_battleNet.EnqueueErrorInfo(BnetFeature.Friends, BnetFeatureEvent.Friends_OnAcceptInvitation, BattleNetErrors.ERROR_API_NOT_READY, 0);
+				return;
+			}
+			this.m_rpcConnection.QueueRequest(this.m_friendsService.Id, 3, genericRequest1, new RPCContextDelegate(this.AcceptInvitationCallback), 0);
+		}
+
+		private void AcceptInvitationCallback(RPCContext context)
+		{
+			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZED)
+			{
+				return;
+			}
+			BattleNetErrors status = (BattleNetErrors)context.Header.Status;
+			if (status != BattleNetErrors.ERROR_OK)
+			{
+				base.ApiLog.LogWarning(string.Concat("Battle.net Friends API C#: Failed to AcceptInvitation. ", status));
+				this.m_battleNet.EnqueueErrorInfo(BnetFeature.Friends, BnetFeatureEvent.Friends_OnAcceptInvitation, status, 0);
+			}
+		}
+
+		private void AddFriendInternal(BnetEntityId entityId)
+		{
+			if (entityId == null)
+			{
+				return;
+			}
+			FriendsUpdate friendsUpdate = new FriendsUpdate()
+			{
+				action = 1,
+				entity1 = entityId
+			};
+			this.m_updateList.Add(friendsUpdate);
+			this.m_battleNet.Presence.PresenceSubscribe(BnetEntityId.CreateForProtocol(entityId));
+			this.m_friendEntityId.Add(entityId, new Map<ulong, bnet.protocol.EntityId>());
+			this.m_friendsCount = (uint)this.m_friendEntityId.Count;
+		}
+
+		public bool AddFriendsActiveGameAccount(BnetEntityId entityId, bnet.protocol.EntityId gameAccount, ulong index)
+		{
+			if (!this.IsFriend(entityId))
+			{
+				return false;
+			}
+			if (!this.m_friendEntityId[entityId].ContainsKey(index))
+			{
+				this.m_friendEntityId[entityId].Add(index, gameAccount);
+				this.m_battleNet.Presence.PresenceSubscribe(gameAccount);
+			}
+			return true;
+		}
+
+		private void AddInvitationInternal(FriendsUpdate.Action action, Invitation invitation, int reason)
+		{
+			if (invitation == null)
+			{
+				return;
+			}
+			FriendsUpdate inviterName = new FriendsUpdate()
+			{
+				action = (int)action,
+				long1 = invitation.Id,
+				entity1 = this.GetBnetEntityIdFromIdentity(invitation.InviterIdentity)
+			};
+			if (invitation.HasInviterName)
+			{
+				inviterName.string1 = invitation.InviterName;
+			}
+			inviterName.entity2 = this.GetBnetEntityIdFromIdentity(invitation.InviteeIdentity);
+			if (invitation.HasInviteeName)
+			{
+				inviterName.string2 = invitation.InviteeName;
+			}
+			if (invitation.HasInvitationMessage)
+			{
+				inviterName.string3 = invitation.InvitationMessage;
+			}
+			inviterName.bool1 = false;
+			if (invitation.HasCreationTime)
+			{
+				inviterName.long2 = invitation.CreationTime;
+			}
+			if (invitation.HasExpirationTime)
+			{
+				inviterName.long3 = invitation.ExpirationTime;
+			}
+			this.m_updateList.Add(inviterName);
+		}
+
+		public void ClearFriendsUpdates()
+		{
+			this.m_updateList.Clear();
+		}
+
+		private void DeclineInvitation(ulong inviteId)
+		{
+			GenericRequest genericRequest = new GenericRequest();
+			genericRequest.SetInvitationId(inviteId);
+			GenericRequest genericRequest1 = genericRequest;
+			if (!genericRequest1.IsInitialized)
+			{
+				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to DeclineInvitation.");
+				this.m_battleNet.EnqueueErrorInfo(BnetFeature.Friends, BnetFeatureEvent.Friends_OnDeclineInvitation, BattleNetErrors.ERROR_API_NOT_READY, 0);
+				return;
+			}
+			this.m_rpcConnection.QueueRequest(this.m_friendsService.Id, 5, genericRequest1, new RPCContextDelegate(this.DeclineInvitationCallback), 0);
+		}
+
+		private void DeclineInvitationCallback(RPCContext context)
+		{
+			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZED)
+			{
+				return;
+			}
+			BattleNetErrors status = (BattleNetErrors)context.Header.Status;
+			if (status != BattleNetErrors.ERROR_OK)
+			{
+				base.ApiLog.LogWarning(string.Concat("Battle.net Friends API C#: Failed to DeclineInvitation. ", status));
+				this.m_battleNet.EnqueueErrorInfo(BnetFeature.Friends, BnetFeatureEvent.Friends_OnDeclineInvitation, status, 0);
+			}
+		}
+
+		private BnetEntityId ExtractEntityIdFromFriendNotification(byte[] payload)
+		{
+			FriendNotification friendNotification = FriendNotification.ParseFrom(payload);
+			if (!friendNotification.IsInitialized)
+			{
+				return null;
+			}
+			return BnetEntityId.CreateFromProtocol(friendNotification.Target.Id);
+		}
+
+		private Invitation ExtractInvitationFromInvitationNotification(byte[] payload)
+		{
+			InvitationNotification invitationNotification = InvitationNotification.ParseFrom(payload);
+			if (!invitationNotification.IsInitialized)
+			{
+				return null;
+			}
+			return invitationNotification.Invitation;
+		}
+
+		private BnetEntityId GetBnetEntityIdFromIdentity(Identity identity)
+		{
+			BnetEntityId bnetEntityId = new BnetEntityId();
+			if (identity.HasAccountId)
+			{
+				bnetEntityId.SetLo(identity.AccountId.Low);
+				bnetEntityId.SetHi(identity.AccountId.High);
+			}
+			else if (!identity.HasGameAccountId)
+			{
+				bnetEntityId.SetLo((ulong)0);
+				bnetEntityId.SetHi((ulong)0);
+			}
+			else
+			{
+				bnetEntityId.SetLo(identity.GameAccountId.Low);
+				bnetEntityId.SetHi(identity.GameAccountId.High);
+			}
+			return bnetEntityId;
+		}
+
+		public bool GetFriendsActiveGameAccounts(BnetEntityId entityId, [Out] Map<ulong, bnet.protocol.EntityId> gameAccounts)
+		{
+			if (this.m_friendEntityId.TryGetValue(entityId, out gameAccounts))
+			{
+				return true;
+			}
+			return false;
+		}
+
+		public void GetFriendsInfo(ref FriendsInfo info)
+		{
+			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZED)
+			{
+				return;
+			}
+			info.maxFriends = (int)this.m_maxFriends;
+			info.maxRecvInvites = (int)this.m_maxReceivedInvitations;
+			info.maxSentInvites = (int)this.m_maxSentInvitations;
+			info.friendsSize = (int)this.m_friendsCount;
+			info.updateSize = this.m_updateList.Count;
+		}
+
+		public void GetFriendsUpdates([Out] FriendsUpdate[] updates)
+		{
+			this.m_updateList.CopyTo(updates, 0);
 		}
 
 		public override void Initialize()
@@ -109,110 +288,18 @@ namespace bgs
 			this.Subscribe();
 		}
 
-		public override void OnDisconnected()
+		public override void InitRPCListeners(RPCConnection rpcConnection)
 		{
-			base.OnDisconnected();
-		}
-
-		public override void Process()
-		{
-			base.Process();
-			if (this.m_state == FriendsAPI.FriendsAPIState.INITIALIZING && BattleNet.GetRealTimeSinceStartup() - this.m_subscribeStartTime >= (double)this.InitializeTimeOut)
-			{
-				this.m_state = FriendsAPI.FriendsAPIState.FAILED_TO_INITIALIZE;
-				base.ApiLog.LogWarning("Battle.net Friends API C#: Initialize timed out.");
-			}
+			base.InitRPCListeners(rpcConnection);
+			rpcConnection.RegisterServiceMethodListener(this.m_friendsNotifyService.Id, 1, new RPCContextDelegate(this.NotifyFriendAddedListenerCallback));
+			rpcConnection.RegisterServiceMethodListener(this.m_friendsNotifyService.Id, 2, new RPCContextDelegate(this.NotifyFriendRemovedListenerCallback));
+			rpcConnection.RegisterServiceMethodListener(this.m_friendsNotifyService.Id, 3, new RPCContextDelegate(this.NotifyReceivedInvitationAddedCallback));
+			rpcConnection.RegisterServiceMethodListener(this.m_friendsNotifyService.Id, 4, new RPCContextDelegate(this.NotifyReceivedInvitationRemovedCallback));
 		}
 
 		public bool IsFriend(BnetEntityId entityId)
 		{
 			return this.m_friendEntityId.ContainsKey(entityId);
-		}
-
-		public bool GetFriendsActiveGameAccounts(BnetEntityId entityId, [Out] Map<ulong, bnet.protocol.EntityId> gameAccounts)
-		{
-			return this.m_friendEntityId.TryGetValue(entityId, out gameAccounts);
-		}
-
-		public bool AddFriendsActiveGameAccount(BnetEntityId entityId, bnet.protocol.EntityId gameAccount, ulong index)
-		{
-			if (this.IsFriend(entityId))
-			{
-				if (!this.m_friendEntityId[entityId].ContainsKey(index))
-				{
-					this.m_friendEntityId[entityId].Add(index, gameAccount);
-					this.m_battleNet.Presence.PresenceSubscribe(gameAccount);
-				}
-				return true;
-			}
-			return false;
-		}
-
-		public void RemoveFriendsActiveGameAccount(BnetEntityId entityId, ulong index)
-		{
-			bnet.protocol.EntityId entityId2;
-			if (this.IsFriend(entityId) && this.m_friendEntityId[entityId].TryGetValue(index, out entityId2))
-			{
-				this.m_battleNet.Presence.PresenceUnsubscribe(entityId2);
-				this.m_friendEntityId[entityId].Remove(index);
-			}
-		}
-
-		public void GetFriendsInfo(ref FriendsInfo info)
-		{
-			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZED)
-			{
-				return;
-			}
-			info.maxFriends = (int)this.m_maxFriends;
-			info.maxRecvInvites = (int)this.m_maxReceivedInvitations;
-			info.maxSentInvites = (int)this.m_maxSentInvitations;
-			info.friendsSize = (int)this.m_friendsCount;
-			info.updateSize = this.m_updateList.get_Count();
-		}
-
-		public void ClearFriendsUpdates()
-		{
-			this.m_updateList.Clear();
-		}
-
-		public void GetFriendsUpdates([Out] FriendsUpdate[] updates)
-		{
-			this.m_updateList.CopyTo(updates, 0);
-		}
-
-		public void SendFriendInvite(string sender, string target, bool byEmail)
-		{
-			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZED)
-			{
-				return;
-			}
-			SendInvitationRequest sendInvitationRequest = new SendInvitationRequest();
-			bnet.protocol.EntityId entityId = new bnet.protocol.EntityId();
-			entityId.SetLow(0uL);
-			entityId.SetHigh(0uL);
-			sendInvitationRequest.SetTargetId(entityId);
-			InvitationParams invitationParams = new InvitationParams();
-			FriendInvitationParams friendInvitationParams = new FriendInvitationParams();
-			if (byEmail)
-			{
-				friendInvitationParams.SetTargetEmail(target);
-				friendInvitationParams.AddRole(2u);
-			}
-			else
-			{
-				friendInvitationParams.SetTargetBattleTag(target);
-				friendInvitationParams.AddRole(1u);
-			}
-			invitationParams.SetFriendParams(friendInvitationParams);
-			sendInvitationRequest.SetParams(invitationParams);
-			SendInvitationRequest sendInvitationRequest2 = sendInvitationRequest;
-			if (!sendInvitationRequest2.IsInitialized)
-			{
-				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to SendFriendInvite.");
-				return;
-			}
-			this.m_rpcConnection.QueueRequest(this.m_friendsService.Id, 2u, sendInvitationRequest2, new RPCContextDelegate(this.SendInvitationCallback), 0u);
 		}
 
 		public void ManageFriendInvite(int action, ulong inviteId)
@@ -223,150 +310,24 @@ namespace bgs
 			}
 			switch (action)
 			{
-			case 1:
-				this.AcceptInvitation(inviteId);
-				break;
-			case 3:
-				this.DeclineInvitation(inviteId);
-				break;
-			}
-		}
-
-		public void RemoveFriend(BnetAccountId account)
-		{
-			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZED)
-			{
-				return;
-			}
-			bnet.protocol.EntityId entityId = new bnet.protocol.EntityId();
-			entityId.SetLow(account.GetLo());
-			entityId.SetHigh(account.GetHi());
-			GenericFriendRequest genericFriendRequest = new GenericFriendRequest();
-			genericFriendRequest.SetTargetId(entityId);
-			GenericFriendRequest genericFriendRequest2 = genericFriendRequest;
-			if (!genericFriendRequest2.IsInitialized)
-			{
-				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to RemoveFriend.");
-				this.m_battleNet.EnqueueErrorInfo(BnetFeature.Friends, BnetFeatureEvent.Friends_OnRemoveFriend, BattleNetErrors.ERROR_API_NOT_READY, 0);
-				return;
-			}
-			this.m_rpcConnection.QueueRequest(this.m_friendsService.Id, 8u, genericFriendRequest2, new RPCContextDelegate(this.RemoveFriendCallback), 0u);
-		}
-
-		private void Subscribe()
-		{
-			SubscribeToFriendsRequest subscribeToFriendsRequest = new SubscribeToFriendsRequest();
-			subscribeToFriendsRequest.SetObjectId(0uL);
-			SubscribeToFriendsRequest subscribeToFriendsRequest2 = subscribeToFriendsRequest;
-			if (!subscribeToFriendsRequest2.IsInitialized)
-			{
-				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to Subscribe.");
-				return;
-			}
-			this.m_rpcConnection.QueueRequest(this.m_friendsService.Id, 1u, subscribeToFriendsRequest2, new RPCContextDelegate(this.SubscribeToFriendsCallback), 0u);
-		}
-
-		private void AcceptInvitation(ulong inviteId)
-		{
-			GenericRequest genericRequest = new GenericRequest();
-			genericRequest.SetInvitationId(inviteId);
-			GenericRequest genericRequest2 = genericRequest;
-			if (!genericRequest2.IsInitialized)
-			{
-				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to AcceptInvitation.");
-				this.m_battleNet.EnqueueErrorInfo(BnetFeature.Friends, BnetFeatureEvent.Friends_OnAcceptInvitation, BattleNetErrors.ERROR_API_NOT_READY, 0);
-				return;
-			}
-			this.m_rpcConnection.QueueRequest(this.m_friendsService.Id, 3u, genericRequest2, new RPCContextDelegate(this.AcceptInvitationCallback), 0u);
-		}
-
-		private void DeclineInvitation(ulong inviteId)
-		{
-			GenericRequest genericRequest = new GenericRequest();
-			genericRequest.SetInvitationId(inviteId);
-			GenericRequest genericRequest2 = genericRequest;
-			if (!genericRequest2.IsInitialized)
-			{
-				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to DeclineInvitation.");
-				this.m_battleNet.EnqueueErrorInfo(BnetFeature.Friends, BnetFeatureEvent.Friends_OnDeclineInvitation, BattleNetErrors.ERROR_API_NOT_READY, 0);
-				return;
-			}
-			this.m_rpcConnection.QueueRequest(this.m_friendsService.Id, 5u, genericRequest2, new RPCContextDelegate(this.DeclineInvitationCallback), 0u);
-		}
-
-		private void SubscribeToFriendsCallback(RPCContext context)
-		{
-			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZING)
-			{
-				return;
-			}
-			if (context.Header.Status == 0u)
-			{
-				this.m_state = FriendsAPI.FriendsAPIState.INITIALIZED;
-				base.ApiLog.LogDebug("Battle.net Friends API C#: Initialized.");
-				SubscribeToFriendsResponse response = SubscribeToFriendsResponse.ParseFrom(context.Payload);
-				this.ProcessSubscribeToFriendsResponse(response);
-			}
-			else
-			{
-				this.m_state = FriendsAPI.FriendsAPIState.FAILED_TO_INITIALIZE;
-				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to initialize.");
-			}
-		}
-
-		private void SendInvitationCallback(RPCContext context)
-		{
-			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZED)
-			{
-				return;
-			}
-			BattleNetErrors status = (BattleNetErrors)context.Header.Status;
-			if (status != BattleNetErrors.ERROR_OK)
-			{
-				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to SendInvitation. " + status);
-			}
-			this.m_battleNet.EnqueueErrorInfo(BnetFeature.Friends, BnetFeatureEvent.Friends_OnSendInvitation, status, 0);
-		}
-
-		private void AcceptInvitationCallback(RPCContext context)
-		{
-			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZED)
-			{
-				return;
-			}
-			BattleNetErrors status = (BattleNetErrors)context.Header.Status;
-			if (status != BattleNetErrors.ERROR_OK)
-			{
-				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to AcceptInvitation. " + status);
-				this.m_battleNet.EnqueueErrorInfo(BnetFeature.Friends, BnetFeatureEvent.Friends_OnAcceptInvitation, status, 0);
-			}
-		}
-
-		private void DeclineInvitationCallback(RPCContext context)
-		{
-			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZED)
-			{
-				return;
-			}
-			BattleNetErrors status = (BattleNetErrors)context.Header.Status;
-			if (status != BattleNetErrors.ERROR_OK)
-			{
-				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to DeclineInvitation. " + status);
-				this.m_battleNet.EnqueueErrorInfo(BnetFeature.Friends, BnetFeatureEvent.Friends_OnDeclineInvitation, status, 0);
-			}
-		}
-
-		private void RemoveFriendCallback(RPCContext context)
-		{
-			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZED)
-			{
-				return;
-			}
-			BattleNetErrors status = (BattleNetErrors)context.Header.Status;
-			if (status != BattleNetErrors.ERROR_OK)
-			{
-				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to RemoveFriend. " + status);
-				this.m_battleNet.EnqueueErrorInfo(BnetFeature.Friends, BnetFeatureEvent.Friends_OnRemoveFriend, status, 0);
+				case 1:
+				{
+					this.AcceptInvitation(inviteId);
+					break;
+				}
+				case 2:
+				{
+					break;
+				}
+				case 3:
+				{
+					this.DeclineInvitation(inviteId);
+					break;
+				}
+				default:
+				{
+					goto case 2;
+				}
 			}
 		}
 
@@ -376,8 +337,7 @@ namespace bgs
 			{
 				return;
 			}
-			BnetEntityId entityId = this.ExtractEntityIdFromFriendNotification(context.Payload);
-			this.AddFriendInternal(entityId);
+			this.AddFriendInternal(this.ExtractEntityIdFromFriendNotification(context.Payload));
 		}
 
 		private void NotifyFriendRemovedListenerCallback(RPCContext context)
@@ -386,8 +346,7 @@ namespace bgs
 			{
 				return;
 			}
-			BnetEntityId entityId = this.ExtractEntityIdFromFriendNotification(context.Payload);
-			this.RemoveFriendInternal(entityId);
+			this.RemoveFriendInternal(this.ExtractEntityIdFromFriendNotification(context.Payload));
 		}
 
 		private void NotifyReceivedInvitationAddedCallback(RPCContext context)
@@ -410,6 +369,21 @@ namespace bgs
 			this.AddInvitationInternal(FriendsUpdate.Action.FRIEND_INVITE_REMOVED, invitation, 0);
 		}
 
+		public override void OnDisconnected()
+		{
+			base.OnDisconnected();
+		}
+
+		public override void Process()
+		{
+			base.Process();
+			if (this.m_state == FriendsAPI.FriendsAPIState.INITIALIZING && BattleNet.GetRealTimeSinceStartup() - this.m_subscribeStartTime >= (double)this.InitializeTimeOut)
+			{
+				this.m_state = FriendsAPI.FriendsAPIState.FAILED_TO_INITIALIZE;
+				base.ApiLog.LogWarning("Battle.net Friends API C#: Initialize timed out.");
+			}
+		}
+
 		private void ProcessSubscribeToFriendsResponse(SubscribeToFriendsResponse response)
 		{
 			if (response.HasMaxFriends)
@@ -426,49 +400,55 @@ namespace bgs
 			}
 			for (int i = 0; i < response.FriendsCount; i++)
 			{
-				Friend friend = response.Friends.get_Item(i);
+				Friend item = response.Friends[i];
 				BnetEntityId bnetEntityId = new BnetEntityId();
-				bnetEntityId.SetLo(friend.Id.Low);
-				bnetEntityId.SetHi(friend.Id.High);
+				bnetEntityId.SetLo(item.Id.Low);
+				bnetEntityId.SetHi(item.Id.High);
 				this.AddFriendInternal(bnetEntityId);
 			}
 			for (int j = 0; j < response.ReceivedInvitationsCount; j++)
 			{
-				Invitation invitation = response.ReceivedInvitations.get_Item(j);
-				this.AddInvitationInternal(FriendsUpdate.Action.FRIEND_INVITE, invitation, 0);
+				this.AddInvitationInternal(FriendsUpdate.Action.FRIEND_INVITE, response.ReceivedInvitations[j], 0);
 			}
 			for (int k = 0; k < response.SentInvitationsCount; k++)
 			{
-				Invitation invitation2 = response.SentInvitations.get_Item(k);
-				this.AddInvitationInternal(FriendsUpdate.Action.FRIEND_SENT_INVITE, invitation2, 0);
+				this.AddInvitationInternal(FriendsUpdate.Action.FRIEND_SENT_INVITE, response.SentInvitations[k], 0);
 			}
 		}
 
-		private void StartInitialize()
+		public void RemoveFriend(BnetAccountId account)
 		{
-			this.m_subscribeStartTime = BattleNet.GetRealTimeSinceStartup();
-			this.m_state = FriendsAPI.FriendsAPIState.INITIALIZING;
-			this.m_maxFriends = 0u;
-			this.m_maxReceivedInvitations = 0u;
-			this.m_maxSentInvitations = 0u;
-			this.m_friendsCount = 0u;
-			this.m_updateList = new List<FriendsUpdate>();
-			this.m_friendEntityId = new Map<BnetEntityId, Map<ulong, bnet.protocol.EntityId>>();
-		}
-
-		private void AddFriendInternal(BnetEntityId entityId)
-		{
-			if (entityId == null)
+			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZED)
 			{
 				return;
 			}
-			FriendsUpdate friendsUpdate = default(FriendsUpdate);
-			friendsUpdate.action = 1;
-			friendsUpdate.entity1 = entityId;
-			this.m_updateList.Add(friendsUpdate);
-			this.m_battleNet.Presence.PresenceSubscribe(BnetEntityId.CreateForProtocol(entityId));
-			this.m_friendEntityId.Add(entityId, new Map<ulong, bnet.protocol.EntityId>());
-			this.m_friendsCount = (uint)this.m_friendEntityId.Count;
+			bnet.protocol.EntityId entityId = new bnet.protocol.EntityId();
+			entityId.SetLow(account.GetLo());
+			entityId.SetHigh(account.GetHi());
+			GenericFriendRequest genericFriendRequest = new GenericFriendRequest();
+			genericFriendRequest.SetTargetId(entityId);
+			GenericFriendRequest genericFriendRequest1 = genericFriendRequest;
+			if (!genericFriendRequest1.IsInitialized)
+			{
+				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to RemoveFriend.");
+				this.m_battleNet.EnqueueErrorInfo(BnetFeature.Friends, BnetFeatureEvent.Friends_OnRemoveFriend, BattleNetErrors.ERROR_API_NOT_READY, 0);
+				return;
+			}
+			this.m_rpcConnection.QueueRequest(this.m_friendsService.Id, 8, genericFriendRequest1, new RPCContextDelegate(this.RemoveFriendCallback), 0);
+		}
+
+		private void RemoveFriendCallback(RPCContext context)
+		{
+			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZED)
+			{
+				return;
+			}
+			BattleNetErrors status = (BattleNetErrors)context.Header.Status;
+			if (status != BattleNetErrors.ERROR_OK)
+			{
+				base.ApiLog.LogWarning(string.Concat("Battle.net Friends API C#: Failed to RemoveFriend. ", status));
+				this.m_battleNet.EnqueueErrorInfo(BnetFeature.Friends, BnetFeatureEvent.Friends_OnRemoveFriend, status, 0);
+			}
 		}
 
 		private void RemoveFriendInternal(BnetEntityId entityId)
@@ -477,98 +457,140 @@ namespace bgs
 			{
 				return;
 			}
-			FriendsUpdate friendsUpdate = default(FriendsUpdate);
-			friendsUpdate.action = 2;
-			friendsUpdate.entity1 = entityId;
+			FriendsUpdate friendsUpdate = new FriendsUpdate()
+			{
+				action = 2,
+				entity1 = entityId
+			};
 			this.m_updateList.Add(friendsUpdate);
 			this.m_battleNet.Presence.PresenceUnsubscribe(BnetEntityId.CreateForProtocol(entityId));
 			if (this.m_friendEntityId.ContainsKey(entityId))
 			{
-				foreach (bnet.protocol.EntityId current in this.m_friendEntityId[entityId].Values)
+				foreach (bnet.protocol.EntityId value in this.m_friendEntityId[entityId].Values)
 				{
-					this.m_battleNet.Presence.PresenceUnsubscribe(current);
+					this.m_battleNet.Presence.PresenceUnsubscribe(value);
 				}
 				this.m_friendEntityId.Remove(entityId);
 			}
 			this.m_friendsCount = (uint)this.m_friendEntityId.Count;
 		}
 
-		private void AddInvitationInternal(FriendsUpdate.Action action, Invitation invitation, int reason)
+		public void RemoveFriendsActiveGameAccount(BnetEntityId entityId, ulong index)
 		{
-			if (invitation == null)
+			bnet.protocol.EntityId entityId1;
+			if (this.IsFriend(entityId) && this.m_friendEntityId[entityId].TryGetValue(index, out entityId1))
+			{
+				this.m_battleNet.Presence.PresenceUnsubscribe(entityId1);
+				this.m_friendEntityId[entityId].Remove(index);
+			}
+		}
+
+		public void SendFriendInvite(string sender, string target, bool byEmail)
+		{
+			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZED)
 			{
 				return;
 			}
-			FriendsUpdate friendsUpdate = default(FriendsUpdate);
-			friendsUpdate.action = (int)action;
-			friendsUpdate.long1 = invitation.Id;
-			friendsUpdate.entity1 = this.GetBnetEntityIdFromIdentity(invitation.InviterIdentity);
-			if (invitation.HasInviterName)
+			SendInvitationRequest sendInvitationRequest = new SendInvitationRequest();
+			bnet.protocol.EntityId entityId = new bnet.protocol.EntityId();
+			entityId.SetLow((ulong)0);
+			entityId.SetHigh((ulong)0);
+			sendInvitationRequest.SetTargetId(entityId);
+			InvitationParams invitationParam = new InvitationParams();
+			FriendInvitationParams friendInvitationParam = new FriendInvitationParams();
+			if (!byEmail)
 			{
-				friendsUpdate.string1 = invitation.InviterName;
-			}
-			friendsUpdate.entity2 = this.GetBnetEntityIdFromIdentity(invitation.InviteeIdentity);
-			if (invitation.HasInviteeName)
-			{
-				friendsUpdate.string2 = invitation.InviteeName;
-			}
-			if (invitation.HasInvitationMessage)
-			{
-				friendsUpdate.string3 = invitation.InvitationMessage;
-			}
-			friendsUpdate.bool1 = false;
-			if (invitation.HasCreationTime)
-			{
-				friendsUpdate.long2 = invitation.CreationTime;
-			}
-			if (invitation.HasExpirationTime)
-			{
-				friendsUpdate.long3 = invitation.ExpirationTime;
-			}
-			this.m_updateList.Add(friendsUpdate);
-		}
-
-		private BnetEntityId GetBnetEntityIdFromIdentity(Identity identity)
-		{
-			BnetEntityId bnetEntityId = new BnetEntityId();
-			if (identity.HasAccountId)
-			{
-				bnetEntityId.SetLo(identity.AccountId.Low);
-				bnetEntityId.SetHi(identity.AccountId.High);
-			}
-			else if (identity.HasGameAccountId)
-			{
-				bnetEntityId.SetLo(identity.GameAccountId.Low);
-				bnetEntityId.SetHi(identity.GameAccountId.High);
+				friendInvitationParam.SetTargetBattleTag(target);
+				friendInvitationParam.AddRole(1);
 			}
 			else
 			{
-				bnetEntityId.SetLo(0uL);
-				bnetEntityId.SetHi(0uL);
+				friendInvitationParam.SetTargetEmail(target);
+				friendInvitationParam.AddRole(2);
 			}
-			return bnetEntityId;
+			invitationParam.SetFriendParams(friendInvitationParam);
+			sendInvitationRequest.SetParams(invitationParam);
+			SendInvitationRequest sendInvitationRequest1 = sendInvitationRequest;
+			if (!sendInvitationRequest1.IsInitialized)
+			{
+				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to SendFriendInvite.");
+				return;
+			}
+			this.m_rpcConnection.QueueRequest(this.m_friendsService.Id, 2, sendInvitationRequest1, new RPCContextDelegate(this.SendInvitationCallback), 0);
 		}
 
-		private BnetEntityId ExtractEntityIdFromFriendNotification(byte[] payload)
+		private void SendInvitationCallback(RPCContext context)
 		{
-			FriendNotification friendNotification = FriendNotification.ParseFrom(payload);
-			FriendNotification friendNotification2 = friendNotification;
-			if (!friendNotification2.IsInitialized)
+			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZED)
 			{
-				return null;
+				return;
 			}
-			return BnetEntityId.CreateFromProtocol(friendNotification2.Target.Id);
+			BattleNetErrors status = (BattleNetErrors)context.Header.Status;
+			if (status != BattleNetErrors.ERROR_OK)
+			{
+				base.ApiLog.LogWarning(string.Concat("Battle.net Friends API C#: Failed to SendInvitation. ", status));
+			}
+			this.m_battleNet.EnqueueErrorInfo(BnetFeature.Friends, BnetFeatureEvent.Friends_OnSendInvitation, status, 0);
 		}
 
-		private Invitation ExtractInvitationFromInvitationNotification(byte[] payload)
+		private void StartInitialize()
 		{
-			InvitationNotification invitationNotification = InvitationNotification.ParseFrom(payload);
-			InvitationNotification invitationNotification2 = invitationNotification;
-			if (!invitationNotification2.IsInitialized)
+			this.m_subscribeStartTime = BattleNet.GetRealTimeSinceStartup();
+			this.m_state = FriendsAPI.FriendsAPIState.INITIALIZING;
+			this.m_maxFriends = 0;
+			this.m_maxReceivedInvitations = 0;
+			this.m_maxSentInvitations = 0;
+			this.m_friendsCount = 0;
+			this.m_updateList = new List<FriendsUpdate>();
+			this.m_friendEntityId = new Map<BnetEntityId, Map<ulong, bnet.protocol.EntityId>>();
+		}
+
+		private void Subscribe()
+		{
+			SubscribeToFriendsRequest subscribeToFriendsRequest = new SubscribeToFriendsRequest();
+			subscribeToFriendsRequest.SetObjectId((ulong)0);
+			SubscribeToFriendsRequest subscribeToFriendsRequest1 = subscribeToFriendsRequest;
+			if (!subscribeToFriendsRequest1.IsInitialized)
 			{
-				return null;
+				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to Subscribe.");
+				return;
 			}
-			return invitationNotification2.Invitation;
+			this.m_rpcConnection.QueueRequest(this.m_friendsService.Id, 1, subscribeToFriendsRequest1, new RPCContextDelegate(this.SubscribeToFriendsCallback), 0);
+		}
+
+		private void SubscribeToFriendsCallback(RPCContext context)
+		{
+			if (this.m_state != FriendsAPI.FriendsAPIState.INITIALIZING)
+			{
+				return;
+			}
+			if (context.Header.Status != 0)
+			{
+				this.m_state = FriendsAPI.FriendsAPIState.FAILED_TO_INITIALIZE;
+				base.ApiLog.LogWarning("Battle.net Friends API C#: Failed to initialize.");
+			}
+			else
+			{
+				this.m_state = FriendsAPI.FriendsAPIState.INITIALIZED;
+				base.ApiLog.LogDebug("Battle.net Friends API C#: Initialized.");
+				this.ProcessSubscribeToFriendsResponse(SubscribeToFriendsResponse.ParseFrom(context.Payload));
+			}
+		}
+
+		private enum FriendsAPIState
+		{
+			NOT_SET,
+			INITIALIZING,
+			INITIALIZED,
+			FAILED_TO_INITIALIZE
+		}
+
+		public enum InviteAction
+		{
+			INVITE_ACCEPT = 1,
+			INVITE_REVOKE = 2,
+			INVITE_DECLINE = 3,
+			INVITE_IGNORE = 4
 		}
 	}
 }

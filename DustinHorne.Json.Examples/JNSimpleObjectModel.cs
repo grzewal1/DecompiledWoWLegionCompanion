@@ -1,23 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace DustinHorne.Json.Examples
 {
 	public class JNSimpleObjectModel
 	{
-		public int IntValue
-		{
-			get;
-			set;
-		}
-
 		public float FloatValue
-		{
-			get;
-			set;
-		}
-
-		public string StringValue
 		{
 			get;
 			set;
@@ -29,10 +18,26 @@ namespace DustinHorne.Json.Examples
 			set;
 		}
 
+		public int IntValue
+		{
+			get;
+			set;
+		}
+
 		public JNObjectType ObjectType
 		{
 			get;
 			set;
+		}
+
+		public string StringValue
+		{
+			get;
+			set;
+		}
+
+		public JNSimpleObjectModel()
+		{
 		}
 	}
 }

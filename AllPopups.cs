@@ -57,145 +57,17 @@ public class AllPopups : MonoBehaviour
 
 	public LevelUpToast m_levelUpToast;
 
+	public LegionfallDialog m_legionfallDialog;
+
 	private FollowerDetailView m_currentFollowerDetailView;
+
+	public AllPopups()
+	{
+	}
 
 	private void Awake()
 	{
 		AllPopups.instance = this;
-	}
-
-	private void Start()
-	{
-		this.HideAllPopups();
-	}
-
-	private void Update()
-	{
-	}
-
-	public void HideAllPopups()
-	{
-		this.m_abilityInfoPopup.get_gameObject().SetActive(false);
-		this.m_rewardInfoPopup.get_gameObject().SetActive(false);
-		this.m_cheatCompleteMissionPopup.get_gameObject().SetActive(false);
-		this.m_debugOptionsPopup.get_gameObject().SetActive(false);
-		this.m_chatPopup.get_gameObject().SetActive(false);
-		this.m_emissaryPopup.get_gameObject().SetActive(false);
-		this.m_mechanicInfoPopup.get_gameObject().SetActive(false);
-		this.m_optionsDialog.get_gameObject().SetActive(false);
-		this.m_connectionPopup.get_gameObject().SetActive(false);
-		this.m_bountyInfoTooltip.get_gameObject().SetActive(false);
-		this.m_worldQuestTooltip.get_gameObject().SetActive(false);
-		this.m_genericPopup.get_gameObject().SetActive(false);
-		this.m_armamentDialog.get_gameObject().SetActive(false);
-		this.m_equipmentDialog.get_gameObject().SetActive(false);
-		this.m_championActivationConfirmationDialog.get_gameObject().SetActive(false);
-		this.m_championDeactivationConfirmationDialog.get_gameObject().SetActive(false);
-		this.m_partyBuffsPopup.get_gameObject().SetActive(false);
-		this.m_unassignCombatAllyConfirmationDialog.get_gameObject().SetActive(false);
-		this.m_logoutConfirmation.get_gameObject().SetActive(false);
-		this.m_regionConfirmation.get_gameObject().SetActive(false);
-		this.m_talentTooltip.get_gameObject().SetActive(false);
-		this.HideCombatAllyDialog();
-		this.m_encounterPopup.get_gameObject().SetActive(false);
-	}
-
-	public void ShowUnassignCombatAllyConfirmationDialog()
-	{
-		this.m_unassignCombatAllyConfirmationDialog.Show();
-	}
-
-	public void ShowPartyBuffsPopup(int[] buffIDs)
-	{
-		this.m_partyBuffsPopup.get_gameObject().SetActive(true);
-		this.m_partyBuffsPopup.Init(buffIDs);
-	}
-
-	public void ShowEncounterPopup(int garrEncounterID, int garrMechanicID)
-	{
-		this.m_encounterPopup.SetEncounter(garrEncounterID, garrMechanicID);
-		this.m_encounterPopup.get_gameObject().SetActive(true);
-	}
-
-	public void ShowCombatAllyDialog()
-	{
-		this.m_combatAllyDialog.get_gameObject().SetActive(true);
-		this.m_combatAllyDialog.Init();
-	}
-
-	public void HideCombatAllyDialog()
-	{
-		this.m_combatAllyDialog.get_gameObject().SetActive(false);
-	}
-
-	public void ShowWorldQuestTooltip(int questID)
-	{
-		this.HideAllPopups();
-		this.m_worldQuestTooltip.get_gameObject().SetActive(true);
-		this.m_worldQuestTooltip.SetQuest(questID);
-	}
-
-	public void ShowBountyInfoTooltip(MobileWorldQuestBounty bounty)
-	{
-		this.HideAllPopups();
-		this.m_bountyInfoTooltip.get_gameObject().SetActive(true);
-		this.m_bountyInfoTooltip.SetBounty(bounty);
-	}
-
-	public void ShowRewardTooltip(MissionRewardDisplay.RewardType rewardType, int rewardID, int rewardQuantity, Image rewardImage, int itemContext)
-	{
-		this.m_rewardInfoPopup.get_gameObject().SetActive(true);
-		this.m_rewardInfoPopup.SetReward(rewardType, rewardID, rewardQuantity, rewardImage.get_sprite(), itemContext);
-	}
-
-	public void ShowAbilityInfoPopup(int garrAbilityID)
-	{
-		this.HideAllPopups();
-		this.m_abilityInfoPopup.get_gameObject().SetActive(true);
-		this.m_abilityInfoPopup.SetAbility(garrAbilityID);
-	}
-
-	public void ShowSpellInfoPopup(int spellID)
-	{
-		this.HideAllPopups();
-		this.m_abilityInfoPopup.get_gameObject().SetActive(true);
-		this.m_abilityInfoPopup.SetSpell(spellID);
-	}
-
-	public void ShowMechanicInfoPopup(Image mechanicImage, string mechanicName, string mechanicDescription)
-	{
-		this.HideAllPopups();
-		this.m_mechanicInfoPopup.get_gameObject().SetActive(true);
-		this.m_mechanicInfoPopup.m_mechanicIcon.set_sprite(mechanicImage.get_sprite());
-		this.m_mechanicInfoPopup.m_mechanicIcon.set_overrideSprite(mechanicImage.get_overrideSprite());
-		this.m_mechanicInfoPopup.m_mechanicName.set_text(mechanicName);
-		this.m_mechanicInfoPopup.m_mechanicDescription.set_text(mechanicDescription);
-	}
-
-	public void ShowOptionsMenuPopup()
-	{
-		this.HideAllPopups();
-		this.m_debugOptionsPopup.get_gameObject().SetActive(true);
-		Main.instance.m_UISound.Play_ButtonBlackClick();
-	}
-
-	public void ShowOptionsDialog()
-	{
-		this.HideAllPopups();
-		this.m_optionsDialog.get_gameObject().SetActive(true);
-	}
-
-	public void ShowChatPopup()
-	{
-		this.HideAllPopups();
-		this.m_chatPopup.get_gameObject().SetActive(true);
-	}
-
-	public void ShowEmissaryPopup()
-	{
-		this.HideAllPopups();
-		this.m_emissaryPopup.get_gameObject().SetActive(true);
-		Main.instance.RequestEmissaryFactions();
 	}
 
 	public void EmissaryFactionUpdate(MobileClientEmissaryFactionUpdate msg)
@@ -203,34 +75,9 @@ public class AllPopups : MonoBehaviour
 		this.m_emissaryPopup.FactionUpdate(msg);
 	}
 
-	public void OnClickConnectionPopupClose()
+	public void EnableMissionDialog()
 	{
-		this.m_connectionPopup.get_gameObject().SetActive(false);
-	}
-
-	public void ShowTalentTooltip(TalentTreeItemAbilityButton abilityButton)
-	{
-		this.m_talentTooltip.get_gameObject().SetActive(true);
-		this.m_talentTooltip.SetTalent(abilityButton);
-	}
-
-	public void ShowGenericPopup(string headerText, string descriptionText)
-	{
-		this.HideAllPopups();
-		this.m_genericPopup.SetText(headerText, descriptionText);
-		this.m_genericPopup.get_gameObject().SetActive(true);
-	}
-
-	public void ShowGenericPopupFull(string fullText)
-	{
-		this.HideAllPopups();
-		this.m_genericPopup.SetFullText(fullText);
-		this.m_genericPopup.get_gameObject().SetActive(true);
-	}
-
-	public void SetCurrentFollowerDetailView(FollowerDetailView followerDetailView)
-	{
-		this.m_currentFollowerDetailView = followerDetailView;
+		this.m_missionDialog.gameObject.SetActive(true);
 	}
 
 	public FollowerDetailView GetCurrentFollowerDetailView()
@@ -238,10 +85,75 @@ public class AllPopups : MonoBehaviour
 		return this.m_currentFollowerDetailView;
 	}
 
+	public void HideAllPopups()
+	{
+		this.HideLevel2Popups();
+		this.HideLevel3Popups();
+	}
+
 	public void HideChampionUpgradeDialogs()
 	{
-		this.m_armamentDialog.get_gameObject().SetActive(false);
-		this.m_equipmentDialog.get_gameObject().SetActive(false);
+		this.m_armamentDialog.gameObject.SetActive(false);
+		this.m_equipmentDialog.gameObject.SetActive(false);
+	}
+
+	public void HideCombatAllyDialog()
+	{
+		this.m_combatAllyDialog.gameObject.SetActive(false);
+	}
+
+	public void HideLevel2Popups()
+	{
+		this.HideCombatAllyDialog();
+		this.m_rewardInfoPopup.gameObject.SetActive(false);
+		this.m_cheatCompleteMissionPopup.gameObject.SetActive(false);
+		this.m_debugOptionsPopup.gameObject.SetActive(false);
+		this.m_chatPopup.gameObject.SetActive(false);
+		this.m_emissaryPopup.gameObject.SetActive(false);
+		this.m_mechanicInfoPopup.gameObject.SetActive(false);
+		this.m_optionsDialog.gameObject.SetActive(false);
+		this.m_connectionPopup.gameObject.SetActive(false);
+		this.m_bountyInfoTooltip.gameObject.SetActive(false);
+		this.m_worldQuestTooltip.gameObject.SetActive(false);
+		this.m_genericPopup.gameObject.SetActive(false);
+		this.m_armamentDialog.gameObject.SetActive(false);
+		this.m_equipmentDialog.gameObject.SetActive(false);
+		this.m_championActivationConfirmationDialog.gameObject.SetActive(false);
+		this.m_championDeactivationConfirmationDialog.gameObject.SetActive(false);
+		this.m_unassignCombatAllyConfirmationDialog.gameObject.SetActive(false);
+		this.m_logoutConfirmation.gameObject.SetActive(false);
+		this.m_regionConfirmation.gameObject.SetActive(false);
+		this.m_legionfallDialog.gameObject.SetActive(false);
+	}
+
+	public void HideLevel3Popups()
+	{
+		this.m_abilityInfoPopup.gameObject.SetActive(false);
+		this.m_talentTooltip.gameObject.SetActive(false);
+		this.m_partyBuffsPopup.gameObject.SetActive(false);
+		this.m_encounterPopup.gameObject.SetActive(false);
+	}
+
+	public bool IsGenericPopupShowing()
+	{
+		return this.m_genericPopup.gameObject.activeSelf;
+	}
+
+	public void OnClickConnectionPopupClose()
+	{
+		this.m_connectionPopup.gameObject.SetActive(false);
+	}
+
+	public void SetCurrentFollowerDetailView(FollowerDetailView followerDetailView)
+	{
+		this.m_currentFollowerDetailView = followerDetailView;
+	}
+
+	public void ShowAbilityInfoPopup(int garrAbilityID)
+	{
+		this.HideAllPopups();
+		this.m_abilityInfoPopup.gameObject.SetActive(true);
+		this.m_abilityInfoPopup.SetAbility(garrAbilityID);
 	}
 
 	public void ShowArmamentDialog(FollowerDetailView followerDetailView, bool show)
@@ -250,16 +162,14 @@ public class AllPopups : MonoBehaviour
 		{
 			this.m_armamentDialog.Init(followerDetailView);
 		}
-		this.m_armamentDialog.get_gameObject().SetActive(show);
+		this.m_armamentDialog.gameObject.SetActive(show);
 	}
 
-	public void ShowEquipmentDialog(int garrAbilityID, FollowerDetailView followerDetailView, bool show)
+	public void ShowBountyInfoTooltip(MobileWorldQuestBounty bounty)
 	{
-		if (show)
-		{
-			this.m_equipmentDialog.SetAbility(garrAbilityID, followerDetailView);
-		}
-		this.m_equipmentDialog.get_gameObject().SetActive(show);
+		this.HideAllPopups();
+		this.m_bountyInfoTooltip.gameObject.SetActive(true);
+		this.m_bountyInfoTooltip.SetBounty(bounty);
 	}
 
 	public void ShowChampionActivationConfirmationDialog(FollowerDetailView followerDetailView)
@@ -272,25 +182,137 @@ public class AllPopups : MonoBehaviour
 		this.m_championDeactivationConfirmationDialog.Show(followerDetailView);
 	}
 
-	public void ShowLogoutConfirmationPopup(bool goToWebAuth)
+	public void ShowChatPopup()
 	{
-		this.m_logoutConfirmation.GoToWebAuth = goToWebAuth;
-		this.m_logoutConfirmation.get_gameObject().SetActive(true);
+		this.HideAllPopups();
+		this.m_chatPopup.gameObject.SetActive(true);
 	}
 
-	public void ShowRegionConfirmationPopup(int index)
+	public void ShowCombatAllyDialog()
 	{
-		this.m_regionConfirmation.get_gameObject().SetActive(true);
+		this.m_combatAllyDialog.gameObject.SetActive(true);
+		this.m_combatAllyDialog.Init();
 	}
 
-	public void EnableMissionDialog()
+	public void ShowEmissaryPopup()
 	{
-		this.m_missionDialog.get_gameObject().SetActive(true);
+		this.HideAllPopups();
+		this.m_emissaryPopup.gameObject.SetActive(true);
+		Main.instance.RequestEmissaryFactions();
+	}
+
+	public void ShowEncounterPopup(int garrEncounterID, int garrMechanicID)
+	{
+		this.m_encounterPopup.SetEncounter(garrEncounterID, garrMechanicID);
+		this.m_encounterPopup.gameObject.SetActive(true);
+	}
+
+	public void ShowEquipmentDialog(int garrAbilityID, FollowerDetailView followerDetailView, bool show)
+	{
+		if (show)
+		{
+			this.m_equipmentDialog.SetAbility(garrAbilityID, followerDetailView);
+		}
+		this.m_equipmentDialog.gameObject.SetActive(show);
+	}
+
+	public void ShowGenericPopup(string headerText, string descriptionText)
+	{
+		this.HideAllPopups();
+		this.m_genericPopup.SetText(headerText, descriptionText);
+		this.m_genericPopup.gameObject.SetActive(true);
+	}
+
+	public void ShowGenericPopupFull(string fullText)
+	{
+		this.HideAllPopups();
+		this.m_genericPopup.SetFullText(fullText);
+		this.m_genericPopup.gameObject.SetActive(true);
 	}
 
 	public void ShowLevelUpToast(int newLevel)
 	{
-		this.m_levelUpToast.get_gameObject().SetActive(true);
+		this.m_levelUpToast.gameObject.SetActive(true);
 		this.m_levelUpToast.Show(newLevel);
+	}
+
+	public void ShowLogoutConfirmationPopup(bool goToWebAuth)
+	{
+		this.m_logoutConfirmation.GoToWebAuth = goToWebAuth;
+		this.m_logoutConfirmation.gameObject.SetActive(true);
+	}
+
+	public void ShowMechanicInfoPopup(Image mechanicImage, string mechanicName, string mechanicDescription)
+	{
+		this.HideAllPopups();
+		this.m_mechanicInfoPopup.gameObject.SetActive(true);
+		this.m_mechanicInfoPopup.m_mechanicIcon.sprite = mechanicImage.sprite;
+		this.m_mechanicInfoPopup.m_mechanicIcon.overrideSprite = mechanicImage.overrideSprite;
+		this.m_mechanicInfoPopup.m_mechanicName.text = mechanicName;
+		this.m_mechanicInfoPopup.m_mechanicDescription.text = mechanicDescription;
+	}
+
+	public void ShowOptionsDialog()
+	{
+		this.HideAllPopups();
+		this.m_optionsDialog.gameObject.SetActive(true);
+	}
+
+	public void ShowOptionsMenuPopup()
+	{
+		this.HideAllPopups();
+		this.m_debugOptionsPopup.gameObject.SetActive(true);
+		Main.instance.m_UISound.Play_ButtonBlackClick();
+	}
+
+	public void ShowPartyBuffsPopup(int[] buffIDs)
+	{
+		this.m_partyBuffsPopup.gameObject.SetActive(true);
+		this.m_partyBuffsPopup.Init(buffIDs);
+	}
+
+	public void ShowRegionConfirmationPopup(int index)
+	{
+		this.m_regionConfirmation.gameObject.SetActive(true);
+	}
+
+	public void ShowRewardTooltip(MissionRewardDisplay.RewardType rewardType, int rewardID, int rewardQuantity, Image rewardImage, int itemContext)
+	{
+		this.m_rewardInfoPopup.gameObject.SetActive(true);
+		this.m_rewardInfoPopup.SetReward(rewardType, rewardID, rewardQuantity, rewardImage.sprite, itemContext);
+	}
+
+	public void ShowSpellInfoPopup(int spellID)
+	{
+		this.HideLevel3Popups();
+		this.m_abilityInfoPopup.gameObject.SetActive(true);
+		this.m_abilityInfoPopup.SetSpell(spellID);
+	}
+
+	public void ShowTalentTooltip(TalentTreeItemAbilityButton abilityButton)
+	{
+		this.m_talentTooltip.gameObject.SetActive(true);
+		this.m_talentTooltip.SetTalent(abilityButton);
+	}
+
+	public void ShowUnassignCombatAllyConfirmationDialog()
+	{
+		this.m_unassignCombatAllyConfirmationDialog.Show();
+	}
+
+	public void ShowWorldQuestTooltip(int questID)
+	{
+		this.HideAllPopups();
+		this.m_worldQuestTooltip.gameObject.SetActive(true);
+		this.m_worldQuestTooltip.SetQuest(questID);
+	}
+
+	private void Start()
+	{
+		this.HideAllPopups();
+	}
+
+	private void Update()
+	{
 	}
 }

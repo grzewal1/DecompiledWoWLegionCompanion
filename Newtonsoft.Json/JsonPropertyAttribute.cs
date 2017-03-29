@@ -1,86 +1,35 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Newtonsoft.Json
 {
-	[AttributeUsage]
+	[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple=false)]
 	public sealed class JsonPropertyAttribute : Attribute
 	{
-		internal NullValueHandling? _nullValueHandling;
+		internal Newtonsoft.Json.NullValueHandling? _nullValueHandling;
 
-		internal DefaultValueHandling? _defaultValueHandling;
+		internal Newtonsoft.Json.DefaultValueHandling? _defaultValueHandling;
 
-		internal ReferenceLoopHandling? _referenceLoopHandling;
+		internal Newtonsoft.Json.ReferenceLoopHandling? _referenceLoopHandling;
 
-		internal ObjectCreationHandling? _objectCreationHandling;
+		internal Newtonsoft.Json.ObjectCreationHandling? _objectCreationHandling;
 
-		internal TypeNameHandling? _typeNameHandling;
+		internal Newtonsoft.Json.TypeNameHandling? _typeNameHandling;
 
 		internal bool? _isReference;
 
 		internal int? _order;
 
-		public NullValueHandling NullValueHandling
+		public Newtonsoft.Json.DefaultValueHandling DefaultValueHandling
 		{
 			get
 			{
-				NullValueHandling? nullValueHandling = this._nullValueHandling;
-				return (!nullValueHandling.get_HasValue()) ? NullValueHandling.Include : nullValueHandling.get_Value();
+				Newtonsoft.Json.DefaultValueHandling? nullable = this._defaultValueHandling;
+				return (!nullable.HasValue ? Newtonsoft.Json.DefaultValueHandling.Include : nullable.Value);
 			}
 			set
 			{
-				this._nullValueHandling = new NullValueHandling?(value);
-			}
-		}
-
-		public DefaultValueHandling DefaultValueHandling
-		{
-			get
-			{
-				DefaultValueHandling? defaultValueHandling = this._defaultValueHandling;
-				return (!defaultValueHandling.get_HasValue()) ? DefaultValueHandling.Include : defaultValueHandling.get_Value();
-			}
-			set
-			{
-				this._defaultValueHandling = new DefaultValueHandling?(value);
-			}
-		}
-
-		public ReferenceLoopHandling ReferenceLoopHandling
-		{
-			get
-			{
-				ReferenceLoopHandling? referenceLoopHandling = this._referenceLoopHandling;
-				return (!referenceLoopHandling.get_HasValue()) ? ReferenceLoopHandling.Error : referenceLoopHandling.get_Value();
-			}
-			set
-			{
-				this._referenceLoopHandling = new ReferenceLoopHandling?(value);
-			}
-		}
-
-		public ObjectCreationHandling ObjectCreationHandling
-		{
-			get
-			{
-				ObjectCreationHandling? objectCreationHandling = this._objectCreationHandling;
-				return (!objectCreationHandling.get_HasValue()) ? ObjectCreationHandling.Auto : objectCreationHandling.get_Value();
-			}
-			set
-			{
-				this._objectCreationHandling = new ObjectCreationHandling?(value);
-			}
-		}
-
-		public TypeNameHandling TypeNameHandling
-		{
-			get
-			{
-				TypeNameHandling? typeNameHandling = this._typeNameHandling;
-				return (!typeNameHandling.get_HasValue()) ? TypeNameHandling.None : typeNameHandling.get_Value();
-			}
-			set
-			{
-				this._typeNameHandling = new TypeNameHandling?(value);
+				this._defaultValueHandling = new Newtonsoft.Json.DefaultValueHandling?(value);
 			}
 		}
 
@@ -88,8 +37,8 @@ namespace Newtonsoft.Json
 		{
 			get
 			{
-				bool? isReference = this._isReference;
-				return isReference.get_HasValue() && isReference.get_Value();
+				bool? nullable = this._isReference;
+				return (!nullable.HasValue ? false : nullable.Value);
 			}
 			set
 			{
@@ -97,12 +46,38 @@ namespace Newtonsoft.Json
 			}
 		}
 
+		public Newtonsoft.Json.NullValueHandling NullValueHandling
+		{
+			get
+			{
+				Newtonsoft.Json.NullValueHandling? nullable = this._nullValueHandling;
+				return (!nullable.HasValue ? Newtonsoft.Json.NullValueHandling.Include : nullable.Value);
+			}
+			set
+			{
+				this._nullValueHandling = new Newtonsoft.Json.NullValueHandling?(value);
+			}
+		}
+
+		public Newtonsoft.Json.ObjectCreationHandling ObjectCreationHandling
+		{
+			get
+			{
+				Newtonsoft.Json.ObjectCreationHandling? nullable = this._objectCreationHandling;
+				return (!nullable.HasValue ? Newtonsoft.Json.ObjectCreationHandling.Auto : nullable.Value);
+			}
+			set
+			{
+				this._objectCreationHandling = new Newtonsoft.Json.ObjectCreationHandling?(value);
+			}
+		}
+
 		public int Order
 		{
 			get
 			{
-				int? order = this._order;
-				return (!order.get_HasValue()) ? 0 : order.get_Value();
+				int? nullable = this._order;
+				return (!nullable.HasValue ? 0 : nullable.Value);
 			}
 			set
 			{
@@ -116,10 +91,36 @@ namespace Newtonsoft.Json
 			set;
 		}
 
-		public Required Required
+		public Newtonsoft.Json.ReferenceLoopHandling ReferenceLoopHandling
+		{
+			get
+			{
+				Newtonsoft.Json.ReferenceLoopHandling? nullable = this._referenceLoopHandling;
+				return (!nullable.HasValue ? Newtonsoft.Json.ReferenceLoopHandling.Error : nullable.Value);
+			}
+			set
+			{
+				this._referenceLoopHandling = new Newtonsoft.Json.ReferenceLoopHandling?(value);
+			}
+		}
+
+		public Newtonsoft.Json.Required Required
 		{
 			get;
 			set;
+		}
+
+		public Newtonsoft.Json.TypeNameHandling TypeNameHandling
+		{
+			get
+			{
+				Newtonsoft.Json.TypeNameHandling? nullable = this._typeNameHandling;
+				return (!nullable.HasValue ? Newtonsoft.Json.TypeNameHandling.None : nullable.Value);
+			}
+			set
+			{
+				this._typeNameHandling = new Newtonsoft.Json.TypeNameHandling?(value);
+			}
 		}
 
 		public JsonPropertyAttribute()

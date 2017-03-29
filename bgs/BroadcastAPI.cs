@@ -7,12 +7,15 @@ namespace bgs
 {
 	public class BroadcastAPI : BattleNetAPI
 	{
-		public delegate void BroadcastCallback(IList<Attribute> AttributeList);
-
 		private List<BroadcastAPI.BroadcastCallback> m_listenerList = new List<BroadcastAPI.BroadcastCallback>();
 
 		public BroadcastAPI(BattleNetCSharp battlenet) : base(battlenet, "Broadcast")
 		{
+		}
+
+		public override void Initialize()
+		{
+			base.Initialize();
 		}
 
 		public override void InitRPCListeners(RPCConnection rpcConnection)
@@ -20,9 +23,12 @@ namespace bgs
 			base.InitRPCListeners(rpcConnection);
 		}
 
-		public override void Initialize()
+		public void OnBroadcast(Notification notification)
 		{
-			base.Initialize();
+			foreach (BroadcastAPI.BroadcastCallback mListenerList in this.m_listenerList)
+			{
+				mListenerList(notification.AttributeList);
+			}
 		}
 
 		public override void OnDisconnected()
@@ -39,16 +45,6 @@ namespace bgs
 			this.m_listenerList.Add(cb);
 		}
 
-		public void OnBroadcast(Notification notification)
-		{
-			using (List<BroadcastAPI.BroadcastCallback>.Enumerator enumerator = this.m_listenerList.GetEnumerator())
-			{
-				while (enumerator.MoveNext())
-				{
-					BroadcastAPI.BroadcastCallback current = enumerator.get_Current();
-					current(notification.AttributeList);
-				}
-			}
-		}
+		public delegate void BroadcastCallback(IList<bnet.protocol.attribute.Attribute> AttributeList);
 	}
 }

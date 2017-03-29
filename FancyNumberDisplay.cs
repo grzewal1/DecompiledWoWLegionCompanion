@@ -28,6 +28,17 @@ public class FancyNumberDisplay : MonoBehaviour
 
 	private float m_timeRemainingUntilStartTimer;
 
+	private string m_numberLabel;
+
+	public FancyNumberDisplay()
+	{
+	}
+
+	public void SetNumberLabel(string numberLabel)
+	{
+		this.m_numberLabel = numberLabel;
+	}
+
 	public void SetValue(int newValue, float delayStartTimerTime = 0f)
 	{
 		this.SetValue(newValue, false, delayStartTimerTime);
@@ -42,62 +53,68 @@ public class FancyNumberDisplay : MonoBehaviour
 		if (instant)
 		{
 			this.m_currentValue = newValue;
-			this.m_numberText.set_text(string.Empty + newValue);
+			if (this.m_numberLabel == null)
+			{
+				this.m_numberText.text = newValue.ToString();
+			}
+			else
+			{
+				this.m_numberText.text = GeneralHelpers.TextOrderString(newValue.ToString(), this.m_numberLabel);
+			}
 		}
 		this.m_initialized = true;
 	}
 
-	private void Update()
+	private void TimerEndedCB()
 	{
-		if (this.m_initialized && !this.m_instant && !this.m_startedTimer)
+		this.m_currentValue = this.m_actualValue;
+		if (this.m_numberLabel == null)
 		{
-			this.m_timeRemainingUntilStartTimer -= Time.get_deltaTime();
-			if (this.m_timeRemainingUntilStartTimer <= 0f)
-			{
-				if (this.TimerStartedAction != null)
-				{
-					this.TimerStartedAction.Invoke();
-				}
-				iTween.Stop(base.get_gameObject());
-				iTween.ValueTo(base.get_gameObject(), iTween.Hash(new object[]
-				{
-					"name",
-					"Fancy Number Display",
-					"from",
-					this.m_currentValue,
-					"to",
-					this.m_actualValue,
-					"easeType",
-					this.m_fillEaseType,
-					"time",
-					this.m_duration,
-					"onupdate",
-					"TimerUpdateCB",
-					"oncomplete",
-					"TimerEndedCB"
-				}));
-				this.m_startedTimer = true;
-			}
+			this.m_numberText.text = this.m_currentValue.ToString();
+		}
+		else
+		{
+			this.m_numberText.text = GeneralHelpers.TextOrderString(this.m_currentValue.ToString(), this.m_numberLabel);
+		}
+		if (this.TimerEndedAction != null)
+		{
+			this.TimerEndedAction();
 		}
 	}
 
 	private void TimerUpdateCB(int newValue)
 	{
 		this.m_currentValue = newValue;
-		this.m_numberText.set_text(string.Empty + newValue);
+		if (this.m_numberLabel == null)
+		{
+			this.m_numberText.text = newValue.ToString();
+		}
+		else
+		{
+			this.m_numberText.text = GeneralHelpers.TextOrderString(newValue.ToString(), this.m_numberLabel);
+		}
 		if (this.TimerUpdateAction != null)
 		{
-			this.TimerUpdateAction.Invoke(newValue);
+			this.TimerUpdateAction(newValue);
 		}
 	}
 
-	private void TimerEndedCB()
+	private void Update()
 	{
-		this.m_currentValue = this.m_actualValue;
-		this.m_numberText.set_text(string.Empty + this.m_currentValue);
-		if (this.TimerEndedAction != null)
+		if (this.m_initialized && !this.m_instant && !this.m_startedTimer)
 		{
-			this.TimerEndedAction.Invoke();
+			FancyNumberDisplay mTimeRemainingUntilStartTimer = this;
+			mTimeRemainingUntilStartTimer.m_timeRemainingUntilStartTimer = mTimeRemainingUntilStartTimer.m_timeRemainingUntilStartTimer - Time.deltaTime;
+			if (this.m_timeRemainingUntilStartTimer <= 0f)
+			{
+				if (this.TimerStartedAction != null)
+				{
+					this.TimerStartedAction();
+				}
+				iTween.Stop(base.gameObject);
+				iTween.ValueTo(base.gameObject, iTween.Hash(new object[] { "name", "Fancy Number Display", "from", this.m_currentValue, "to", this.m_actualValue, "easeType", this.m_fillEaseType, "time", this.m_duration, "onupdate", "TimerUpdateCB", "oncomplete", "TimerEndedCB" }));
+				this.m_startedTimer = true;
+			}
 		}
 	}
 }

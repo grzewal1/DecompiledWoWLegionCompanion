@@ -8,9 +8,7 @@ namespace bgs
 {
 	public class ResourcesAPI : BattleNetAPI
 	{
-		public delegate void ResourceLookupCallback(ContentHandle contentHandle, object userContext);
-
-		private ServiceDescriptor m_resourcesService = new ResourcesService();
+		private ServiceDescriptor m_resourcesService = new bgs.RPCServices.ResourcesService();
 
 		private Map<uint, ResourcesAPIPendingState> m_pendingLookups = new Map<uint, ResourcesAPIPendingState>();
 
@@ -26,51 +24,15 @@ namespace bgs
 		{
 		}
 
-		public override void Initialize()
+		public static string ByteArrayToString(byte[] ba)
 		{
-			base.Initialize();
-			base.ApiLog.LogDebug("Initializing");
-		}
-
-		private void ResouceLookupTestCallback(ContentHandle contentHandle, object userContext)
-		{
-			if (contentHandle == null)
+			StringBuilder stringBuilder = new StringBuilder((int)ba.Length * 2);
+			byte[] numArray = ba;
+			for (int i = 0; i < (int)numArray.Length; i++)
 			{
-				base.ApiLog.LogWarning("Lookup failed");
-				return;
+				stringBuilder.AppendFormat("{0:x2}", numArray[i]);
 			}
-			int num = (int)userContext;
-			base.ApiLog.LogDebug("Lookup done i={0} Region={1} Usage={2} SHA256={3}", new object[]
-			{
-				num,
-				contentHandle.Region,
-				contentHandle.Usage,
-				contentHandle.Sha256Digest
-			});
-		}
-
-		public void LookupResource(FourCC programId, FourCC streamId, FourCC locale, ResourcesAPI.ResourceLookupCallback cb, object userContext)
-		{
-			ContentHandleRequest contentHandleRequest = new ContentHandleRequest();
-			contentHandleRequest.SetProgramId(programId.GetValue());
-			contentHandleRequest.SetStreamId(streamId.GetValue());
-			contentHandleRequest.SetLocale(locale.GetValue());
-			if (contentHandleRequest == null || !contentHandleRequest.IsInitialized)
-			{
-				base.ApiLog.LogWarning("Unable to create request for RPC call.");
-				return;
-			}
-			RPCContext rPCContext = this.m_rpcConnection.QueueRequest(this.m_resourcesService.Id, 1u, contentHandleRequest, new RPCContextDelegate(this.GetContentHandleCallback), 0u);
-			ResourcesAPIPendingState resourcesAPIPendingState = new ResourcesAPIPendingState();
-			resourcesAPIPendingState.Callback = cb;
-			resourcesAPIPendingState.UserContext = userContext;
-			this.m_pendingLookups.Add(rPCContext.Header.Token, resourcesAPIPendingState);
-			base.ApiLog.LogDebug("Lookup request sent. PID={0} StreamID={1} Locale={2}", new object[]
-			{
-				programId,
-				streamId,
-				locale
-			});
+			return stringBuilder.ToString();
 		}
 
 		private void GetContentHandleCallback(RPCContext context)
@@ -90,28 +52,54 @@ namespace bgs
 				return;
 			}
 			BattleNetErrors status = (BattleNetErrors)context.Header.Status;
-			if (status != BattleNetErrors.ERROR_OK)
+			if (status == BattleNetErrors.ERROR_OK)
 			{
-				base.ApiLog.LogWarning("Battle.net Resources API C#: Failed lookup. Error={0}", new object[]
-				{
-					status
-				});
-				resourcesAPIPendingState.Callback(null, resourcesAPIPendingState.UserContext);
+				bgs.ContentHandle contentHandle1 = bgs.ContentHandle.FromProtocol(contentHandle);
+				resourcesAPIPendingState.Callback(contentHandle1, resourcesAPIPendingState.UserContext);
 				return;
 			}
-			ContentHandle contentHandle2 = ContentHandle.FromProtocol(contentHandle);
-			resourcesAPIPendingState.Callback(contentHandle2, resourcesAPIPendingState.UserContext);
+			base.ApiLog.LogWarning("Battle.net Resources API C#: Failed lookup. Error={0}", new object[] { status });
+			resourcesAPIPendingState.Callback(null, resourcesAPIPendingState.UserContext);
 		}
 
-		public static string ByteArrayToString(byte[] ba)
+		public override void Initialize()
 		{
-			StringBuilder stringBuilder = new StringBuilder(ba.Length * 2);
-			for (int i = 0; i < ba.Length; i++)
-			{
-				byte b = ba[i];
-				stringBuilder.AppendFormat("{0:x2}", b);
-			}
-			return stringBuilder.ToString();
+			base.Initialize();
+			base.ApiLog.LogDebug("Initializing");
 		}
+
+		public void LookupResource(FourCC programId, FourCC streamId, FourCC locale, ResourcesAPI.ResourceLookupCallback cb, object userContext)
+		{
+			ContentHandleRequest contentHandleRequest = new ContentHandleRequest();
+			contentHandleRequest.SetProgramId(programId.GetValue());
+			contentHandleRequest.SetStreamId(streamId.GetValue());
+			contentHandleRequest.SetLocale(locale.GetValue());
+			if (contentHandleRequest == null || !contentHandleRequest.IsInitialized)
+			{
+				base.ApiLog.LogWarning("Unable to create request for RPC call.");
+				return;
+			}
+			RPCContext rPCContext = this.m_rpcConnection.QueueRequest(this.m_resourcesService.Id, 1, contentHandleRequest, new RPCContextDelegate(this.GetContentHandleCallback), 0);
+			ResourcesAPIPendingState resourcesAPIPendingState = new ResourcesAPIPendingState()
+			{
+				Callback = cb,
+				UserContext = userContext
+			};
+			this.m_pendingLookups.Add(rPCContext.Header.Token, resourcesAPIPendingState);
+			base.ApiLog.LogDebug("Lookup request sent. PID={0} StreamID={1} Locale={2}", new object[] { programId, streamId, locale });
+		}
+
+		private void ResouceLookupTestCallback(bgs.ContentHandle contentHandle, object userContext)
+		{
+			if (contentHandle == null)
+			{
+				base.ApiLog.LogWarning("Lookup failed");
+				return;
+			}
+			int num = (int)userContext;
+			base.ApiLog.LogDebug("Lookup done i={0} Region={1} Usage={2} SHA256={3}", new object[] { num, contentHandle.Region, contentHandle.Usage, contentHandle.Sha256Digest });
+		}
+
+		public delegate void ResourceLookupCallback(bgs.ContentHandle contentHandle, object userContext);
 	}
 }

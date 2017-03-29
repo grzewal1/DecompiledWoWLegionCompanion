@@ -1,47 +1,219 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 
 public static class GeneralUtils
 {
 	public const float DEVELOPMENT_BUILD_TEXT_WIDTH = 115f;
 
-	public static void Swap<T>(ref T a, ref T b)
+	public static bool AreArraysEqual<T>(T[] arr1, T[] arr2)
 	{
-		T t = a;
-		a = b;
-		b = t;
+		if (arr1 == arr2)
+		{
+			return true;
+		}
+		if (arr1 == null)
+		{
+			return false;
+		}
+		if (arr2 == null)
+		{
+			return false;
+		}
+		if ((int)arr1.Length != (int)arr2.Length)
+		{
+			return false;
+		}
+		for (int i = 0; i < (int)arr1.Length; i++)
+		{
+			if (!arr1[i].Equals(arr2[i]))
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
-	public static void ListSwap<T>(IList<T> list, int indexA, int indexB)
+	public static bool AreBytesEqual(byte[] bytes1, byte[] bytes2)
 	{
-		T t = list.get_Item(indexA);
-		list.set_Item(indexA, list.get_Item(indexB));
-		list.set_Item(indexB, t);
+		return GeneralUtils.AreArraysEqual<byte>(bytes1, bytes2);
 	}
 
-	public static void ListMove<T>(IList<T> list, int srcIndex, int dstIndex)
+	public static bool CallbackIsValid(Delegate callback)
 	{
-		if (srcIndex == dstIndex)
+		bool flag = true;
+		if (callback == null)
 		{
-			return;
+			flag = false;
 		}
-		T t = list.get_Item(srcIndex);
-		list.RemoveAt(srcIndex);
-		if (dstIndex > srcIndex)
+		else if (!callback.Method.IsStatic)
 		{
-			dstIndex--;
+			flag = GeneralUtils.IsObjectAlive(callback.Target);
+			if (!flag)
+			{
+				Console.WriteLine(string.Format("Target for callback {0} is null.", callback.Method.Name));
+			}
 		}
-		list.Insert(dstIndex, t);
+		return flag;
+	}
+
+	private static object CloneClass(object obj, Type objType)
+	{
+		object obj1 = GeneralUtils.CreateNewType(objType);
+		FieldInfo[] fields = objType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+		for (int i = 0; i < (int)fields.Length; i++)
+		{
+			FieldInfo fieldInfo = fields[i];
+			fieldInfo.SetValue(obj1, GeneralUtils.CloneValue(fieldInfo.GetValue(obj), fieldInfo.FieldType));
+		}
+		return obj1;
+	}
+
+	private static object CloneValue(object src, Type type)
+	{
+		if (src != null && type != typeof(string) && type.IsClass)
+		{
+			if (!type.IsGenericType)
+			{
+				return GeneralUtils.CloneClass(src, type);
+			}
+			if (src is IDictionary)
+			{
+				IDictionary dictionaries = src as IDictionary;
+				IDictionary dictionaries1 = GeneralUtils.CreateNewType(type) as IDictionary;
+				Type genericArguments = type.GetGenericArguments()[0];
+				Type genericArguments1 = type.GetGenericArguments()[1];
+				IDictionaryEnumerator enumerator = dictionaries.GetEnumerator();
+				try
+				{
+					while (enumerator.MoveNext())
+					{
+						DictionaryEntry current = (DictionaryEntry)enumerator.Current;
+						dictionaries1.Add(GeneralUtils.CloneValue(current.Key, genericArguments), GeneralUtils.CloneValue(current.Value, genericArguments1));
+					}
+				}
+				finally
+				{
+					IDisposable disposable = enumerator as IDisposable;
+					if (disposable == null)
+					{
+					}
+					disposable.Dispose();
+				}
+				return dictionaries1;
+			}
+			if (src is IList)
+			{
+				IList lists = src as IList;
+				IList lists1 = GeneralUtils.CreateNewType(type) as IList;
+				Type type1 = type.GetGenericArguments()[0];
+				IEnumerator enumerator1 = lists.GetEnumerator();
+				try
+				{
+					while (enumerator1.MoveNext())
+					{
+						object obj = enumerator1.Current;
+						lists1.Add(GeneralUtils.CloneValue(obj, type1));
+					}
+				}
+				finally
+				{
+					IDisposable disposable1 = enumerator1 as IDisposable;
+					if (disposable1 == null)
+					{
+					}
+					disposable1.Dispose();
+				}
+				return lists1;
+			}
+		}
+		return src;
 	}
 
 	public static T[] Combine<T>(T[] arr1, T[] arr2)
 	{
-		T[] array = new T[arr1.Length + arr2.Length];
-		Array.Copy(arr1, 0, array, 0, arr1.Length);
-		Array.Copy(arr1, 0, array, arr1.Length, arr2.Length);
-		return array;
+		T[] tArray = new T[(int)arr1.Length + (int)arr2.Length];
+		Array.Copy(arr1, 0, tArray, 0, (int)arr1.Length);
+		Array.Copy(arr1, 0, tArray, (int)arr1.Length, (int)arr2.Length);
+		return tArray;
+	}
+
+	private static object CreateNewType(Type type)
+	{
+		object obj = Activator.CreateInstance(type);
+		if (obj == null)
+		{
+			throw new SystemException(string.Format("Unable to instantiate type {0} with default constructor.", type.Name));
+		}
+		return obj;
+	}
+
+	public static T DeepClone<T>(T obj)
+	{
+		return (T)GeneralUtils.CloneValue(obj, obj.GetType());
+	}
+
+	public static void DeepReset<T>(T obj)
+	{
+		Type type = typeof(T);
+		T t = Activator.CreateInstance<T>();
+		if (t == null)
+		{
+			throw new SystemException(string.Format("Unable to instantiate type {0} with default constructor.", type.Name));
+		}
+		FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+		for (int i = 0; i < (int)fields.Length; i++)
+		{
+			FieldInfo fieldInfo = fields[i];
+			fieldInfo.SetValue(obj, fieldInfo.GetValue(t));
+		}
+	}
+
+	public static bool ForceBool(string strVal)
+	{
+		string str = strVal.ToLowerInvariant().Trim();
+		if (!(str == "on") && !(str == "1") && !(str == "true"))
+		{
+			return false;
+		}
+		return true;
+	}
+
+	public static float ForceFloat(string str)
+	{
+		float single = 0f;
+		GeneralUtils.TryParseFloat(str, out single);
+		return single;
+	}
+
+	public static int ForceInt(string str)
+	{
+		int num = 0;
+		GeneralUtils.TryParseInt(str, out num);
+		return num;
+	}
+
+	public static long ForceLong(string str)
+	{
+		long num = (long)0;
+		GeneralUtils.TryParseLong(str, out num);
+		return num;
+	}
+
+	public static bool IsEditorPlaying()
+	{
+		return false;
+	}
+
+	public static bool IsObjectAlive(object obj)
+	{
+		if (obj == null)
+		{
+			return false;
+		}
+		return true;
 	}
 
 	public static bool IsOverriddenMethod(MethodInfo childMethod, MethodInfo ancestorMethod)
@@ -63,100 +235,74 @@ public static class GeneralUtils
 		{
 			MethodInfo methodInfo = baseDefinition;
 			baseDefinition = baseDefinition.GetBaseDefinition();
-			if (baseDefinition.Equals(methodInfo))
+			if (!baseDefinition.Equals(methodInfo))
 			{
-				return false;
+				continue;
 			}
+			return false;
 		}
 		return baseDefinition.Equals(ancestorMethod);
 	}
 
-	public static bool IsObjectAlive(object obj)
+	public static void ListMove<T>(IList<T> list, int srcIndex, int dstIndex)
 	{
-		return obj != null;
+		if (srcIndex == dstIndex)
+		{
+			return;
+		}
+		T item = list[srcIndex];
+		list.RemoveAt(srcIndex);
+		if (dstIndex > srcIndex)
+		{
+			dstIndex--;
+		}
+		list.Insert(dstIndex, item);
 	}
 
-	public static bool CallbackIsValid(Delegate callback)
+	public static void ListSwap<T>(IList<T> list, int indexA, int indexB)
 	{
-		bool flag = true;
-		if (callback == null)
-		{
-			flag = false;
-		}
-		else if (!callback.get_Method().get_IsStatic())
-		{
-			object target = callback.get_Target();
-			flag = GeneralUtils.IsObjectAlive(target);
-			if (!flag)
-			{
-				Console.WriteLine(string.Format("Target for callback {0} is null.", callback.get_Method().get_Name()));
-			}
-		}
-		return flag;
+		T item = list[indexA];
+		list[indexA] = list[indexB];
+		list[indexB] = item;
 	}
 
-	public static bool IsEditorPlaying()
+	public static void Swap<T>(ref T a, ref T b)
 	{
-		return false;
+		T t = a;
+		a = b;
+		b = t;
 	}
 
 	public static bool TryParseBool(string strVal, out bool boolVal)
 	{
-		string text = strVal.ToLowerInvariant().Trim();
-		if (text == "off" || text == "0" || text == "false")
+		string str = strVal.ToLowerInvariant().Trim();
+		if (str == "off" || str == "0" || str == "false")
 		{
 			boolVal = false;
 			return true;
 		}
-		if (text == "on" || text == "1" || text == "true")
+		if (!(str == "on") && !(str == "1") && !(str == "true"))
 		{
-			boolVal = true;
-			return true;
+			boolVal = false;
+			return false;
 		}
-		boolVal = false;
-		return false;
-	}
-
-	public static bool ForceBool(string strVal)
-	{
-		string text = strVal.ToLowerInvariant().Trim();
-		return text == "on" || text == "1" || text == "true";
-	}
-
-	public static bool TryParseInt(string str, out int val)
-	{
-		return int.TryParse(str, 511, null, ref val);
-	}
-
-	public static int ForceInt(string str)
-	{
-		int result = 0;
-		GeneralUtils.TryParseInt(str, out result);
-		return result;
-	}
-
-	public static bool TryParseLong(string str, out long val)
-	{
-		return long.TryParse(str, 511, null, ref val);
-	}
-
-	public static long ForceLong(string str)
-	{
-		long result = 0L;
-		GeneralUtils.TryParseLong(str, out result);
-		return result;
+		boolVal = true;
+		return true;
 	}
 
 	public static bool TryParseFloat(string str, out float val)
 	{
-		return float.TryParse(str, 511, null, ref val);
+		return float.TryParse(str, NumberStyles.Any, null, out val);
 	}
 
-	public static float ForceFloat(string str)
+	public static bool TryParseInt(string str, out int val)
 	{
-		float result = 0f;
-		GeneralUtils.TryParseFloat(str, out result);
-		return result;
+		return int.TryParse(str, NumberStyles.Any, null, out val);
+	}
+
+	public static bool TryParseLong(string str, out long val)
+	{
+		return long.TryParse(str, NumberStyles.Any, null, out val);
 	}
 
 	public static int UnsignedMod(int x, int y)
@@ -164,147 +310,8 @@ public static class GeneralUtils
 		int num = x % y;
 		if (num < 0)
 		{
-			num += y;
+			num = num + y;
 		}
 		return num;
-	}
-
-	public static bool AreArraysEqual<T>(T[] arr1, T[] arr2)
-	{
-		if (arr1 == arr2)
-		{
-			return true;
-		}
-		if (arr1 == null)
-		{
-			return false;
-		}
-		if (arr2 == null)
-		{
-			return false;
-		}
-		if (arr1.Length != arr2.Length)
-		{
-			return false;
-		}
-		for (int i = 0; i < arr1.Length; i++)
-		{
-			if (!arr1[i].Equals(arr2[i]))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public static bool AreBytesEqual(byte[] bytes1, byte[] bytes2)
-	{
-		return GeneralUtils.AreArraysEqual<byte>(bytes1, bytes2);
-	}
-
-	public static T DeepClone<T>(T obj)
-	{
-		return (T)((object)GeneralUtils.CloneValue(obj, obj.GetType()));
-	}
-
-	private static object CloneClass(object obj, Type objType)
-	{
-		object obj2 = GeneralUtils.CreateNewType(objType);
-		FieldInfo[] fields = objType.GetFields(52);
-		FieldInfo[] array = fields;
-		for (int i = 0; i < array.Length; i++)
-		{
-			FieldInfo fieldInfo = array[i];
-			fieldInfo.SetValue(obj2, GeneralUtils.CloneValue(fieldInfo.GetValue(obj), fieldInfo.get_FieldType()));
-		}
-		return obj2;
-	}
-
-	private static object CloneValue(object src, Type type)
-	{
-		if (src != null && type != typeof(string) && type.get_IsClass())
-		{
-			if (!type.get_IsGenericType())
-			{
-				return GeneralUtils.CloneClass(src, type);
-			}
-			if (src is IDictionary)
-			{
-				IDictionary dictionary = src as IDictionary;
-				IDictionary dictionary2 = GeneralUtils.CreateNewType(type) as IDictionary;
-				Type type2 = type.GetGenericArguments()[0];
-				Type type3 = type.GetGenericArguments()[1];
-				IDictionaryEnumerator enumerator = dictionary.GetEnumerator();
-				try
-				{
-					while (enumerator.MoveNext())
-					{
-						DictionaryEntry dictionaryEntry = (DictionaryEntry)enumerator.get_Current();
-						dictionary2.Add(GeneralUtils.CloneValue(dictionaryEntry.get_Key(), type2), GeneralUtils.CloneValue(dictionaryEntry.get_Value(), type3));
-					}
-				}
-				finally
-				{
-					IDisposable disposable = enumerator as IDisposable;
-					if (disposable != null)
-					{
-						disposable.Dispose();
-					}
-				}
-				return dictionary2;
-			}
-			if (src is IList)
-			{
-				IList list = src as IList;
-				IList list2 = GeneralUtils.CreateNewType(type) as IList;
-				Type type4 = type.GetGenericArguments()[0];
-				IEnumerator enumerator2 = list.GetEnumerator();
-				try
-				{
-					while (enumerator2.MoveNext())
-					{
-						object current = enumerator2.get_Current();
-						list2.Add(GeneralUtils.CloneValue(current, type4));
-					}
-				}
-				finally
-				{
-					IDisposable disposable2 = enumerator2 as IDisposable;
-					if (disposable2 != null)
-					{
-						disposable2.Dispose();
-					}
-				}
-				return list2;
-			}
-		}
-		return src;
-	}
-
-	private static object CreateNewType(Type type)
-	{
-		object obj = Activator.CreateInstance(type);
-		if (obj == null)
-		{
-			throw new SystemException(string.Format("Unable to instantiate type {0} with default constructor.", type.get_Name()));
-		}
-		return obj;
-	}
-
-	public static void DeepReset<T>(T obj)
-	{
-		Type typeFromHandle = typeof(T);
-		T t = Activator.CreateInstance<T>();
-		if (t == null)
-		{
-			throw new SystemException(string.Format("Unable to instantiate type {0} with default constructor.", typeFromHandle.get_Name()));
-		}
-		FieldInfo[] fields = typeFromHandle.GetFields(60);
-		FieldInfo[] array = fields;
-		for (int i = 0; i < array.Length; i++)
-		{
-			FieldInfo fieldInfo = array[i];
-			fieldInfo.SetValue(obj, fieldInfo.GetValue(t));
-		}
 	}
 }

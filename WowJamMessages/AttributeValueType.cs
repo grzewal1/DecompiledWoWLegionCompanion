@@ -7,14 +7,14 @@ namespace WowJamMessages
 	public enum AttributeValueType
 	{
 		[EnumMember]
-		AVT_INT = 0,
+		AVT_INT,
 		[EnumMember]
-		AVT_FLOAT = 1,
+		AVT_FLOAT,
 		[EnumMember]
-		AVT_STRING = 2,
+		AVT_STRING,
 		[EnumMember]
-		AVT_GUID = 3,
+		AVT_GUID,
 		[EnumMember]
-		AVT_VECTOR3 = 4
+		AVT_VECTOR3
 	}
 }

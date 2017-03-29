@@ -1,11 +1,12 @@
 using bnet.protocol;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace bgs
 {
 	public class RPCContext
 	{
-		private Header header;
+		private bnet.protocol.Header header;
 
 		private byte[] payload;
 
@@ -13,7 +14,25 @@ namespace bgs
 
 		private bool responseReceived;
 
-		public Header Header
+		public RPCContextDelegate Callback
+		{
+			get
+			{
+				return this.callback;
+			}
+			set
+			{
+				this.callback = value;
+			}
+		}
+
+		public int Context
+		{
+			get;
+			set;
+		}
+
+		public bnet.protocol.Header Header
 		{
 			get
 			{
@@ -37,16 +56,10 @@ namespace bgs
 			}
 		}
 
-		public RPCContextDelegate Callback
+		public IProtoBuf Request
 		{
-			get
-			{
-				return this.callback;
-			}
-			set
-			{
-				this.callback = value;
-			}
+			get;
+			set;
 		}
 
 		public bool ResponseReceived
@@ -61,22 +74,14 @@ namespace bgs
 			}
 		}
 
-		public IProtoBuf Request
-		{
-			get;
-			set;
-		}
-
 		public int SystemId
 		{
 			get;
 			set;
 		}
 
-		public int Context
+		public RPCContext()
 		{
-			get;
-			set;
 		}
 	}
 }

@@ -3,26 +3,18 @@ using System.Collections.Generic;
 
 internal class VarsInternal
 {
-	private static VarsInternal s_instance = new VarsInternal();
+	private static VarsInternal s_instance;
 
 	private Dictionary<string, string> m_vars = new Dictionary<string, string>();
 
-	private VarsInternal()
-	{
-		string clientConfigPath = Vars.GetClientConfigPath();
-		if (!this.LoadConfig(clientConfigPath))
-		{
-		}
-	}
-
-	public static VarsInternal Get()
-	{
-		return VarsInternal.s_instance;
-	}
-
-	public static void RefreshVars()
+	static VarsInternal()
 	{
 		VarsInternal.s_instance = new VarsInternal();
+	}
+
+	private VarsInternal()
+	{
+		this.LoadConfig(Vars.GetClientConfigPath());
 	}
 
 	public bool Contains(string key)
@@ -30,9 +22,9 @@ internal class VarsInternal
 		return this.m_vars.ContainsKey(key);
 	}
 
-	public string Value(string key)
+	public static VarsInternal Get()
 	{
-		return this.m_vars.get_Item(key);
+		return VarsInternal.s_instance;
 	}
 
 	private bool LoadConfig(string path)
@@ -42,14 +34,20 @@ internal class VarsInternal
 		{
 			return false;
 		}
-		using (List<ConfigFile.Line>.Enumerator enumerator = configFile.GetLines().GetEnumerator())
+		foreach (ConfigFile.Line line in configFile.GetLines())
 		{
-			while (enumerator.MoveNext())
-			{
-				ConfigFile.Line current = enumerator.get_Current();
-				this.m_vars.set_Item(current.m_fullKey, current.m_value);
-			}
+			this.m_vars[line.m_fullKey] = line.m_value;
 		}
 		return true;
+	}
+
+	public static void RefreshVars()
+	{
+		VarsInternal.s_instance = new VarsInternal();
+	}
+
+	public string Value(string key)
+	{
+		return this.m_vars[key];
 	}
 }

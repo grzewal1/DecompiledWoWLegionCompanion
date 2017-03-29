@@ -12,7 +12,24 @@ public class SpellDisplay : MonoBehaviour
 
 	public Text m_spellName;
 
+	public Image m_padlockIcon;
+
+	public Shader m_grayscaleShader;
+
 	private int m_spellID;
+
+	public SpellDisplay()
+	{
+	}
+
+	public void SetLocked(bool locked)
+	{
+		if (this.m_padlockIcon != null)
+		{
+			this.m_padlockIcon.gameObject.SetActive(locked);
+			this.m_spellIcon.material.SetFloat("_GrayscaleAmount", (!locked ? 0f : 1f));
+		}
+	}
 
 	public void SetSpell(int spellID)
 	{
@@ -20,23 +37,28 @@ public class SpellDisplay : MonoBehaviour
 		VW_MobileSpellRec record = StaticDB.vw_mobileSpellDB.GetRecord(this.m_spellID);
 		if (record == null)
 		{
-			this.m_spellName.set_text("Err Spell ID " + this.m_spellID);
-			Debug.LogWarning("Invalid spellID " + this.m_spellID);
+			this.m_spellName.text = string.Concat("Err Spell ID ", this.m_spellID);
+			Debug.LogWarning(string.Concat("Invalid spellID ", this.m_spellID));
 			return;
 		}
 		Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, record.SpellIconFileDataID);
-		if (sprite != null)
+		if (sprite == null)
 		{
-			this.m_spellIcon.set_sprite(sprite);
-			this.m_iconError.get_gameObject().SetActive(false);
+			Debug.LogWarning(string.Concat("Invalid or missing icon: ", record.SpellIconFileDataID));
+			this.m_iconError.gameObject.SetActive(true);
+			this.m_iconError.text = string.Concat("Missing Icon ", record.SpellIconFileDataID);
 		}
 		else
 		{
-			Debug.LogWarning("Invalid or missing icon: " + record.SpellIconFileDataID);
-			this.m_iconError.get_gameObject().SetActive(true);
-			this.m_iconError.set_text("Missing Icon " + record.SpellIconFileDataID);
+			this.m_spellIcon.sprite = sprite;
+			this.m_iconError.gameObject.SetActive(false);
+			if (this.m_grayscaleShader != null)
+			{
+				Material material = new Material(this.m_grayscaleShader);
+				this.m_spellIcon.material = material;
+			}
 		}
-		this.m_spellName.set_text(record.Name);
+		this.m_spellName.text = record.Name;
 	}
 
 	public void ShowTooltip()

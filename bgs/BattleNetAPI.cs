@@ -1,11 +1,10 @@
+using bnet.protocol;
 using System;
 
 namespace bgs
 {
 	public class BattleNetAPI
 	{
-		private delegate void LogDelegate(string format, params object[] args);
-
 		private BattleNetAPI.LogDelegate[] m_logDelegates;
 
 		protected BattleNetCSharp m_battleNet;
@@ -26,11 +25,18 @@ namespace bgs
 		{
 			this.m_battleNet = battlenet;
 			this.m_logSource = new BattleNetLogSource(logSourceName);
-			this.m_logDelegates = new BattleNetAPI.LogDelegate[]
-			{
-				new BattleNetAPI.LogDelegate(this.m_logSource.LogDebug),
-				new BattleNetAPI.LogDelegate(this.m_logSource.LogError)
-			};
+			this.m_logDelegates = new BattleNetAPI.LogDelegate[] { new BattleNetAPI.LogDelegate(this.m_logSource.LogDebug), new BattleNetAPI.LogDelegate(this.m_logSource.LogError) };
+		}
+
+		public bool CheckRPCCallback(string name, RPCContext context)
+		{
+			BattleNetErrors status = (BattleNetErrors)context.Header.Status;
+			BattleNetAPI.LogDelegate mLogDelegates = this.m_logDelegates[(status != BattleNetErrors.ERROR_OK ? 1 : 0)];
+			object[] objArray = new object[] { status, null, null };
+			objArray[1] = (!string.IsNullOrEmpty(name) ? name : "<null>");
+			objArray[2] = (context.Request == null ? "<null>" : context.Request.ToString());
+			mLogDelegates("Callback invoked, status = {0}, name = {1}, request = {2}", objArray);
+			return status == BattleNetErrors.ERROR_OK;
 		}
 
 		public virtual void Initialize()
@@ -50,11 +56,11 @@ namespace bgs
 		{
 		}
 
-		public virtual void OnLogon()
+		public virtual void OnGameAccountSelected()
 		{
 		}
 
-		public virtual void OnGameAccountSelected()
+		public virtual void OnLogon()
 		{
 		}
 
@@ -62,17 +68,6 @@ namespace bgs
 		{
 		}
 
-		public bool CheckRPCCallback(string name, RPCContext context)
-		{
-			BattleNetErrors status = (BattleNetErrors)context.Header.Status;
-			int num = (status != BattleNetErrors.ERROR_OK) ? 1 : 0;
-			this.m_logDelegates[num]("Callback invoked, status = {0}, name = {1}, request = {2}", new object[]
-			{
-				status,
-				(!string.IsNullOrEmpty(name)) ? name : "<null>",
-				(context.Request == null) ? "<null>" : context.Request.ToString()
-			});
-			return status == BattleNetErrors.ERROR_OK;
-		}
+		private delegate void LogDelegate(string format, params object[] args);
 	}
 }

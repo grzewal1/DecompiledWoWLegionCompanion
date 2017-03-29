@@ -1,42 +1,49 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamDumpObjectInfo", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamDumpObjectInfo", Version=28333852)]
 	public class JamDumpObjectInfo
 	{
-		[FlexJamMember(Name = "guid", Type = FlexJamType.WowGuid), DataMember(Name = "guid")]
-		public string Guid
+		[DataMember(Name="displayID")]
+		[FlexJamMember(Name="displayID", Type=FlexJamType.UInt32)]
+		public uint DisplayID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "position", Type = FlexJamType.Struct), DataMember(Name = "position")]
-		public Vector3 Position
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "granted", Type = FlexJamType.Bool), DataMember(Name = "granted")]
+		[DataMember(Name="granted")]
+		[FlexJamMember(Name="granted", Type=FlexJamType.Bool)]
 		public bool Granted
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "visibleRange", Type = FlexJamType.Float), DataMember(Name = "visibleRange")]
-		public float VisibleRange
+		[DataMember(Name="guid")]
+		[FlexJamMember(Name="guid", Type=FlexJamType.WowGuid)]
+		public string Guid
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "displayID", Type = FlexJamType.UInt32), DataMember(Name = "displayID")]
-		public uint DisplayID
+		[DataMember(Name="position")]
+		[FlexJamMember(Name="position", Type=FlexJamType.Struct)]
+		public Vector3 Position
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="visibleRange")]
+		[FlexJamMember(Name="visibleRange", Type=FlexJamType.Float)]
+		public float VisibleRange
 		{
 			get;
 			set;

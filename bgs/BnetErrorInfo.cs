@@ -32,24 +32,9 @@ namespace bgs
 			this.m_clientContext = context;
 		}
 
-		public BnetFeature GetFeature()
+		public int GetContext()
 		{
-			return this.m_feature;
-		}
-
-		public void SetFeature(BnetFeature feature)
-		{
-			this.m_feature = feature;
-		}
-
-		public BnetFeatureEvent GetFeatureEvent()
-		{
-			return this.m_featureEvent;
-		}
-
-		public void SetFeatureEvent(BnetFeatureEvent featureEvent)
-		{
-			this.m_featureEvent = featureEvent;
+			return this.m_clientContext;
 		}
 
 		public BattleNetErrors GetError()
@@ -57,9 +42,14 @@ namespace bgs
 			return this.m_error;
 		}
 
-		public void SetError(BattleNetErrors error)
+		public BnetFeature GetFeature()
 		{
-			this.m_error = error;
+			return this.m_feature;
+		}
+
+		public BnetFeatureEvent GetFeatureEvent()
+		{
+			return this.m_featureEvent;
 		}
 
 		public string GetName()
@@ -67,23 +57,26 @@ namespace bgs
 			return this.m_error.ToString();
 		}
 
-		public int GetContext()
+		public void SetError(BattleNetErrors error)
 		{
-			return this.m_clientContext;
+			this.m_error = error;
+		}
+
+		public void SetFeature(BnetFeature feature)
+		{
+			this.m_feature = feature;
+		}
+
+		public void SetFeatureEvent(BnetFeatureEvent featureEvent)
+		{
+			this.m_featureEvent = featureEvent;
 		}
 
 		public override string ToString()
 		{
-			string result;
-			if (Enum.IsDefined(typeof(BattleNetErrors), this.m_error))
-			{
-				result = string.Format("[event={0} error={1} {2}]", this.m_featureEvent, (int)this.m_error, this.m_error.ToString());
-			}
-			else
-			{
-				result = string.Format("[event={0} code={1} name={2}]", this.m_featureEvent, (int)this.m_error, this.m_error.ToString());
-			}
-			return result;
+			string str;
+			str = (!Enum.IsDefined(typeof(BattleNetErrors), this.m_error) ? string.Format("[event={0} code={1} name={2}]", this.m_featureEvent, (int)this.m_error, this.m_error.ToString()) : string.Format("[event={0} error={1} {2}]", this.m_featureEvent, (int)this.m_error, this.m_error.ToString()));
+			return str;
 		}
 	}
 }

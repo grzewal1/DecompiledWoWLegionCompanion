@@ -4,8 +4,6 @@ namespace bgs
 {
 	public class MethodDescriptor
 	{
-		public delegate IProtoBuf ParseMethod(byte[] bs);
-
 		private string name;
 
 		private uint id;
@@ -13,14 +11,6 @@ namespace bgs
 		private RPCContextDelegate listener;
 
 		private MethodDescriptor.ParseMethod m_parseMethod;
-
-		public string Name
-		{
-			get
-			{
-				return this.name;
-			}
-		}
 
 		public uint Id
 		{
@@ -31,6 +21,14 @@ namespace bgs
 			set
 			{
 				this.id = value;
+			}
+		}
+
+		public string Name
+		{
+			get
+			{
+				return this.name;
 			}
 		}
 
@@ -53,9 +51,9 @@ namespace bgs
 			}
 		}
 
-		public void RegisterListener(RPCContextDelegate d)
+		public bool HasListener()
 		{
-			this.listener = d;
+			return this.listener != null;
 		}
 
 		public void NotifyListener(RPCContext context)
@@ -66,9 +64,11 @@ namespace bgs
 			}
 		}
 
-		public bool HasListener()
+		public void RegisterListener(RPCContextDelegate d)
 		{
-			return this.listener != null;
+			this.listener = d;
 		}
+
+		public delegate IProtoBuf ParseMethod(byte[] bs);
 	}
 }

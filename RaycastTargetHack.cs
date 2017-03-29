@@ -9,11 +9,11 @@ public class RaycastTargetHack : MonoBehaviour
 
 	public List<Text> m_textTargetList;
 
-	private void Awake()
+	public RaycastTargetHack()
 	{
 	}
 
-	public void PopulateTargetList()
+	private void Awake()
 	{
 	}
 
@@ -22,6 +22,10 @@ public class RaycastTargetHack : MonoBehaviour
 	}
 
 	public void EnableTargetList()
+	{
+	}
+
+	public void PopulateTargetList()
 	{
 	}
 }

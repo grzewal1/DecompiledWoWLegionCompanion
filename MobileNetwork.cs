@@ -4,25 +4,12 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
 
 public class MobileNetwork
 {
-	public class MobileNetworkEventArgs : EventArgs
-	{
-		public int Count
-		{
-			get;
-			set;
-		}
-
-		public MobileNetworkEventArgs()
-		{
-			this.Count = 0;
-		}
-	}
-
 	private const int BUFFER_SIZE = 524288;
 
 	public byte[] m_byteArray;
@@ -35,50 +22,43 @@ public class MobileNetwork
 
 	public int m_messageCount;
 
-	private static LogThreadHelper s_log = new LogThreadHelper("MobileNetwork");
+	private static LogThreadHelper s_log;
 
-	public event EventHandler<EventArgs> ConnectionStateChanged;
+	private EventHandler<EventArgs> ConnectionStateChanged;
 
-	public event EventHandler<EventArgs> ServerDisconnectedEventHandler;
+	private EventHandler<EventArgs> ServerDisconnectedEventHandler;
 
-	public event EventHandler<EventArgs> ServerConnectionLostEventHandler;
+	private EventHandler<EventArgs> ServerConnectionLostEventHandler;
 
-	public event EventHandler<MobileNetwork.MobileNetworkEventArgs> MessageReceivedEventHandler;
+	private EventHandler<MobileNetwork.MobileNetworkEventArgs> MessageReceivedEventHandler;
 
-	public event EventHandler<EventArgs> UnknownMessageReceivedEventHandler;
+	private EventHandler<EventArgs> UnknownMessageReceivedEventHandler;
 
 	public bool IsConnected
 	{
 		get
 		{
-			return this.m_connection.Socket != null && this.m_connection.Socket.get_Connected();
+			return (this.m_connection.Socket == null ? false : this.m_connection.Socket.Connected);
 		}
 	}
 
-	protected void OnConnectionStateChanged()
+	static MobileNetwork()
 	{
-		if (this.ConnectionStateChanged != null)
-		{
-			this.ConnectionStateChanged.Invoke(this, EventArgs.Empty);
-		}
+		MobileNetwork.s_log = new LogThreadHelper("MobileNetwork");
 	}
 
-	protected void OnMessageReceived(object msg, int count)
+	public MobileNetwork()
 	{
-		if (this.MessageReceivedEventHandler != null)
-		{
-			MobileNetwork.MobileNetworkEventArgs mobileNetworkEventArgs = new MobileNetwork.MobileNetworkEventArgs();
-			mobileNetworkEventArgs.Count = count;
-			this.MessageReceivedEventHandler.Invoke(msg, mobileNetworkEventArgs);
-		}
 	}
 
-	protected void OnUnknownMessageReceived(string msg)
+	private void AddOutput(string text)
 	{
-		if (this.UnknownMessageReceivedEventHandler != null)
-		{
-			this.UnknownMessageReceivedEventHandler.Invoke(msg, EventArgs.Empty);
-		}
+		Debug.Log(text);
+	}
+
+	private void AddOutput(object obj)
+	{
+		Debug.Log(obj.ToString());
 	}
 
 	public bool ConnectAsync(string serverAddress, int serverPort)
@@ -103,32 +83,6 @@ public class MobileNetwork
 		this.OnConnectionStateChanged();
 	}
 
-	private void ServerDisconnected()
-	{
-		if (this.m_connection.Socket != null)
-		{
-			this.m_connection.Disconnect();
-			this.SocketStopReceiving();
-			if (this.ServerDisconnectedEventHandler != null)
-			{
-				this.ServerDisconnectedEventHandler.Invoke(this, EventArgs.Empty);
-			}
-			return;
-		}
-	}
-
-	public bool Disconnect()
-	{
-		if (this.m_connection.Socket != null)
-		{
-			this.m_connection.Disconnect();
-			this.SocketStopReceiving();
-			this.OnConnectionStateChanged();
-			return true;
-		}
-		return false;
-	}
-
 	private void ConnectionLost()
 	{
 		if (this.m_connection.Socket != null)
@@ -137,105 +91,64 @@ public class MobileNetwork
 			this.SocketStopReceiving();
 			if (this.ServerConnectionLostEventHandler != null)
 			{
-				this.ServerConnectionLostEventHandler.Invoke(this, EventArgs.Empty);
+				this.ServerConnectionLostEventHandler(this, EventArgs.Empty);
 			}
 			this.OnConnectionStateChanged();
 		}
 	}
 
-	public void SendStringMessage(string message)
+	public ulong ConvertDateTimeToTimeT(DateTime dt)
 	{
-		try
+		DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+		if (dt <= dateTime)
 		{
-			byte[] bytes = Encoding.get_UTF8().GetBytes(message);
-			byte[] array = new byte[]
-			{
-				(byte)(bytes.Length >> 24 & 255),
-				(byte)(bytes.Length >> 16 & 255),
-				(byte)(bytes.Length >> 8 & 255),
-				(byte)(bytes.Length & 255)
-			};
-			if (this.IsConnected)
-			{
-				this.m_connection.Socket.Send(array);
-				this.m_connection.Socket.Send(bytes);
-			}
-			else
-			{
-				Debug.Log("SendStringMessage(): Connection lost.");
-				this.ConnectionLost();
-			}
+			return (ulong)0;
 		}
-		catch (SocketException ex)
-		{
-			Debug.Log("SendStringMessage() exception: " + ex.ToString());
-			if (ex.get_ErrorCode() == 10058)
-			{
-				this.ServerDisconnected();
-			}
-			else
-			{
-				Debug.Log("SendStringMessage(): Connection lost in exception.");
-				this.ConnectionLost();
-			}
-		}
+		return (ulong)Math.Floor((dt - dateTime).TotalSeconds);
 	}
 
-	public void SendMessage(object obj)
+	public DateTime ConvertTimeTToDateTime(ulong timet)
 	{
-		string message = MessageFactory.Serialize(obj);
-		this.SendStringMessage(message);
+		DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+		if (timet <= (long)0)
+		{
+			return dateTime;
+		}
+		return dateTime.AddSeconds((double)((float)timet));
 	}
 
 	public object Deserialize(string msg)
 	{
-		object result;
+		object obj;
 		try
 		{
-			result = MessageFactory.Deserialize(msg);
+			obj = MessageFactory.Deserialize(msg);
 		}
-		catch (Exception obj)
+		catch (Exception exception1)
 		{
+			Exception exception = exception1;
 			this.AddOutput("~~~~~~~~~~~~~~~~~~~~~~~~~");
 			this.AddOutput("FAILED TO PARSE JSON CODE");
 			this.AddOutput("~~~~~~~~~~~~~~~~~~~~~~~~~");
 			this.AddOutput(msg);
 			this.AddOutput("~~~~~~~~~~~~~~~~~~~~~~~~~");
-			this.AddOutput(obj);
+			this.AddOutput(exception);
 			this.AddOutput("~~~~~~~~~~~~~~~~~~~~~~~~~");
-			result = null;
+			obj = null;
 		}
-		return result;
+		return obj;
 	}
 
-	public ulong ConvertDateTimeToTimeT(DateTime dt)
+	public bool Disconnect()
 	{
-		DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 1);
-		if (dt <= dateTime)
+		if (this.m_connection.Socket == null)
 		{
-			return 0uL;
+			return false;
 		}
-		return (ulong)Math.Floor((dt - dateTime).get_TotalSeconds());
-	}
-
-	public DateTime ConvertTimeTToDateTime(ulong timet)
-	{
-		DateTime result = new DateTime(1970, 1, 1, 0, 0, 0, 1);
-		if (timet <= 0uL)
-		{
-			return result;
-		}
-		return result.AddSeconds(timet);
-	}
-
-	private void AddOutput(string text)
-	{
-		Debug.Log(text);
-	}
-
-	private void AddOutput(object obj)
-	{
-		Debug.Log(obj.ToString());
+		this.m_connection.Disconnect();
+		this.SocketStopReceiving();
+		this.OnConnectionStateChanged();
+		return true;
 	}
 
 	private void InitSocketReadState()
@@ -250,14 +163,152 @@ public class MobileNetwork
 		}
 	}
 
-	private void SocketStartReceiving()
+	public object InputFactory(Type type, object oldMessage)
 	{
-		this.m_connection.Socket.BeginReceive(this.m_byteArray, 0, 524288, 0, new AsyncCallback(this.SocketReadCallback), null);
+		if (type == null)
+		{
+			return null;
+		}
+		object obj = type.GetConstructor(Type.EmptyTypes).Invoke(null);
+		if (oldMessage == null)
+		{
+			return obj;
+		}
+		return obj;
 	}
 
-	private void SocketStopReceiving()
+	protected void OnConnectionStateChanged()
 	{
-		this.m_bufferedStream.Seek(0L, 0);
+		if (this.ConnectionStateChanged != null)
+		{
+			this.ConnectionStateChanged(this, EventArgs.Empty);
+		}
+	}
+
+	protected void OnMessageReceived(object msg, int count)
+	{
+		if (this.MessageReceivedEventHandler != null)
+		{
+			MobileNetwork.MobileNetworkEventArgs mobileNetworkEventArg = new MobileNetwork.MobileNetworkEventArgs()
+			{
+				Count = count
+			};
+			this.MessageReceivedEventHandler(msg, mobileNetworkEventArg);
+		}
+	}
+
+	protected void OnUnknownMessageReceived(string msg)
+	{
+		if (this.UnknownMessageReceivedEventHandler != null)
+		{
+			this.UnknownMessageReceivedEventHandler(msg, EventArgs.Empty);
+		}
+	}
+
+	public static void Process()
+	{
+		MobileNetwork.s_log.Process();
+	}
+
+	private void ProcessSocketData()
+	{
+		unsafe
+		{
+			while (this.m_bufferedStream.Length > (long)4)
+			{
+				if (this.m_messageLength == 0)
+				{
+					long position = this.m_bufferedStream.Position;
+					byte[] numArray = new byte[4];
+					this.m_bufferedStream.Seek((long)0, SeekOrigin.Begin);
+					this.m_bufferedStream.Read(numArray, 0, 4);
+					this.m_messageLength = (uint)(numArray[0] << 24 | numArray[1] << 16 | numArray[2] << 8 | numArray[3]);
+					this.m_bufferedStream.Seek(position, SeekOrigin.Begin);
+				}
+				if (this.m_messageLength <= 0 || this.m_bufferedStream.Length < (ulong)(this.m_messageLength + 4))
+				{
+					break;
+				}
+				else
+				{
+					this.m_bufferedStream.Seek((long)4, SeekOrigin.Begin);
+					byte[] numArray1 = new byte[this.m_messageLength];
+					this.m_bufferedStream.Read(numArray1, 0, (int)this.m_messageLength);
+					string str = Encoding.UTF8.GetString(numArray1);
+					object obj = this.Deserialize(str);
+					if (obj == null)
+					{
+						this.OnUnknownMessageReceived(str);
+					}
+					else
+					{
+						MobileNetwork mMessageCount = this;
+						mMessageCount.m_messageCount = mMessageCount.m_messageCount + 1;
+						this.OnMessageReceived(obj, this.m_messageCount);
+					}
+					BufferedStream bufferedStream = new BufferedStream(new MemoryStream());
+					while (this.m_bufferedStream.Position < this.m_bufferedStream.Length)
+					{
+						int num = this.m_bufferedStream.Read(this.m_byteArray, 0, (int)this.m_byteArray.Length);
+						bufferedStream.Write(this.m_byteArray, 0, num);
+					}
+					this.m_bufferedStream = bufferedStream;
+					this.m_messageLength = 0;
+				}
+			}
+		}
+	}
+
+	public void SendMessage(object obj)
+	{
+		this.SendStringMessage(MessageFactory.Serialize(obj));
+	}
+
+	public void SendStringMessage(string message)
+	{
+		try
+		{
+			byte[] bytes = Encoding.UTF8.GetBytes(message);
+			byte[] length = new byte[] { (byte)((int)bytes.Length >> 24 & 255), (byte)((int)bytes.Length >> 16 & 255), (byte)((int)bytes.Length >> 8 & 255), (byte)((int)bytes.Length & 255) };
+			if (!this.IsConnected)
+			{
+				Debug.Log("SendStringMessage(): Connection lost.");
+				this.ConnectionLost();
+			}
+			else
+			{
+				this.m_connection.Socket.Send(length);
+				this.m_connection.Socket.Send(bytes);
+			}
+		}
+		catch (SocketException socketException1)
+		{
+			SocketException socketException = socketException1;
+			Debug.Log(string.Concat("SendStringMessage() exception: ", socketException.ToString()));
+			if (socketException.ErrorCode != 10058)
+			{
+				Debug.Log("SendStringMessage(): Connection lost in exception.");
+				this.ConnectionLost();
+			}
+			else
+			{
+				this.ServerDisconnected();
+			}
+		}
+	}
+
+	private void ServerDisconnected()
+	{
+		if (this.m_connection.Socket == null)
+		{
+			return;
+		}
+		this.m_connection.Disconnect();
+		this.SocketStopReceiving();
+		if (this.ServerDisconnectedEventHandler != null)
+		{
+			this.ServerDisconnectedEventHandler(this, EventArgs.Empty);
+		}
 	}
 
 	private void SocketReadCallback(IAsyncResult asyncResult)
@@ -268,65 +319,97 @@ public class MobileNetwork
 		this.SocketStartReceiving();
 	}
 
-	private void ProcessSocketData()
+	private void SocketStartReceiving()
 	{
-		while (this.m_bufferedStream.get_Length() > 4L)
+		this.m_connection.Socket.BeginReceive(this.m_byteArray, 0, 524288, SocketFlags.None, new AsyncCallback(this.SocketReadCallback), null);
+	}
+
+	private void SocketStopReceiving()
+	{
+		this.m_bufferedStream.Seek((long)0, SeekOrigin.Begin);
+	}
+
+	public event EventHandler<EventArgs> ConnectionStateChanged
+	{
+		[MethodImpl(MethodImplOptions.Synchronized)]
+		add
 		{
-			if (this.m_messageLength == 0u)
-			{
-				long position = this.m_bufferedStream.get_Position();
-				byte[] array = new byte[4];
-				this.m_bufferedStream.Seek(0L, 0);
-				this.m_bufferedStream.Read(array, 0, 4);
-				this.m_messageLength = (uint)((int)array[0] << 24 | (int)array[1] << 16 | (int)array[2] << 8 | (int)array[3]);
-				this.m_bufferedStream.Seek(position, 0);
-			}
-			if (this.m_messageLength <= 0u || this.m_bufferedStream.get_Length() < (long)((ulong)(this.m_messageLength + 4u)))
-			{
-				break;
-			}
-			this.m_bufferedStream.Seek(4L, 0);
-			byte[] array2 = new byte[this.m_messageLength];
-			this.m_bufferedStream.Read(array2, 0, (int)this.m_messageLength);
-			string @string = Encoding.get_UTF8().GetString(array2);
-			object obj = this.Deserialize(@string);
-			if (obj != null)
-			{
-				this.m_messageCount++;
-				this.OnMessageReceived(obj, this.m_messageCount);
-			}
-			else
-			{
-				this.OnUnknownMessageReceived(@string);
-			}
-			BufferedStream bufferedStream = new BufferedStream(new MemoryStream());
-			while (this.m_bufferedStream.get_Position() < this.m_bufferedStream.get_Length())
-			{
-				int num = this.m_bufferedStream.Read(this.m_byteArray, 0, this.m_byteArray.Length);
-				bufferedStream.Write(this.m_byteArray, 0, num);
-			}
-			this.m_bufferedStream = bufferedStream;
-			this.m_messageLength = 0u;
+			this.ConnectionStateChanged += value;
+		}
+		[MethodImpl(MethodImplOptions.Synchronized)]
+		remove
+		{
+			this.ConnectionStateChanged -= value;
 		}
 	}
 
-	public object InputFactory(Type type, object oldMessage)
+	public event EventHandler<MobileNetwork.MobileNetworkEventArgs> MessageReceivedEventHandler
 	{
-		if (type == null)
+		[MethodImpl(MethodImplOptions.Synchronized)]
+		add
 		{
-			return null;
+			this.MessageReceivedEventHandler += value;
 		}
-		ConstructorInfo constructor = type.GetConstructor(Type.EmptyTypes);
-		object result = constructor.Invoke(null);
-		if (oldMessage == null)
+		[MethodImpl(MethodImplOptions.Synchronized)]
+		remove
 		{
-			return result;
+			this.MessageReceivedEventHandler -= value;
 		}
-		return result;
 	}
 
-	public static void Process()
+	public event EventHandler<EventArgs> ServerConnectionLostEventHandler
 	{
-		MobileNetwork.s_log.Process();
+		[MethodImpl(MethodImplOptions.Synchronized)]
+		add
+		{
+			this.ServerConnectionLostEventHandler += value;
+		}
+		[MethodImpl(MethodImplOptions.Synchronized)]
+		remove
+		{
+			this.ServerConnectionLostEventHandler -= value;
+		}
+	}
+
+	public event EventHandler<EventArgs> ServerDisconnectedEventHandler
+	{
+		[MethodImpl(MethodImplOptions.Synchronized)]
+		add
+		{
+			this.ServerDisconnectedEventHandler += value;
+		}
+		[MethodImpl(MethodImplOptions.Synchronized)]
+		remove
+		{
+			this.ServerDisconnectedEventHandler -= value;
+		}
+	}
+
+	public event EventHandler<EventArgs> UnknownMessageReceivedEventHandler
+	{
+		[MethodImpl(MethodImplOptions.Synchronized)]
+		add
+		{
+			this.UnknownMessageReceivedEventHandler += value;
+		}
+		[MethodImpl(MethodImplOptions.Synchronized)]
+		remove
+		{
+			this.UnknownMessageReceivedEventHandler -= value;
+		}
+	}
+
+	public class MobileNetworkEventArgs : EventArgs
+	{
+		public int Count
+		{
+			get;
+			set;
+		}
+
+		public MobileNetworkEventArgs()
+		{
+			this.Count = 0;
+		}
 	}
 }

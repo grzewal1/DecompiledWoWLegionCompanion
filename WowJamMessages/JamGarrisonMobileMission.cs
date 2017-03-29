@@ -1,87 +1,104 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamGarrisonMobileMission", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamGarrisonMobileMission", Version=28333852)]
 	public class JamGarrisonMobileMission
 	{
-		[FlexJamMember(Name = "offerTime", Type = FlexJamType.Int64), DataMember(Name = "offerTime")]
-		public long OfferTime
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "travelDuration", Type = FlexJamType.Int64), DataMember(Name = "travelDuration")]
-		public long TravelDuration
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "missionRecID", Type = FlexJamType.Int32), DataMember(Name = "missionRecID")]
-		public int MissionRecID
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "missionState", Type = FlexJamType.Int32), DataMember(Name = "missionState")]
-		public int MissionState
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(ArrayDimensions = 1, Name = "encounter", Type = FlexJamType.Struct), DataMember(Name = "encounter")]
-		public JamGarrisonEncounter[] Encounter
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(ArrayDimensions = 1, Name = "reward", Type = FlexJamType.Struct), DataMember(Name = "reward")]
-		public JamGarrisonMissionReward[] Reward
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "startTime", Type = FlexJamType.Int64), DataMember(Name = "startTime")]
-		public long StartTime
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "dbID", Type = FlexJamType.UInt64), DataMember(Name = "dbID")]
+		[DataMember(Name="dbID")]
+		[FlexJamMember(Name="dbID", Type=FlexJamType.UInt64)]
 		public ulong DbID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "offerDuration", Type = FlexJamType.Int64), DataMember(Name = "offerDuration")]
+		[DataMember(Name="encounter")]
+		[FlexJamMember(ArrayDimensions=1, Name="encounter", Type=FlexJamType.Struct)]
+		public JamGarrisonEncounter[] Encounter
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="missionDuration")]
+		[FlexJamMember(Name="missionDuration", Type=FlexJamType.Int64)]
+		public long MissionDuration
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="missionRecID")]
+		[FlexJamMember(Name="missionRecID", Type=FlexJamType.Int32)]
+		public int MissionRecID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="missionState")]
+		[FlexJamMember(Name="missionState", Type=FlexJamType.Int32)]
+		public int MissionState
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="offerDuration")]
+		[FlexJamMember(Name="offerDuration", Type=FlexJamType.Int64)]
 		public long OfferDuration
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(ArrayDimensions = 1, Name = "overmaxReward", Type = FlexJamType.Struct), DataMember(Name = "overmaxReward")]
+		[DataMember(Name="offerTime")]
+		[FlexJamMember(Name="offerTime", Type=FlexJamType.Int64)]
+		public long OfferTime
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="overmaxReward")]
+		[FlexJamMember(ArrayDimensions=1, Name="overmaxReward", Type=FlexJamType.Struct)]
 		public JamGarrisonMissionReward[] OvermaxReward
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "missionDuration", Type = FlexJamType.Int64), DataMember(Name = "missionDuration")]
-		public long MissionDuration
+		[DataMember(Name="reward")]
+		[FlexJamMember(ArrayDimensions=1, Name="reward", Type=FlexJamType.Struct)]
+		public JamGarrisonMissionReward[] Reward
 		{
 			get;
 			set;
+		}
+
+		[DataMember(Name="startTime")]
+		[FlexJamMember(Name="startTime", Type=FlexJamType.Int64)]
+		public long StartTime
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="travelDuration")]
+		[FlexJamMember(Name="travelDuration", Type=FlexJamType.Int64)]
+		public long TravelDuration
+		{
+			get;
+			set;
+		}
+
+		public JamGarrisonMobileMission()
+		{
 		}
 	}
 }

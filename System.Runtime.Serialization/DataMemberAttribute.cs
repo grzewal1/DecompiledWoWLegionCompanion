@@ -2,7 +2,7 @@ using System;
 
 namespace System.Runtime.Serialization
 {
-	[AttributeUsage]
+	[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited=false, AllowMultiple=false)]
 	public sealed class DataMemberAttribute : Attribute
 	{
 		private bool is_required;
@@ -59,6 +59,10 @@ namespace System.Runtime.Serialization
 			{
 				this.order = value;
 			}
+		}
+
+		public DataMemberAttribute()
+		{
 		}
 	}
 }

@@ -2,8 +2,11 @@ using System;
 
 namespace Newtonsoft.Json
 {
-	[AttributeUsage]
+	[AttributeUsage(AttributeTargets.Constructor | AttributeTargets.Property, AllowMultiple=false)]
 	public sealed class JsonConstructorAttribute : Attribute
 	{
+		public JsonConstructorAttribute()
+		{
+		}
 	}
 }

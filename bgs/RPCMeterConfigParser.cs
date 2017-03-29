@@ -1,153 +1,212 @@
 using bnet.protocol.config;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace bgs
 {
 	public class RPCMeterConfigParser
 	{
-		public static RPCMethodConfig ParseMethod(Tokenizer tokenizer)
+		public RPCMeterConfigParser()
 		{
-			RPCMethodConfig rPCMethodConfig = new RPCMethodConfig();
-			tokenizer.NextOpenBracket();
-			while (true)
-			{
-				string text = tokenizer.NextString();
-				if (text == null)
-				{
-					break;
-				}
-				if (text == "}")
-				{
-					return rPCMethodConfig;
-				}
-				string text2 = text;
-				if (text2 == null)
-				{
-					goto IL_1E6;
-				}
-				if (RPCMeterConfigParser.<>f__switch$mapC == null)
-				{
-					Dictionary<string, int> dictionary = new Dictionary<string, int>(11);
-					dictionary.Add("service_name:", 0);
-					dictionary.Add("method_name:", 1);
-					dictionary.Add("fixed_call_cost:", 2);
-					dictionary.Add("fixed_packet_size:", 3);
-					dictionary.Add("variable_multiplier:", 4);
-					dictionary.Add("multiplier:", 5);
-					dictionary.Add("rate_limit_count:", 6);
-					dictionary.Add("rate_limit_seconds:", 7);
-					dictionary.Add("max_packet_size:", 8);
-					dictionary.Add("max_encoded_size:", 9);
-					dictionary.Add("timeout:", 10);
-					RPCMeterConfigParser.<>f__switch$mapC = dictionary;
-				}
-				int num;
-				if (!RPCMeterConfigParser.<>f__switch$mapC.TryGetValue(text2, ref num))
-				{
-					goto IL_1E6;
-				}
-				switch (num)
-				{
-				case 0:
-					rPCMethodConfig.ServiceName = tokenizer.NextQuotedString();
-					break;
-				case 1:
-					rPCMethodConfig.MethodName = tokenizer.NextQuotedString();
-					break;
-				case 2:
-					rPCMethodConfig.FixedCallCost = tokenizer.NextUInt32();
-					break;
-				case 3:
-					rPCMethodConfig.FixedPacketSize = tokenizer.NextUInt32();
-					break;
-				case 4:
-					rPCMethodConfig.VariableMultiplier = tokenizer.NextUInt32();
-					break;
-				case 5:
-					rPCMethodConfig.Multiplier = tokenizer.NextFloat();
-					break;
-				case 6:
-					rPCMethodConfig.RateLimitCount = tokenizer.NextUInt32();
-					break;
-				case 7:
-					rPCMethodConfig.RateLimitSeconds = tokenizer.NextUInt32();
-					break;
-				case 8:
-					rPCMethodConfig.MaxPacketSize = tokenizer.NextUInt32();
-					break;
-				case 9:
-					rPCMethodConfig.MaxEncodedSize = tokenizer.NextUInt32();
-					break;
-				case 10:
-					rPCMethodConfig.Timeout = tokenizer.NextFloat();
-					break;
-				default:
-					goto IL_1E6;
-				}
-				continue;
-				IL_1E6:
-				tokenizer.SkipUnknownToken();
-			}
-			throw new Exception("Parsing ended with unfinished RPCMethodConfig");
 		}
 
 		public static RPCMeterConfig ParseConfig(string str)
 		{
+			int num;
 			RPCMeterConfig rPCMeterConfig = new RPCMeterConfig();
 			Tokenizer tokenizer = new Tokenizer(str);
 			while (true)
 			{
-				string text = tokenizer.NextString();
-				if (text == null)
+			Label1:
+				string str1 = tokenizer.NextString();
+				if (str1 == null)
 				{
 					break;
 				}
-				string text2 = text;
-				if (text2 == null)
+				string str2 = str1;
+				if (str2 != null)
 				{
-					goto IL_108;
+					if (RPCMeterConfigParser.<>f__switch$mapF == null)
+					{
+						Dictionary<string, int> strs = new Dictionary<string, int>(5)
+						{
+							{ "method", 0 },
+							{ "income_per_second:", 1 },
+							{ "initial_balance:", 2 },
+							{ "cap_balance:", 3 },
+							{ "startup_period:", 4 }
+						};
+						RPCMeterConfigParser.<>f__switch$mapF = strs;
+					}
+					if (RPCMeterConfigParser.<>f__switch$mapF.TryGetValue(str2, out num))
+					{
+						switch (num)
+						{
+							case 0:
+							{
+								rPCMeterConfig.AddMethod(RPCMeterConfigParser.ParseMethod(tokenizer));
+								break;
+							}
+							case 1:
+							{
+								rPCMeterConfig.IncomePerSecond = tokenizer.NextUInt32();
+								break;
+							}
+							case 2:
+							{
+								rPCMeterConfig.InitialBalance = tokenizer.NextUInt32();
+								break;
+							}
+							case 3:
+							{
+								rPCMeterConfig.CapBalance = tokenizer.NextUInt32();
+								break;
+							}
+							case 4:
+							{
+								rPCMeterConfig.StartupPeriod = tokenizer.NextFloat();
+								break;
+							}
+							default:
+							{
+								goto Label0;
+							}
+						}
+					}
+					else
+					{
+						goto Label0;
+					}
 				}
-				if (RPCMeterConfigParser.<>f__switch$mapD == null)
+				else
 				{
-					Dictionary<string, int> dictionary = new Dictionary<string, int>(5);
-					dictionary.Add("method", 0);
-					dictionary.Add("income_per_second:", 1);
-					dictionary.Add("initial_balance:", 2);
-					dictionary.Add("cap_balance:", 3);
-					dictionary.Add("startup_period:", 4);
-					RPCMeterConfigParser.<>f__switch$mapD = dictionary;
+					goto Label0;
 				}
-				int num;
-				if (!RPCMeterConfigParser.<>f__switch$mapD.TryGetValue(text2, ref num))
-				{
-					goto IL_108;
-				}
-				switch (num)
-				{
-				case 0:
-					rPCMeterConfig.AddMethod(RPCMeterConfigParser.ParseMethod(tokenizer));
-					break;
-				case 1:
-					rPCMeterConfig.IncomePerSecond = tokenizer.NextUInt32();
-					break;
-				case 2:
-					rPCMeterConfig.InitialBalance = tokenizer.NextUInt32();
-					break;
-				case 3:
-					rPCMeterConfig.CapBalance = tokenizer.NextUInt32();
-					break;
-				case 4:
-					rPCMeterConfig.StartupPeriod = tokenizer.NextFloat();
-					break;
-				default:
-					goto IL_108;
-				}
-				continue;
-				IL_108:
-				tokenizer.SkipUnknownToken();
 			}
 			return rPCMeterConfig;
+		Label0:
+			tokenizer.SkipUnknownToken();
+			goto Label1;
+		}
+
+		public static RPCMethodConfig ParseMethod(Tokenizer tokenizer)
+		{
+			int num;
+			RPCMethodConfig rPCMethodConfig = new RPCMethodConfig();
+			tokenizer.NextOpenBracket();
+			while (true)
+			{
+			Label2:
+				string str = tokenizer.NextString();
+				if (str == null)
+				{
+					throw new Exception("Parsing ended with unfinished RPCMethodConfig");
+				}
+				if (str == "}")
+				{
+					break;
+				}
+				string str1 = str;
+				if (str1 != null)
+				{
+					if (RPCMeterConfigParser.<>f__switch$mapE == null)
+					{
+						Dictionary<string, int> strs = new Dictionary<string, int>(11)
+						{
+							{ "service_name:", 0 },
+							{ "method_name:", 1 },
+							{ "fixed_call_cost:", 2 },
+							{ "fixed_packet_size:", 3 },
+							{ "variable_multiplier:", 4 },
+							{ "multiplier:", 5 },
+							{ "rate_limit_count:", 6 },
+							{ "rate_limit_seconds:", 7 },
+							{ "max_packet_size:", 8 },
+							{ "max_encoded_size:", 9 },
+							{ "timeout:", 10 }
+						};
+						RPCMeterConfigParser.<>f__switch$mapE = strs;
+					}
+					if (RPCMeterConfigParser.<>f__switch$mapE.TryGetValue(str1, out num))
+					{
+						switch (num)
+						{
+							case 0:
+							{
+								rPCMethodConfig.ServiceName = tokenizer.NextQuotedString();
+								break;
+							}
+							case 1:
+							{
+								rPCMethodConfig.MethodName = tokenizer.NextQuotedString();
+								break;
+							}
+							case 2:
+							{
+								rPCMethodConfig.FixedCallCost = tokenizer.NextUInt32();
+								break;
+							}
+							case 3:
+							{
+								rPCMethodConfig.FixedPacketSize = tokenizer.NextUInt32();
+								break;
+							}
+							case 4:
+							{
+								rPCMethodConfig.VariableMultiplier = (float)((float)tokenizer.NextUInt32());
+								break;
+							}
+							case 5:
+							{
+								rPCMethodConfig.Multiplier = tokenizer.NextFloat();
+								break;
+							}
+							case 6:
+							{
+								rPCMethodConfig.RateLimitCount = tokenizer.NextUInt32();
+								break;
+							}
+							case 7:
+							{
+								rPCMethodConfig.RateLimitSeconds = tokenizer.NextUInt32();
+								break;
+							}
+							case 8:
+							{
+								rPCMethodConfig.MaxPacketSize = tokenizer.NextUInt32();
+								break;
+							}
+							case 9:
+							{
+								rPCMethodConfig.MaxEncodedSize = tokenizer.NextUInt32();
+								break;
+							}
+							case 10:
+							{
+								rPCMethodConfig.Timeout = tokenizer.NextFloat();
+								break;
+							}
+							default:
+							{
+								goto Label1;
+							}
+						}
+					}
+					else
+					{
+						goto Label1;
+					}
+				}
+				else
+				{
+					goto Label1;
+				}
+			}
+			return rPCMethodConfig;
+		Label1:
+			tokenizer.SkipUnknownToken();
+			goto Label2;
 		}
 	}
 }

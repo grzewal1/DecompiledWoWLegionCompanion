@@ -3,10 +3,14 @@ using UnityEngine;
 
 public class MultipanelDefaultPositioner : MonoBehaviour
 {
+	public MultipanelDefaultPositioner()
+	{
+	}
+
 	private void Start()
 	{
-		Vector3 localPosition = base.get_gameObject().get_transform().get_localPosition();
-		localPosition.x = -1690f;
-		base.get_gameObject().get_transform().set_localPosition(localPosition);
+		Vector3 vector3 = base.gameObject.transform.localPosition;
+		vector3.x = -1690f;
+		base.gameObject.transform.localPosition = vector3;
 	}
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,6 +28,8 @@ public class TitlePanel : MonoBehaviour
 
 	private bool m_showDialog = true;
 
+	private bool m_showPTR = true;
+
 	private string[] m_regionOptions;
 
 	public int CancelIndex
@@ -35,57 +38,66 @@ public class TitlePanel : MonoBehaviour
 		set;
 	}
 
-	private void Start()
+	public TitlePanel()
 	{
-		if (Login.instance.IsDevRegionList())
+	}
+
+	public void CancelRegionIndex()
+	{
+		Debug.Log(string.Concat("Canceled index ", this.CancelIndex));
+		this.m_showDialog = false;
+		this.m_portalDropdown.@value = this.CancelIndex;
+		this.m_showDialog = true;
+	}
+
+	private string GetDropdownPortalText()
+	{
+		string lower;
+		if (!Login.instance.IsDevRegionList())
 		{
-			this.m_regionOptions = new string[]
+			switch (this.m_portalDropdown.@value)
 			{
-				"WoW-Dev",
-				"Beta",
-				"ST-US",
-				"ST-EU",
-				"ST-KR",
-				"ST-CN",
-				"US",
-				"EU",
-				"CN",
-				"KR"
-			};
+				case 0:
+				{
+					lower = "us";
+					break;
+				}
+				case 1:
+				{
+					lower = "eu";
+					break;
+				}
+				case 2:
+				{
+					lower = "kr";
+					break;
+				}
+				case 3:
+				{
+					lower = "cn";
+					break;
+				}
+				case 4:
+				{
+					lower = "beta";
+					break;
+				}
+				default:
+				{
+					goto case 0;
+				}
+			}
 		}
 		else
 		{
-			this.m_regionOptions = new string[4];
+			lower = this.m_portalDropdown.options.ToArray()[this.m_portalDropdown.@value].text.ToLower();
 		}
-		this.m_briefBuildText.set_text(string.Format("{0:D2}", BuildNum.CodeBuildNum));
-		this.m_buildText.set_text(string.Empty);
-		this.UpdateResumeButtonVisiblity();
-		this.m_legalText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_legalText.set_text(StaticDB.GetString("LEGAL_TEXT", "(c) 2016 Blizzard Entertainment, Inc. All rights reserved."));
-		List<Dropdown.OptionData> list = new List<Dropdown.OptionData>();
-		if (!Login.instance.IsDevRegionList())
-		{
-			this.m_regionOptions[0] = StaticDB.GetString("AMERICAS_AND_OCEANIC", "Americas and Oceanic");
-			this.m_regionOptions[1] = StaticDB.GetString("EUROPE", "Europe");
-			this.m_regionOptions[2] = StaticDB.GetString("KOREA_AND_TAIWAN", "Korea and Taiwan");
-			this.m_regionOptions[3] = StaticDB.GetString("CHINA", "China");
-		}
-		for (int i = 0; i < this.m_regionOptions.Length; i++)
-		{
-			Dropdown.OptionData optionData = new Dropdown.OptionData();
-			optionData.set_text(this.m_regionOptions[i]);
-			list.Add(optionData);
-		}
-		this.m_portalDropdown.ClearOptions();
-		this.m_portalDropdown.AddOptions(list);
-	}
-
-	private void Update()
-	{
+		return lower;
 	}
 
 	private void OnEnable()
 	{
+		int num;
 		this.m_legionLogo.SetActive(false);
 		this.m_legionLogo_CN.SetActive(false);
 		this.m_legionLogo_TW.SetActive(false);
@@ -94,119 +106,106 @@ public class TitlePanel : MonoBehaviour
 		{
 			this.m_legionLogo_CN.SetActive(true);
 		}
-		else if (locale == "zhTW")
-		{
-			this.m_legionLogo_TW.SetActive(true);
-		}
-		else
+		else if (locale != "zhTW")
 		{
 			this.m_legionLogo.SetActive(true);
 		}
-		if (Login.instance.IsDevRegionList())
+		else
 		{
-			for (int i = 0; i < this.m_portalDropdown.get_options().get_Count(); i++)
+			this.m_legionLogo_TW.SetActive(true);
+		}
+		if (!Login.instance.IsDevRegionList())
+		{
+			int num1 = 0;
+			string bnPortal = Login.instance.GetBnPortal();
+			if (bnPortal != null)
 			{
-				if (this.m_portalDropdown.get_options().ToArray()[i].get_text().ToLower() == Login.instance.GetBnPortal())
+				if (TitlePanel.<>f__switch$mapA == null)
+				{
+					Dictionary<string, int> strs = new Dictionary<string, int>(5)
+					{
+						{ "us", 0 },
+						{ "eu", 1 },
+						{ "kr", 2 },
+						{ "cn", 3 },
+						{ "beta", 4 }
+					};
+					TitlePanel.<>f__switch$mapA = strs;
+				}
+				if (TitlePanel.<>f__switch$mapA.TryGetValue(bnPortal, out num))
+				{
+					switch (num)
+					{
+						case 0:
+						{
+							num1 = 0;
+							break;
+						}
+						case 1:
+						{
+							num1 = 1;
+							break;
+						}
+						case 2:
+						{
+							num1 = 2;
+							break;
+						}
+						case 3:
+						{
+							num1 = 3;
+							break;
+						}
+						case 4:
+						{
+							num1 = 4;
+							break;
+						}
+					}
+				}
+			}
+			this.m_showDialog = false;
+			this.m_portalDropdown.@value = num1;
+			this.m_showDialog = true;
+		}
+		else
+		{
+			int num2 = 0;
+			while (num2 < this.m_portalDropdown.options.Count)
+			{
+				if (this.m_portalDropdown.options.ToArray()[num2].text.ToLower() != Login.instance.GetBnPortal())
+				{
+					num2++;
+				}
+				else
 				{
 					this.m_showDialog = false;
-					this.m_portalDropdown.set_value(i);
+					this.m_portalDropdown.@value = num2;
 					this.m_showDialog = true;
 					break;
 				}
 			}
 		}
-		else
-		{
-			int value = 0;
-			string bnPortal = Login.instance.GetBnPortal();
-			if (bnPortal != null)
-			{
-				if (TitlePanel.<>f__switch$map8 == null)
-				{
-					Dictionary<string, int> dictionary = new Dictionary<string, int>(4);
-					dictionary.Add("us", 0);
-					dictionary.Add("eu", 1);
-					dictionary.Add("kr", 2);
-					dictionary.Add("cn", 3);
-					TitlePanel.<>f__switch$map8 = dictionary;
-				}
-				int num;
-				if (TitlePanel.<>f__switch$map8.TryGetValue(bnPortal, ref num))
-				{
-					switch (num)
-					{
-					case 0:
-						value = 0;
-						break;
-					case 1:
-						value = 1;
-						break;
-					case 2:
-						value = 2;
-						break;
-					case 3:
-						value = 3;
-						break;
-					}
-				}
-			}
-			this.m_showDialog = false;
-			this.m_portalDropdown.set_value(value);
-			this.m_showDialog = true;
-		}
-		this.CancelIndex = this.m_portalDropdown.get_value();
+		this.CancelIndex = this.m_portalDropdown.@value;
 	}
 
 	public void PortalDropdownChanged(int index)
 	{
-		Debug.Log(string.Concat(new object[]
-		{
-			"New index ",
-			index,
-			", cancelIndex ",
-			this.CancelIndex
-		}));
+		Debug.Log(string.Concat(new object[] { "New index ", index, ", cancelIndex ", this.CancelIndex }));
 		if (this.m_showDialog)
 		{
 			AllPopups.instance.ShowRegionConfirmationPopup(index);
 		}
 	}
 
-	private string GetDropdownPortalText()
-	{
-		string result;
-		if (!Login.instance.IsDevRegionList())
-		{
-			switch (this.m_portalDropdown.get_value())
-			{
-			case 0:
-				IL_62:
-				result = "us";
-				return result;
-			case 1:
-				result = "eu";
-				return result;
-			case 2:
-				result = "kr";
-				return result;
-			case 3:
-				result = "cn";
-				return result;
-			}
-			goto IL_62;
-		}
-		result = this.m_portalDropdown.get_options().ToArray()[this.m_portalDropdown.get_value()].get_text().ToLower();
-		return result;
-	}
-
 	public void SetRegionIndex()
 	{
-		Debug.Log("Set index " + this.m_portalDropdown.get_value());
-		this.CancelIndex = this.m_portalDropdown.get_value();
+		Debug.Log(string.Concat("Set index ", this.m_portalDropdown.@value));
+		this.CancelIndex = this.m_portalDropdown.@value;
 		string dropdownPortalText = this.GetDropdownPortalText();
-		bool flag = Login.instance.GetBnPortal() != dropdownPortalText;
+		bool bnPortal = Login.instance.GetBnPortal() != dropdownPortalText;
 		Login.instance.SetPortal(dropdownPortalText);
-		if (flag)
+		if (bnPortal)
 		{
 			Login.instance.ClearAllCachedTokens();
 			Debug.Log("Quitting");
@@ -214,33 +213,78 @@ public class TitlePanel : MonoBehaviour
 		}
 	}
 
-	public void CancelRegionIndex()
+	private void Start()
 	{
-		Debug.Log("Canceled index " + this.CancelIndex);
-		this.m_showDialog = false;
-		this.m_portalDropdown.set_value(this.CancelIndex);
-		this.m_showDialog = true;
+		DateTime today = DateTime.Today;
+		Debug.Log(string.Concat(new object[] { "Date: ", today.Month, "/", today.Day, "/", today.Year }));
+		if (today.Year > 2017 || today.Month > 3 || today.Day > 27)
+		{
+			this.m_showPTR = false;
+		}
+		if (Login.instance.IsDevRegionList())
+		{
+			this.m_regionOptions = new string[] { "WoW-Dev", "PTR", "ST-US", "ST-EU", "ST-KR", "ST-CN", "US", "EU", "CN", "KR" };
+		}
+		else if (!this.m_showPTR)
+		{
+			this.m_regionOptions = new string[4];
+		}
+		else
+		{
+			this.m_regionOptions = new string[5];
+		}
+		this.m_briefBuildText.text = string.Format("{0:D2}", BuildNum.CodeBuildNum);
+		this.m_buildText.text = string.Empty;
+		this.UpdateResumeButtonVisiblity();
+		this.m_legalText.font = GeneralHelpers.LoadStandardFont();
+		this.m_legalText.text = StaticDB.GetString("LEGAL_TEXT", "(c) 2016 Blizzard Entertainment, Inc. All rights reserved.");
+		List<Dropdown.OptionData> optionDatas = new List<Dropdown.OptionData>();
+		if (!Login.instance.IsDevRegionList())
+		{
+			this.m_regionOptions[0] = StaticDB.GetString("AMERICAS_AND_OCEANIC", "Americas and Oceanic");
+			this.m_regionOptions[1] = StaticDB.GetString("EUROPE", "Europe");
+			this.m_regionOptions[2] = StaticDB.GetString("KOREA_AND_TAIWAN", "Korea and Taiwan");
+			this.m_regionOptions[3] = StaticDB.GetString("CHINA", "China");
+			if (this.m_showPTR)
+			{
+				this.m_regionOptions[4] = "PTR";
+			}
+		}
+		for (int i = 0; i < (int)this.m_regionOptions.Length; i++)
+		{
+			Dropdown.OptionData optionDatum = new Dropdown.OptionData()
+			{
+				text = this.m_regionOptions[i]
+			};
+			optionDatas.Add(optionDatum);
+		}
+		this.m_portalDropdown.ClearOptions();
+		this.m_portalDropdown.AddOptions(optionDatas);
+	}
+
+	private void Update()
+	{
 	}
 
 	public void UpdateResumeButtonVisiblity()
 	{
 		bool flag = Login.instance.HaveCachedWebToken();
-		this.m_resumeButton.get_gameObject().SetActive(flag);
-		if (flag)
+		this.m_resumeButton.gameObject.SetActive(flag);
+		if (!flag)
+		{
+			this.m_loginButtonText.font = GeneralHelpers.LoadStandardFont();
+			this.m_loginButtonText.text = StaticDB.GetString("LOGIN", null);
+		}
+		else
 		{
 			Text componentInChildren = this.m_resumeButton.GetComponentInChildren<Text>();
 			if (componentInChildren != null)
 			{
-				componentInChildren.set_font(GeneralHelpers.LoadStandardFont());
-				componentInChildren.set_text(StaticDB.GetString("LOGIN", null));
-				this.m_loginButtonText.set_font(GeneralHelpers.LoadStandardFont());
-				this.m_loginButtonText.set_text(StaticDB.GetString("ACCOUNT_SELECTION", null));
+				componentInChildren.font = GeneralHelpers.LoadStandardFont();
+				componentInChildren.text = StaticDB.GetString("LOGIN", null);
+				this.m_loginButtonText.font = GeneralHelpers.LoadStandardFont();
+				this.m_loginButtonText.text = StaticDB.GetString("ACCOUNT_SELECTION", null);
 			}
-		}
-		else
-		{
-			this.m_loginButtonText.set_font(GeneralHelpers.LoadStandardFont());
-			this.m_loginButtonText.set_text(StaticDB.GetString("LOGIN", null));
 		}
 	}
 }

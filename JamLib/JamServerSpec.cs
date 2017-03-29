@@ -1,45 +1,35 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace JamLib
 {
-	[FlexJamStruct(Name = "JamServerSpec"), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamServerSpec")]
 	public struct JamServerSpec : IComparable<JamServerSpec>
 	{
-		[FlexJamMember(Name = "realm", Type = FlexJamType.UInt32), DataMember(Name = "realm")]
+		[DataMember(Name="realm")]
+		[FlexJamMember(Name="realm", Type=FlexJamType.UInt32)]
 		public uint RealmAddress
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "type", Type = FlexJamType.Int32), DataMember(Name = "type")]
-		public JAM_DESTINATION ServerType
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "server", Type = FlexJamType.UInt32), DataMember(Name = "server")]
+		[DataMember(Name="server")]
+		[FlexJamMember(Name="server", Type=FlexJamType.UInt32)]
 		public uint ServerID
 		{
 			get;
 			set;
 		}
 
-		public override string ToString()
+		[DataMember(Name="type")]
+		[FlexJamMember(Name="type", Type=FlexJamType.Int32)]
+		public JAM_DESTINATION ServerType
 		{
-			return string.Format("{0:x}:{1}:{2}", this.RealmAddress, (int)this.ServerType, this.ServerID);
-		}
-
-		public override bool Equals(object obj)
-		{
-			return obj is JamServerSpec && (JamServerSpec)obj == this;
-		}
-
-		public override int GetHashCode()
-		{
-			return (int)(this.RealmAddress ^ (uint)this.ServerType ^ this.ServerID);
+			get;
+			set;
 		}
 
 		public int CompareTo(JamServerSpec other)
@@ -71,19 +61,39 @@ namespace JamLib
 			return 0;
 		}
 
-		public bool IsValid()
+		public override bool Equals(object obj)
 		{
-			return (ulong)this.ServerType < (ulong)((long)WowConstants.NUM_JAM_DESTINATION_TYPES) && this.ServerID != 0u && this.RealmAddress != 0u;
+			return (!(obj is JamServerSpec) ? false : (JamServerSpec)obj == this);
+		}
+
+		public override int GetHashCode()
+		{
+			return (int)(this.RealmAddress ^ (uint)this.ServerType ^ this.ServerID);
 		}
 
 		public bool IsRoutable()
 		{
-			return (ulong)this.ServerType < (ulong)((long)WowConstants.NUM_JAM_DESTINATION_TYPES) && this.RealmAddress != 0u;
+			return ((ulong)this.ServerType >= (long)WowConstants.NUM_JAM_DESTINATION_TYPES ? false : this.RealmAddress != 0);
+		}
+
+		public bool IsValid()
+		{
+			return ((ulong)this.ServerType >= (long)WowConstants.NUM_JAM_DESTINATION_TYPES || this.ServerID == 0 ? false : this.RealmAddress != 0);
 		}
 
 		public static bool operator ==(JamServerSpec a, JamServerSpec b)
 		{
-			return a.RealmAddress == b.RealmAddress && a.ServerType == b.ServerType && a.ServerID == b.ServerID;
+			return (a.RealmAddress != b.RealmAddress || a.ServerType != b.ServerType ? false : a.ServerID == b.ServerID);
+		}
+
+		public static bool operator >(JamServerSpec a, JamServerSpec b)
+		{
+			return a.CompareTo(b) > 0;
+		}
+
+		public static bool operator >=(JamServerSpec a, JamServerSpec b)
+		{
+			return a.CompareTo(b) >= 0;
 		}
 
 		public static bool operator !=(JamServerSpec a, JamServerSpec b)
@@ -101,14 +111,9 @@ namespace JamLib
 			return a.CompareTo(b) <= 0;
 		}
 
-		public static bool operator >(JamServerSpec a, JamServerSpec b)
+		public override string ToString()
 		{
-			return a.CompareTo(b) > 0;
-		}
-
-		public static bool operator >=(JamServerSpec a, JamServerSpec b)
-		{
-			return a.CompareTo(b) >= 0;
+			return string.Format("{0:x}:{1}:{2}", this.RealmAddress, (int)this.ServerType, this.ServerID);
 		}
 	}
 }

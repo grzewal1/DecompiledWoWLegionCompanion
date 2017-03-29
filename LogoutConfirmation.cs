@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 using WowStatConstants;
@@ -19,21 +20,26 @@ public class LogoutConfirmation : MonoBehaviour
 		set;
 	}
 
-	private void OnEnable()
+	public LogoutConfirmation()
 	{
-		if (this.GoToWebAuth)
+	}
+
+	public void OnClickCancel()
+	{
+		AllPopups.instance.HideAllPopups();
+	}
+
+	public void OnClickOkay()
+	{
+		AllPopups.instance.HideAllPopups();
+		if (!this.GoToWebAuth)
 		{
-			this.m_logoutText.set_text(StaticDB.GetString("ACCOUNT_SELECTION", null));
+			Login.instance.BackToAccountSelect();
 		}
 		else
 		{
-			this.m_logoutText.set_text(StaticDB.GetString("LOG_OUT", null));
+			Login.instance.StartNewLogin();
 		}
-		this.m_sureText.set_text(StaticDB.GetString("ARE_YOU_SURE", null));
-		this.m_okayText.set_text(StaticDB.GetString("OK", null));
-		this.m_cancelText.set_text(StaticDB.GetString("CANCEL", null));
-		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
-		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
 	}
 
 	private void OnDisable()
@@ -42,21 +48,20 @@ public class LogoutConfirmation : MonoBehaviour
 		Main.instance.m_backButtonManager.PopBackAction();
 	}
 
-	public void OnClickOkay()
+	private void OnEnable()
 	{
-		AllPopups.instance.HideAllPopups();
-		if (this.GoToWebAuth)
+		if (!this.GoToWebAuth)
 		{
-			Login.instance.StartNewLogin();
+			this.m_logoutText.text = StaticDB.GetString("LOG_OUT", null);
 		}
 		else
 		{
-			Login.instance.BackToAccountSelect();
+			this.m_logoutText.text = StaticDB.GetString("ACCOUNT_SELECTION", null);
 		}
-	}
-
-	public void OnClickCancel()
-	{
-		AllPopups.instance.HideAllPopups();
+		this.m_sureText.text = StaticDB.GetString("ARE_YOU_SURE", null);
+		this.m_okayText.text = StaticDB.GetString("OK", null);
+		this.m_cancelText.text = StaticDB.GetString("CANCEL", null);
+		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
+		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
 	}
 }

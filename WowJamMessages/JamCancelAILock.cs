@@ -1,38 +1,48 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamCancelAILock", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamCancelAILock", Version=28333852)]
 	public class JamCancelAILock
 	{
-		[FlexJamMember(Name = "lockReason", Type = FlexJamType.UInt32), DataMember(Name = "lockReason")]
-		public uint LockReason
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "ticketGUID", Type = FlexJamType.WowGuid), DataMember(Name = "ticketGUID")]
-		public string TicketGUID
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "lockGUID", Type = FlexJamType.WowGuid), DataMember(Name = "lockGUID")]
+		[DataMember(Name="lockGUID")]
+		[FlexJamMember(Name="lockGUID", Type=FlexJamType.WowGuid)]
 		public string LockGUID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "lockResourceGUID", Type = FlexJamType.WowGuid), DataMember(Name = "lockResourceGUID")]
+		[DataMember(Name="lockReason")]
+		[FlexJamMember(Name="lockReason", Type=FlexJamType.UInt32)]
+		public uint LockReason
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="lockResourceGUID")]
+		[FlexJamMember(Name="lockResourceGUID", Type=FlexJamType.WowGuid)]
 		public string LockResourceGUID
 		{
 			get;
 			set;
+		}
+
+		[DataMember(Name="ticketGUID")]
+		[FlexJamMember(Name="ticketGUID", Type=FlexJamType.WowGuid)]
+		public string TicketGUID
+		{
+			get;
+			set;
+		}
+
+		public JamCancelAILock()
+		{
 		}
 	}
 }

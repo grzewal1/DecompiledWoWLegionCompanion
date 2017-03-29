@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using WowJamMessages;
@@ -47,46 +48,47 @@ public class FollowerDetailView : MonoBehaviour
 
 	private int m_garrFollowerID;
 
-	private void Start()
+	public FollowerDetailView()
 	{
-		this.m_equipmentSlotsText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_equipmentSlotsText.set_text(StaticDB.GetString("EQUIPMENT_AND_ARMAMENTS", "Equipment and Armaments PH"));
-		Text componentInChildren = this.m_activateChampionButton.GetComponentInChildren<Text>();
-		if (componentInChildren != null)
+	}
+
+	public void ActivateFollower()
+	{
+		Main.instance.m_UISound.Play_ActivateChampion();
+		Debug.Log(string.Concat("Attempting to Activate follower ", this.m_garrFollowerID));
+		MobilePlayerChangeFollowerActive mobilePlayerChangeFollowerActive = new MobilePlayerChangeFollowerActive()
 		{
-			componentInChildren.set_text(StaticDB.GetString("ACTIVATE", null));
-		}
-		componentInChildren = this.m_deactivateChampionButton.GetComponentInChildren<Text>();
-		if (componentInChildren != null)
+			SetInactive = false,
+			GarrFollowerID = this.m_garrFollowerID
+		};
+		Login.instance.SendToMobileServer(mobilePlayerChangeFollowerActive);
+	}
+
+	public void DeactivateFollower()
+	{
+		Main.instance.m_UISound.Play_DeactivateChampion();
+		Debug.Log(string.Concat("Attempting to Deactivate follower ", this.m_garrFollowerID));
+		MobilePlayerChangeFollowerActive mobilePlayerChangeFollowerActive = new MobilePlayerChangeFollowerActive()
 		{
-			componentInChildren.set_text(StaticDB.GetString("DEACTIVATE", null));
-		}
+			SetInactive = true,
+			GarrFollowerID = this.m_garrFollowerID
+		};
+		Login.instance.SendToMobileServer(mobilePlayerChangeFollowerActive);
 	}
 
-	private void OnEnable()
+	public int GetCurrentFollower()
 	{
-		Main expr_05 = Main.instance;
-		expr_05.UseEquipmentResultAction = (Action<JamGarrisonFollower, JamGarrisonFollower>)Delegate.Combine(expr_05.UseEquipmentResultAction, new Action<JamGarrisonFollower, JamGarrisonFollower>(this.HandleUseEquipmentResult));
-		AdventureMapPanel expr_2B = AdventureMapPanel.instance;
-		expr_2B.FollowerToInspectChangedAction = (Action<int>)Delegate.Combine(expr_2B.FollowerToInspectChangedAction, new Action<int>(this.HandleFollowerToInspectChanged));
-	}
-
-	private void OnDisable()
-	{
-		Main expr_05 = Main.instance;
-		expr_05.UseEquipmentResultAction = (Action<JamGarrisonFollower, JamGarrisonFollower>)Delegate.Remove(expr_05.UseEquipmentResultAction, new Action<JamGarrisonFollower, JamGarrisonFollower>(this.HandleUseEquipmentResult));
-		AdventureMapPanel expr_2B = AdventureMapPanel.instance;
-		expr_2B.FollowerToInspectChangedAction = (Action<int>)Delegate.Remove(expr_2B.FollowerToInspectChangedAction, new Action<int>(this.HandleFollowerToInspectChanged));
-	}
-
-	private void HandleFollowerToInspectChanged(int garrFollowerID)
-	{
-		this.SetFollower(garrFollowerID);
+		return this.m_garrFollowerID;
 	}
 
 	public void HandleFollowerDataChanged()
 	{
 		this.SetFollower(this.m_garrFollowerID);
+	}
+
+	private void HandleFollowerToInspectChanged(int garrFollowerID)
+	{
+		this.SetFollower(garrFollowerID);
 	}
 
 	private void HandleUseEquipmentResult(JamGarrisonFollower oldFollower, JamGarrisonFollower newFollower)
@@ -96,18 +98,21 @@ public class FollowerDetailView : MonoBehaviour
 			return;
 		}
 		int[] abilityID = newFollower.AbilityID;
-		for (int i = 0; i < abilityID.Length; i++)
+		for (int i = 0; i < (int)abilityID.Length; i++)
 		{
 			int num = abilityID[i];
-			GarrAbilityRec record = StaticDB.garrAbilityDB.GetRecord(num);
-			if ((record.Flags & 1u) != 0u)
+			if ((StaticDB.garrAbilityDB.GetRecord(num).Flags & 1) != 0)
 			{
 				bool flag = true;
-				int[] abilityID2 = oldFollower.AbilityID;
-				for (int j = 0; j < abilityID2.Length; j++)
+				int[] numArray = oldFollower.AbilityID;
+				int num1 = 0;
+				while (num1 < (int)numArray.Length)
 				{
-					int num2 = abilityID2[j];
-					if (num2 == num)
+					if (numArray[num1] != num)
+					{
+						num1++;
+					}
+					else
 					{
 						flag = false;
 						break;
@@ -116,33 +121,31 @@ public class FollowerDetailView : MonoBehaviour
 				if (flag)
 				{
 					AbilityDisplay[] componentsInChildren = this.m_equipmentSlotsRootObject.GetComponentsInChildren<AbilityDisplay>(true);
-					AbilityDisplay[] array = componentsInChildren;
-					for (int k = 0; k < array.Length; k++)
+					for (int j = 0; j < (int)componentsInChildren.Length; j++)
 					{
-						AbilityDisplay abilityDisplay = array[k];
-						bool flag2 = true;
-						int[] abilityID3 = newFollower.AbilityID;
-						for (int l = 0; l < abilityID3.Length; l++)
+						AbilityDisplay abilityDisplay = componentsInChildren[j];
+						bool flag1 = true;
+						int[] abilityID1 = newFollower.AbilityID;
+						int num2 = 0;
+						while (num2 < (int)abilityID1.Length)
 						{
-							int num3 = abilityID3[l];
-							if (abilityDisplay.GetAbilityID() == num3)
+							int num3 = abilityID1[num2];
+							if (abilityDisplay.GetAbilityID() != num3)
 							{
-								flag2 = false;
+								num2++;
+							}
+							else
+							{
+								flag1 = false;
 								break;
 							}
 						}
-						if (flag2)
+						if (flag1)
 						{
-							Debug.Log(string.Concat(new object[]
-							{
-								"New ability is ",
-								num,
-								" replacing ability ID ",
-								abilityDisplay.GetAbilityID()
-							}));
+							Debug.Log(string.Concat(new object[] { "New ability is ", num, " replacing ability ID ", abilityDisplay.GetAbilityID() }));
 							abilityDisplay.SetAbility(num, true, true, this);
 							Main.instance.m_UISound.Play_UpgradeEquipment();
-							UiAnimMgr.instance.PlayAnim("FlameGlowPulse", abilityDisplay.get_transform(), Vector3.get_zero(), 2f, 0f);
+							UiAnimMgr.instance.PlayAnim("FlameGlowPulse", abilityDisplay.transform, Vector3.zero, 2f, 0f);
 						}
 					}
 				}
@@ -150,39 +153,45 @@ public class FollowerDetailView : MonoBehaviour
 		}
 	}
 
-	public int GetCurrentFollower()
-	{
-		return this.m_garrFollowerID;
-	}
-
 	private void InitEquipmentSlots(JamGarrisonFollower follower)
 	{
 		AbilityDisplay[] componentsInChildren = this.m_equipmentSlotsRootObject.GetComponentsInChildren<AbilityDisplay>(true);
-		for (int i = 0; i < componentsInChildren.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			Object.DestroyImmediate(componentsInChildren[i].get_gameObject());
+			UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
 		}
 		bool flag = false;
-		bool flag2 = true;
-		for (int j = 0; j < follower.AbilityID.Length; j++)
+		bool flag1 = true;
+		for (int j = 0; j < (int)follower.AbilityID.Length; j++)
 		{
-			GarrAbilityRec record = StaticDB.garrAbilityDB.GetRecord(follower.AbilityID[j]);
-			if ((record.Flags & 1u) != 0u)
+			if ((StaticDB.garrAbilityDB.GetRecord(follower.AbilityID[j]).Flags & 1) != 0)
 			{
 				flag = true;
-				GameObject gameObject = Object.Instantiate<GameObject>(this.m_equipmentSlotPrefab);
-				gameObject.get_transform().SetParent(this.m_equipmentSlotsRootObject.get_transform(), false);
+				GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_equipmentSlotPrefab);
+				gameObject.transform.SetParent(this.m_equipmentSlotsRootObject.transform, false);
 				AbilityDisplay component = gameObject.GetComponent<AbilityDisplay>();
 				component.SetAbility(follower.AbilityID[j], true, true, this);
 			}
 		}
-		bool flag3 = (follower.Flags & 8) != 0;
-		GarrFollowerRec record2 = StaticDB.garrFollowerDB.GetRecord(follower.GarrFollowerID);
-		if (flag3 || follower.FollowerLevel < MissionDetailView.GarrisonFollower_GetMaxFollowerLevel((int)record2.GarrFollowerTypeID))
+		bool flags = (follower.Flags & 8) != 0;
+		GarrFollowerRec record = StaticDB.garrFollowerDB.GetRecord(follower.GarrFollowerID);
+		if (flags || follower.FollowerLevel < MissionDetailView.GarrisonFollower_GetMaxFollowerLevel((int)record.GarrFollowerTypeID))
 		{
-			flag2 = false;
+			flag1 = false;
 		}
-		this.m_equipmentSlotsText.get_gameObject().SetActive(flag || flag2);
+		this.m_equipmentSlotsText.gameObject.SetActive((flag ? true : flag1));
+	}
+
+	private void OnDisable()
+	{
+		Main.instance.UseEquipmentResultAction -= new Action<JamGarrisonFollower, JamGarrisonFollower>(this.HandleUseEquipmentResult);
+		AdventureMapPanel.instance.FollowerToInspectChangedAction -= new Action<int>(this.HandleFollowerToInspectChanged);
+	}
+
+	private void OnEnable()
+	{
+		Main.instance.UseEquipmentResultAction += new Action<JamGarrisonFollower, JamGarrisonFollower>(this.HandleUseEquipmentResult);
+		AdventureMapPanel.instance.FollowerToInspectChangedAction += new Action<int>(this.HandleFollowerToInspectChanged);
 	}
 
 	public void SetFollower(int followerID)
@@ -191,17 +200,17 @@ public class FollowerDetailView : MonoBehaviour
 		if (followerID == 0)
 		{
 			RectTransform[] componentsInChildren = this.traitsAndAbilitiesRootObject.GetComponentsInChildren<RectTransform>(true);
-			for (int i = 0; i < componentsInChildren.Length; i++)
+			for (int i = 0; i < (int)componentsInChildren.Length; i++)
 			{
-				if (componentsInChildren[i] != null && componentsInChildren[i] != this.traitsAndAbilitiesRootObject.get_transform())
+				if (componentsInChildren[i] != null && componentsInChildren[i] != this.traitsAndAbilitiesRootObject.transform)
 				{
-					Object.DestroyImmediate(componentsInChildren[i].get_gameObject());
+					UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
 				}
 			}
-			AbilityDisplay[] componentsInChildren2 = this.m_equipmentSlotsRootObject.GetComponentsInChildren<AbilityDisplay>(true);
-			for (int j = 0; j < componentsInChildren2.Length; j++)
+			AbilityDisplay[] abilityDisplayArray = this.m_equipmentSlotsRootObject.GetComponentsInChildren<AbilityDisplay>(true);
+			for (int j = 0; j < (int)abilityDisplayArray.Length; j++)
 			{
-				Object.DestroyImmediate(componentsInChildren2[j].get_gameObject());
+				UnityEngine.Object.DestroyImmediate(abilityDisplayArray[j].gameObject);
 			}
 		}
 		if (!PersistentFollowerData.followerDictionary.ContainsKey(followerID))
@@ -213,102 +222,101 @@ public class FollowerDetailView : MonoBehaviour
 		{
 			return;
 		}
-		CreatureRec record2 = StaticDB.creatureDB.GetRecord((GarrisonStatus.Faction() != PVP_FACTION.HORDE) ? record.AllianceCreatureID : record.HordeCreatureID);
-		if (record2 == null)
+		CreatureRec creatureRec = StaticDB.creatureDB.GetRecord((GarrisonStatus.Faction() != PVP_FACTION.HORDE ? record.AllianceCreatureID : record.HordeCreatureID));
+		if (creatureRec == null)
 		{
 			return;
 		}
-		JamGarrisonFollower jamGarrisonFollower = PersistentFollowerData.followerDictionary.get_Item(followerID);
-		string text = "Assets/BundleAssets/PortraitIcons/cid_" + record2.ID.ToString("D8") + ".png";
-		Sprite sprite = AssetBundleManager.portraitIcons.LoadAsset<Sprite>(text);
+		JamGarrisonFollower item = PersistentFollowerData.followerDictionary[followerID];
+		int d = creatureRec.ID;
+		string str = string.Concat("Assets/BundleAssets/PortraitIcons/cid_", d.ToString("D8"), ".png");
+		Sprite sprite = AssetBundleManager.portraitIcons.LoadAsset<Sprite>(str);
 		if (sprite != null)
 		{
-			this.followerSnapshot.set_sprite(sprite);
+			this.followerSnapshot.sprite = sprite;
 		}
-		RectTransform[] componentsInChildren3 = this.traitsAndAbilitiesRootObject.GetComponentsInChildren<RectTransform>(true);
-		for (int k = 0; k < componentsInChildren3.Length; k++)
+		RectTransform[] rectTransformArray = this.traitsAndAbilitiesRootObject.GetComponentsInChildren<RectTransform>(true);
+		for (int k = 0; k < (int)rectTransformArray.Length; k++)
 		{
-			if (componentsInChildren3[k] != null && componentsInChildren3[k] != this.traitsAndAbilitiesRootObject.get_transform())
+			if (rectTransformArray[k] != null && rectTransformArray[k] != this.traitsAndAbilitiesRootObject.transform)
 			{
-				Object.DestroyImmediate(componentsInChildren3[k].get_gameObject());
+				UnityEngine.Object.DestroyImmediate(rectTransformArray[k].gameObject);
 			}
 		}
 		bool flag = false;
-		for (int l = 0; l < jamGarrisonFollower.AbilityID.Length; l++)
+		for (int l = 0; l < (int)item.AbilityID.Length; l++)
 		{
-			GarrAbilityRec record3 = StaticDB.garrAbilityDB.GetRecord(jamGarrisonFollower.AbilityID[l]);
-			if ((record3.Flags & 512u) != 0u)
+			GarrAbilityRec garrAbilityRec = StaticDB.garrAbilityDB.GetRecord(item.AbilityID[l]);
+			if ((garrAbilityRec.Flags & 512) != 0)
 			{
 				if (!flag)
 				{
-					GameObject gameObject = Object.Instantiate<GameObject>(this.specializationHeaderPrefab);
-					gameObject.get_transform().SetParent(this.traitsAndAbilitiesRootObject.get_transform(), false);
+					GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.specializationHeaderPrefab);
+					gameObject.transform.SetParent(this.traitsAndAbilitiesRootObject.transform, false);
 					flag = true;
 					Text component = gameObject.GetComponent<Text>();
 					if (component != null)
 					{
-						component.set_text(StaticDB.GetString("SPECIALIZATION", null));
+						component.text = StaticDB.GetString("SPECIALIZATION", null);
 					}
 				}
-				GameObject gameObject2 = Object.Instantiate<GameObject>(this.abilityDisplayPrefab);
-				gameObject2.get_transform().SetParent(this.traitsAndAbilitiesRootObject.get_transform(), false);
-				AbilityDisplay component2 = gameObject2.GetComponent<AbilityDisplay>();
-				component2.SetAbility(record3.ID, false, false, null);
+				GameObject gameObject1 = UnityEngine.Object.Instantiate<GameObject>(this.abilityDisplayPrefab);
+				gameObject1.transform.SetParent(this.traitsAndAbilitiesRootObject.transform, false);
+				AbilityDisplay abilityDisplay = gameObject1.GetComponent<AbilityDisplay>();
+				abilityDisplay.SetAbility(garrAbilityRec.ID, false, false, null);
 			}
 		}
-		bool flag2 = false;
-		for (int m = 0; m < jamGarrisonFollower.AbilityID.Length; m++)
+		bool flag1 = false;
+		for (int m = 0; m < (int)item.AbilityID.Length; m++)
 		{
-			GarrAbilityRec record4 = StaticDB.garrAbilityDB.GetRecord(jamGarrisonFollower.AbilityID[m]);
-			if ((record4.Flags & 1u) == 0u)
+			GarrAbilityRec record1 = StaticDB.garrAbilityDB.GetRecord(item.AbilityID[m]);
+			if ((record1.Flags & 1) == 0)
 			{
-				if ((record4.Flags & 512u) == 0u)
+				if ((record1.Flags & 512) == 0)
 				{
-					if (!flag2)
+					if (!flag1)
 					{
-						GameObject gameObject3 = Object.Instantiate<GameObject>(this.abilitiesHeaderPrefab);
-						gameObject3.get_transform().SetParent(this.traitsAndAbilitiesRootObject.get_transform(), false);
-						flag2 = true;
-						Text component3 = gameObject3.GetComponent<Text>();
-						if (component3 != null)
+						GameObject gameObject2 = UnityEngine.Object.Instantiate<GameObject>(this.abilitiesHeaderPrefab);
+						gameObject2.transform.SetParent(this.traitsAndAbilitiesRootObject.transform, false);
+						flag1 = true;
+						Text text = gameObject2.GetComponent<Text>();
+						if (text != null)
 						{
-							component3.set_text(StaticDB.GetString("ABILITIES", null));
+							text.text = StaticDB.GetString("ABILITIES", null);
 						}
 					}
-					GameObject gameObject4 = Object.Instantiate<GameObject>(this.abilityDisplayPrefab);
-					gameObject4.get_transform().SetParent(this.traitsAndAbilitiesRootObject.get_transform(), false);
-					AbilityDisplay component4 = gameObject4.GetComponent<AbilityDisplay>();
-					component4.SetAbility(jamGarrisonFollower.AbilityID[m], false, false, null);
+					GameObject gameObject3 = UnityEngine.Object.Instantiate<GameObject>(this.abilityDisplayPrefab);
+					gameObject3.transform.SetParent(this.traitsAndAbilitiesRootObject.transform, false);
+					AbilityDisplay component1 = gameObject3.GetComponent<AbilityDisplay>();
+					component1.SetAbility(item.AbilityID[m], false, false, null);
 				}
 			}
 		}
-		if (jamGarrisonFollower.ZoneSupportSpellID > 0)
+		if (item.ZoneSupportSpellID > 0)
 		{
-			GameObject gameObject5 = Object.Instantiate<GameObject>(this.zoneSupportAbilityHeaderPrefab);
-			gameObject5.get_transform().SetParent(this.traitsAndAbilitiesRootObject.get_transform(), false);
-			GameObject gameObject6 = Object.Instantiate<GameObject>(this.m_spellDisplayPrefab);
-			gameObject6.get_transform().SetParent(this.traitsAndAbilitiesRootObject.get_transform(), false);
-			SpellDisplay component5 = gameObject6.GetComponent<SpellDisplay>();
-			component5.SetSpell(jamGarrisonFollower.ZoneSupportSpellID);
-			Text componentInChildren = gameObject5.GetComponentInChildren<Text>();
+			GameObject gameObject4 = UnityEngine.Object.Instantiate<GameObject>(this.zoneSupportAbilityHeaderPrefab);
+			gameObject4.transform.SetParent(this.traitsAndAbilitiesRootObject.transform, false);
+			GameObject gameObject5 = UnityEngine.Object.Instantiate<GameObject>(this.m_spellDisplayPrefab);
+			gameObject5.transform.SetParent(this.traitsAndAbilitiesRootObject.transform, false);
+			gameObject5.GetComponent<SpellDisplay>().SetSpell(item.ZoneSupportSpellID);
+			Text componentInChildren = gameObject4.GetComponentInChildren<Text>();
 			if (componentInChildren != null)
 			{
-				componentInChildren.set_text(StaticDB.GetString("COMBAT_ALLY", null));
+				componentInChildren.text = StaticDB.GetString("COMBAT_ALLY", null);
 			}
 		}
-		bool flag3 = (jamGarrisonFollower.Flags & 8) != 0;
-		if (flag3)
+		if ((item.Flags & 8) != 0)
 		{
-			GarrStringRec record5 = StaticDB.garrStringDB.GetRecord((GarrisonStatus.Faction() != PVP_FACTION.ALLIANCE) ? record.HordeFlavorGarrStringID : record.AllianceFlavorGarrStringID);
-			if (record5 != null)
+			GarrStringRec garrStringRec = StaticDB.garrStringDB.GetRecord((GarrisonStatus.Faction() != PVP_FACTION.ALLIANCE ? record.HordeFlavorGarrStringID : record.AllianceFlavorGarrStringID));
+			if (garrStringRec != null)
 			{
-				Text text2 = Object.Instantiate<Text>(this.m_troopDescriptionPrefab);
-				text2.get_transform().SetParent(this.traitsAndAbilitiesRootObject.get_transform(), false);
-				text2.set_text(record5.Text);
+				Text text1 = UnityEngine.Object.Instantiate<Text>(this.m_troopDescriptionPrefab);
+				text1.transform.SetParent(this.traitsAndAbilitiesRootObject.transform, false);
+				text1.text = garrStringRec.Text;
 			}
 		}
-		this.InitEquipmentSlots(jamGarrisonFollower);
-		this.UpdateChampionButtons(jamGarrisonFollower);
+		this.InitEquipmentSlots(item);
+		this.UpdateChampionButtons(item);
 	}
 
 	public void ShowChampionActivationConfirmationDialog()
@@ -321,24 +329,20 @@ public class FollowerDetailView : MonoBehaviour
 		AllPopups.instance.ShowChampionDeactivationConfirmationDialog(this);
 	}
 
-	public void ActivateFollower()
+	private void Start()
 	{
-		Main.instance.m_UISound.Play_ActivateChampion();
-		Debug.Log("Attempting to Activate follower " + this.m_garrFollowerID);
-		MobilePlayerChangeFollowerActive mobilePlayerChangeFollowerActive = new MobilePlayerChangeFollowerActive();
-		mobilePlayerChangeFollowerActive.SetInactive = false;
-		mobilePlayerChangeFollowerActive.GarrFollowerID = this.m_garrFollowerID;
-		Login.instance.SendToMobileServer(mobilePlayerChangeFollowerActive);
-	}
-
-	public void DeactivateFollower()
-	{
-		Main.instance.m_UISound.Play_DeactivateChampion();
-		Debug.Log("Attempting to Deactivate follower " + this.m_garrFollowerID);
-		MobilePlayerChangeFollowerActive mobilePlayerChangeFollowerActive = new MobilePlayerChangeFollowerActive();
-		mobilePlayerChangeFollowerActive.SetInactive = true;
-		mobilePlayerChangeFollowerActive.GarrFollowerID = this.m_garrFollowerID;
-		Login.instance.SendToMobileServer(mobilePlayerChangeFollowerActive);
+		this.m_equipmentSlotsText.font = GeneralHelpers.LoadStandardFont();
+		this.m_equipmentSlotsText.text = StaticDB.GetString("EQUIPMENT_AND_ARMAMENTS", "Equipment and Armaments PH");
+		Text componentInChildren = this.m_activateChampionButton.GetComponentInChildren<Text>();
+		if (componentInChildren != null)
+		{
+			componentInChildren.text = StaticDB.GetString("ACTIVATE", null);
+		}
+		componentInChildren = this.m_deactivateChampionButton.GetComponentInChildren<Text>();
+		if (componentInChildren != null)
+		{
+			componentInChildren.text = StaticDB.GetString("DEACTIVATE", null);
+		}
 	}
 
 	private void UpdateChampionButtons(JamGarrisonFollower follower)
@@ -347,20 +351,20 @@ public class FollowerDetailView : MonoBehaviour
 		{
 			return;
 		}
-		bool flag = (follower.Flags & 8) != 0;
-		if (flag)
+		if ((follower.Flags & 8) == 0)
 		{
-			this.m_activateChampionButton.SetActive(false);
-			this.m_deactivateChampionButton.SetActive(false);
+			bool flags = (follower.Flags & 4) != 0;
+			bool remainingFollowerActivations = GarrisonStatus.GetRemainingFollowerActivations() > 0;
+			this.m_activateChampionButton.SetActive((!flags ? false : remainingFollowerActivations));
+			int numActiveChampions = GeneralHelpers.GetNumActiveChampions();
+			int maxActiveFollowers = GarrisonStatus.GetMaxActiveFollowers();
+			bool currentMissionID = follower.CurrentMissionID != 0;
+			this.m_deactivateChampionButton.SetActive((flags || currentMissionID ? false : numActiveChampions > maxActiveFollowers));
 		}
 		else
 		{
-			bool flag2 = (follower.Flags & 4) != 0;
-			bool flag3 = GarrisonStatus.GetRemainingFollowerActivations() > 0;
-			this.m_activateChampionButton.SetActive(flag2 && flag3);
-			int numActiveChampions = GeneralHelpers.GetNumActiveChampions();
-			int maxActiveChampions = GeneralHelpers.GetMaxActiveChampions();
-			this.m_deactivateChampionButton.SetActive(!flag2 && numActiveChampions > maxActiveChampions);
+			this.m_activateChampionButton.SetActive(false);
+			this.m_deactivateChampionButton.SetActive(false);
 		}
 	}
 }

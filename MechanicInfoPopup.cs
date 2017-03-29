@@ -11,13 +11,17 @@ public class MechanicInfoPopup : MonoBehaviour
 
 	public Text m_mechanicDescription;
 
-	private void OnEnable()
+	public MechanicInfoPopup()
 	{
-		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
 	}
 
 	private void OnDisable()
 	{
 		Main.instance.m_backButtonManager.PopBackAction();
+	}
+
+	private void OnEnable()
+	{
+		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
 	}
 }

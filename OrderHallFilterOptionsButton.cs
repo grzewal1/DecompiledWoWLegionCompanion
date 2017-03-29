@@ -35,22 +35,85 @@ public class OrderHallFilterOptionsButton : MonoBehaviour
 
 	private bool m_isSelected;
 
-	private void Start()
+	public OrderHallFilterOptionsButton()
 	{
-		this.m_label.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_label.set_text(StaticDB.GetString(this.m_labelTag, this.m_labelFallbackText));
 	}
 
-	private void OnEnable()
+	private void HandleOrderHallfilterOptionsButtonSelected(OrderHallFilterOptionsButton navButton)
 	{
-		Main expr_05 = Main.instance;
-		expr_05.OrderHallfilterOptionsButtonSelectedAction = (Action<OrderHallFilterOptionsButton>)Delegate.Combine(expr_05.OrderHallfilterOptionsButtonSelectedAction, new Action<OrderHallFilterOptionsButton>(this.HandleOrderHallfilterOptionsButtonSelected));
+		if (navButton != this)
+		{
+			this.m_labelArea.SetActive(false);
+			this.m_normalImage.enabled = true;
+			this.m_selectedImage.enabled = false;
+			if (this.m_isSelected)
+			{
+				this.StopGlowEffect();
+				this.ResizeForDeselect();
+				this.m_isSelected = false;
+			}
+		}
+		else if (!this.m_isSelected)
+		{
+			this.m_normalImage.enabled = false;
+			this.m_selectedImage.enabled = true;
+			this.StopGlowEffect();
+			this.m_glowSpinHandle = UiAnimMgr.instance.PlayAnim("PrestigeSpin", this.m_selectionGlowRoot.transform, Vector3.zero, 1.245f, 0f);
+			this.m_glowPulseHandle = UiAnimMgr.instance.PlayAnim("PrestigePulse", this.m_selectionGlowRoot.transform, Vector3.zero, 1.245f, 0f);
+			UiAnimMgr.instance.PlayAnim("MinimapPulseAnim", base.transform, Vector3.zero, 1.5f, 0f);
+			this.m_labelArea.SetActive(true);
+			this.ResizeForSelect();
+			this.m_isSelected = true;
+		}
 	}
 
 	private void OnDisable()
 	{
-		Main expr_05 = Main.instance;
-		expr_05.OrderHallfilterOptionsButtonSelectedAction = (Action<OrderHallFilterOptionsButton>)Delegate.Remove(expr_05.OrderHallfilterOptionsButtonSelectedAction, new Action<OrderHallFilterOptionsButton>(this.HandleOrderHallfilterOptionsButtonSelected));
+		Main.instance.OrderHallfilterOptionsButtonSelectedAction -= new Action<OrderHallFilterOptionsButton>(this.HandleOrderHallfilterOptionsButtonSelected);
+	}
+
+	private void OnEnable()
+	{
+		Main.instance.OrderHallfilterOptionsButtonSelectedAction += new Action<OrderHallFilterOptionsButton>(this.HandleOrderHallfilterOptionsButtonSelected);
+	}
+
+	private void OnResizeDownComplete()
+	{
+		this.m_holderLayoutElement.minWidth = this.m_normalSize;
+		this.m_holderLayoutElement.minHeight = this.m_normalSize;
+	}
+
+	private void OnResizeUpComplete()
+	{
+		this.m_holderLayoutElement.minWidth = this.m_selectedSize;
+		this.m_holderLayoutElement.minHeight = this.m_selectedSize;
+	}
+
+	private void OnResizeUpdate(float newSize)
+	{
+		this.m_holderLayoutElement.minWidth = newSize;
+		this.m_holderLayoutElement.minHeight = newSize;
+	}
+
+	private void ResizeForDeselect()
+	{
+		iTween.ValueTo(base.gameObject, iTween.Hash(new object[] { "name", "ScaleUpForDeselect", "from", this.m_selectedSize, "to", this.m_normalSize, "time", this.m_resizeDuration, "onupdate", "OnResizeUpdate", "oncomplete", "OnResizeDownComplete" }));
+	}
+
+	private void ResizeForSelect()
+	{
+		iTween.ValueTo(base.gameObject, iTween.Hash(new object[] { "name", "ScaleUpForSelect", "from", this.m_normalSize, "to", this.m_selectedSize, "time", this.m_resizeDuration, "onupdate", "OnResizeUpdate", "oncomplete", "OnResizeUpComplete" }));
+	}
+
+	public void SelectMe()
+	{
+		Main.instance.SelectOrderHallFilterOptionsButton(this);
+	}
+
+	private void Start()
+	{
+		this.m_label.font = GeneralHelpers.LoadStandardFont();
+		this.m_label.text = StaticDB.GetString(this.m_labelTag, this.m_labelFallbackText);
 	}
 
 	private void StopGlowEffect()
@@ -66,104 +129,12 @@ public class OrderHallFilterOptionsButton : MonoBehaviour
 		}
 		if (this.m_glowPulseHandle != null)
 		{
-			UiAnimation anim2 = this.m_glowPulseHandle.GetAnim();
-			if (anim2 != null)
+			UiAnimation uiAnimation = this.m_glowPulseHandle.GetAnim();
+			if (uiAnimation != null)
 			{
-				anim2.Stop(0.5f);
+				uiAnimation.Stop(0.5f);
 			}
 			this.m_glowPulseHandle = null;
 		}
-	}
-
-	private void OnResizeUpdate(float newSize)
-	{
-		this.m_holderLayoutElement.set_minWidth(newSize);
-		this.m_holderLayoutElement.set_minHeight(newSize);
-	}
-
-	private void OnResizeUpComplete()
-	{
-		this.m_holderLayoutElement.set_minWidth(this.m_selectedSize);
-		this.m_holderLayoutElement.set_minHeight(this.m_selectedSize);
-	}
-
-	private void OnResizeDownComplete()
-	{
-		this.m_holderLayoutElement.set_minWidth(this.m_normalSize);
-		this.m_holderLayoutElement.set_minHeight(this.m_normalSize);
-	}
-
-	private void ResizeForSelect()
-	{
-		iTween.ValueTo(base.get_gameObject(), iTween.Hash(new object[]
-		{
-			"name",
-			"ScaleUpForSelect",
-			"from",
-			this.m_normalSize,
-			"to",
-			this.m_selectedSize,
-			"time",
-			this.m_resizeDuration,
-			"onupdate",
-			"OnResizeUpdate",
-			"oncomplete",
-			"OnResizeUpComplete"
-		}));
-	}
-
-	private void ResizeForDeselect()
-	{
-		iTween.ValueTo(base.get_gameObject(), iTween.Hash(new object[]
-		{
-			"name",
-			"ScaleUpForDeselect",
-			"from",
-			this.m_selectedSize,
-			"to",
-			this.m_normalSize,
-			"time",
-			this.m_resizeDuration,
-			"onupdate",
-			"OnResizeUpdate",
-			"oncomplete",
-			"OnResizeDownComplete"
-		}));
-	}
-
-	private void HandleOrderHallfilterOptionsButtonSelected(OrderHallFilterOptionsButton navButton)
-	{
-		if (navButton == this)
-		{
-			if (!this.m_isSelected)
-			{
-				this.m_normalImage.set_enabled(false);
-				this.m_selectedImage.set_enabled(true);
-				this.StopGlowEffect();
-				this.m_glowSpinHandle = UiAnimMgr.instance.PlayAnim("PrestigeSpin", this.m_selectionGlowRoot.get_transform(), Vector3.get_zero(), 1.245f, 0f);
-				this.m_glowPulseHandle = UiAnimMgr.instance.PlayAnim("PrestigePulse", this.m_selectionGlowRoot.get_transform(), Vector3.get_zero(), 1.245f, 0f);
-				UiAnimMgr.instance.PlayAnim("MinimapPulseAnim", base.get_transform(), Vector3.get_zero(), 1.5f, 0f);
-				this.m_labelArea.SetActive(true);
-				this.ResizeForSelect();
-				this.m_isSelected = true;
-			}
-		}
-		else
-		{
-			this.m_labelArea.SetActive(false);
-			this.m_normalImage.set_enabled(true);
-			this.m_selectedImage.set_enabled(false);
-			if (this.m_isSelected)
-			{
-				this.StopGlowEffect();
-				this.ResizeForDeselect();
-				this.m_isSelected = false;
-			}
-		}
-	}
-
-	public void SelectMe()
-	{
-		Main.instance.SelectOrderHallFilterOptionsButton(this);
 	}
 }

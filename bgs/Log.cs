@@ -4,11 +4,21 @@ namespace bgs
 {
 	public class Log
 	{
-		public static Logger BattleNet = new Logger();
+		public static Logger BattleNet;
 
-		public static Logger Party = new Logger();
+		public static Logger Party;
 
 		private static Log s_instance;
+
+		static Log()
+		{
+			Log.BattleNet = new Logger();
+			Log.Party = new Logger();
+		}
+
+		public Log()
+		{
+		}
 
 		public static Log Get()
 		{

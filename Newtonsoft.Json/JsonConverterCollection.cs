@@ -5,5 +5,8 @@ namespace Newtonsoft.Json
 {
 	public class JsonConverterCollection : Collection<JsonConverter>
 	{
+		public JsonConverterCollection()
+		{
+		}
 	}
 }

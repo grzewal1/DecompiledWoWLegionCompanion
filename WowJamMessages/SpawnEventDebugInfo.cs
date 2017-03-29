@@ -1,49 +1,57 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "SpawnEventDebugInfo", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="SpawnEventDebugInfo", Version=28333852)]
 	public class SpawnEventDebugInfo
 	{
-		[FlexJamMember(Name = "eventID", Type = FlexJamType.Int32), DataMember(Name = "eventID")]
-		public int EventID
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "eventName", Type = FlexJamType.String), DataMember(Name = "eventName")]
-		public string EventName
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "entryNum", Type = FlexJamType.Int32), DataMember(Name = "entryNum")]
-		public int EntryNum
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "eventPercent", Type = FlexJamType.Int32), DataMember(Name = "eventPercent")]
-		public int EventPercent
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "aiGroupActionSetID", Type = FlexJamType.Int32), DataMember(Name = "aiGroupActionSetID")]
+		[DataMember(Name="aiGroupActionSetID")]
+		[FlexJamMember(Name="aiGroupActionSetID", Type=FlexJamType.Int32)]
 		public int AiGroupActionSetID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "aiGroupActionSetName", Type = FlexJamType.String), DataMember(Name = "aiGroupActionSetName")]
+		[DataMember(Name="aiGroupActionSetName")]
+		[FlexJamMember(Name="aiGroupActionSetName", Type=FlexJamType.String)]
 		public string AiGroupActionSetName
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="entryNum")]
+		[FlexJamMember(Name="entryNum", Type=FlexJamType.Int32)]
+		public int EntryNum
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="eventID")]
+		[FlexJamMember(Name="eventID", Type=FlexJamType.Int32)]
+		public int EventID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="eventName")]
+		[FlexJamMember(Name="eventName", Type=FlexJamType.String)]
+		public string EventName
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="eventPercent")]
+		[FlexJamMember(Name="eventPercent", Type=FlexJamType.Int32)]
+		public int EventPercent
 		{
 			get;
 			set;

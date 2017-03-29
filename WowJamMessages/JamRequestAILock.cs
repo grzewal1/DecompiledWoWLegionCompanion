@@ -1,31 +1,40 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamRequestAILock", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamRequestAILock", Version=28333852)]
 	public class JamRequestAILock
 	{
-		[FlexJamMember(Name = "lockReason", Type = FlexJamType.UInt32), DataMember(Name = "lockReason")]
+		[DataMember(Name="lockReason")]
+		[FlexJamMember(Name="lockReason", Type=FlexJamType.UInt32)]
 		public uint LockReason
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "ticketGUID", Type = FlexJamType.WowGuid), DataMember(Name = "ticketGUID")]
+		[DataMember(Name="lockResourceGUID")]
+		[FlexJamMember(Name="lockResourceGUID", Type=FlexJamType.WowGuid)]
+		public string LockResourceGUID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="ticketGUID")]
+		[FlexJamMember(Name="ticketGUID", Type=FlexJamType.WowGuid)]
 		public string TicketGUID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "lockResourceGUID", Type = FlexJamType.WowGuid), DataMember(Name = "lockResourceGUID")]
-		public string LockResourceGUID
+		public JamRequestAILock()
 		{
-			get;
-			set;
 		}
 	}
 }

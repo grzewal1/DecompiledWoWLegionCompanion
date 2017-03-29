@@ -3,18 +3,28 @@ using UnityEngine;
 
 public class FollowerDetailListFakeRandomTiling : MonoBehaviour
 {
+	public FollowerDetailListFakeRandomTiling()
+	{
+	}
+
 	private void Start()
 	{
-		RectTransform component = base.get_gameObject().GetComponent<RectTransform>();
-		component.set_offsetMin(new Vector2(Random.Range(-300f, -2000f), component.get_offsetMin().y));
-		component.set_offsetMax(new Vector2(-component.get_offsetMin().x, component.get_offsetMax().y));
-		if (Random.Range(0, 1) == 0)
+		RectTransform component = base.gameObject.GetComponent<RectTransform>();
+		component.offsetMin = new Vector2(UnityEngine.Random.Range(-300f, -2000f), component.offsetMin.y);
+		component.offsetMax = new Vector2(-component.offsetMin.x, component.offsetMax.y);
+		if (UnityEngine.Random.Range(0, 1) == 0)
 		{
-			component.set_localScale(new Vector3(-1f * component.get_localScale().x, component.get_localScale().y, component.get_localScale().z));
+			float single = -1f * component.localScale.x;
+			float single1 = component.localScale.y;
+			Vector3 vector3 = component.localScale;
+			component.localScale = new Vector3(single, single1, vector3.z);
 		}
-		if (Random.Range(0, 1) == 0)
+		if (UnityEngine.Random.Range(0, 1) == 0)
 		{
-			component.set_localScale(new Vector3(component.get_localScale().x, -1f * component.get_localScale().y, component.get_localScale().z));
+			float single2 = component.localScale.x;
+			float single3 = -1f * component.localScale.y;
+			Vector3 vector31 = component.localScale;
+			component.localScale = new Vector3(single2, single3, vector31.z);
 		}
 	}
 }

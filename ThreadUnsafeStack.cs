@@ -6,9 +6,18 @@ public class ThreadUnsafeStack : IDisposable, MemoryStreamStack
 {
 	private Stack<MemoryStream> stack = new Stack<MemoryStream>();
 
+	public ThreadUnsafeStack()
+	{
+	}
+
+	public void Dispose()
+	{
+		this.stack.Clear();
+	}
+
 	public MemoryStream Pop()
 	{
-		if (this.stack.get_Count() == 0)
+		if (this.stack.Count == 0)
 		{
 			return new MemoryStream();
 		}
@@ -18,10 +27,5 @@ public class ThreadUnsafeStack : IDisposable, MemoryStreamStack
 	public void Push(MemoryStream stream)
 	{
 		this.stack.Push(stream);
-	}
-
-	public void Dispose()
-	{
-		this.stack.Clear();
 	}
 }

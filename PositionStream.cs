@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 public class PositionStream : Stream
 {
@@ -39,7 +40,7 @@ public class PositionStream : Stream
 	{
 		get
 		{
-			return this.stream.get_Length();
+			return this.stream.Length;
 		}
 	}
 
@@ -60,6 +61,17 @@ public class PositionStream : Stream
 		this.stream = baseStream;
 	}
 
+	public override void Close()
+	{
+		base.Close();
+	}
+
+	protected override void Dispose(bool disposing)
+	{
+		this.stream.Dispose();
+		base.Dispose(disposing);
+	}
+
 	public override void Flush()
 	{
 		throw new NotImplementedException();
@@ -68,15 +80,17 @@ public class PositionStream : Stream
 	public override int Read(byte[] buffer, int offset, int count)
 	{
 		int num = this.stream.Read(buffer, offset, count);
-		this.BytesRead += num;
+		PositionStream bytesRead = this;
+		bytesRead.BytesRead = bytesRead.BytesRead + num;
 		return num;
 	}
 
 	public override int ReadByte()
 	{
-		int result = this.stream.ReadByte();
-		this.BytesRead++;
-		return result;
+		int num = this.stream.ReadByte();
+		PositionStream bytesRead = this;
+		bytesRead.BytesRead = bytesRead.BytesRead + 1;
+		return num;
 	}
 
 	public override long Seek(long offset, SeekOrigin origin)
@@ -92,16 +106,5 @@ public class PositionStream : Stream
 	public override void Write(byte[] buffer, int offset, int count)
 	{
 		throw new NotImplementedException();
-	}
-
-	public override void Close()
-	{
-		base.Close();
-	}
-
-	protected override void Dispose(bool disposing)
-	{
-		this.stream.Dispose();
-		base.Dispose(disposing);
 	}
 }

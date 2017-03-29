@@ -1,31 +1,40 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "PhaseShiftData", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="PhaseShiftData", Version=28333852)]
 	public class PhaseShiftData
 	{
-		[FlexJamMember(Name = "phaseShiftFlags", Type = FlexJamType.UInt32), DataMember(Name = "phaseShiftFlags")]
-		public uint PhaseShiftFlags
+		[DataMember(Name="personalGUID")]
+		[FlexJamMember(Name="personalGUID", Type=FlexJamType.WowGuid)]
+		public string PersonalGUID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(ArrayDimensions = 1, Name = "phases", Type = FlexJamType.Struct), DataMember(Name = "phases")]
+		[DataMember(Name="phases")]
+		[FlexJamMember(ArrayDimensions=1, Name="phases", Type=FlexJamType.Struct)]
 		public PhaseShiftDataPhase[] Phases
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "personalGUID", Type = FlexJamType.WowGuid), DataMember(Name = "personalGUID")]
-		public string PersonalGUID
+		[DataMember(Name="phaseShiftFlags")]
+		[FlexJamMember(Name="phaseShiftFlags", Type=FlexJamType.UInt32)]
+		public uint PhaseShiftFlags
 		{
 			get;
 			set;
+		}
+
+		public PhaseShiftData()
+		{
 		}
 	}
 }

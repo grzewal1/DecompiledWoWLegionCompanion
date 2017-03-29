@@ -1,5 +1,6 @@
 using GarbageFreeStringBuilder;
 using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -49,233 +50,82 @@ public class MiniMissionListItem : MonoBehaviour
 
 	private StringBuilder m_missionOfferTimeSB;
 
+	public MiniMissionListItem()
+	{
+	}
+
 	private void Awake()
 	{
-		this.m_missionName.set_font(GeneralHelpers.LoadFancyFont());
-		this.m_missionLevel.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_missionTime.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_rareMissionLabel.set_font(GeneralHelpers.LoadFancyFont());
-		this.m_statusText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_rareMissionLabel.set_text(StaticDB.GetString("RARE", "Rare!"));
+		this.m_missionName.font = GeneralHelpers.LoadFancyFont();
+		this.m_missionLevel.font = GeneralHelpers.LoadStandardFont();
+		this.m_missionTime.font = GeneralHelpers.LoadStandardFont();
+		this.m_rareMissionLabel.font = GeneralHelpers.LoadFancyFont();
+		this.m_statusText.font = GeneralHelpers.LoadStandardFont();
+		this.m_rareMissionLabel.text = StaticDB.GetString("RARE", "Rare!");
 		this.m_previewAbilityID = new int[3];
 		this.m_previewCanCounterStatus = new FollowerCanCounterMechanic[3];
 		this.m_missionOfferTimeRemaining = new Duration(0, false);
 		this.m_missionOfferTimeSB = new StringBuilder(16);
 	}
 
-	public void SetMission(JamGarrisonMobileMission mission)
+	public int GetMissionID()
 	{
-		this.m_statusDarkener.get_gameObject().SetActive(false);
-		this.m_statusText.get_gameObject().SetActive(false);
-		this.m_mission = mission;
+		return (this.m_mission != null ? this.m_mission.MissionRecID : 0);
+	}
+
+	private int GetUncounteredMissionDuration(JamGarrisonMobileMission mission)
+	{
+		if (mission == null)
+		{
+			return 0;
+		}
 		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(mission.MissionRecID);
 		if (record == null)
 		{
-			return;
+			return 0;
 		}
-		if (this.m_missionTypeIcon != null)
+		int missionDuration = record.MissionDuration;
+		float actionValueFlat = 0f;
+		JamGarrisonEncounter[] encounter = mission.Encounter;
+		for (int i = 0; i < (int)encounter.Length; i++)
 		{
-			GarrMissionTypeRec record2 = StaticDB.garrMissionTypeDB.GetRecord((int)record.GarrMissionTypeID);
-			this.m_missionTypeIcon.set_sprite(TextureAtlas.instance.GetAtlasSprite((int)record2.UiTextureAtlasMemberID));
-		}
-		bool flag = false;
-		if (mission.MissionState == 1)
-		{
-			flag = true;
-			this.m_statusDarkener.get_gameObject().SetActive(true);
-			this.m_statusDarkener.set_color(new Color(0f, 0f, 0f, 0.3529412f));
-			this.m_statusText.get_gameObject().SetActive(true);
-			this.m_missionTime.get_gameObject().SetActive(false);
-		}
-		this.m_previewMechanicsGroup.SetActive(!flag);
-		Duration duration = new Duration(record.MissionDuration, false);
-		string text;
-		if (duration.DurationValue >= 28800)
-		{
-			text = "<color=#ff8600ff>" + duration.DurationString + "</color>";
-		}
-		else
-		{
-			text = "<color=#BEBEBEFF>" + duration.DurationString + "</color>";
-		}
-		this.m_missionTime.set_text("(" + text + ")");
-		this.m_missionName.set_text(record.Name);
-		if (this.m_missionLevel != null)
-		{
-			if (record.TargetLevel < 110)
+			int[] mechanicID = encounter[i].MechanicID;
+			for (int j = 0; j < (int)mechanicID.Length; j++)
 			{
-				this.m_missionLevel.set_text(string.Empty + record.TargetLevel);
-			}
-			else
-			{
-				this.m_missionLevel.set_text(string.Concat(new object[]
+				int num = mechanicID[j];
+				GarrMechanicRec garrMechanicRec = StaticDB.garrMechanicDB.GetRecord(num);
+				if (garrMechanicRec != null)
 				{
-					string.Empty,
-					record.TargetLevel,
-					"\n(",
-					record.TargetItemLevel,
-					")"
-				}));
-			}
-		}
-		bool flag2 = (record.Flags & 1u) != 0u;
-		this.m_expirationText.get_gameObject().SetActive(flag2);
-		this.m_rareMissionLabel.get_gameObject().SetActive(flag2);
-		this.m_rareMissionHighlight.get_gameObject().SetActive(flag2);
-		if (flag2)
-		{
-			this.m_missionTypeBG.set_color(new Color(0f, 0f, 1f, 0.24f));
-		}
-		else
-		{
-			this.m_missionTypeBG.set_color(new Color(0f, 0f, 0f, 0.478f));
-		}
-		this.m_missionLocation.set_enabled(false);
-		UiTextureKitRec record3 = StaticDB.uiTextureKitDB.GetRecord((int)record.UiTextureKitID);
-		if (record3 != null)
-		{
-			int uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID(record3.KitPrefix + "-List");
-			if (uITextureAtlasMemberID > 0)
-			{
-				Sprite atlasSprite = TextureAtlas.instance.GetAtlasSprite(uITextureAtlasMemberID);
-				if (atlasSprite != null)
-				{
-					this.m_missionLocation.set_enabled(true);
-					this.m_missionLocation.set_sprite(atlasSprite);
+					StaticDB.garrAbilityEffectDB.EnumRecordsByParentID(garrMechanicRec.GarrAbilityID, (GarrAbilityEffectRec garrAbilityEffectRec) => {
+						if (garrAbilityEffectRec.AbilityAction == 17)
+						{
+							actionValueFlat = actionValueFlat + (1f - garrAbilityEffectRec.ActionValueFlat);
+						}
+						return true;
+					});
 				}
 			}
 		}
-		this.UpdateMechanicPreview(flag, mission);
-		MissionRewardDisplay[] componentsInChildren = this.m_previewLootGroup.GetComponentsInChildren<MissionRewardDisplay>(true);
-		for (int i = 0; i < componentsInChildren.Length; i++)
-		{
-			if (componentsInChildren[i] != null)
-			{
-				Object.DestroyImmediate(componentsInChildren[i].get_gameObject());
-			}
-		}
-		MissionRewardDisplay.InitMissionRewards(this.m_missionRewardDisplayPrefab.get_gameObject(), this.m_previewLootGroup.get_transform(), mission.Reward);
-	}
-
-	public void UpdateMechanicPreview(bool missionInProgress, JamGarrisonMobileMission mission)
-	{
-		int num = 0;
-		if (!missionInProgress)
-		{
-			for (int i = 0; i < mission.Encounter.Length; i++)
-			{
-				int id = (mission.Encounter[i].MechanicID.Length <= 0) ? 0 : mission.Encounter[i].MechanicID[0];
-				GarrMechanicRec record = StaticDB.garrMechanicDB.GetRecord(id);
-				if (record != null && record.GarrAbilityID != 0)
-				{
-					this.m_previewAbilityID[num] = record.GarrAbilityID;
-					this.m_previewCanCounterStatus[num] = GeneralHelpers.HasFollowerWhoCanCounter((int)record.GarrMechanicTypeID);
-					num++;
-				}
-			}
-			bool flag = true;
-			AbilityDisplay[] componentsInChildren = this.m_previewMechanicsGroup.GetComponentsInChildren<AbilityDisplay>(true);
-			if (num != componentsInChildren.Length)
-			{
-				flag = false;
-			}
-			if (flag)
-			{
-				for (int j = 0; j < componentsInChildren.Length; j++)
-				{
-					if (componentsInChildren[j] == null)
-					{
-						flag = false;
-						break;
-					}
-					if (componentsInChildren[j].GetAbilityID() != this.m_previewAbilityID[j])
-					{
-						flag = false;
-						break;
-					}
-					if (componentsInChildren[j].GetCanCounterStatus() != this.m_previewCanCounterStatus[j])
-					{
-						flag = false;
-						break;
-					}
-				}
-			}
-			if (!flag)
-			{
-				for (int k = 0; k < componentsInChildren.Length; k++)
-				{
-					if (componentsInChildren[k] != null)
-					{
-						Object.DestroyImmediate(componentsInChildren[k].get_gameObject());
-					}
-				}
-				for (int l = 0; l < num; l++)
-				{
-					GameObject gameObject = Object.Instantiate<GameObject>(this.m_previewMechanicEffectPrefab);
-					gameObject.get_transform().SetParent(this.m_previewMechanicsGroup.get_transform(), false);
-					AbilityDisplay component = gameObject.GetComponent<AbilityDisplay>();
-					component.SetAbility(this.m_previewAbilityID[l], false, false, null);
-					component.SetCanCounterStatus(this.m_previewCanCounterStatus[l]);
-				}
-			}
-		}
+		missionDuration = missionDuration - (int)((float)missionDuration * actionValueFlat);
+		return missionDuration;
 	}
 
 	public void OnTap()
 	{
 		this.PlayClickSound();
 		AllPopups.instance.HideAllPopups();
-		if (this.m_mission.MissionState == 1)
+		if (this.m_mission.MissionState != 1)
 		{
-			if (AdventureMapPanel.instance.ShowMissionResultAction != null)
+			if (this.m_mission.MissionState != 0)
 			{
-				AdventureMapPanel.instance.ShowMissionResultAction.Invoke(this.m_mission.MissionRecID, 0, false);
+				return;
 			}
-			return;
-		}
-		if (this.m_mission.MissionState == 0)
-		{
 			AdventureMapPanel.instance.SelectMissionFromList(this.m_mission.MissionRecID);
 			return;
 		}
-	}
-
-	private void Update()
-	{
-		if (this.m_mission.MissionState == 1)
+		if (AdventureMapPanel.instance.ShowMissionResultAction != null)
 		{
-			long num = GarrisonStatus.CurrentTime() - this.m_mission.StartTime;
-			long num2 = this.m_mission.MissionDuration - num;
-			num2 = ((num2 <= 0L) ? 0L : num2);
-			Duration duration = new Duration((int)num2, false);
-			if (num2 > 0L)
-			{
-				this.m_statusText.set_text(duration.DurationString + " <color=#ff0000ff>(" + StaticDB.GetString("IN_PROGRESS", null) + ")</color>");
-			}
-			else
-			{
-				this.m_statusText.set_text("<color=#00ff00ff>(" + StaticDB.GetString("TAP_TO_COMPLETE", null) + ")</color>");
-			}
-		}
-		long num3 = GarrisonStatus.CurrentTime() - this.m_mission.OfferTime;
-		long num4 = this.m_mission.OfferDuration - num3;
-		num4 = ((num4 <= 0L) ? 0L : num4);
-		if (num4 > 0L)
-		{
-			if (this.m_expirationText.get_gameObject().get_activeSelf())
-			{
-				this.m_missionOfferTimeRemaining.FormatDurationString((int)num4, false);
-				this.m_missionOfferTimeSB.set_Length(0);
-				this.m_missionOfferTimeSB.ConcatFormat("{0}", this.m_missionOfferTimeRemaining.DurationString);
-				this.m_expirationText.set_text(this.m_missionOfferTimeSB.ToString());
-			}
-		}
-		else if (this.m_mission.MissionState == 0 && this.m_mission.OfferDuration > 0L)
-		{
-			AdventureMapPanel.instance.SelectMissionFromList(0);
-			AllPopups.instance.m_missionDialog.m_missionDetailView.get_gameObject().SetActive(false);
-			Object.DestroyImmediate(base.get_gameObject());
-			return;
+			AdventureMapPanel.instance.ShowMissionResultAction(this.m_mission.MissionRecID, 0, false);
 		}
 	}
 
@@ -284,8 +134,192 @@ public class MiniMissionListItem : MonoBehaviour
 		Main.instance.m_UISound.Play_ButtonBlackClick();
 	}
 
-	public int GetMissionID()
+	public void SetMission(JamGarrisonMobileMission mission)
 	{
-		return (this.m_mission != null) ? this.m_mission.MissionRecID : 0;
+		this.m_statusDarkener.gameObject.SetActive(false);
+		this.m_statusText.gameObject.SetActive(false);
+		this.m_mission = mission;
+		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(mission.MissionRecID);
+		if (record == null)
+		{
+			return;
+		}
+		if (this.m_missionTypeIcon != null)
+		{
+			GarrMissionTypeRec garrMissionTypeRec = StaticDB.garrMissionTypeDB.GetRecord((int)record.GarrMissionTypeID);
+			this.m_missionTypeIcon.sprite = TextureAtlas.instance.GetAtlasSprite((int)garrMissionTypeRec.UiTextureAtlasMemberID);
+		}
+		bool flag = false;
+		if (mission.MissionState == 1)
+		{
+			flag = true;
+			this.m_statusDarkener.gameObject.SetActive(true);
+			this.m_statusDarkener.color = new Color(0f, 0f, 0f, 0.3529412f);
+			this.m_statusText.gameObject.SetActive(true);
+			this.m_missionTime.gameObject.SetActive(false);
+		}
+		this.m_previewMechanicsGroup.SetActive(!flag);
+		Duration duration = new Duration(this.GetUncounteredMissionDuration(mission), false);
+		string str = "123 Min";
+		str = (duration.DurationValue < 28800 ? string.Concat("<color=#BEBEBEFF>", duration.DurationString, "</color>") : string.Concat("<color=#ff8600ff>", duration.DurationString, "</color>"));
+		this.m_missionTime.text = string.Concat("(", str, ")");
+		this.m_missionName.text = record.Name;
+		if (this.m_missionLevel != null)
+		{
+			if (record.TargetLevel >= 110)
+			{
+				this.m_missionLevel.text = string.Concat(new object[] { string.Empty, record.TargetLevel, "\n(", record.TargetItemLevel, ")" });
+			}
+			else
+			{
+				this.m_missionLevel.text = string.Concat(string.Empty, record.TargetLevel);
+			}
+		}
+		bool flags = (record.Flags & 1) != 0;
+		this.m_expirationText.gameObject.SetActive(flags);
+		this.m_rareMissionLabel.gameObject.SetActive(flags);
+		this.m_rareMissionHighlight.gameObject.SetActive(flags);
+		if (!flags)
+		{
+			this.m_missionTypeBG.color = new Color(0f, 0f, 0f, 0.478f);
+		}
+		else
+		{
+			this.m_missionTypeBG.color = new Color(0f, 0f, 1f, 0.24f);
+		}
+		this.m_missionLocation.enabled = false;
+		UiTextureKitRec uiTextureKitRec = StaticDB.uiTextureKitDB.GetRecord((int)record.UiTextureKitID);
+		if (uiTextureKitRec != null)
+		{
+			int uITextureAtlasMemberID = TextureAtlas.GetUITextureAtlasMemberID(string.Concat(uiTextureKitRec.KitPrefix, "-List"));
+			if (uITextureAtlasMemberID > 0)
+			{
+				Sprite atlasSprite = TextureAtlas.instance.GetAtlasSprite(uITextureAtlasMemberID);
+				if (atlasSprite != null)
+				{
+					this.m_missionLocation.enabled = true;
+					this.m_missionLocation.sprite = atlasSprite;
+				}
+			}
+		}
+		this.UpdateMechanicPreview(flag, mission);
+		MissionRewardDisplay[] componentsInChildren = this.m_previewLootGroup.GetComponentsInChildren<MissionRewardDisplay>(true);
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
+		{
+			if (componentsInChildren[i] != null)
+			{
+				UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
+			}
+		}
+		MissionRewardDisplay.InitMissionRewards(this.m_missionRewardDisplayPrefab.gameObject, this.m_previewLootGroup.transform, mission.Reward);
+	}
+
+	private void Update()
+	{
+		if (this.m_mission.MissionState == 1)
+		{
+			long num = GarrisonStatus.CurrentTime() - this.m_mission.StartTime;
+			long missionDuration = this.m_mission.MissionDuration - num;
+			missionDuration = (missionDuration <= (long)0 ? (long)0 : missionDuration);
+			Duration duration = new Duration((int)missionDuration, false);
+			if (missionDuration <= (long)0)
+			{
+				this.m_statusText.text = string.Concat("<color=#00ff00ff>(", StaticDB.GetString("TAP_TO_COMPLETE", null), ")</color>");
+			}
+			else
+			{
+				this.m_statusText.text = string.Concat(duration.DurationString, " <color=#ff0000ff>(", StaticDB.GetString("IN_PROGRESS", null), ")</color>");
+			}
+		}
+		long num1 = GarrisonStatus.CurrentTime() - this.m_mission.OfferTime;
+		long offerDuration = this.m_mission.OfferDuration - num1;
+		offerDuration = (offerDuration <= (long)0 ? (long)0 : offerDuration);
+		if (offerDuration > (long)0)
+		{
+			if (this.m_expirationText.gameObject.activeSelf)
+			{
+				this.m_missionOfferTimeRemaining.FormatDurationString((int)offerDuration, false);
+				this.m_missionOfferTimeSB.Length = 0;
+				this.m_missionOfferTimeSB.ConcatFormat<string>("{0}", this.m_missionOfferTimeRemaining.DurationString);
+				this.m_expirationText.text = this.m_missionOfferTimeSB.ToString();
+			}
+		}
+		else if (this.m_mission.MissionState == 0 && this.m_mission.OfferDuration > (long)0)
+		{
+			AdventureMapPanel.instance.SelectMissionFromList(0);
+			AllPopups.instance.m_missionDialog.m_missionDetailView.gameObject.SetActive(false);
+			UnityEngine.Object.DestroyImmediate(base.gameObject);
+			return;
+		}
+	}
+
+	public void UpdateMechanicPreview(bool missionInProgress, JamGarrisonMobileMission mission)
+	{
+		int num;
+		int num1 = 0;
+		if (!missionInProgress)
+		{
+			for (int i = 0; i < (int)mission.Encounter.Length; i++)
+			{
+				num = ((int)mission.Encounter[i].MechanicID.Length <= 0 ? 0 : mission.Encounter[i].MechanicID[0]);
+				GarrMechanicRec record = StaticDB.garrMechanicDB.GetRecord(num);
+				if (record != null && record.GarrAbilityID != 0)
+				{
+					this.m_previewAbilityID[num1] = record.GarrAbilityID;
+					this.m_previewCanCounterStatus[num1] = GeneralHelpers.HasFollowerWhoCanCounter((int)record.GarrMechanicTypeID);
+					num1++;
+				}
+			}
+			bool flag = true;
+			AbilityDisplay[] componentsInChildren = this.m_previewMechanicsGroup.GetComponentsInChildren<AbilityDisplay>(true);
+			if (num1 != (int)componentsInChildren.Length)
+			{
+				flag = false;
+			}
+			if (flag)
+			{
+				int num2 = 0;
+				while (num2 < (int)componentsInChildren.Length)
+				{
+					if (componentsInChildren[num2] == null)
+					{
+						flag = false;
+						break;
+					}
+					else if (componentsInChildren[num2].GetAbilityID() != this.m_previewAbilityID[num2])
+					{
+						flag = false;
+						break;
+					}
+					else if (componentsInChildren[num2].GetCanCounterStatus() == this.m_previewCanCounterStatus[num2])
+					{
+						num2++;
+					}
+					else
+					{
+						flag = false;
+						break;
+					}
+				}
+			}
+			if (!flag)
+			{
+				for (int j = 0; j < (int)componentsInChildren.Length; j++)
+				{
+					if (componentsInChildren[j] != null)
+					{
+						UnityEngine.Object.DestroyImmediate(componentsInChildren[j].gameObject);
+					}
+				}
+				for (int k = 0; k < num1; k++)
+				{
+					GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_previewMechanicEffectPrefab);
+					gameObject.transform.SetParent(this.m_previewMechanicsGroup.transform, false);
+					AbilityDisplay component = gameObject.GetComponent<AbilityDisplay>();
+					component.SetAbility(this.m_previewAbilityID[k], false, false, null);
+					component.SetCanCounterStatus(this.m_previewCanCounterStatus[k]);
+				}
+			}
+		}
 	}
 }

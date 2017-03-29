@@ -2,7 +2,6 @@ using bnet.protocol.attribute;
 using bnet.protocol.notification;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace bgs
 {
@@ -14,14 +13,29 @@ namespace bgs
 		{
 		}
 
-		public override void InitRPCListeners(RPCConnection rpcConnection)
+		public void ClearNotifications()
 		{
-			base.InitRPCListeners(rpcConnection);
+			this.m_notifications.Clear();
+		}
+
+		public int GetNotificationCount()
+		{
+			return this.m_notifications.Count;
+		}
+
+		public void GetNotifications([Out] BnetNotification[] Notifications)
+		{
+			this.m_notifications.CopyTo(Notifications, 0);
 		}
 
 		public override void Initialize()
 		{
 			base.Initialize();
+		}
+
+		public override void InitRPCListeners(RPCConnection rpcConnection)
+		{
+			base.InitRPCListeners(rpcConnection);
 		}
 
 		public override void OnDisconnected()
@@ -36,25 +50,25 @@ namespace bgs
 				return;
 			}
 			BnetNotification bnetNotification = new BnetNotification(notificationType);
-			SortedDictionary<string, int> sortedDictionary = new SortedDictionary<string, int>();
-			int num = 0;
+			SortedDictionary<string, int> strs = new SortedDictionary<string, int>();
+			int length = 0;
 			bnetNotification.MessageType = 0;
 			bnetNotification.MessageSize = 0;
 			for (int i = 0; i < notification.AttributeCount; i++)
 			{
-				Attribute attribute = notification.Attribute.get_Item(i);
-				if (attribute.Name == "message_type")
+				bnet.protocol.attribute.Attribute item = notification.Attribute[i];
+				if (item.Name == "message_type")
 				{
-					bnetNotification.MessageType = (int)attribute.Value.IntValue;
+					bnetNotification.MessageType = (int)item.Value.IntValue;
 				}
-				else if (attribute.Name == "message_size")
+				else if (item.Name == "message_size")
 				{
-					bnetNotification.MessageSize = (int)attribute.Value.IntValue;
+					bnetNotification.MessageSize = (int)item.Value.IntValue;
 				}
-				else if (attribute.Name.StartsWith("fragment_"))
+				else if (item.Name.StartsWith("fragment_"))
 				{
-					num += attribute.Value.BlobValue.Length;
-					sortedDictionary.Add(attribute.Name, i);
+					length = length + (int)item.Value.BlobValue.Length;
+					strs.Add(item.Name, i);
 				}
 			}
 			if (bnetNotification.MessageType == 0)
@@ -62,41 +76,24 @@ namespace bgs
 				BattleNet.Log.LogError(string.Format("Missing notification type {0} of size {1}", bnetNotification.MessageType, bnetNotification.MessageSize));
 				return;
 			}
-			if (0 < num)
+			if (0 < length)
 			{
-				bnetNotification.BlobMessage = new byte[num];
-				SortedDictionary<string, int>.Enumerator enumerator = sortedDictionary.GetEnumerator();
-				int num2 = 0;
+				bnetNotification.BlobMessage = new byte[length];
+				SortedDictionary<string, int>.Enumerator enumerator = strs.GetEnumerator();
+				int num = 0;
 				while (enumerator.MoveNext())
 				{
-					List<Attribute> arg_158_0 = notification.Attribute;
-					KeyValuePair<string, int> current = enumerator.get_Current();
-					byte[] blobValue = arg_158_0.get_Item(current.get_Value()).Value.BlobValue;
-					Array.Copy(blobValue, 0, bnetNotification.BlobMessage, num2, blobValue.Length);
-					num2 += blobValue.Length;
+					byte[] blobValue = notification.Attribute[enumerator.Current.Value].Value.BlobValue;
+					Array.Copy(blobValue, 0, bnetNotification.BlobMessage, num, (int)blobValue.Length);
+					num = num + (int)blobValue.Length;
 				}
 			}
-			if (bnetNotification.MessageSize != num)
+			if (bnetNotification.MessageSize == length)
 			{
-				BattleNet.Log.LogError(string.Format("Message size mismatch for notification type {0} - {1} != {2}", bnetNotification.MessageType, bnetNotification.MessageSize, num));
+				this.m_notifications.Add(bnetNotification);
 				return;
 			}
-			this.m_notifications.Add(bnetNotification);
-		}
-
-		public int GetNotificationCount()
-		{
-			return this.m_notifications.get_Count();
-		}
-
-		public void GetNotifications([Out] BnetNotification[] Notifications)
-		{
-			this.m_notifications.CopyTo(Notifications, 0);
-		}
-
-		public void ClearNotifications()
-		{
-			this.m_notifications.Clear();
+			BattleNet.Log.LogError(string.Format("Message size mismatch for notification type {0} - {1} != {2}", bnetNotification.MessageType, bnetNotification.MessageSize, length));
 		}
 	}
 }

@@ -12,7 +12,7 @@ namespace JamLib
 
 		public const int MAX_NUM_DECLINED_TYPES = 5;
 
-		public const uint REALM_ADDRESS_NONE = 0u;
+		public const uint REALM_ADDRESS_NONE = 0;
 
 		public const string WOWGUID_NULL = "0000000000000000";
 
@@ -170,7 +170,7 @@ namespace JamLib
 
 		public const int NUM_RESEARCH_FIELDS = 1;
 
-		public const uint NUM_SPELL_CLASSES_MASK = 4u;
+		public const uint NUM_SPELL_CLASSES_MASK = 4;
 
 		public const int PETBATTLE_RESULT_SUCCESS = 21;
 
@@ -194,13 +194,20 @@ namespace JamLib
 
 		public const int MAX_RAID_TARGETS = 28;
 
-		public static readonly int NUM_JAM_DESTINATION_TYPES = Enum.GetNames(typeof(JAM_DESTINATION)).Length;
+		public readonly static int NUM_JAM_DESTINATION_TYPES;
 
-		public static readonly JamServerSpec SERVER_SPEC_NULL = new JamServerSpec
+		public readonly static JamServerSpec SERVER_SPEC_NULL;
+
+		static WowConstants()
 		{
-			RealmAddress = 0u,
-			ServerType = (JAM_DESTINATION)WowConstants.NUM_JAM_DESTINATION_TYPES,
-			ServerID = 0u
-		};
+			WowConstants.NUM_JAM_DESTINATION_TYPES = (int)Enum.GetNames(typeof(JAM_DESTINATION)).Length;
+			JamServerSpec jamServerSpec = new JamServerSpec()
+			{
+				RealmAddress = 0,
+				ServerType = (JAM_DESTINATION)WowConstants.NUM_JAM_DESTINATION_TYPES,
+				ServerID = 0
+			};
+			WowConstants.SERVER_SPEC_NULL = jamServerSpec;
+		}
 	}
 }

@@ -38,6 +38,22 @@ public class Duration
 		}
 	}
 
+	public string DurationString
+	{
+		get
+		{
+			return (this.m_sb != null ? this.m_sb.ToString() : string.Empty);
+		}
+	}
+
+	public int DurationValue
+	{
+		get
+		{
+			return this.m_seconds;
+		}
+	}
+
 	public int Hours
 	{
 		get
@@ -62,25 +78,58 @@ public class Duration
 		}
 	}
 
-	public int DurationValue
+	static Duration()
 	{
-		get
-		{
-			return this.m_seconds;
-		}
-	}
-
-	public string DurationString
-	{
-		get
-		{
-			return (this.m_sb != null) ? this.m_sb.ToString() : string.Empty;
-		}
 	}
 
 	public Duration(int duration, bool displayLargestUnitOnly = false)
 	{
 		this.FormatDurationString(duration, displayLargestUnitOnly);
+	}
+
+	public void FormatDurationString(int duration, bool displayLargestUnitOnly = false)
+	{
+		this.InitStrings();
+		if (this.m_sb == null)
+		{
+			this.m_sb = new StringBuilder(16);
+		}
+		this.m_sb.Length = 0;
+		this.m_seconds = duration;
+		this.m_minutes = this.m_seconds / 60;
+		this.m_hours = this.m_minutes / 60;
+		this.m_days = this.m_hours / 24;
+		this.m_remainderHours = this.m_hours - 24 * this.m_days;
+		this.m_remainderMinutes = this.m_minutes - 60 * this.m_hours;
+		this.m_remainderSeconds = this.m_seconds - 60 * this.m_minutes;
+		if (this.m_days > 0)
+		{
+			this.m_sb.ConcatFormat<int, string>("{0} {1}", this.m_days, (this.m_days != 1 ? Duration.m_daysText : Duration.m_dayText));
+			if (!displayLargestUnitOnly && this.m_remainderHours > 0)
+			{
+				this.m_sb.ConcatFormat<int, string>(" {0} {1}", this.m_remainderHours, Duration.m_hourText);
+			}
+		}
+		else if (this.m_hours > 0)
+		{
+			this.m_sb.ConcatFormat<int, string>("{0} {1}", this.m_hours, Duration.m_hourText);
+			if (!displayLargestUnitOnly && this.m_remainderMinutes > 0)
+			{
+				this.m_sb.ConcatFormat<int, string>(" {0} {1}", this.m_remainderMinutes, Duration.m_minuteText);
+			}
+		}
+		else if (this.m_minutes > 0)
+		{
+			this.m_sb.ConcatFormat<int, string>("{0} {1}", this.m_minutes, Duration.m_minuteText);
+			if (!displayLargestUnitOnly && this.m_remainderSeconds > 0)
+			{
+				this.m_sb.ConcatFormat<int, string>(" {0} {1}", this.m_remainderSeconds, Duration.m_secondText);
+			}
+		}
+		else if (this.m_seconds > 0)
+		{
+			this.m_sb.ConcatFormat<int, string>("{0} {1}", this.m_seconds, Duration.m_secondText);
+		}
 	}
 
 	private void InitStrings()
@@ -104,51 +153,6 @@ public class Duration
 		if (Duration.m_secondText == null)
 		{
 			Duration.m_secondText = StaticDB.GetString("SECOND_ABBREVIATION", null);
-		}
-	}
-
-	public void FormatDurationString(int duration, bool displayLargestUnitOnly = false)
-	{
-		this.InitStrings();
-		if (this.m_sb == null)
-		{
-			this.m_sb = new StringBuilder(16);
-		}
-		this.m_sb.set_Length(0);
-		this.m_seconds = duration;
-		this.m_minutes = this.m_seconds / 60;
-		this.m_hours = this.m_minutes / 60;
-		this.m_days = this.m_hours / 24;
-		this.m_remainderHours = this.m_hours - 24 * this.m_days;
-		this.m_remainderMinutes = this.m_minutes - 60 * this.m_hours;
-		this.m_remainderSeconds = this.m_seconds - 60 * this.m_minutes;
-		if (this.m_days > 0)
-		{
-			this.m_sb.ConcatFormat("{0} {1}", this.m_days, (this.m_days != 1) ? Duration.m_daysText : Duration.m_dayText);
-			if (!displayLargestUnitOnly && this.m_remainderHours > 0)
-			{
-				this.m_sb.ConcatFormat(" {0} {1}", this.m_remainderHours, Duration.m_hourText);
-			}
-		}
-		else if (this.m_hours > 0)
-		{
-			this.m_sb.ConcatFormat("{0} {1}", this.m_hours, Duration.m_hourText);
-			if (!displayLargestUnitOnly && this.m_remainderMinutes > 0)
-			{
-				this.m_sb.ConcatFormat(" {0} {1}", this.m_remainderMinutes, Duration.m_minuteText);
-			}
-		}
-		else if (this.m_minutes > 0)
-		{
-			this.m_sb.ConcatFormat("{0} {1}", this.m_minutes, Duration.m_minuteText);
-			if (!displayLargestUnitOnly && this.m_remainderSeconds > 0)
-			{
-				this.m_sb.ConcatFormat(" {0} {1}", this.m_remainderSeconds, Duration.m_secondText);
-			}
-		}
-		else if (this.m_seconds > 0)
-		{
-			this.m_sb.ConcatFormat("{0} {1}", this.m_seconds, Duration.m_secondText);
 		}
 	}
 }

@@ -28,4 +28,8 @@ public class BLPushManagerBuilder : ScriptableObject
 	public DidFailToRegisterForRemoteNotificationsWithErrorDelegate didFailToRegisterForRemoteNotificationsWithErrorDelegate;
 
 	public DidFailToLogoutDelegate didFailToLogoutDelegate;
+
+	public BLPushManagerBuilder()
+	{
+	}
 }

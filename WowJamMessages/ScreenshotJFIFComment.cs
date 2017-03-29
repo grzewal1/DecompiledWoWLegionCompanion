@@ -1,108 +1,128 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "ScreenshotJFIFComment", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="ScreenshotJFIFComment", Version=28333852)]
 	public class ScreenshotJFIFComment
 	{
-		[FlexJamMember(Name = "guid", Type = FlexJamType.WowGuid), DataMember(Name = "guid")]
-		public string Guid
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "level", Type = FlexJamType.Int32), DataMember(Name = "level")]
-		public int Level
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "raceID", Type = FlexJamType.UInt32), DataMember(Name = "raceID")]
-		public uint RaceID
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "worldport", Type = FlexJamType.String), DataMember(Name = "worldport")]
-		public string Worldport
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "isInGame", Type = FlexJamType.Bool), DataMember(Name = "isInGame")]
-		public bool IsInGame
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "realmName", Type = FlexJamType.String), DataMember(Name = "realmName")]
-		public string RealmName
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "zoneName", Type = FlexJamType.String), DataMember(Name = "zoneName")]
-		public string ZoneName
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "facing", Type = FlexJamType.Float), DataMember(Name = "facing")]
-		public float Facing
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "mapID", Type = FlexJamType.UInt32), DataMember(Name = "mapID")]
-		public uint MapID
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "position", Type = FlexJamType.Struct), DataMember(Name = "position")]
-		public Vector3 Position
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "name", Type = FlexJamType.String), DataMember(Name = "name")]
-		public string Name
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "classID", Type = FlexJamType.UInt32), DataMember(Name = "classID")]
+		[DataMember(Name="classID")]
+		[FlexJamMember(Name="classID", Type=FlexJamType.UInt32)]
 		public uint ClassID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "sex", Type = FlexJamType.UInt32), DataMember(Name = "sex")]
+		[DataMember(Name="facing")]
+		[FlexJamMember(Name="facing", Type=FlexJamType.Float)]
+		public float Facing
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="guid")]
+		[FlexJamMember(Name="guid", Type=FlexJamType.WowGuid)]
+		public string Guid
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="isInGame")]
+		[FlexJamMember(Name="isInGame", Type=FlexJamType.Bool)]
+		public bool IsInGame
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="level")]
+		[FlexJamMember(Name="level", Type=FlexJamType.Int32)]
+		public int Level
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="mapID")]
+		[FlexJamMember(Name="mapID", Type=FlexJamType.UInt32)]
+		public uint MapID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="mapName")]
+		[FlexJamMember(Name="mapName", Type=FlexJamType.String)]
+		public string MapName
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="name")]
+		[FlexJamMember(Name="name", Type=FlexJamType.String)]
+		public string Name
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="position")]
+		[FlexJamMember(Name="position", Type=FlexJamType.Struct)]
+		public Vector3 Position
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="raceID")]
+		[FlexJamMember(Name="raceID", Type=FlexJamType.UInt32)]
+		public uint RaceID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="realmName")]
+		[FlexJamMember(Name="realmName", Type=FlexJamType.String)]
+		public string RealmName
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="sex")]
+		[FlexJamMember(Name="sex", Type=FlexJamType.UInt32)]
 		public uint Sex
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "mapName", Type = FlexJamType.String), DataMember(Name = "mapName")]
-		public string MapName
+		[DataMember(Name="worldport")]
+		[FlexJamMember(Name="worldport", Type=FlexJamType.String)]
+		public string Worldport
 		{
 			get;
 			set;
+		}
+
+		[DataMember(Name="zoneName")]
+		[FlexJamMember(Name="zoneName", Type=FlexJamType.String)]
+		public string ZoneName
+		{
+			get;
+			set;
+		}
+
+		public ScreenshotJFIFComment()
+		{
 		}
 	}
 }

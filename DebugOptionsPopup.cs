@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -18,6 +19,67 @@ public class DebugOptionsPopup : MonoBehaviour
 
 	public Dropdown m_localeDropdown;
 
+	public GameObject m_testEffectArea;
+
+	public DebugOptionsPopup()
+	{
+	}
+
+	private void OnDisable()
+	{
+		Main.instance.m_backButtonManager.PopBackAction();
+	}
+
+	private void OnEnable()
+	{
+		this.m_enableDetailedZoneMaps.isOn = AdventureMapPanel.instance.m_testEnableDetailedZoneMaps;
+		this.m_enableAutoZoomInOut.isOn = AdventureMapPanel.instance.m_testEnableAutoZoomInOut;
+		this.m_enableTapToZoomOut.isOn = AdventureMapPanel.instance.m_testEnableTapToZoomOut;
+		this.m_enableCheatCompleteMissionButton.isOn = this.m_cheatCompleteButton.activeSelf;
+		int num = 0;
+		while (num < this.m_localeDropdown.options.Count)
+		{
+			if (this.m_localeDropdown.options.ToArray()[num].text != Main.instance.GetLocale())
+			{
+				num++;
+			}
+			else
+			{
+				this.m_localeDropdown.@value = num;
+				break;
+			}
+		}
+		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
+	}
+
+	private void OnValueChanged_EnableAutoZoomInOut(bool isOn)
+	{
+		AdventureMapPanel.instance.m_testEnableAutoZoomInOut = isOn;
+	}
+
+	private void OnValueChanged_EnableCheatCompleteButton(bool isOn)
+	{
+		this.m_cheatCompleteButton.SetActive(isOn);
+	}
+
+	private void OnValueChanged_EnableDetailedZoneMaps(bool isOn)
+	{
+		AdventureMapPanel.instance.m_testEnableDetailedZoneMaps = isOn;
+	}
+
+	private void OnValueChanged_EnableTapToZoomOut(bool isOn)
+	{
+		AdventureMapPanel.instance.m_testEnableTapToZoomOut = isOn;
+	}
+
+	public void OnValueChanged_LocaleDropdown(int index)
+	{
+		string array = this.m_localeDropdown.options.ToArray()[this.m_localeDropdown.@value].text;
+		Debug.Log(string.Concat("Locale option is now ", array));
+		SecurePlayerPrefs.SetString("locale", array, Main.uniqueIdentifier);
+		PlayerPrefs.Save();
+	}
+
 	private void Start()
 	{
 		this.m_enableDetailedZoneMaps.onValueChanged.AddListener(new UnityAction<bool>(this.OnValueChanged_EnableDetailedZoneMaps));
@@ -26,53 +88,8 @@ public class DebugOptionsPopup : MonoBehaviour
 		this.m_enableCheatCompleteMissionButton.onValueChanged.AddListener(new UnityAction<bool>(this.OnValueChanged_EnableCheatCompleteButton));
 	}
 
-	private void OnEnable()
+	public void TestUIEffect()
 	{
-		this.m_enableDetailedZoneMaps.set_isOn(AdventureMapPanel.instance.m_testEnableDetailedZoneMaps);
-		this.m_enableAutoZoomInOut.set_isOn(AdventureMapPanel.instance.m_testEnableAutoZoomInOut);
-		this.m_enableTapToZoomOut.set_isOn(AdventureMapPanel.instance.m_testEnableTapToZoomOut);
-		this.m_enableCheatCompleteMissionButton.set_isOn(this.m_cheatCompleteButton.get_activeSelf());
-		for (int i = 0; i < this.m_localeDropdown.get_options().get_Count(); i++)
-		{
-			if (this.m_localeDropdown.get_options().ToArray()[i].get_text() == Main.instance.GetLocale())
-			{
-				this.m_localeDropdown.set_value(i);
-				break;
-			}
-		}
-		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
-	}
-
-	private void OnDisable()
-	{
-		Main.instance.m_backButtonManager.PopBackAction();
-	}
-
-	private void OnValueChanged_EnableDetailedZoneMaps(bool isOn)
-	{
-		AdventureMapPanel.instance.m_testEnableDetailedZoneMaps = isOn;
-	}
-
-	private void OnValueChanged_EnableAutoZoomInOut(bool isOn)
-	{
-		AdventureMapPanel.instance.m_testEnableAutoZoomInOut = isOn;
-	}
-
-	private void OnValueChanged_EnableTapToZoomOut(bool isOn)
-	{
-		AdventureMapPanel.instance.m_testEnableTapToZoomOut = isOn;
-	}
-
-	private void OnValueChanged_EnableCheatCompleteButton(bool isOn)
-	{
-		this.m_cheatCompleteButton.SetActive(isOn);
-	}
-
-	public void OnValueChanged_LocaleDropdown(int index)
-	{
-		string text = this.m_localeDropdown.get_options().ToArray()[this.m_localeDropdown.get_value()].get_text();
-		Debug.Log("Locale option is now " + text);
-		SecurePlayerPrefs.SetString("locale", text, Main.uniqueIdentifier);
-		PlayerPrefs.Save();
+		UiAnimMgr.instance.PlayAnim("ItemReadyToUseGlowLoop", this.m_testEffectArea.transform, Vector3.zero, 2f, 0f);
 	}
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using WowStaticData;
 
@@ -102,11 +103,11 @@ public class StaticDB : MonoBehaviour
 
 	private RewardPackXCurrencyTypeDB m_rewardPackXCurrencyTypeDB;
 
-	public static StaticDB instance
+	public static CharShipmentContainerDB charShipmentContainerDB
 	{
 		get
 		{
-			return StaticDB.s_instance;
+			return StaticDB.instance.m_charShipmentContainerDB;
 		}
 	}
 
@@ -115,14 +116,6 @@ public class StaticDB : MonoBehaviour
 		get
 		{
 			return StaticDB.instance.m_charShipmentDB;
-		}
-	}
-
-	public static CharShipmentContainerDB charShipmentContainerDB
-	{
-		get
-		{
-			return StaticDB.instance.m_charShipmentContainerDB;
 		}
 	}
 
@@ -158,19 +151,19 @@ public class StaticDB : MonoBehaviour
 		}
 	}
 
-	public static GarrAbilityDB garrAbilityDB
-	{
-		get
-		{
-			return StaticDB.instance.m_garrAbilityDB;
-		}
-	}
-
 	public static GarrAbilityCategoryDB garrAbilityCategoryDB
 	{
 		get
 		{
 			return StaticDB.instance.m_garrAbilityCategoryDB;
+		}
+	}
+
+	public static GarrAbilityDB garrAbilityDB
+	{
+		get
+		{
+			return StaticDB.instance.m_garrAbilityDB;
 		}
 	}
 
@@ -190,19 +183,19 @@ public class StaticDB : MonoBehaviour
 		}
 	}
 
-	public static GarrEncounterSetXEncounterDB garrEncounterSetXEncounterDB
-	{
-		get
-		{
-			return StaticDB.instance.m_garrEncounterSetXEncounterDB;
-		}
-	}
-
 	public static GarrEncounterDB garrEncounterDB
 	{
 		get
 		{
 			return StaticDB.instance.m_garrEncounterDB;
+		}
+	}
+
+	public static GarrEncounterSetXEncounterDB garrEncounterSetXEncounterDB
+	{
+		get
+		{
+			return StaticDB.instance.m_garrEncounterSetXEncounterDB;
 		}
 	}
 
@@ -230,19 +223,19 @@ public class StaticDB : MonoBehaviour
 		}
 	}
 
-	public static GarrFollowerTypeDB garrFollowerTypeDB
-	{
-		get
-		{
-			return StaticDB.instance.m_garrFollowerTypeDB;
-		}
-	}
-
 	public static GarrFollowerQualityDB garrFollowerQualityDB
 	{
 		get
 		{
 			return StaticDB.instance.m_garrFollowerQualityDB;
+		}
+	}
+
+	public static GarrFollowerTypeDB garrFollowerTypeDB
+	{
+		get
+		{
+			return StaticDB.instance.m_garrFollowerTypeDB;
 		}
 	}
 
@@ -326,19 +319,19 @@ public class StaticDB : MonoBehaviour
 		}
 	}
 
+	public static StaticDB instance
+	{
+		get
+		{
+			return StaticDB.s_instance;
+		}
+	}
+
 	public static ItemDB itemDB
 	{
 		get
 		{
 			return StaticDB.instance.m_itemDB;
-		}
-	}
-
-	public static ItemSubClassDB itemSubClassDB
-	{
-		get
-		{
-			return StaticDB.instance.m_itemSubClassDB;
 		}
 	}
 
@@ -358,6 +351,14 @@ public class StaticDB : MonoBehaviour
 		}
 	}
 
+	public static ItemSubClassDB itemSubClassDB
+	{
+		get
+		{
+			return StaticDB.instance.m_itemSubClassDB;
+		}
+	}
+
 	public static QuestV2DB questDB
 	{
 		get
@@ -374,6 +375,30 @@ public class StaticDB : MonoBehaviour
 		}
 	}
 
+	public static RewardPackDB rewardPackDB
+	{
+		get
+		{
+			return StaticDB.instance.m_rewardPackDB;
+		}
+	}
+
+	public static RewardPackXCurrencyTypeDB rewardPackXCurrencyTypeDB
+	{
+		get
+		{
+			return StaticDB.instance.m_rewardPackXCurrencyTypeDB;
+		}
+	}
+
+	public static RewardPackXItemDB rewardPackXItemDB
+	{
+		get
+		{
+			return StaticDB.instance.m_rewardPackXItemDB;
+		}
+	}
+
 	public static SpellEffectDB spellEffectDB
 	{
 		get
@@ -387,14 +412,6 @@ public class StaticDB : MonoBehaviour
 		get
 		{
 			return StaticDB.instance.m_spellTooltipDB;
-		}
-	}
-
-	public static VW_MobileSpellDB vw_mobileSpellDB
-	{
-		get
-		{
-			return StaticDB.instance.m_vw_mobileSpellDB;
 		}
 	}
 
@@ -422,6 +439,14 @@ public class StaticDB : MonoBehaviour
 		}
 	}
 
+	public static VW_MobileSpellDB vw_mobileSpellDB
+	{
+		get
+		{
+			return StaticDB.instance.m_vw_mobileSpellDB;
+		}
+	}
+
 	public static WorldMapAreaDB worldMapAreaDB
 	{
 		get
@@ -430,28 +455,12 @@ public class StaticDB : MonoBehaviour
 		}
 	}
 
-	public static RewardPackDB rewardPackDB
+	static StaticDB()
 	{
-		get
-		{
-			return StaticDB.instance.m_rewardPackDB;
-		}
 	}
 
-	public static RewardPackXItemDB rewardPackXItemDB
+	public StaticDB()
 	{
-		get
-		{
-			return StaticDB.instance.m_rewardPackXItemDB;
-		}
-	}
-
-	public static RewardPackXCurrencyTypeDB rewardPackXCurrencyTypeDB
-	{
-		get
-		{
-			return StaticDB.instance.m_rewardPackXCurrencyTypeDB;
-		}
 	}
 
 	private void Awake()
@@ -462,6 +471,43 @@ public class StaticDB : MonoBehaviour
 		}
 	}
 
+	public static ItemSubClassRec GetItemSubclass(int classID, int subClassID)
+	{
+		ItemSubClassRec itemSubClassRec = null;
+		StaticDB.itemSubClassDB.EnumRecordsByParentID(classID, (ItemSubClassRec subClassRec) => {
+			if (subClassRec.SubClassID != subClassID)
+			{
+				return true;
+			}
+			itemSubClassRec = subClassRec;
+			return false;
+		});
+		return itemSubClassRec;
+	}
+
+	public static string GetString(string baseTag, string fallbackString = null)
+	{
+		if (StaticDB.instance == null)
+		{
+			return string.Empty;
+		}
+		MobileStringsRec record = StaticDB.instance.m_mobileStringsDB.GetRecord(baseTag);
+		if (record == null)
+		{
+			Debug.Log(string.Concat("No rec for tag ", baseTag));
+			return (fallbackString != null ? fallbackString : "<NoRec>");
+		}
+		if (record.TagText == string.Empty && fallbackString != null)
+		{
+			return fallbackString;
+		}
+		if (record.TagText == string.Empty)
+		{
+			return "<NoTxt>";
+		}
+		return record.TagText;
+	}
+
 	public void InitDBs(AssetBundle nonLocalizedBundle, AssetBundle localizedBundle)
 	{
 		if (StaticDB.s_initialized)
@@ -469,225 +515,225 @@ public class StaticDB : MonoBehaviour
 			Debug.Log("WARNING! ATTEMPTED TO INIT STATIC DBS THAT WERE ALREADY INITIALIZED!! IGNORING");
 			return;
 		}
-		string path = "Assets/BundleAssets/StaticDB/";
+		string str = "Assets/BundleAssets/StaticDB/";
 		string locale = Main.instance.GetLocale();
 		this.m_charShipmentDB = new CharShipmentDB();
-		if (!this.m_charShipmentDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_charShipmentDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load charShipmentDB static DB");
 		}
 		this.m_charShipmentContainerDB = new CharShipmentContainerDB();
-		if (!this.m_charShipmentContainerDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_charShipmentContainerDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load charShipmentContainerDB static DB");
 		}
 		this.m_chrClassesDB = new ChrClassesDB();
-		if (!this.m_chrClassesDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_chrClassesDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load chrClasses static DB");
 		}
 		this.m_creatureDB = new CreatureDB();
-		if (!this.m_creatureDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_creatureDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load creature static DB");
 		}
 		this.m_currencyTypesDB = new CurrencyTypesDB();
-		if (!this.m_currencyTypesDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_currencyTypesDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load currencyTypes static DB");
 		}
 		this.m_factionDB = new FactionDB();
-		if (!this.m_factionDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_factionDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load faction static DB");
 		}
 		this.m_garrAbilityDB = new GarrAbilityDB();
-		if (!this.m_garrAbilityDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrAbilityDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrAbility static DB");
 		}
 		this.m_garrAbilityCategoryDB = new GarrAbilityCategoryDB();
-		if (!this.m_garrAbilityCategoryDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrAbilityCategoryDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrAbilityCategory static DB");
 		}
 		this.m_garrAbilityEffectDB = new GarrAbilityEffectDB();
-		if (!this.m_garrAbilityEffectDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrAbilityEffectDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrAbilityEffect static DB");
 		}
 		this.m_garrClassSpecDB = new GarrClassSpecDB();
-		if (!this.m_garrClassSpecDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrClassSpecDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrClassSpec static DB");
 		}
 		this.m_garrEncounterDB = new GarrEncounterDB();
-		if (!this.m_garrEncounterDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrEncounterDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrEncounter static DB");
 		}
 		this.m_garrEncounterSetXEncounterDB = new GarrEncounterSetXEncounterDB();
-		if (!this.m_garrEncounterSetXEncounterDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrEncounterSetXEncounterDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrEncounterSetXEncounterDB static DB");
 		}
 		this.m_garrFollItemSetMemberDB = new GarrFollItemSetMemberDB();
-		if (!this.m_garrFollItemSetMemberDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrFollItemSetMemberDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrFollItemSetMember static DB");
 		}
 		this.m_garrFollowerDB = new GarrFollowerDB();
-		if (!this.m_garrFollowerDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrFollowerDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrFollower static DB");
 		}
 		this.m_garrFollowerLevelXPDB = new GarrFollowerLevelXPDB();
-		if (!this.m_garrFollowerLevelXPDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrFollowerLevelXPDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrFollowerLevelXP static DB");
 		}
 		this.m_garrFollowerTypeDB = new GarrFollowerTypeDB();
-		if (!this.m_garrFollowerTypeDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrFollowerTypeDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load m_garrFollowerType static DB");
 		}
 		this.m_garrFollowerQualityDB = new GarrFollowerQualityDB();
-		if (!this.m_garrFollowerQualityDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrFollowerQualityDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load m_garrFollowerQuality static DB");
 		}
 		this.m_garrFollowerXAbilityDB = new GarrFollowerXAbilityDB();
-		if (!this.m_garrFollowerXAbilityDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrFollowerXAbilityDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load m_garrFollowerXAbilty static DB");
 		}
 		this.m_garrMechanicDB = new GarrMechanicDB();
-		if (!this.m_garrMechanicDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrMechanicDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrMechanic static DB");
 		}
 		this.m_garrMechanicTypeDB = new GarrMechanicTypeDB();
-		if (!this.m_garrMechanicTypeDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrMechanicTypeDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrMechanicType static DB");
 		}
 		this.m_garrMissionDB = new GarrMissionDB();
-		if (!this.m_garrMissionDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrMissionDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrMission static DB");
 		}
 		this.m_garrMissionRewardDB = new GarrMissionRewardDB();
-		if (!this.m_garrMissionRewardDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrMissionRewardDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrMissionReward static DB");
 		}
 		this.m_garrMissionTypeDB = new GarrMissionTypeDB();
-		if (!this.m_garrMissionTypeDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrMissionTypeDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrMissionType static DB");
 		}
 		this.m_garrMissionXEncounterDB = new GarrMissionXEncounterDB();
-		if (!this.m_garrMissionXEncounterDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrMissionXEncounterDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrMissionXEncounter static DB");
 		}
 		this.m_garrStringDB = new GarrStringDB();
-		if (!this.m_garrStringDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrStringDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrStringDB static DB");
 		}
 		this.m_garrTalentDB = new GarrTalentDB();
-		if (!this.m_garrTalentDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrTalentDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrTalent static DB");
 		}
 		this.m_garrTalentTreeDB = new GarrTalentTreeDB();
-		if (!this.m_garrTalentTreeDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_garrTalentTreeDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load garrTalentTree static DB");
 		}
 		this.m_itemDB = new ItemDB();
-		if (!this.m_itemDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_itemDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load item static DB");
 		}
 		this.m_itemSubClassDB = new ItemSubClassDB();
-		if (!this.m_itemSubClassDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_itemSubClassDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load item sub class static DB");
 		}
 		this.m_itemEffectDB = new ItemEffectDB();
-		if (!this.m_itemEffectDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_itemEffectDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load item effect static DB");
 		}
 		this.m_itemNameDescriptionDB = new ItemNameDescriptionDB();
-		if (!this.m_itemNameDescriptionDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_itemNameDescriptionDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load item name description DB");
 		}
 		this.m_mobileStringsDB = new MobileStringsDB();
-		if (!this.m_mobileStringsDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_mobileStringsDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load MobileStrings static DB");
 		}
 		this.m_questDB = new QuestV2DB();
-		if (!this.m_questDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_questDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load Quest static DB");
 		}
 		this.m_questInfoDB = new QuestInfoDB();
-		if (!this.m_questInfoDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_questInfoDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load QuestInfo static DB");
 		}
 		this.m_spellEffectDB = new SpellEffectDB();
-		if (!this.m_spellEffectDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_spellEffectDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load SpellEffect static DB");
 		}
 		this.m_spellTooltipDB = new SpellTooltipDB();
-		if (!this.m_spellTooltipDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_spellTooltipDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load SpellTooltip static DB");
 		}
 		this.m_vw_mobileSpellDB = new VW_MobileSpellDB();
-		if (!this.m_vw_mobileSpellDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_vw_mobileSpellDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load VW_MobileSpellDB static DB");
 		}
 		this.m_uiTextureAtlasMemberDB = new UiTextureAtlasMemberDB();
-		if (!this.m_uiTextureAtlasMemberDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_uiTextureAtlasMemberDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load uiTextureAtlasMember static DB");
 		}
 		this.m_uiTextureAtlasDB = new UiTextureAtlasDB();
-		if (!this.m_uiTextureAtlasDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_uiTextureAtlasDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load uiTextureAtlas static DB");
 		}
 		this.m_uiTextureKitDB = new UiTextureKitDB();
-		if (!this.m_uiTextureKitDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_uiTextureKitDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load uiTextureKit static DB");
 		}
 		this.m_worldMapAreaDB = new WorldMapAreaDB();
-		if (!this.m_worldMapAreaDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_worldMapAreaDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load worldMapArea static DB");
 		}
 		this.m_rewardPackDB = new RewardPackDB();
-		if (!this.m_rewardPackDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_rewardPackDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load rewardPack static DB");
 		}
 		this.m_rewardPackXItemDB = new RewardPackXItemDB();
-		if (!this.m_rewardPackXItemDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_rewardPackXItemDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load rewardPackXItem static DB");
 		}
 		this.m_rewardPackXCurrencyTypeDB = new RewardPackXCurrencyTypeDB();
-		if (!this.m_rewardPackXCurrencyTypeDB.Load(path, nonLocalizedBundle, localizedBundle, locale))
+		if (!this.m_rewardPackXCurrencyTypeDB.Load(str, nonLocalizedBundle, localizedBundle, locale))
 		{
 			Debug.Log("Failed to load rewardPackXCurrencyType static DB");
 		}
@@ -702,42 +748,8 @@ public class StaticDB : MonoBehaviour
 		StaticDB.s_initialized = true;
 	}
 
-	public static ItemSubClassRec GetItemSubclass(int classID, int subClassID)
-	{
-		ItemSubClassRec result = null;
-		StaticDB.itemSubClassDB.EnumRecordsByParentID(classID, delegate(ItemSubClassRec subClassRec)
-		{
-			if (subClassRec.SubClassID == subClassID)
-			{
-				result = subClassRec;
-				return false;
-			}
-			return true;
-		});
-		return result;
-	}
-
 	public static bool StringsAvailable()
 	{
-		return StaticDB.instance != null && StaticDB.instance.m_mobileStringsDB != null;
-	}
-
-	public static string GetString(string baseTag, string fallbackString = null)
-	{
-		MobileStringsRec record = StaticDB.instance.m_mobileStringsDB.GetRecord(baseTag);
-		if (record == null)
-		{
-			Debug.Log("No rec for tag " + baseTag);
-			return (fallbackString != null) ? fallbackString : "<NoRec>";
-		}
-		if (record.TagText == string.Empty && fallbackString != null)
-		{
-			return fallbackString;
-		}
-		if (record.TagText == string.Empty)
-		{
-			return "<NoTxt>";
-		}
-		return record.TagText;
+		return (StaticDB.instance == null ? false : StaticDB.instance.m_mobileStringsDB != null);
 	}
 }

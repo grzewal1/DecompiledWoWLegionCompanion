@@ -1,24 +1,32 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "ObjectPhaseDebugInfo", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="ObjectPhaseDebugInfo", Version=28333852)]
 	public class ObjectPhaseDebugInfo
 	{
-		[FlexJamMember(Name = "phaseName", Type = FlexJamType.String), DataMember(Name = "phaseName")]
+		[DataMember(Name="phaseID")]
+		[FlexJamMember(Name="phaseID", Type=FlexJamType.Int32)]
+		public int PhaseID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="phaseName")]
+		[FlexJamMember(Name="phaseName", Type=FlexJamType.String)]
 		public string PhaseName
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "phaseID", Type = FlexJamType.Int32), DataMember(Name = "phaseID")]
-		public int PhaseID
+		public ObjectPhaseDebugInfo()
 		{
-			get;
-			set;
 		}
 	}
 }

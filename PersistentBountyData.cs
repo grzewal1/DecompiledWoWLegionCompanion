@@ -12,18 +12,11 @@ public class PersistentBountyData
 
 	private bool m_bountiesAreVisible;
 
-	private static PersistentBountyData instance
+	public static Hashtable bountiesByWorldQuestDictionary
 	{
 		get
 		{
-			if (PersistentBountyData.s_instance == null)
-			{
-				PersistentBountyData.s_instance = new PersistentBountyData();
-				PersistentBountyData.s_instance.m_bountyDictionary = new Hashtable();
-				PersistentBountyData.s_instance.m_bountiesByWorldQuestDictionary = new Hashtable();
-				PersistentBountyData.s_instance.m_bountiesAreVisible = false;
-			}
-			return PersistentBountyData.s_instance;
+			return PersistentBountyData.instance.m_bountiesByWorldQuestDictionary;
 		}
 	}
 
@@ -35,31 +28,29 @@ public class PersistentBountyData
 		}
 	}
 
-	public static Hashtable bountiesByWorldQuestDictionary
+	private static PersistentBountyData instance
 	{
 		get
 		{
-			return PersistentBountyData.instance.m_bountiesByWorldQuestDictionary;
+			if (PersistentBountyData.s_instance == null)
+			{
+				PersistentBountyData.s_instance = new PersistentBountyData()
+				{
+					m_bountyDictionary = new Hashtable(),
+					m_bountiesByWorldQuestDictionary = new Hashtable(),
+					m_bountiesAreVisible = false
+				};
+			}
+			return PersistentBountyData.s_instance;
 		}
 	}
 
-	public static void SetBountiesVisible(bool visible)
+	static PersistentBountyData()
 	{
-		PersistentBountyData.s_instance.m_bountiesAreVisible = visible;
 	}
 
-	public static bool BountiesAreVisible()
+	public PersistentBountyData()
 	{
-		return PersistentBountyData.s_instance.m_bountiesAreVisible;
-	}
-
-	public static void AddOrUpdateBounty(MobileWorldQuestBounty bounty)
-	{
-		if (PersistentBountyData.instance.m_bountyDictionary.ContainsKey(bounty.QuestID))
-		{
-			PersistentBountyData.instance.m_bountyDictionary.Remove(bounty.QuestID);
-		}
-		PersistentBountyData.instance.m_bountyDictionary.Add(bounty.QuestID, bounty);
 	}
 
 	public static void AddOrUpdateBountiesByWorldQuest(MobileBountiesByWorldQuest bountiesByWorldQuest)
@@ -71,9 +62,28 @@ public class PersistentBountyData
 		PersistentBountyData.instance.m_bountiesByWorldQuestDictionary.Add(bountiesByWorldQuest.QuestID, bountiesByWorldQuest);
 	}
 
+	public static void AddOrUpdateBounty(MobileWorldQuestBounty bounty)
+	{
+		if (PersistentBountyData.instance.m_bountyDictionary.ContainsKey(bounty.QuestID))
+		{
+			PersistentBountyData.instance.m_bountyDictionary.Remove(bounty.QuestID);
+		}
+		PersistentBountyData.instance.m_bountyDictionary.Add(bounty.QuestID, bounty);
+	}
+
+	public static bool BountiesAreVisible()
+	{
+		return PersistentBountyData.s_instance.m_bountiesAreVisible;
+	}
+
 	public static void ClearData()
 	{
 		PersistentBountyData.instance.m_bountyDictionary.Clear();
 		PersistentBountyData.instance.m_bountiesByWorldQuestDictionary.Clear();
+	}
+
+	public static void SetBountiesVisible(bool visible)
+	{
+		PersistentBountyData.s_instance.m_bountiesAreVisible = visible;
 	}
 }

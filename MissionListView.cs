@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,32 +8,6 @@ using WowStaticData;
 
 public class MissionListView : MonoBehaviour
 {
-	private class MissionLevelComparer : IComparer<JamGarrisonMobileMission>
-	{
-		public int Compare(JamGarrisonMobileMission m1, JamGarrisonMobileMission m2)
-		{
-			GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(m1.MissionRecID);
-			GarrMissionRec record2 = StaticDB.garrMissionDB.GetRecord(m2.MissionRecID);
-			if (record == null || record2 == null)
-			{
-				return 0;
-			}
-			return record2.TargetLevel - record.TargetLevel;
-		}
-	}
-
-	public class MissionTimeComparer : IComparer<JamGarrisonMobileMission>
-	{
-		public int Compare(JamGarrisonMobileMission m1, JamGarrisonMobileMission m2)
-		{
-			long num = GarrisonStatus.CurrentTime() - m1.StartTime;
-			long num2 = m1.MissionDuration - num;
-			long num3 = GarrisonStatus.CurrentTime() - m2.StartTime;
-			long num4 = m2.MissionDuration - num3;
-			return (int)(num2 - num4);
-		}
-	}
-
 	private PersistentMissionData missionData;
 
 	public GameObject missionListViewContents;
@@ -45,66 +20,56 @@ public class MissionListView : MonoBehaviour
 
 	public GameObject missionRewardDisplayPrefab;
 
-	private void Start()
-	{
-	}
-
-	private void Update()
+	public MissionListView()
 	{
 	}
 
 	private void InitMissionList()
 	{
 		RectTransform[] componentsInChildren = this.missionListViewContents.GetComponentsInChildren<RectTransform>(true);
-		for (int i = 0; i < componentsInChildren.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			if (componentsInChildren[i] != null && componentsInChildren[i] != this.missionListViewContents.get_transform())
+			if (componentsInChildren[i] != null && componentsInChildren[i] != this.missionListViewContents.transform)
 			{
-				Object.DestroyImmediate(componentsInChildren[i].get_gameObject());
+				UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
 			}
 		}
-		List<JamGarrisonMobileMission> list = Enumerable.ToList<JamGarrisonMobileMission>(Enumerable.OfType<JamGarrisonMobileMission>(PersistentMissionData.missionDictionary.get_Values()));
-		if (this.isInProgressMissionList)
-		{
-			list.Sort(new MissionListView.MissionTimeComparer());
-		}
-		else
+		List<JamGarrisonMobileMission> list = PersistentMissionData.missionDictionary.Values.OfType<JamGarrisonMobileMission>().ToList<JamGarrisonMobileMission>();
+		if (!this.isInProgressMissionList)
 		{
 			list.Sort(new MissionListView.MissionLevelComparer());
 		}
-		using (List<JamGarrisonMobileMission>.Enumerator enumerator = list.GetEnumerator())
+		else
 		{
-			while (enumerator.MoveNext())
+			list.Sort(new MissionListView.MissionTimeComparer());
+		}
+		foreach (JamGarrisonMobileMission jamGarrisonMobileMission in list)
+		{
+			GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(jamGarrisonMobileMission.MissionRecID);
+			if (record != null)
 			{
-				JamGarrisonMobileMission current = enumerator.get_Current();
-				GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(current.MissionRecID);
-				if (record != null)
+				if (record.GarrFollowerTypeID == 4)
 				{
-					if (record.GarrFollowerTypeID == 4u)
+					if (this.isInProgressMissionList)
 					{
-						if (this.isInProgressMissionList)
+						if (jamGarrisonMobileMission.MissionState == 0)
 						{
-							if (current.MissionState == 0)
+							continue;
+						}
+						else if (jamGarrisonMobileMission.MissionState == 1)
+						{
+							long num = GarrisonStatus.CurrentTime() - jamGarrisonMobileMission.StartTime;
+							if (jamGarrisonMobileMission.MissionDuration - num <= (long)0)
 							{
 								continue;
 							}
-							if (current.MissionState == 1)
-							{
-								long num = GarrisonStatus.CurrentTime() - current.StartTime;
-								long num2 = current.MissionDuration - num;
-								if (num2 <= 0L)
-								{
-									continue;
-								}
-							}
 						}
-						if (this.isInProgressMissionList || current.MissionState == 0)
-						{
-							GameObject gameObject = Object.Instantiate<GameObject>(this.missionListItemPrefab);
-							gameObject.get_transform().SetParent(this.missionListViewContents.get_transform(), false);
-							MissionListItem component = gameObject.GetComponent<MissionListItem>();
-							component.Init(record.ID);
-						}
+					}
+					if (this.isInProgressMissionList || jamGarrisonMobileMission.MissionState == 0)
+					{
+						GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.missionListItemPrefab);
+						gameObject.transform.SetParent(this.missionListViewContents.transform, false);
+						gameObject.GetComponent<MissionListItem>().Init(record.ID);
 					}
 				}
 			}
@@ -114,5 +79,46 @@ public class MissionListView : MonoBehaviour
 	public void OnUIRefresh()
 	{
 		this.InitMissionList();
+	}
+
+	private void Start()
+	{
+	}
+
+	private void Update()
+	{
+	}
+
+	private class MissionLevelComparer : IComparer<JamGarrisonMobileMission>
+	{
+		public MissionLevelComparer()
+		{
+		}
+
+		public int Compare(JamGarrisonMobileMission m1, JamGarrisonMobileMission m2)
+		{
+			GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(m1.MissionRecID);
+			GarrMissionRec garrMissionRec = StaticDB.garrMissionDB.GetRecord(m2.MissionRecID);
+			if (record == null || garrMissionRec == null)
+			{
+				return 0;
+			}
+			return garrMissionRec.TargetLevel - record.TargetLevel;
+		}
+	}
+
+	public class MissionTimeComparer : IComparer<JamGarrisonMobileMission>
+	{
+		public MissionTimeComparer()
+		{
+		}
+
+		public int Compare(JamGarrisonMobileMission m1, JamGarrisonMobileMission m2)
+		{
+			long num = GarrisonStatus.CurrentTime() - m1.StartTime;
+			long missionDuration = m1.MissionDuration - num;
+			long num1 = GarrisonStatus.CurrentTime() - m2.StartTime;
+			return (int)(missionDuration - (m2.MissionDuration - num1));
+		}
 	}
 }

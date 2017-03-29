@@ -18,152 +18,43 @@ public class JsonTestScript
 		this._text = text;
 	}
 
-	public void SerializeVector3()
+	public void DictionaryObjectKeySerialization()
 	{
-		this.LogStart("Vector3 Serialization");
+		this.LogStart("Dictionary (Object As Key)");
 		try
 		{
-			Vector3 vector = new Vector3(2f, 4f, 6f);
-			JsonConverter[] converters = new JsonConverter[]
-			{
-				new Vector3Converter()
-			};
-			string text = JsonConvert.SerializeObject(vector, Formatting.None, converters);
-			this.LogSerialized(text);
-			Vector3 vector2 = JsonConvert.DeserializeObject<Vector3>(text);
-			this.LogResult("4", vector2.y);
-			if (vector2.y != vector.y)
-			{
-				this.DisplayFail("Vector3 Serialization", "Incorrect Deserialized Result");
-			}
-			this.DisplaySuccess("Vector3 Serialization");
-		}
-		catch (Exception ex)
-		{
-			this.DisplayFail("Vector3 Serialization", ex.get_Message());
-		}
-		this.LogEnd(1);
-	}
-
-	public void GenericListSerialization()
-	{
-		this.LogStart("List<T> Serialization");
-		try
-		{
-			List<SimpleClassObject> list = new List<SimpleClassObject>();
+			Dictionary<SampleBase, int> sampleBases = new Dictionary<SampleBase, int>();
 			for (int i = 0; i < 4; i++)
 			{
-				list.Add(TestCaseUtils.GetSimpleClassObject());
+				sampleBases.Add(TestCaseUtils.GetSampleBase(), i);
 			}
-			string text = JsonConvert.SerializeObject(list);
-			this.LogSerialized(text);
-			List<SimpleClassObject> list2 = JsonConvert.DeserializeObject<List<SimpleClassObject>>(text);
-			this.LogResult(list.get_Count().ToString(), list2.get_Count());
-			this.LogResult(list.get_Item(2).TextValue, list2.get_Item(2).TextValue);
-			if (list.get_Count() != list2.get_Count() || list.get_Item(3).TextValue != list2.get_Item(3).TextValue)
+			string str = JsonConvert.SerializeObject(sampleBases);
+			this.LogSerialized(str);
+			this._text.text = str;
+			Dictionary<SampleBase, int> sampleBases1 = JsonConvert.DeserializeObject<Dictionary<SampleBase, int>>(str);
+			List<SampleBase> sampleBases2 = new List<SampleBase>();
+			List<SampleBase> sampleBases3 = new List<SampleBase>();
+			foreach (SampleBase key in sampleBases.Keys)
 			{
-				this.DisplayFail("List<T> Serialization", "Incorrect Deserialized Result");
-				Debug.LogError("Deserialized List<T> has incorrect count or wrong item value");
+				sampleBases2.Add(key);
 			}
-			else
+			foreach (SampleBase sampleBase in sampleBases1.Keys)
 			{
-				this.DisplaySuccess("List<T> Serialization");
+				sampleBases3.Add(sampleBase);
 			}
-		}
-		catch (Exception ex)
-		{
-			this.DisplayFail("List<T> Serialization", ex.get_Message());
-			throw;
-		}
-		this.LogEnd(2);
-	}
-
-	public void PolymorphicSerialization()
-	{
-		this.LogStart("Polymorphic Serialization");
-		try
-		{
-			List<SampleBase> list = new List<SampleBase>();
-			for (int i = 0; i < 4; i++)
+			this.LogResult(sampleBases2[1].TextValue, sampleBases3[1].TextValue);
+			if (sampleBases2[1].TextValue == sampleBases3[1].TextValue)
 			{
-				list.Add(TestCaseUtils.GetSampleChid());
-			}
-			string text = JsonConvert.SerializeObject(list, Formatting.None, new JsonSerializerSettings
-			{
-				TypeNameHandling = TypeNameHandling.All
-			});
-			this.LogSerialized(text);
-			List<SampleBase> list2 = JsonConvert.DeserializeObject<List<SampleBase>>(text, new JsonSerializerSettings
-			{
-				TypeNameHandling = TypeNameHandling.All
-			});
-			if (!(list2.get_Item(2) is SampleChild))
-			{
-				this.DisplayFail("Polymorphic Serialization", "Incorrect Deserialized Result");
+				this.DisplaySuccess("Dictionary (Object As Key)");
 			}
 			else
 			{
-				this.LogResult(list.get_Item(2).TextValue, list2.get_Item(2).TextValue);
-				if (list.get_Item(2).TextValue != list2.get_Item(2).TextValue)
-				{
-					this.DisplayFail("Polymorphic Serialization", "Incorrect Deserialized Result");
-				}
-				else
-				{
-					this.DisplaySuccess("Polymorphic Serialization");
-				}
+				this.DisplayFail("Dictionary (Object As Key)", "Incorrect Deserialized Result");
 			}
 		}
-		catch (Exception ex)
+		catch (Exception exception)
 		{
-			this.DisplayFail("Polymorphic Serialization", ex.get_Message());
-			throw;
-		}
-		this.LogEnd(3);
-	}
-
-	public void DictionarySerialization()
-	{
-		this.LogStart("Dictionary & Other DLL");
-		try
-		{
-			SampleExternalClass sampleExternalClass = new SampleExternalClass();
-			sampleExternalClass.set_SampleString(Guid.NewGuid().ToString());
-			SampleExternalClass sampleExternalClass2 = sampleExternalClass;
-			sampleExternalClass2.get_SampleDictionary().Add(1, "A");
-			sampleExternalClass2.get_SampleDictionary().Add(2, "B");
-			sampleExternalClass2.get_SampleDictionary().Add(3, "C");
-			sampleExternalClass2.get_SampleDictionary().Add(4, "D");
-			string text = JsonConvert.SerializeObject(sampleExternalClass2);
-			this.LogSerialized(text);
-			SampleExternalClass sampleExternalClass3 = JsonConvert.DeserializeObject<SampleExternalClass>(text);
-			this.LogResult(sampleExternalClass2.get_SampleString(), sampleExternalClass3.get_SampleString());
-			this.LogResult(sampleExternalClass2.get_SampleDictionary().get_Count().ToString(), sampleExternalClass3.get_SampleDictionary().get_Count());
-			StringBuilder stringBuilder = new StringBuilder(4);
-			StringBuilder stringBuilder2 = new StringBuilder(4);
-			using (Dictionary<int, string>.Enumerator enumerator = sampleExternalClass2.get_SampleDictionary().GetEnumerator())
-			{
-				while (enumerator.MoveNext())
-				{
-					KeyValuePair<int, string> current = enumerator.get_Current();
-					stringBuilder.Append(current.get_Key().ToString());
-					stringBuilder2.Append(current.get_Value());
-				}
-			}
-			this.LogResult("1234", stringBuilder.ToString());
-			this.LogResult("ABCD", stringBuilder2.ToString());
-			if (sampleExternalClass2.get_SampleString() != sampleExternalClass3.get_SampleString() || sampleExternalClass2.get_SampleDictionary().get_Count() != sampleExternalClass3.get_SampleDictionary().get_Count() || stringBuilder.ToString() != "1234" || stringBuilder2.ToString() != "ABCD")
-			{
-				this.DisplayFail("Dictionary & Other DLL", "Incorrect Deserialized Result");
-			}
-			else
-			{
-				this.DisplaySuccess("Dictionary & Other DLL");
-			}
-		}
-		catch (Exception ex)
-		{
-			this.DisplayFail("Dictionary & Other DLL", ex.get_Message());
+			this.DisplayFail("Dictionary (Object As Key)", exception.Message);
 			throw;
 		}
 	}
@@ -173,105 +64,125 @@ public class JsonTestScript
 		this.LogStart("Dictionary (Object Value)");
 		try
 		{
-			Dictionary<int, SampleBase> dictionary = new Dictionary<int, SampleBase>();
+			Dictionary<int, SampleBase> nums = new Dictionary<int, SampleBase>();
 			for (int i = 0; i < 4; i++)
 			{
-				dictionary.Add(i, TestCaseUtils.GetSampleBase());
+				nums.Add(i, TestCaseUtils.GetSampleBase());
 			}
-			string text = JsonConvert.SerializeObject(dictionary);
-			this.LogSerialized(text);
-			Dictionary<int, SampleBase> dictionary2 = JsonConvert.DeserializeObject<Dictionary<int, SampleBase>>(text);
-			this.LogResult(dictionary.get_Item(1).TextValue, dictionary2.get_Item(1).TextValue);
-			if (dictionary.get_Item(1).TextValue != dictionary2.get_Item(1).TextValue)
-			{
-				this.DisplayFail("Dictionary (Object Value)", "Incorrect Deserialized Result");
-			}
-			else
+			string str = JsonConvert.SerializeObject(nums);
+			this.LogSerialized(str);
+			Dictionary<int, SampleBase> nums1 = JsonConvert.DeserializeObject<Dictionary<int, SampleBase>>(str);
+			this.LogResult(nums[1].TextValue, nums1[1].TextValue);
+			if (nums[1].TextValue == nums1[1].TextValue)
 			{
 				this.DisplaySuccess("Dictionary (Object Value)");
 			}
+			else
+			{
+				this.DisplayFail("Dictionary (Object Value)", "Incorrect Deserialized Result");
+			}
 		}
-		catch (Exception ex)
+		catch (Exception exception)
 		{
-			this.DisplayFail("Dictionary (Object Value)", ex.get_Message());
+			this.DisplayFail("Dictionary (Object Value)", exception.Message);
 			throw;
 		}
 	}
 
-	public void DictionaryObjectKeySerialization()
+	public void DictionarySerialization()
 	{
-		this.LogStart("Dictionary (Object As Key)");
+		this.LogStart("Dictionary & Other DLL");
 		try
 		{
-			Dictionary<SampleBase, int> dictionary = new Dictionary<SampleBase, int>();
-			for (int i = 0; i < 4; i++)
+			SampleExternalClass sampleExternalClass = new SampleExternalClass()
 			{
-				dictionary.Add(TestCaseUtils.GetSampleBase(), i);
+				SampleString = Guid.NewGuid().ToString()
+			};
+			SampleExternalClass sampleExternalClass1 = sampleExternalClass;
+			sampleExternalClass1.SampleDictionary.Add(1, "A");
+			sampleExternalClass1.SampleDictionary.Add(2, "B");
+			sampleExternalClass1.SampleDictionary.Add(3, "C");
+			sampleExternalClass1.SampleDictionary.Add(4, "D");
+			string str = JsonConvert.SerializeObject(sampleExternalClass1);
+			this.LogSerialized(str);
+			SampleExternalClass sampleExternalClass2 = JsonConvert.DeserializeObject<SampleExternalClass>(str);
+			this.LogResult(sampleExternalClass1.SampleString, sampleExternalClass2.SampleString);
+			int count = sampleExternalClass1.SampleDictionary.Count;
+			this.LogResult(count.ToString(), sampleExternalClass2.SampleDictionary.Count);
+			StringBuilder stringBuilder = new StringBuilder(4);
+			StringBuilder stringBuilder1 = new StringBuilder(4);
+			foreach (KeyValuePair<int, string> sampleDictionary in sampleExternalClass1.SampleDictionary)
+			{
+				stringBuilder.Append(sampleDictionary.Key.ToString());
+				stringBuilder1.Append(sampleDictionary.Value);
 			}
-			string text = JsonConvert.SerializeObject(dictionary);
-			this.LogSerialized(text);
-			this._text.set_text(text);
-			Dictionary<SampleBase, int> dictionary2 = JsonConvert.DeserializeObject<Dictionary<SampleBase, int>>(text);
-			List<SampleBase> list = new List<SampleBase>();
-			List<SampleBase> list2 = new List<SampleBase>();
-			using (Dictionary<SampleBase, int>.KeyCollection.Enumerator enumerator = dictionary.get_Keys().GetEnumerator())
+			this.LogResult("1234", stringBuilder.ToString());
+			this.LogResult("ABCD", stringBuilder1.ToString());
+			if (sampleExternalClass1.SampleString != sampleExternalClass2.SampleString || sampleExternalClass1.SampleDictionary.Count != sampleExternalClass2.SampleDictionary.Count || stringBuilder.ToString() != "1234" || stringBuilder1.ToString() != "ABCD")
 			{
-				while (enumerator.MoveNext())
-				{
-					SampleBase current = enumerator.get_Current();
-					list.Add(current);
-				}
-			}
-			using (Dictionary<SampleBase, int>.KeyCollection.Enumerator enumerator2 = dictionary2.get_Keys().GetEnumerator())
-			{
-				while (enumerator2.MoveNext())
-				{
-					SampleBase current2 = enumerator2.get_Current();
-					list2.Add(current2);
-				}
-			}
-			this.LogResult(list.get_Item(1).TextValue, list2.get_Item(1).TextValue);
-			if (list.get_Item(1).TextValue != list2.get_Item(1).TextValue)
-			{
-				this.DisplayFail("Dictionary (Object As Key)", "Incorrect Deserialized Result");
+				this.DisplayFail("Dictionary & Other DLL", "Incorrect Deserialized Result");
 			}
 			else
 			{
-				this.DisplaySuccess("Dictionary (Object As Key)");
+				this.DisplaySuccess("Dictionary & Other DLL");
 			}
 		}
-		catch (Exception ex)
+		catch (Exception exception)
 		{
-			this.DisplayFail("Dictionary (Object As Key)", ex.get_Message());
+			this.DisplayFail("Dictionary & Other DLL", exception.Message);
 			throw;
 		}
-	}
-
-	private void DisplaySuccess(string testName)
-	{
-		this._text.set_text(testName + "\r\nSuccessful");
 	}
 
 	private void DisplayFail(string testName, string reason)
 	{
 		try
 		{
-			this._text.set_text((testName + "\r\nFailed :( \r\n" + reason) ?? string.Empty);
+			this._text.text = string.Concat(testName, "\r\nFailed :( \r\n", reason) ?? string.Empty;
 		}
 		catch
 		{
-			Debug.Log("%%%%%%%%%%%" + testName);
+			Debug.Log(string.Concat("%%%%%%%%%%%", testName));
 		}
 	}
 
-	private void LogStart(string testName)
+	private void DisplaySuccess(string testName)
 	{
-		this.Log(string.Empty);
-		this.Log(string.Format("======= SERIALIZATION TEST: {0} ==========", testName));
+		this._text.text = string.Concat(testName, "\r\nSuccessful");
 	}
 
-	private void LogEnd(int testNum)
+	public void GenericListSerialization()
 	{
+		this.LogStart("List<T> Serialization");
+		try
+		{
+			List<SimpleClassObject> simpleClassObjects = new List<SimpleClassObject>();
+			for (int i = 0; i < 4; i++)
+			{
+				simpleClassObjects.Add(TestCaseUtils.GetSimpleClassObject());
+			}
+			string str = JsonConvert.SerializeObject(simpleClassObjects);
+			this.LogSerialized(str);
+			List<SimpleClassObject> simpleClassObjects1 = JsonConvert.DeserializeObject<List<SimpleClassObject>>(str);
+			int count = simpleClassObjects.Count;
+			this.LogResult(count.ToString(), simpleClassObjects1.Count);
+			this.LogResult(simpleClassObjects[2].TextValue, simpleClassObjects1[2].TextValue);
+			if (simpleClassObjects.Count != simpleClassObjects1.Count || simpleClassObjects[3].TextValue != simpleClassObjects1[3].TextValue)
+			{
+				this.DisplayFail("List<T> Serialization", "Incorrect Deserialized Result");
+				Debug.LogError("Deserialized List<T> has incorrect count or wrong item value");
+			}
+			else
+			{
+				this.DisplaySuccess("List<T> Serialization");
+			}
+		}
+		catch (Exception exception)
+		{
+			this.DisplayFail("List<T> Serialization", exception.Message);
+			throw;
+		}
+		this.LogEnd(2);
 	}
 
 	private void Log(object message)
@@ -279,9 +190,8 @@ public class JsonTestScript
 		Debug.Log(message);
 	}
 
-	private void LogSerialized(string message)
+	private void LogEnd(int testNum)
 	{
-		Debug.Log(string.Format("#### Serialized Object: {0}", message));
 	}
 
 	private void LogResult(string shouldEqual, object actual)
@@ -290,5 +200,86 @@ public class JsonTestScript
 		this.Log(string.Format("*** Original Test value: {0}", shouldEqual));
 		this.Log(string.Format("*** Deserialized Test Value: {0}", actual));
 		this.Log("--------------------");
+	}
+
+	private void LogSerialized(string message)
+	{
+		Debug.Log(string.Format("#### Serialized Object: {0}", message));
+	}
+
+	private void LogStart(string testName)
+	{
+		this.Log(string.Empty);
+		this.Log(string.Format("======= SERIALIZATION TEST: {0} ==========", testName));
+	}
+
+	public void PolymorphicSerialization()
+	{
+		this.LogStart("Polymorphic Serialization");
+		try
+		{
+			List<SampleBase> sampleBases = new List<SampleBase>();
+			for (int i = 0; i < 4; i++)
+			{
+				sampleBases.Add(TestCaseUtils.GetSampleChid());
+			}
+			JsonSerializerSettings jsonSerializerSetting = new JsonSerializerSettings()
+			{
+				TypeNameHandling = TypeNameHandling.All
+			};
+			string str = JsonConvert.SerializeObject(sampleBases, Formatting.None, jsonSerializerSetting);
+			this.LogSerialized(str);
+			jsonSerializerSetting = new JsonSerializerSettings()
+			{
+				TypeNameHandling = TypeNameHandling.All
+			};
+			List<SampleBase> sampleBases1 = JsonConvert.DeserializeObject<List<SampleBase>>(str, jsonSerializerSetting);
+			if (sampleBases1[2] is SampleChild)
+			{
+				this.LogResult(sampleBases[2].TextValue, sampleBases1[2].TextValue);
+				if (sampleBases[2].TextValue == sampleBases1[2].TextValue)
+				{
+					this.DisplaySuccess("Polymorphic Serialization");
+				}
+				else
+				{
+					this.DisplayFail("Polymorphic Serialization", "Incorrect Deserialized Result");
+				}
+			}
+			else
+			{
+				this.DisplayFail("Polymorphic Serialization", "Incorrect Deserialized Result");
+			}
+		}
+		catch (Exception exception)
+		{
+			this.DisplayFail("Polymorphic Serialization", exception.Message);
+			throw;
+		}
+		this.LogEnd(3);
+	}
+
+	public void SerializeVector3()
+	{
+		this.LogStart("Vector3 Serialization");
+		try
+		{
+			Vector3 vector3 = new Vector3(2f, 4f, 6f);
+			JsonConverter[] vector3Converter = new JsonConverter[] { new Vector3Converter() };
+			string str = JsonConvert.SerializeObject(vector3, Formatting.None, vector3Converter);
+			this.LogSerialized(str);
+			Vector3 vector31 = JsonConvert.DeserializeObject<Vector3>(str);
+			this.LogResult("4", vector31.y);
+			if (vector31.y != vector3.y)
+			{
+				this.DisplayFail("Vector3 Serialization", "Incorrect Deserialized Result");
+			}
+			this.DisplaySuccess("Vector3 Serialization");
+		}
+		catch (Exception exception)
+		{
+			this.DisplayFail("Vector3 Serialization", exception.Message);
+		}
+		this.LogEnd(1);
 	}
 }

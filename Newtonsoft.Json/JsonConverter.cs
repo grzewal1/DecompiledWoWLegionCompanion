@@ -21,9 +21,9 @@ namespace Newtonsoft.Json
 			}
 		}
 
-		public abstract void WriteJson(JsonWriter writer, object value, JsonSerializer serializer);
-
-		public abstract object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer);
+		protected JsonConverter()
+		{
+		}
 
 		public abstract bool CanConvert(Type objectType);
 
@@ -31,5 +31,9 @@ namespace Newtonsoft.Json
 		{
 			return null;
 		}
+
+		public abstract object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer);
+
+		public abstract void WriteJson(JsonWriter writer, object value, JsonSerializer serializer);
 	}
 }

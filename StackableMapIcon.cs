@@ -7,22 +7,8 @@ public class StackableMapIcon : MonoBehaviour
 
 	private StackableMapIconContainer m_iconContainer;
 
-	public Rect GetWorldRect()
+	public StackableMapIcon()
 	{
-		Vector3[] array = new Vector3[4];
-		this.m_iconBoundsRT.GetWorldCorners(array);
-		float num = array[2].x - array[0].x;
-		float num2 = array[2].y - array[0].y;
-		float zoomFactor = AdventureMapPanel.instance.m_pinchZoomContentManager.m_zoomFactor;
-		num *= zoomFactor;
-		num2 *= zoomFactor;
-		Rect result = new Rect(array[0].x, array[0].y, num, num2);
-		return result;
-	}
-
-	public void SetContainer(StackableMapIconContainer iconContainer)
-	{
-		this.m_iconContainer = iconContainer;
 	}
 
 	public StackableMapIconContainer GetContainer()
@@ -30,16 +16,34 @@ public class StackableMapIcon : MonoBehaviour
 		return this.m_iconContainer;
 	}
 
+	public Rect GetWorldRect()
+	{
+		Vector3[] vector3Array = new Vector3[4];
+		this.m_iconBoundsRT.GetWorldCorners(vector3Array);
+		float single = vector3Array[2].x - vector3Array[0].x;
+		float single1 = vector3Array[2].y - vector3Array[0].y;
+		float mZoomFactor = AdventureMapPanel.instance.m_pinchZoomContentManager.m_zoomFactor;
+		single = single * mZoomFactor;
+		single1 = single1 * mZoomFactor;
+		Rect rect = new Rect(vector3Array[0].x, vector3Array[0].y, single, single1);
+		return rect;
+	}
+
 	public void RegisterWithManager()
 	{
 		StackableMapIconManager.RegisterStackableMapIcon(this);
 	}
 
-	private void OnDestroy()
+	public void RemoveFromContainer()
 	{
 		if (this.m_iconContainer != null)
 		{
 			this.m_iconContainer.RemoveStackableMapIcon(this);
 		}
+	}
+
+	public void SetContainer(StackableMapIconContainer iconContainer)
+	{
+		this.m_iconContainer = iconContainer;
 	}
 }

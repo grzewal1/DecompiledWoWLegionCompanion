@@ -1,16 +1,11 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace WowStaticData
 {
 	public class GarrFollowerXAbilityRec
 	{
-		public int ID
-		{
-			get;
-			private set;
-		}
-
-		public int GarrFollowerID
+		public int FactionIndex
 		{
 			get;
 			private set;
@@ -22,47 +17,65 @@ namespace WowStaticData
 			private set;
 		}
 
-		public int FactionIndex
+		public int GarrFollowerID
 		{
 			get;
 			private set;
 		}
 
+		public int ID
+		{
+			get;
+			private set;
+		}
+
+		public GarrFollowerXAbilityRec()
+		{
+		}
+
 		public void Deserialize(string valueLine)
 		{
 			int num = 0;
+			int num1 = 0;
 			int num2 = 0;
-			int num3;
 			do
 			{
-				num3 = valueLine.IndexOf('\t', num);
-				if (num3 >= 0)
+				num = valueLine.IndexOf('\t', num1);
+				if (num >= 0)
 				{
-					string valueText = valueLine.Substring(num, num3 - num).Trim();
-					this.DeserializeIndex(num2, valueText);
+					string str = valueLine.Substring(num1, num - num1).Trim();
+					this.DeserializeIndex(num2, str);
 					num2++;
 				}
-				num = num3 + 1;
+				num1 = num + 1;
 			}
-			while (num3 > 0);
+			while (num > 0);
 		}
 
 		private void DeserializeIndex(int index, string valueText)
 		{
 			switch (index)
 			{
-			case 0:
-				this.ID = Convert.ToInt32(valueText);
-				break;
-			case 1:
-				this.GarrFollowerID = Convert.ToInt32(valueText);
-				break;
-			case 2:
-				this.GarrAbilityID = Convert.ToInt32(valueText);
-				break;
-			case 3:
-				this.FactionIndex = Convert.ToInt32(valueText);
-				break;
+				case 0:
+				{
+					this.ID = Convert.ToInt32(valueText);
+					break;
+				}
+				case 1:
+				{
+					this.GarrFollowerID = Convert.ToInt32(valueText);
+					break;
+				}
+				case 2:
+				{
+					this.GarrAbilityID = Convert.ToInt32(valueText);
+					break;
+				}
+				case 3:
+				{
+					this.FactionIndex = Convert.ToInt32(valueText);
+					break;
+				}
 			}
 		}
 	}

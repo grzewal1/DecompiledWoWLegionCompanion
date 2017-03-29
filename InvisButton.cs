@@ -6,13 +6,17 @@ public class InvisButton : MonoBehaviour
 {
 	public Text buttonText;
 
+	public InvisButton()
+	{
+	}
+
 	public void OnClick()
 	{
-		this.buttonText.set_text("Down");
+		this.buttonText.text = "Down";
 	}
 
 	public void OnRelease()
 	{
-		this.buttonText.set_text("Up");
+		this.buttonText.text = "Up";
 	}
 }

@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace Newtonsoft.Json
 {
-	[AttributeUsage]
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum | AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Interface | AttributeTargets.Parameter, AllowMultiple=false)]
 	public sealed class JsonConverterAttribute : Attribute
 	{
 		private readonly Type _converterType;
@@ -28,19 +28,17 @@ namespace Newtonsoft.Json
 
 		internal static JsonConverter CreateJsonConverterInstance(Type converterType)
 		{
-			JsonConverter result;
+			JsonConverter jsonConverter;
 			try
 			{
-				result = (JsonConverter)Activator.CreateInstance(converterType);
+				jsonConverter = (JsonConverter)Activator.CreateInstance(converterType);
 			}
-			catch (Exception ex)
+			catch (Exception exception1)
 			{
-				throw new Exception("Error creating {0}".FormatWith(CultureInfo.get_InvariantCulture(), new object[]
-				{
-					converterType
-				}), ex);
+				Exception exception = exception1;
+				throw new Exception("Error creating {0}".FormatWith(CultureInfo.InvariantCulture, new object[] { converterType }), exception);
 			}
-			return result;
+			return jsonConverter;
 		}
 	}
 }

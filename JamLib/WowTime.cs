@@ -1,62 +1,72 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace JamLib
 {
-	[FlexJamStruct(Name = "WowTime"), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="WowTime")]
 	public struct WowTime
 	{
-		[FlexJamMember(Name = "minute", Type = FlexJamType.Int32), DataMember(Name = "minute")]
-		public int Minute
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "hour", Type = FlexJamType.Int32), DataMember(Name = "hour")]
-		public int Hour
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "weekday", Type = FlexJamType.Int32), DataMember(Name = "weekday")]
-		public int WeekDay
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "monthDay", Type = FlexJamType.Int32), DataMember(Name = "monthDay")]
-		public int MonthDay
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "month", Type = FlexJamType.Int32), DataMember(Name = "month")]
-		public int Month
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "year", Type = FlexJamType.Int32), DataMember(Name = "year")]
-		public int Year
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "flags", Type = FlexJamType.Int32), DataMember(Name = "flags")]
+		[DataMember(Name="flags")]
+		[FlexJamMember(Name="flags", Type=FlexJamType.Int32)]
 		public int Flags
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "holidayOffset", Type = FlexJamType.Int32), DataMember(Name = "holidayOffset")]
+		[DataMember(Name="holidayOffset")]
+		[FlexJamMember(Name="holidayOffset", Type=FlexJamType.Int32)]
 		public int HolidayOffset
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="hour")]
+		[FlexJamMember(Name="hour", Type=FlexJamType.Int32)]
+		public int Hour
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="minute")]
+		[FlexJamMember(Name="minute", Type=FlexJamType.Int32)]
+		public int Minute
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="month")]
+		[FlexJamMember(Name="month", Type=FlexJamType.Int32)]
+		public int Month
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="monthDay")]
+		[FlexJamMember(Name="monthDay", Type=FlexJamType.Int32)]
+		public int MonthDay
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="weekday")]
+		[FlexJamMember(Name="weekday", Type=FlexJamType.Int32)]
+		public int WeekDay
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="year")]
+		[FlexJamMember(Name="year", Type=FlexJamType.Int32)]
+		public int Year
 		{
 			get;
 			set;

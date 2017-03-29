@@ -7,21 +7,25 @@ public class modelAutoScaler : MonoBehaviour
 
 	public bool isPortrait;
 
+	public modelAutoScaler()
+	{
+	}
+
 	private void Start()
 	{
 	}
 
 	private void Update()
 	{
-		if (this.isPortrait)
+		if (!this.isPortrait)
 		{
-			float num = 0.75f / this.mainCamera.get_aspect();
-			base.get_gameObject().get_transform().set_localScale(new Vector3(num, num, num));
+			float single = 1.33333337f / this.mainCamera.aspect;
+			base.gameObject.transform.localScale = new Vector3(single, single, single);
 		}
 		else
 		{
-			float num2 = 1.33333337f / this.mainCamera.get_aspect();
-			base.get_gameObject().get_transform().set_localScale(new Vector3(num2, num2, num2));
+			float single1 = 0.75f / this.mainCamera.aspect;
+			base.gameObject.transform.localScale = new Vector3(single1, single1, single1);
 		}
 	}
 }

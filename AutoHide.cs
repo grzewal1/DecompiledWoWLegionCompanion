@@ -18,6 +18,10 @@ public class AutoHide : MonoBehaviour
 
 	private Rect m_myRect;
 
+	public AutoHide()
+	{
+	}
+
 	private void Start()
 	{
 	}

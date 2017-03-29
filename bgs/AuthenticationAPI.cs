@@ -10,9 +10,9 @@ namespace bgs
 {
 	public class AuthenticationAPI : BattleNetAPI
 	{
-		private ServiceDescriptor m_authServerService = new AuthServerService();
+		private ServiceDescriptor m_authServerService = new bgs.RPCServices.AuthServerService();
 
-		private ServiceDescriptor m_authClientService = new AuthClientService();
+		private ServiceDescriptor m_authClientService = new bgs.RPCServices.AuthClientService();
 
 		private QueueInfo m_queueInfo;
 
@@ -26,11 +26,11 @@ namespace bgs
 
 		private bool m_authenticationFailure;
 
-		public ServiceDescriptor AuthServerService
+		public bnet.protocol.EntityId AccountId
 		{
 			get
 			{
-				return this.m_authServerService;
+				return this.m_accountEntity;
 			}
 		}
 
@@ -39,6 +39,14 @@ namespace bgs
 			get
 			{
 				return this.m_authClientService;
+			}
+		}
+
+		public ServiceDescriptor AuthServerService
+		{
+			get
+			{
+				return this.m_authServerService;
 			}
 		}
 
@@ -58,16 +66,18 @@ namespace bgs
 			}
 		}
 
-		public bnet.protocol.EntityId AccountId
-		{
-			get
-			{
-				return this.m_accountEntity;
-			}
-		}
-
 		public AuthenticationAPI(BattleNetCSharp battlenet) : base(battlenet, "Authentication")
 		{
+		}
+
+		public bool AuthenticationFailure()
+		{
+			return this.m_authenticationFailure;
+		}
+
+		public List<bnet.protocol.EntityId> GetGameAccountList()
+		{
+			return this.m_gameAccounts;
 		}
 
 		public void GetQueueInfo(ref QueueInfo queueInfo)
@@ -79,54 +89,21 @@ namespace bgs
 			this.m_queueInfo.changed = false;
 		}
 
-		public override void InitRPCListeners(RPCConnection rpcConnection)
+		private void HandleGameAccountSelected(RPCContext context)
 		{
-			base.InitRPCListeners(rpcConnection);
-			this.m_rpcConnection.RegisterServiceMethodListener(this.m_authClientService.Id, 5u, new RPCContextDelegate(this.HandleLogonCompleteRequest));
-			this.m_rpcConnection.RegisterServiceMethodListener(this.m_authClientService.Id, 10u, new RPCContextDelegate(this.HandleLogonUpdateRequest));
-			this.m_rpcConnection.RegisterServiceMethodListener(this.m_authClientService.Id, 1u, new RPCContextDelegate(this.HandleLoadModuleRequest));
-			this.m_rpcConnection.RegisterServiceMethodListener(this.m_authClientService.Id, 12u, new RPCContextDelegate(this.HandleLogonQueueUpdate));
-			this.m_rpcConnection.RegisterServiceMethodListener(this.m_authClientService.Id, 13u, new RPCContextDelegate(this.HandleLogonQueueEnd));
-			this.m_rpcConnection.RegisterServiceMethodListener(this.m_authClientService.Id, 14u, new RPCContextDelegate(this.HandleGameAccountSelected));
+			GameAccountSelectedRequest gameAccountSelectedRequest = GameAccountSelectedRequest.ParseFrom(context.Payload);
+			base.ApiLog.LogDebug(string.Concat("HandleGameAccountSelected : ", gameAccountSelectedRequest.ToString()));
 		}
 
-		public override void Initialize()
+		private void HandleLoadModuleRequest(RPCContext context)
 		{
-			base.Initialize();
-		}
-
-		public override void OnDisconnected()
-		{
-			base.OnDisconnected();
-		}
-
-		public bool AuthenticationFailure()
-		{
-			return this.m_authenticationFailure;
-		}
-
-		public void VerifyWebCredentials(string token)
-		{
-			if (this.m_rpcConnection == null)
-			{
-				return;
-			}
-			VerifyWebCredentialsRequest verifyWebCredentialsRequest = new VerifyWebCredentialsRequest();
-			byte[] bytes = Encoding.get_UTF8().GetBytes(token);
-			verifyWebCredentialsRequest.SetWebCredentials(bytes);
-			this.m_rpcConnection.BeginAuth();
-			this.m_rpcConnection.QueueRequest(this.AuthClientService.Id, 7u, verifyWebCredentialsRequest, null, 0u);
-		}
-
-		public List<bnet.protocol.EntityId> GetGameAccountList()
-		{
-			return this.m_gameAccounts;
+			base.ApiLog.LogWarning("RPC Called: LoadModule");
+			this.m_authenticationFailure = true;
 		}
 
 		private void HandleLogonCompleteRequest(RPCContext context)
 		{
-			byte[] payload = context.Payload;
-			LogonResult logonResult = LogonResult.ParseFrom(payload);
+			LogonResult logonResult = LogonResult.ParseFrom(context.Payload);
 			BattleNetErrors errorCode = (BattleNetErrors)logonResult.ErrorCode;
 			if (errorCode != BattleNetErrors.ERROR_OK)
 			{
@@ -136,30 +113,34 @@ namespace bgs
 			this.m_accountEntity = logonResult.Account;
 			this.m_battleNet.Presence.PresenceSubscribe(this.m_accountEntity);
 			this.m_gameAccounts = new List<bnet.protocol.EntityId>();
-			using (List<bnet.protocol.EntityId>.Enumerator enumerator = logonResult.GameAccountList.GetEnumerator())
+			foreach (bnet.protocol.EntityId gameAccountList in logonResult.GameAccountList)
 			{
-				while (enumerator.MoveNext())
-				{
-					bnet.protocol.EntityId current = enumerator.get_Current();
-					this.m_gameAccounts.Add(current);
-					this.m_battleNet.Presence.PresenceSubscribe(current);
-				}
+				this.m_gameAccounts.Add(gameAccountList);
+				this.m_battleNet.Presence.PresenceSubscribe(gameAccountList);
 			}
-			if (this.m_gameAccounts.get_Count() > 0)
+			if (this.m_gameAccounts.Count > 0)
 			{
-				this.m_gameAccount = logonResult.GameAccountList.get_Item(0);
+				this.m_gameAccount = logonResult.GameAccountList[0];
 			}
 			this.m_sessionKey = logonResult.SessionKey;
 			this.m_battleNet.IssueSelectGameAccountRequest();
 			this.m_battleNet.SetConnectedRegion(logonResult.ConnectedRegion);
-			base.ApiLog.LogDebug("LogonComplete {0}", new object[]
-			{
-				logonResult
-			});
-			base.ApiLog.LogDebug("Region (connected): {0}", new object[]
-			{
-				logonResult.ConnectedRegion
-			});
+			base.ApiLog.LogDebug("LogonComplete {0}", new object[] { logonResult });
+			base.ApiLog.LogDebug("Region (connected): {0}", new object[] { logonResult.ConnectedRegion });
+		}
+
+		private void HandleLogonQueueEnd(RPCContext context)
+		{
+			base.ApiLog.LogDebug("HandleLogonQueueEnd : ");
+			this.SaveQueuePosition(0, (long)0, (long)0, true);
+		}
+
+		private void HandleLogonQueueUpdate(RPCContext context)
+		{
+			LogonQueueUpdateRequest logonQueueUpdateRequest = LogonQueueUpdateRequest.ParseFrom(context.Payload);
+			base.ApiLog.LogDebug(string.Concat("HandleLogonQueueUpdate : ", logonQueueUpdateRequest.ToString()));
+			long estimatedTime = (long)((logonQueueUpdateRequest.EstimatedTime - this.m_battleNet.ServerTimeUTCAtConnectMicroseconds) / (long)1000000);
+			this.SaveQueuePosition((int)logonQueueUpdateRequest.Position, estimatedTime, (long)logonQueueUpdateRequest.EtaDeviationInSec, false);
 		}
 
 		private void HandleLogonUpdateRequest(RPCContext context)
@@ -167,38 +148,47 @@ namespace bgs
 			base.ApiLog.LogDebug("RPC Called: LogonUpdate");
 		}
 
-		private void HandleLoadModuleRequest(RPCContext context)
+		public override void Initialize()
 		{
-			base.ApiLog.LogWarning("RPC Called: LoadModule");
-			this.m_authenticationFailure = true;
+			base.Initialize();
 		}
 
-		private void HandleLogonQueueUpdate(RPCContext context)
+		public override void InitRPCListeners(RPCConnection rpcConnection)
 		{
-			LogonQueueUpdateRequest logonQueueUpdateRequest = LogonQueueUpdateRequest.ParseFrom(context.Payload);
-			base.ApiLog.LogDebug("HandleLogonQueueUpdate : " + logonQueueUpdateRequest.ToString());
-			long end = (long)((logonQueueUpdateRequest.EstimatedTime - (ulong)this.m_battleNet.ServerTimeUTCAtConnectMicroseconds) / 1000000uL);
-			this.SaveQueuePosition((int)logonQueueUpdateRequest.Position, end, (long)logonQueueUpdateRequest.EtaDeviationInSec, false);
+			base.InitRPCListeners(rpcConnection);
+			this.m_rpcConnection.RegisterServiceMethodListener(this.m_authClientService.Id, 5, new RPCContextDelegate(this.HandleLogonCompleteRequest));
+			this.m_rpcConnection.RegisterServiceMethodListener(this.m_authClientService.Id, 10, new RPCContextDelegate(this.HandleLogonUpdateRequest));
+			this.m_rpcConnection.RegisterServiceMethodListener(this.m_authClientService.Id, 1, new RPCContextDelegate(this.HandleLoadModuleRequest));
+			this.m_rpcConnection.RegisterServiceMethodListener(this.m_authClientService.Id, 12, new RPCContextDelegate(this.HandleLogonQueueUpdate));
+			this.m_rpcConnection.RegisterServiceMethodListener(this.m_authClientService.Id, 13, new RPCContextDelegate(this.HandleLogonQueueEnd));
+			this.m_rpcConnection.RegisterServiceMethodListener(this.m_authClientService.Id, 14, new RPCContextDelegate(this.HandleGameAccountSelected));
 		}
 
-		private void HandleLogonQueueEnd(RPCContext context)
+		public override void OnDisconnected()
 		{
-			base.ApiLog.LogDebug("HandleLogonQueueEnd : ");
-			this.SaveQueuePosition(0, 0L, 0L, true);
-		}
-
-		private void HandleGameAccountSelected(RPCContext context)
-		{
-			GameAccountSelectedRequest gameAccountSelectedRequest = GameAccountSelectedRequest.ParseFrom(context.Payload);
-			base.ApiLog.LogDebug("HandleGameAccountSelected : " + gameAccountSelectedRequest.ToString());
+			base.OnDisconnected();
 		}
 
 		public void SaveQueuePosition(int position, long end, long stdev, bool ended)
 		{
-			this.m_queueInfo.changed = (ended || position != this.m_queueInfo.position || end != this.m_queueInfo.end || stdev != this.m_queueInfo.stdev);
+			bool flag;
+			flag = (ended || position != this.m_queueInfo.position || end != this.m_queueInfo.end ? true : stdev != this.m_queueInfo.stdev);
+			this.m_queueInfo.changed = flag;
 			this.m_queueInfo.position = position;
 			this.m_queueInfo.end = end;
 			this.m_queueInfo.stdev = stdev;
+		}
+
+		public void VerifyWebCredentials(string token)
+		{
+			if (this.m_rpcConnection == null)
+			{
+				return;
+			}
+			VerifyWebCredentialsRequest verifyWebCredentialsRequest = new VerifyWebCredentialsRequest();
+			verifyWebCredentialsRequest.SetWebCredentials(Encoding.UTF8.GetBytes(token));
+			this.m_rpcConnection.BeginAuth();
+			this.m_rpcConnection.QueueRequest(this.AuthClientService.Id, 7, verifyWebCredentialsRequest, null, 0);
 		}
 	}
 }

@@ -8,7 +8,7 @@ namespace Newtonsoft.Json
 		None = 0,
 		Objects = 1,
 		Arrays = 2,
-		Auto = 4,
-		All = 3
+		All = 3,
+		Auto = 4
 	}
 }

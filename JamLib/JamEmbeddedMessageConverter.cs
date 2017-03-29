@@ -5,6 +5,10 @@ namespace JamLib
 {
 	public class JamEmbeddedMessageConverter : JsonConverter
 	{
+		public JamEmbeddedMessageConverter()
+		{
+		}
+
 		public override bool CanConvert(Type objectType)
 		{
 			return objectType == typeof(JamEmbeddedMessage);
@@ -16,20 +20,15 @@ namespace JamLib
 			{
 				throw new JsonSerializationException(string.Format("Unexpected token parsing binary. Expected String or StartArray, got {0}.", reader.TokenType));
 			}
-			string message = reader.Value.ToString();
-			JamEmbeddedMessage jamEmbeddedMessage = (JamEmbeddedMessage)existingValue;
-			if (jamEmbeddedMessage == null)
-			{
-				jamEmbeddedMessage = new JamEmbeddedMessage();
-			}
-			jamEmbeddedMessage.Message = MessageFactory.Deserialize(message);
+			string str = reader.Value.ToString();
+			JamEmbeddedMessage jamEmbeddedMessage = (JamEmbeddedMessage)existingValue ?? new JamEmbeddedMessage();
+			jamEmbeddedMessage.Message = MessageFactory.Deserialize(str);
 			return jamEmbeddedMessage;
 		}
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
-			string value2 = MessageFactory.Serialize(((JamEmbeddedMessage)value).Message);
-			writer.WriteValue(value2);
+			writer.WriteValue(MessageFactory.Serialize(((JamEmbeddedMessage)value).Message));
 		}
 	}
 }

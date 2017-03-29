@@ -1,20 +1,24 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamQualifiedGUID", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamQualifiedGUID", Version=28333852)]
 	public class JamQualifiedGUID
 	{
-		[FlexJamMember(Name = "guid", Type = FlexJamType.WowGuid), DataMember(Name = "guid")]
+		[DataMember(Name="guid")]
+		[FlexJamMember(Name="guid", Type=FlexJamType.WowGuid)]
 		public string Guid
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "virtualRealmAddress", Type = FlexJamType.UInt32), DataMember(Name = "virtualRealmAddress")]
+		[DataMember(Name="virtualRealmAddress")]
+		[FlexJamMember(Name="virtualRealmAddress", Type=FlexJamType.UInt32)]
 		public uint VirtualRealmAddress
 		{
 			get;
@@ -23,7 +27,7 @@ namespace WowJamMessages
 
 		public JamQualifiedGUID()
 		{
-			this.VirtualRealmAddress = 0u;
+			this.VirtualRealmAddress = 0;
 			this.Guid = "0000000000000000";
 		}
 	}

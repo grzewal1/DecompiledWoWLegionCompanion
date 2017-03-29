@@ -14,30 +14,34 @@ public class BountySite : MonoBehaviour
 
 	private MobileWorldQuestBounty m_bounty;
 
+	public BountySite()
+	{
+	}
+
 	private void Awake()
 	{
+	}
+
+	public void OnTap()
+	{
+		UiAnimMgr.instance.PlayAnim("MinimapPulseAnim", base.transform, Vector3.zero, 3f, 0f);
+		AllPopups.instance.ShowBountyInfoTooltip(this.m_bounty);
 	}
 
 	public void SetBounty(MobileWorldQuestBounty bounty)
 	{
 		this.m_bounty = bounty;
 		Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, bounty.IconFileDataID);
-		if (sprite != null)
+		if (sprite == null)
 		{
-			this.m_invalidFileDataID.get_gameObject().SetActive(false);
-			this.m_emissaryIcon.set_sprite(sprite);
+			this.m_invalidFileDataID.gameObject.SetActive(true);
+			this.m_invalidFileDataID.text = string.Concat(string.Empty, bounty.IconFileDataID);
 		}
 		else
 		{
-			this.m_invalidFileDataID.get_gameObject().SetActive(true);
-			this.m_invalidFileDataID.set_text(string.Empty + bounty.IconFileDataID);
+			this.m_invalidFileDataID.gameObject.SetActive(false);
+			this.m_emissaryIcon.sprite = sprite;
 		}
-	}
-
-	public void OnTap()
-	{
-		UiAnimMgr.instance.PlayAnim("MinimapPulseAnim", base.get_transform(), Vector3.get_zero(), 3f, 0f);
-		AllPopups.instance.ShowBountyInfoTooltip(this.m_bounty);
 	}
 
 	private void Update()

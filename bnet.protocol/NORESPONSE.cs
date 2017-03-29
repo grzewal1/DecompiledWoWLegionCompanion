@@ -13,6 +13,10 @@ namespace bnet.protocol
 			}
 		}
 
+		public NORESPONSE()
+		{
+		}
+
 		public void Deserialize(Stream stream)
 		{
 			NORESPONSE.Deserialize(stream, this);
@@ -20,7 +24,44 @@ namespace bnet.protocol
 
 		public static NORESPONSE Deserialize(Stream stream, NORESPONSE instance)
 		{
-			return NORESPONSE.Deserialize(stream, instance, -1L);
+			return NORESPONSE.Deserialize(stream, instance, (long)-1);
+		}
+
+		public static NORESPONSE Deserialize(Stream stream, NORESPONSE instance, long limit)
+		{
+			while (true)
+			{
+				if (limit < (long)0 || stream.Position < limit)
+				{
+					int num = stream.ReadByte();
+					if (num != -1)
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
+					}
+					else
+					{
+						if (limit >= (long)0)
+						{
+							throw new EndOfStreamException();
+						}
+						break;
+					}
+				}
+				else
+				{
+					if (stream.Position != limit)
+					{
+						throw new ProtocolBufferException("Read past max limit");
+					}
+					break;
+				}
+			}
+			return instance;
 		}
 
 		public static NORESPONSE DeserializeLengthDelimited(Stream stream)
@@ -32,40 +73,33 @@ namespace bnet.protocol
 
 		public static NORESPONSE DeserializeLengthDelimited(Stream stream, NORESPONSE instance)
 		{
-			long num = (long)((ulong)ProtocolParser.ReadUInt32(stream));
-			num += stream.get_Position();
-			return NORESPONSE.Deserialize(stream, instance, num);
+			long position = (long)ProtocolParser.ReadUInt32(stream);
+			position = position + stream.Position;
+			return NORESPONSE.Deserialize(stream, instance, position);
 		}
 
-		public static NORESPONSE Deserialize(Stream stream, NORESPONSE instance, long limit)
+		public override bool Equals(object obj)
 		{
-			while (limit < 0L || stream.get_Position() < limit)
+			if (!(obj is NORESPONSE))
 			{
-				int num = stream.ReadByte();
-				if (num == -1)
-				{
-					if (limit >= 0L)
-					{
-						throw new EndOfStreamException();
-					}
-					return instance;
-				}
-				else
-				{
-					Key key = ProtocolParser.ReadKey((byte)num, stream);
-					uint field = key.Field;
-					if (field == 0u)
-					{
-						throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-					}
-					ProtocolParser.SkipKey(stream, key);
-				}
+				return false;
 			}
-			if (stream.get_Position() == limit)
-			{
-				return instance;
-			}
-			throw new ProtocolBufferException("Read past max limit");
+			return true;
+		}
+
+		public override int GetHashCode()
+		{
+			return this.GetType().GetHashCode();
+		}
+
+		public uint GetSerializedSize()
+		{
+			return (uint)0;
+		}
+
+		public static NORESPONSE ParseFrom(byte[] bs)
+		{
+			return ProtobufUtil.ParseFrom<NORESPONSE>(bs, 0, -1);
 		}
 
 		public void Serialize(Stream stream)
@@ -75,26 +109,6 @@ namespace bnet.protocol
 
 		public static void Serialize(Stream stream, NORESPONSE instance)
 		{
-		}
-
-		public uint GetSerializedSize()
-		{
-			return 0u;
-		}
-
-		public override int GetHashCode()
-		{
-			return base.GetType().GetHashCode();
-		}
-
-		public override bool Equals(object obj)
-		{
-			return obj is NORESPONSE;
-		}
-
-		public static NORESPONSE ParseFrom(byte[] bs)
-		{
-			return ProtobufUtil.ParseFrom<NORESPONSE>(bs, 0, -1);
 		}
 	}
 }

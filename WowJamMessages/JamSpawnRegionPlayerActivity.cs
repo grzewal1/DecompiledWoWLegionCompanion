@@ -1,31 +1,40 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamSpawnRegionPlayerActivity", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamSpawnRegionPlayerActivity", Version=28333852)]
 	public class JamSpawnRegionPlayerActivity
 	{
-		[FlexJamMember(Name = "idleTime", Type = FlexJamType.UInt32), DataMember(Name = "idleTime")]
+		[DataMember(Name="activeTime")]
+		[FlexJamMember(Name="activeTime", Type=FlexJamType.UInt32)]
+		public uint ActiveTime
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="idleTime")]
+		[FlexJamMember(Name="idleTime", Type=FlexJamType.UInt32)]
 		public uint IdleTime
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "player", Type = FlexJamType.WowGuid), DataMember(Name = "player")]
+		[DataMember(Name="player")]
+		[FlexJamMember(Name="player", Type=FlexJamType.WowGuid)]
 		public string Player
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "activeTime", Type = FlexJamType.UInt32), DataMember(Name = "activeTime")]
-		public uint ActiveTime
+		public JamSpawnRegionPlayerActivity()
 		{
-			get;
-			set;
 		}
 	}
 }

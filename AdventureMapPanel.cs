@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 using WowJamMessages;
@@ -9,18 +10,6 @@ using WowStaticData;
 
 public class AdventureMapPanel : MonoBehaviour
 {
-	public enum eZone
-	{
-		Azsuna = 0,
-		BrokenShore = 1,
-		HighMountain = 2,
-		Stormheim = 3,
-		Suramar = 4,
-		ValShara = 5,
-		None = 6,
-		NumZones = 7
-	}
-
 	public bool m_testEnableDetailedZoneMaps;
 
 	public bool m_testEnableAutoZoomInOut;
@@ -83,8 +72,6 @@ public class AdventureMapPanel : MonoBehaviour
 
 	public ZoneButton m_currentVisibleZone;
 
-	public GuildChatSlider m_guildChatSlider_Bottom;
-
 	public OrderHallNavButton m_adventureMapOrderHallNavButton;
 
 	private int m_currentMapMission;
@@ -135,49 +122,165 @@ public class AdventureMapPanel : MonoBehaviour
 
 	private bool[] m_mapFilters;
 
-	private void OnEnable()
+	public RectTransform m_invasionNotification;
+
+	public Text m_invasionTitle;
+
+	public Text m_invasionTimeRemaining;
+
+	private Duration m_invasionTimeRemainingDuration;
+
+	public AdventureMapPanel()
 	{
-		this.MapFiltersChanged = (Action)Delegate.Combine(this.MapFiltersChanged, new Action(this.UpdateWorldQuests));
 	}
 
-	private void OnDisable()
+	public void AddMissionLootToRewardPanel(int garrMissionID)
 	{
-		this.MapFiltersChanged = (Action)Delegate.Remove(this.MapFiltersChanged, new Action(this.UpdateWorldQuests));
+		if (this.OnAddMissionLootToRewardPanel != null)
+		{
+			this.OnAddMissionLootToRewardPanel(garrMissionID);
+		}
+	}
+
+	private void Awake()
+	{
+		this.m_invasionTimeRemainingDuration = new Duration(0, false);
+		AdventureMapPanel.instance = this;
+		this.m_zoneID = AdventureMapPanel.eZone.None;
+		this.m_testMissionIconScale = 1f;
+		this.m_mapFilters = new bool[15];
+		for (int i = 0; i < (int)this.m_mapFilters.Length; i++)
+		{
+			this.m_mapFilters[i] = false;
+		}
+		this.EnableMapFilter(MapFilterType.All, true);
+		AllPanels.instance.m_missionResultsPanel.gameObject.SetActive(true);
+	}
+
+	public void CenterAndZoom(Vector2 tapPos, ZoneButton zoneButton, bool zoomIn)
+	{
+		Vector2 vector2 = new Vector2();
+		Vector2 vector21 = new Vector2();
+		iTween.Stop(this.m_mapViewContentsRT.gameObject);
+		iTween.Stop(base.gameObject);
+		this.m_lastTappedZoneButton = zoneButton;
+		Vector3[] vector3Array = new Vector3[4];
+		this.m_mapViewRT.GetWorldCorners(vector3Array);
+		float single = vector3Array[2].x - vector3Array[0].x;
+		float single1 = vector3Array[2].y - vector3Array[0].y;
+		vector2.x = vector3Array[0].x + single * 0.5f;
+		vector2.y = vector3Array[0].y + single1 * 0.5f;
+		Vector3[] vector3Array1 = new Vector3[4];
+		this.m_mapViewContentsRT.GetWorldCorners(vector3Array1);
+		float single2 = vector3Array1[2].x - vector3Array1[0].x;
+		float single3 = vector3Array1[2].y - vector3Array1[0].y;
+		vector21.x = vector3Array1[0].x + single2 * 0.5f;
+		vector21.y = vector3Array1[0].y + single3 * 0.5f;
+		MapInfo componentInChildren = base.GetComponentInChildren<MapInfo>();
+		if (componentInChildren == null)
+		{
+			return;
+		}
+		if (!zoomIn)
+		{
+			if (this.OnZoomOutMap != null)
+			{
+				this.OnZoomOutMap();
+			}
+			iTween.ValueTo(base.gameObject, iTween.Hash(new object[] { "name", "Zoom View Out", "from", this.m_pinchZoomContentManager.m_zoomFactor, "to", componentInChildren.m_minZoomFactor, "easeType", "easeOutCubic", "time", 0.8f, "onupdate", "ZoomOutTweenCallback" }));
+			iTween.MoveTo(this.m_mapViewContentsRT.gameObject, iTween.Hash(new object[] { "name", "Pan View To Point (out)", "x", vector2.x, "y", vector2.y, "easeType", "easeOutQuad", "time", 0.8f }));
+		}
+		else
+		{
+			if (this.m_pinchZoomContentManager.m_zoomFactor < 1.001f)
+			{
+				Main.instance.m_UISound.Play_MapZoomIn();
+			}
+			Vector2 mMaxZoomFactor = tapPos - vector21;
+			mMaxZoomFactor = mMaxZoomFactor * (componentInChildren.m_maxZoomFactor / this.m_pinchZoomContentManager.m_zoomFactor);
+			Vector2 vector22 = vector21 + mMaxZoomFactor;
+			iTween.ValueTo(base.gameObject, iTween.Hash(new object[] { "name", "Zoom View In", "from", this.m_pinchZoomContentManager.m_zoomFactor, "to", componentInChildren.m_maxZoomFactor, "easeType", "easeOutCubic", "time", 0.8f, "onupdate", "ZoomInTweenCallback" }));
+			iTween.MoveBy(this.m_mapViewContentsRT.gameObject, iTween.Hash(new object[] { "name", "Pan View To Point (in)", "x", vector2.x - vector22.x, "y", vector2.y - vector22.y, "easeType", "easeOutQuad", "time", 0.8f }));
+		}
+	}
+
+	public void CenterAndZoomIn()
+	{
+		if (Input.touchCount != 1)
+		{
+			return;
+		}
+		Touch touch = Input.GetTouch(0);
+		this.CenterAndZoom(touch.position, null, true);
+	}
+
+	public void CenterAndZoomOut()
+	{
+		if (this.m_adventureMapOrderHallNavButton.IsSelected())
+		{
+			this.CenterAndZoom(Vector2.zero, null, false);
+		}
+	}
+
+	private void CreateMissionSite(int garrMissionID)
+	{
+		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(garrMissionID);
+		if (record == null)
+		{
+			Debug.LogWarning(string.Concat("Mission Not Found: ID ", garrMissionID));
+			return;
+		}
+		if (record.GarrFollowerTypeID != 4)
+		{
+			return;
+		}
+		if ((record.Flags & 16) != 0)
+		{
+			return;
+		}
+		if (!PersistentMissionData.missionDictionary.ContainsKey(garrMissionID))
+		{
+			return;
+		}
+		if (((JamGarrisonMobileMission)PersistentMissionData.missionDictionary[garrMissionID]).MissionState == 0)
+		{
+			return;
+		}
+		GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(AdventureMapPanel.instance.m_AdvMapMissionSitePrefab);
+		gameObject.transform.SetParent(this.m_missionAndWordQuestArea.transform, false);
+		float single = 1.84887111f;
+		float mapposX = (float)record.Mappos_x * single;
+		float mapposY = (float)record.Mappos_y * -single;
+		float single1 = -272.5694f;
+		float single2 = 1318.388f;
+		mapposX = mapposX + single1;
+		mapposY = mapposY + single2;
+		float mWorldMapLowDetail = this.m_worldMapLowDetail.sprite.textureRect.width;
+		float mWorldMapLowDetail1 = this.m_worldMapLowDetail.sprite.textureRect.height;
+		Vector2 vector3 = new Vector3(mapposX / mWorldMapLowDetail, mapposY / mWorldMapLowDetail1);
+		RectTransform component = gameObject.GetComponent<RectTransform>();
+		component.anchorMin = vector3;
+		component.anchorMax = vector3;
+		component.anchoredPosition = Vector2.zero;
+		gameObject.GetComponent<AdventureMapMissionSite>().SetMission(record.ID);
+		StackableMapIcon stackableMapIcon = gameObject.GetComponent<StackableMapIcon>();
+		if (stackableMapIcon != null)
+		{
+			stackableMapIcon.RegisterWithManager();
+		}
 	}
 
 	public void DeselectAllFollowerListItems()
 	{
 		if (this.DeselectAllFollowerListItemsAction != null)
 		{
-			this.DeselectAllFollowerListItemsAction.Invoke();
+			this.DeselectAllFollowerListItemsAction();
 		}
-	}
-
-	public void ShowFollowerDetails(bool show)
-	{
-		if (this.OnShowFollowerDetails != null)
-		{
-			this.OnShowFollowerDetails.Invoke(show);
-		}
-	}
-
-	public void SetFollowerToInspect(int garrFollowerID)
-	{
-		this.m_followerToInspect = garrFollowerID;
-		if (this.FollowerToInspectChangedAction != null)
-		{
-			this.FollowerToInspectChangedAction.Invoke(garrFollowerID);
-		}
-	}
-
-	public int GetFollowerToInspect()
-	{
-		return this.m_followerToInspect;
 	}
 
 	public void EnableMapFilter(MapFilterType mapFilterType, bool enable)
 	{
-		for (int i = 0; i < this.m_mapFilters.Length; i++)
+		for (int i = 0; i < (int)this.m_mapFilters.Length; i++)
 		{
 			this.m_mapFilters[i] = false;
 		}
@@ -185,7 +288,211 @@ public class AdventureMapPanel : MonoBehaviour
 		AllPopups.instance.m_optionsDialog.SyncWithOptions();
 		if (this.MapFiltersChanged != null)
 		{
-			this.MapFiltersChanged.Invoke();
+			this.MapFiltersChanged();
+		}
+	}
+
+	public int GetCurrentListMission()
+	{
+		return this.m_currentListMission;
+	}
+
+	public int GetCurrentMapMission()
+	{
+		return this.m_currentMapMission;
+	}
+
+	public int GetCurrentWorldQuest()
+	{
+		return this.m_currentWorldQuest;
+	}
+
+	public int GetFollowerToInspect()
+	{
+		return this.m_followerToInspect;
+	}
+
+	public StackableMapIconContainer GetSelectedIconContainer()
+	{
+		return this.m_iconContainer;
+	}
+
+	public void HandleBountyInfoUpdated()
+	{
+		ZoneMissionOverview mAllZoneMissionOverviews;
+		BountySite[] componentsInChildren = this.m_mapViewContentsRT.GetComponentsInChildren<BountySite>(true);
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
+		{
+			BountySite bountySite = componentsInChildren[i];
+			StackableMapIcon component = bountySite.GetComponent<StackableMapIcon>();
+			GameObject gameObject = bountySite.gameObject;
+			if (component != null)
+			{
+				component.RemoveFromContainer();
+			}
+			if (gameObject != null)
+			{
+				UnityEngine.Object.DestroyImmediate(gameObject);
+			}
+		}
+		IEnumerator enumerator = PersistentBountyData.bountyDictionary.Values.GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				MobileWorldQuestBounty current = (MobileWorldQuestBounty)enumerator.Current;
+				GameObject vector3 = UnityEngine.Object.Instantiate<GameObject>(this.m_bountySitePrefab);
+				BountySite component1 = vector3.GetComponent<BountySite>();
+				component1.SetBounty(current);
+				vector3.name = string.Concat("BountySite ", current.QuestID);
+				RectTransform vector2 = vector3.GetComponent<RectTransform>();
+				vector3.transform.SetParent(this.m_missionAndWordQuestArea.transform, false);
+				vector2.anchorMin = new Vector2(0.5f, 0.5f);
+				vector2.anchorMax = new Vector2(0.5f, 0.5f);
+				QuestV2Rec record = StaticDB.questDB.GetRecord(current.QuestID);
+				bool flag = true;
+				mAllZoneMissionOverviews = null;
+				int questSortID = record.QuestSortID;
+				if (questSortID == 7502)
+				{
+					goto Label0;
+				}
+				else if (questSortID == 7503)
+				{
+					mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[2];
+				}
+				else if (questSortID == 7334)
+				{
+					mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[0];
+				}
+				else if (questSortID == 7541)
+				{
+					mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[3];
+				}
+				else if (questSortID == 7558)
+				{
+					mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[5];
+				}
+				else if (questSortID == 7637)
+				{
+					mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[4];
+				}
+				else
+				{
+					if (questSortID == 8147)
+					{
+						goto Label0;
+					}
+					flag = false;
+				}
+			Label1:
+				if (!flag)
+				{
+					vector3.transform.localPosition = new Vector3(0f, 0f, 0f);
+					component1.m_errorImage.gameObject.SetActive(true);
+				}
+				else
+				{
+					if (mAllZoneMissionOverviews.zoneNameTag.Length <= 0)
+					{
+						vector3.transform.SetParent(mAllZoneMissionOverviews.m_anonymousBountyButtonRoot.transform, false);
+					}
+					else
+					{
+						vector3.transform.SetParent(mAllZoneMissionOverviews.m_bountyButtonRoot.transform, false);
+					}
+					vector3.transform.localPosition = Vector3.zero;
+					component1.m_errorImage.gameObject.SetActive(false);
+				}
+				StackableMapIcon stackableMapIcon = vector3.GetComponent<StackableMapIcon>();
+				if (stackableMapIcon == null)
+				{
+					continue;
+				}
+				stackableMapIcon.RegisterWithManager();
+			}
+		}
+		finally
+		{
+			IDisposable disposable = enumerator as IDisposable;
+			if (disposable == null)
+			{
+			}
+			disposable.Dispose();
+		}
+		return;
+	Label0:
+		mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[6];
+		goto Label1;
+	}
+
+	private void HandleInvasionPOIChanged()
+	{
+		JamMobileAreaPOI currentInvasionPOI = LegionfallData.GetCurrentInvasionPOI();
+		if (currentInvasionPOI == null)
+		{
+			this.m_invasionNotification.gameObject.SetActive(false);
+			RectTransform mMapViewRT = this.m_mapViewRT;
+			Vector2 vector2 = this.m_mapViewRT.sizeDelta;
+			mMapViewRT.sizeDelta = new Vector2(vector2.x, 820f);
+			return;
+		}
+		this.m_invasionNotification.gameObject.SetActive(true);
+		this.m_invasionTitle.text = currentInvasionPOI.Description;
+		long currentInvasionExpirationTime = LegionfallData.GetCurrentInvasionExpirationTime() - GarrisonStatus.CurrentTime();
+		currentInvasionExpirationTime = (currentInvasionExpirationTime <= (long)0 ? (long)0 : currentInvasionExpirationTime);
+		this.m_invasionTimeRemainingDuration.FormatDurationString((int)currentInvasionExpirationTime, false);
+		this.m_invasionTimeRemaining.text = this.m_invasionTimeRemainingDuration.DurationString;
+	}
+
+	private void HandleMissionAdded(int garrMissionID, int result)
+	{
+	}
+
+	public void HideRecentCharacterPanel()
+	{
+		this.m_playerInfoDisplay.HideRecentCharacterPanel();
+	}
+
+	private void InitMissionSites()
+	{
+		if (this.OnInitMissionSites != null)
+		{
+			this.OnInitMissionSites();
+		}
+		AdventureMapMissionSite[] componentsInChildren = this.m_missionAndWordQuestArea.transform.GetComponentsInChildren<AdventureMapMissionSite>(true);
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
+		{
+			AdventureMapMissionSite adventureMapMissionSite = componentsInChildren[i];
+			if (adventureMapMissionSite != null)
+			{
+				StackableMapIcon component = adventureMapMissionSite.GetComponent<StackableMapIcon>();
+				GameObject gameObject = adventureMapMissionSite.gameObject;
+				if (component != null)
+				{
+					component.RemoveFromContainer();
+				}
+				if (gameObject != null)
+				{
+					UnityEngine.Object.DestroyImmediate(adventureMapMissionSite.gameObject);
+				}
+			}
+		}
+		IEnumerator enumerator = PersistentMissionData.missionDictionary.Values.GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				this.CreateMissionSite(((JamGarrisonMobileMission)enumerator.Current).MissionRecID);
+			}
+		}
+		finally
+		{
+			IDisposable disposable = enumerator as IDisposable;
+			if (disposable == null)
+			{
+			}
+			disposable.Dispose();
 		}
 	}
 
@@ -194,25 +501,55 @@ public class AdventureMapPanel : MonoBehaviour
 		return this.m_mapFilters[(int)mapFilterType];
 	}
 
-	public void AddMissionLootToRewardPanel(int garrMissionID)
+	public void MissionFollowerSlotChanged(int garrFollowerID, bool inParty)
 	{
-		if (this.OnAddMissionLootToRewardPanel != null)
+		if (this.OnMissionFollowerSlotChanged != null)
 		{
-			this.OnAddMissionLootToRewardPanel.Invoke(garrMissionID);
+			this.OnMissionFollowerSlotChanged(garrFollowerID, inParty);
 		}
 	}
 
-	public void ShowRewardPanel(bool show)
+	private void MissionPanelSliderLeftTweenCallback(float val)
 	{
-		if (this.OnShowMissionRewardPanel != null)
+		RectTransform mMapAndRewardParentViewRT = this.m_mapAndRewardParentViewRT;
+		Vector2 vector2 = this.m_mapAndRewardParentViewRT.offsetMin;
+		mMapAndRewardParentViewRT.offsetMin = new Vector2(val, vector2.y);
+		MapInfo componentInChildren = base.GetComponentInChildren<MapInfo>();
+		if (componentInChildren == null)
 		{
-			this.OnShowMissionRewardPanel.Invoke(show);
+			return;
 		}
+		componentInChildren.CalculateFillScale();
+		this.m_pinchZoomContentManager.SetZoom(this.m_pinchZoomContentManager.m_zoomFactor, false);
 	}
 
-	public int GetCurrentMapMission()
+	private void OnDisable()
 	{
-		return this.m_currentMapMission;
+		this.MapFiltersChanged -= new Action(this.UpdateWorldQuests);
+		Main.instance.InvasionPOIChangedAction -= new Action(this.HandleInvasionPOIChanged);
+	}
+
+	private void OnEnable()
+	{
+		this.MapFiltersChanged += new Action(this.UpdateWorldQuests);
+		this.HandleInvasionPOIChanged();
+		Main.instance.InvasionPOIChangedAction += new Action(this.HandleInvasionPOIChanged);
+	}
+
+	public Vector2 ScreenPointToLocalPointInMapViewRT(Vector2 screenPoint)
+	{
+		Vector2 vector2;
+		RectTransformUtility.ScreenPointToLocalPointInRectangle(this.m_mapViewRT, screenPoint, this.m_mainCamera, out vector2);
+		return vector2;
+	}
+
+	public void SelectMissionFromList(int garrMissionID)
+	{
+		this.m_currentListMission = garrMissionID;
+		if (this.MissionSelectedFromListAction != null)
+		{
+			this.MissionSelectedFromListAction(garrMissionID);
+		}
 	}
 
 	public void SelectMissionFromMap(int garrMissionID)
@@ -223,12 +560,12 @@ public class AdventureMapPanel : MonoBehaviour
 			this.m_currentMapMission = garrMissionID;
 			if (this.MissionMapSelectionChangedAction != null)
 			{
-				this.MissionMapSelectionChangedAction.Invoke(this.m_currentMapMission);
+				this.MissionMapSelectionChangedAction(this.m_currentMapMission);
 			}
 		}
 		if (this.MissionSelectedFromMapAction != null)
 		{
-			this.MissionSelectedFromMapAction.Invoke(this.m_currentMapMission);
+			this.MissionSelectedFromMapAction(this.m_currentMapMission);
 		}
 		if (garrMissionID > 0)
 		{
@@ -236,35 +573,25 @@ public class AdventureMapPanel : MonoBehaviour
 		}
 	}
 
-	public int GetCurrentListMission()
-	{
-		return this.m_currentListMission;
-	}
-
-	public void SelectMissionFromList(int garrMissionID)
-	{
-		this.m_currentListMission = garrMissionID;
-		if (this.MissionSelectedFromListAction != null)
-		{
-			this.MissionSelectedFromListAction.Invoke(garrMissionID);
-		}
-	}
-
-	public int GetCurrentWorldQuest()
-	{
-		return this.m_currentWorldQuest;
-	}
-
 	public void SelectWorldQuest(int worldQuestID)
 	{
 		this.m_currentWorldQuest = worldQuestID;
 		if (this.WorldQuestChangedAction != null)
 		{
-			this.WorldQuestChangedAction.Invoke(this.m_currentWorldQuest);
+			this.WorldQuestChangedAction(this.m_currentWorldQuest);
 		}
 		if (worldQuestID > 0)
 		{
 			this.SelectMissionFromMap(0);
+		}
+	}
+
+	public void SetFollowerToInspect(int garrFollowerID)
+	{
+		this.m_followerToInspect = garrFollowerID;
+		if (this.FollowerToInspectChangedAction != null)
+		{
+			this.FollowerToInspectChangedAction(garrFollowerID);
 		}
 	}
 
@@ -273,7 +600,7 @@ public class AdventureMapPanel : MonoBehaviour
 		this.m_testMissionIconScale = val;
 		if (this.TestIconSizeChanged != null)
 		{
-			this.TestIconSizeChanged.Invoke(this.m_testMissionIconScale);
+			this.TestIconSizeChanged(this.m_testMissionIconScale);
 		}
 	}
 
@@ -282,373 +609,46 @@ public class AdventureMapPanel : MonoBehaviour
 		this.m_iconContainer = container;
 		if (this.SelectedIconContainerChanged != null)
 		{
-			this.SelectedIconContainerChanged.Invoke(container);
+			this.SelectedIconContainerChanged(container);
 		}
 	}
 
-	public StackableMapIconContainer GetSelectedIconContainer()
+	public void ShowFollowerDetails(bool show)
 	{
-		return this.m_iconContainer;
-	}
-
-	private void Awake()
-	{
-		AdventureMapPanel.instance = this;
-		this.m_zoneID = AdventureMapPanel.eZone.None;
-		this.m_testMissionIconScale = 1f;
-		this.m_mapFilters = new bool[14];
-		for (int i = 0; i < this.m_mapFilters.Length; i++)
+		if (this.OnShowFollowerDetails != null)
 		{
-			this.m_mapFilters[i] = false;
+			this.OnShowFollowerDetails(show);
 		}
-		this.EnableMapFilter(MapFilterType.All, true);
-		AllPanels.instance.m_missionResultsPanel.get_gameObject().SetActive(true);
+	}
+
+	public void ShowRewardPanel(bool show)
+	{
+		if (this.OnShowMissionRewardPanel != null)
+		{
+			this.OnShowMissionRewardPanel(show);
+		}
+	}
+
+	public void ShowWorldMap(bool show)
+	{
+		this.m_mainMapInfo.gameObject.SetActive(show);
 	}
 
 	private void Start()
 	{
 		this.m_pinchZoomContentManager.SetZoom(1f, false);
-		this.m_guildChatSlider_Bottom.Hide();
 		StackableMapIconContainer[] componentsInChildren = this.m_missionAndWordQuestArea.GetComponentsInChildren<StackableMapIconContainer>(true);
-		StackableMapIconContainer[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			StackableMapIconContainer stackableMapIconContainer = array[i];
-			Object.DestroyImmediate(stackableMapIconContainer.get_gameObject());
+			UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
 		}
 		this.InitMissionSites();
 		this.UpdateWorldQuests();
 		this.HandleBountyInfoUpdated();
-		Main expr_65 = Main.instance;
-		expr_65.GarrisonDataResetFinishedAction = (Action)Delegate.Combine(expr_65.GarrisonDataResetFinishedAction, new Action(this.InitMissionSites));
-		Main expr_8B = Main.instance;
-		expr_8B.MissionAddedAction = (Action<int, int>)Delegate.Combine(expr_8B.MissionAddedAction, new Action<int, int>(this.HandleMissionAdded));
-		Main expr_B1 = Main.instance;
-		expr_B1.BountyInfoUpdatedAction = (Action)Delegate.Combine(expr_B1.BountyInfoUpdatedAction, new Action(this.HandleBountyInfoUpdated));
+		Main.instance.GarrisonDataResetFinishedAction += new Action(this.InitMissionSites);
+		Main.instance.MissionAddedAction += new Action<int, int>(this.HandleMissionAdded);
+		Main.instance.BountyInfoUpdatedAction += new Action(this.HandleBountyInfoUpdated);
 		AllPopups.instance.EnableMissionDialog();
-	}
-
-	private void HandleMissionAdded(int garrMissionID, int result)
-	{
-		Debug.LogWarning("MISSION ADDED!!");
-	}
-
-	private void CreateMissionSite(int garrMissionID)
-	{
-		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(garrMissionID);
-		if (record == null)
-		{
-			Debug.LogWarning("Mission Not Found: ID " + garrMissionID);
-			return;
-		}
-		if (record.GarrFollowerTypeID != 4u)
-		{
-			return;
-		}
-		if ((record.Flags & 16u) != 0u)
-		{
-			return;
-		}
-		if (!PersistentMissionData.missionDictionary.ContainsKey(garrMissionID))
-		{
-			return;
-		}
-		JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary.get_Item(garrMissionID);
-		if (jamGarrisonMobileMission.MissionState == 0)
-		{
-			return;
-		}
-		GameObject gameObject = Object.Instantiate<GameObject>(AdventureMapPanel.instance.m_AdvMapMissionSitePrefab);
-		gameObject.get_transform().SetParent(this.m_missionAndWordQuestArea.get_transform(), false);
-		float num = 1.84887111f;
-		float num2 = record.Mappos_x * num;
-		float num3 = record.Mappos_y * -num;
-		float num4 = -272.5694f;
-		float num5 = 1318.388f;
-		num2 += num4;
-		num3 += num5;
-		float width = this.m_worldMapLowDetail.get_sprite().get_textureRect().get_width();
-		float height = this.m_worldMapLowDetail.get_sprite().get_textureRect().get_height();
-		Vector2 vector = new Vector3(num2 / width, num3 / height);
-		RectTransform component = gameObject.GetComponent<RectTransform>();
-		component.set_anchorMin(vector);
-		component.set_anchorMax(vector);
-		component.set_anchoredPosition(Vector2.get_zero());
-		AdventureMapMissionSite component2 = gameObject.GetComponent<AdventureMapMissionSite>();
-		component2.SetMission(record.ID);
-		StackableMapIcon component3 = gameObject.GetComponent<StackableMapIcon>();
-		if (component3 != null)
-		{
-			component3.RegisterWithManager();
-		}
-	}
-
-	private void InitMissionSites()
-	{
-		if (this.OnInitMissionSites != null)
-		{
-			this.OnInitMissionSites.Invoke();
-		}
-		AdventureMapMissionSite[] componentsInChildren = this.m_missionAndWordQuestArea.get_transform().GetComponentsInChildren<AdventureMapMissionSite>(true);
-		AdventureMapMissionSite[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
-		{
-			AdventureMapMissionSite adventureMapMissionSite = array[i];
-			if (adventureMapMissionSite != null)
-			{
-				Object.DestroyImmediate(adventureMapMissionSite.get_gameObject());
-			}
-		}
-		IEnumerator enumerator = PersistentMissionData.missionDictionary.get_Values().GetEnumerator();
-		try
-		{
-			while (enumerator.MoveNext())
-			{
-				JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)enumerator.get_Current();
-				this.CreateMissionSite(jamGarrisonMobileMission.MissionRecID);
-			}
-		}
-		finally
-		{
-			IDisposable disposable = enumerator as IDisposable;
-			if (disposable != null)
-			{
-				disposable.Dispose();
-			}
-		}
-	}
-
-	public void UpdateWorldQuests()
-	{
-		AdventureMapWorldQuest[] componentsInChildren = this.m_missionAndWordQuestArea.GetComponentsInChildren<AdventureMapWorldQuest>(true);
-		AdventureMapWorldQuest[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
-		{
-			AdventureMapWorldQuest adventureMapWorldQuest = array[i];
-			Object.DestroyImmediate(adventureMapWorldQuest.get_gameObject());
-		}
-		IEnumerator enumerator = WorldQuestData.worldQuestDictionary.get_Values().GetEnumerator();
-		try
-		{
-			while (enumerator.MoveNext())
-			{
-				MobileWorldQuest mobileWorldQuest = (MobileWorldQuest)enumerator.get_Current();
-				if (!this.IsFilterEnabled(MapFilterType.All))
-				{
-					bool matchesFilter = false;
-					if (this.IsFilterEnabled(MapFilterType.ArtifactPower))
-					{
-						MobileWorldQuestReward[] item = mobileWorldQuest.Item;
-						for (int j = 0; j < item.Length; j++)
-						{
-							MobileWorldQuestReward mobileWorldQuestReward = item[j];
-							StaticDB.itemEffectDB.EnumRecordsByParentID(mobileWorldQuestReward.RecordID, delegate(ItemEffectRec itemEffectRec)
-							{
-								StaticDB.spellEffectDB.EnumRecordsByParentID(itemEffectRec.SpellID, delegate(SpellEffectRec spellEffectRec)
-								{
-									if (spellEffectRec.Effect == 240)
-									{
-										matchesFilter = true;
-										return false;
-									}
-									return true;
-								});
-								return !matchesFilter;
-							});
-						}
-					}
-					if (this.IsFilterEnabled(MapFilterType.OrderResources))
-					{
-						MobileWorldQuestReward[] currency = mobileWorldQuest.Currency;
-						for (int k = 0; k < currency.Length; k++)
-						{
-							MobileWorldQuestReward mobileWorldQuestReward2 = currency[k];
-							if (mobileWorldQuestReward2.RecordID == 1220)
-							{
-								matchesFilter = true;
-								break;
-							}
-						}
-					}
-					if (this.IsFilterEnabled(MapFilterType.Gold) && mobileWorldQuest.Money > 0)
-					{
-						matchesFilter = true;
-					}
-					if (this.IsFilterEnabled(MapFilterType.Gear))
-					{
-						MobileWorldQuestReward[] item2 = mobileWorldQuest.Item;
-						for (int l = 0; l < item2.Length; l++)
-						{
-							MobileWorldQuestReward mobileWorldQuestReward3 = item2[l];
-							ItemRec record = StaticDB.itemDB.GetRecord(mobileWorldQuestReward3.RecordID);
-							if (record != null && (record.ClassID == 2 || record.ClassID == 3 || record.ClassID == 4 || record.ClassID == 6))
-							{
-								matchesFilter = true;
-								break;
-							}
-						}
-					}
-					if (this.IsFilterEnabled(MapFilterType.ProfessionMats))
-					{
-						MobileWorldQuestReward[] item3 = mobileWorldQuest.Item;
-						for (int m = 0; m < item3.Length; m++)
-						{
-							MobileWorldQuestReward mobileWorldQuestReward4 = item3[m];
-							ItemRec record2 = StaticDB.itemDB.GetRecord(mobileWorldQuestReward4.RecordID);
-							if (record2 != null && record2.ClassID == 7)
-							{
-								matchesFilter = true;
-								break;
-							}
-						}
-					}
-					if (this.IsFilterEnabled(MapFilterType.PetCharms))
-					{
-						MobileWorldQuestReward[] item4 = mobileWorldQuest.Item;
-						for (int n = 0; n < item4.Length; n++)
-						{
-							MobileWorldQuestReward mobileWorldQuestReward5 = item4[n];
-							if (mobileWorldQuestReward5.RecordID == 116415)
-							{
-								matchesFilter = true;
-								break;
-							}
-						}
-					}
-					if (this.IsFilterEnabled(MapFilterType.Bounty_HighmountainTribes) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(mobileWorldQuest.QuestID))
-					{
-						MobileBountiesByWorldQuest mobileBountiesByWorldQuest = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary.get_Item(mobileWorldQuest.QuestID);
-						for (int num = 0; num < mobileBountiesByWorldQuest.BountyQuestID.Length; num++)
-						{
-							if (mobileBountiesByWorldQuest.BountyQuestID[num] == 42233)
-							{
-								matchesFilter = true;
-								break;
-							}
-						}
-					}
-					if (this.IsFilterEnabled(MapFilterType.Bounty_CourtOfFarondis) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(mobileWorldQuest.QuestID))
-					{
-						MobileBountiesByWorldQuest mobileBountiesByWorldQuest2 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary.get_Item(mobileWorldQuest.QuestID);
-						for (int num2 = 0; num2 < mobileBountiesByWorldQuest2.BountyQuestID.Length; num2++)
-						{
-							if (mobileBountiesByWorldQuest2.BountyQuestID[num2] == 42420)
-							{
-								matchesFilter = true;
-								break;
-							}
-						}
-					}
-					if (this.IsFilterEnabled(MapFilterType.Bounty_Dreamweavers) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(mobileWorldQuest.QuestID))
-					{
-						MobileBountiesByWorldQuest mobileBountiesByWorldQuest3 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary.get_Item(mobileWorldQuest.QuestID);
-						for (int num3 = 0; num3 < mobileBountiesByWorldQuest3.BountyQuestID.Length; num3++)
-						{
-							if (mobileBountiesByWorldQuest3.BountyQuestID[num3] == 42170)
-							{
-								matchesFilter = true;
-								break;
-							}
-						}
-					}
-					if (this.IsFilterEnabled(MapFilterType.Bounty_Wardens) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(mobileWorldQuest.QuestID))
-					{
-						MobileBountiesByWorldQuest mobileBountiesByWorldQuest4 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary.get_Item(mobileWorldQuest.QuestID);
-						for (int num4 = 0; num4 < mobileBountiesByWorldQuest4.BountyQuestID.Length; num4++)
-						{
-							if (mobileBountiesByWorldQuest4.BountyQuestID[num4] == 42422)
-							{
-								matchesFilter = true;
-								break;
-							}
-						}
-					}
-					if (this.IsFilterEnabled(MapFilterType.Bounty_Nightfallen) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(mobileWorldQuest.QuestID))
-					{
-						MobileBountiesByWorldQuest mobileBountiesByWorldQuest5 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary.get_Item(mobileWorldQuest.QuestID);
-						for (int num5 = 0; num5 < mobileBountiesByWorldQuest5.BountyQuestID.Length; num5++)
-						{
-							if (mobileBountiesByWorldQuest5.BountyQuestID[num5] == 42421)
-							{
-								matchesFilter = true;
-								break;
-							}
-						}
-					}
-					if (this.IsFilterEnabled(MapFilterType.Bounty_Valarjar) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(mobileWorldQuest.QuestID))
-					{
-						MobileBountiesByWorldQuest mobileBountiesByWorldQuest6 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary.get_Item(mobileWorldQuest.QuestID);
-						for (int num6 = 0; num6 < mobileBountiesByWorldQuest6.BountyQuestID.Length; num6++)
-						{
-							if (mobileBountiesByWorldQuest6.BountyQuestID[num6] == 42234)
-							{
-								matchesFilter = true;
-								break;
-							}
-						}
-					}
-					if (this.IsFilterEnabled(MapFilterType.Bounty_KirinTor) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(mobileWorldQuest.QuestID))
-					{
-						MobileBountiesByWorldQuest mobileBountiesByWorldQuest7 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary.get_Item(mobileWorldQuest.QuestID);
-						for (int num7 = 0; num7 < mobileBountiesByWorldQuest7.BountyQuestID.Length; num7++)
-						{
-							if (mobileBountiesByWorldQuest7.BountyQuestID[num7] == 43179)
-							{
-								matchesFilter = true;
-								break;
-							}
-						}
-					}
-					if (!matchesFilter)
-					{
-						continue;
-					}
-				}
-				GameObject gameObject = Object.Instantiate<GameObject>(AdventureMapPanel.instance.m_AdvMapWorldQuestPrefab);
-				gameObject.get_transform().SetParent(this.m_missionAndWordQuestArea.get_transform(), false);
-				float num8 = 0.10271506f;
-				float num9 = (float)mobileWorldQuest.StartLocationY * -num8;
-				float num10 = (float)mobileWorldQuest.StartLocationX * num8;
-				float num11 = 1036.88037f;
-				float num12 = 597.2115f;
-				num9 += num11;
-				num10 += num12;
-				float width = this.m_worldMapLowDetail.get_sprite().get_textureRect().get_width();
-				float height = this.m_worldMapLowDetail.get_sprite().get_textureRect().get_height();
-				Vector2 vector = new Vector3(num9 / width, num10 / height);
-				RectTransform component = gameObject.GetComponent<RectTransform>();
-				component.set_anchorMin(vector);
-				component.set_anchorMax(vector);
-				component.set_anchoredPosition(Vector2.get_zero());
-				AdventureMapWorldQuest component2 = gameObject.GetComponent<AdventureMapWorldQuest>();
-				component2.SetQuestID(mobileWorldQuest.QuestID);
-				StackableMapIcon component3 = gameObject.GetComponent<StackableMapIcon>();
-				if (component3 != null)
-				{
-					component3.RegisterWithManager();
-				}
-			}
-		}
-		finally
-		{
-			IDisposable disposable = enumerator as IDisposable;
-			if (disposable != null)
-			{
-				disposable.Dispose();
-			}
-		}
-	}
-
-	private void MissionPanelSliderLeftTweenCallback(float val)
-	{
-		this.m_mapAndRewardParentViewRT.set_offsetMin(new Vector2(val, this.m_mapAndRewardParentViewRT.get_offsetMin().y));
-		MapInfo componentInChildren = base.GetComponentInChildren<MapInfo>();
-		if (componentInChildren == null)
-		{
-			return;
-		}
-		componentInChildren.CalculateFillScale();
-		this.m_pinchZoomContentManager.SetZoom(this.m_pinchZoomContentManager.m_zoomFactor, false);
 	}
 
 	private void Update()
@@ -656,13 +656,323 @@ public class AdventureMapPanel : MonoBehaviour
 		this.m_currentVisibleZone = null;
 		if (this.m_currentMapMission > 0)
 		{
-			this.m_secondsMissionHasBeenSelected += Time.get_deltaTime();
+			AdventureMapPanel mSecondsMissionHasBeenSelected = this;
+			mSecondsMissionHasBeenSelected.m_secondsMissionHasBeenSelected = mSecondsMissionHasBeenSelected.m_secondsMissionHasBeenSelected + Time.deltaTime;
+		}
+		if (this.m_invasionNotification.gameObject.activeSelf)
+		{
+			long currentInvasionExpirationTime = LegionfallData.GetCurrentInvasionExpirationTime() - GarrisonStatus.CurrentTime();
+			currentInvasionExpirationTime = (currentInvasionExpirationTime <= (long)0 ? (long)0 : currentInvasionExpirationTime);
+			if (currentInvasionExpirationTime <= (long)0)
+			{
+				this.m_invasionNotification.gameObject.SetActive(false);
+				RectTransform mMapViewRT = this.m_mapViewRT;
+				Vector2 vector2 = this.m_mapViewRT.sizeDelta;
+				mMapViewRT.sizeDelta = new Vector2(vector2.x, 820f);
+			}
+			else
+			{
+				this.m_invasionTimeRemainingDuration.FormatDurationString((int)currentInvasionExpirationTime, false);
+				this.m_invasionTimeRemaining.text = this.m_invasionTimeRemainingDuration.DurationString;
+			}
 		}
 	}
 
-	private void ZoomOutTweenCallback(float newZoomFactor)
+	public void UpdateWorldQuests()
 	{
-		this.m_pinchZoomContentManager.SetZoom(newZoomFactor, true);
+		AdventureMapWorldQuest[] componentsInChildren = this.m_missionAndWordQuestArea.GetComponentsInChildren<AdventureMapWorldQuest>(true);
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
+		{
+			AdventureMapWorldQuest adventureMapWorldQuest = componentsInChildren[i];
+			StackableMapIcon component = adventureMapWorldQuest.GetComponent<StackableMapIcon>();
+			GameObject gameObject = adventureMapWorldQuest.gameObject;
+			if (component != null)
+			{
+				component.RemoveFromContainer();
+			}
+			if (gameObject != null)
+			{
+				UnityEngine.Object.DestroyImmediate(adventureMapWorldQuest.gameObject);
+			}
+		}
+		IEnumerator enumerator = WorldQuestData.worldQuestDictionary.Values.GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				MobileWorldQuest current = (MobileWorldQuest)enumerator.Current;
+				if (!this.IsFilterEnabled(MapFilterType.All))
+				{
+					bool flag = false;
+					if (this.IsFilterEnabled(MapFilterType.ArtifactPower))
+					{
+						MobileWorldQuestReward[] item = current.Item;
+						for (int j = 0; j < (int)item.Length; j++)
+						{
+							MobileWorldQuestReward mobileWorldQuestReward = item[j];
+							StaticDB.itemEffectDB.EnumRecordsByParentID(mobileWorldQuestReward.RecordID, (ItemEffectRec itemEffectRec) => {
+								StaticDB.spellEffectDB.EnumRecordsByParentID(itemEffectRec.SpellID, (SpellEffectRec spellEffectRec) => {
+									if (spellEffectRec.Effect != 240)
+									{
+										return true;
+									}
+									flag = true;
+									return false;
+								});
+								if (flag)
+								{
+									return false;
+								}
+								return true;
+							});
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.OrderResources))
+					{
+						MobileWorldQuestReward[] currency = current.Currency;
+						int num = 0;
+						while (num < (int)currency.Length)
+						{
+							if (currency[num].RecordID != 1220)
+							{
+								num++;
+							}
+							else
+							{
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.Gold) && current.Money > 0)
+					{
+						flag = true;
+					}
+					if (this.IsFilterEnabled(MapFilterType.Gear))
+					{
+						MobileWorldQuestReward[] mobileWorldQuestRewardArray = current.Item;
+						int num1 = 0;
+						while (num1 < (int)mobileWorldQuestRewardArray.Length)
+						{
+							MobileWorldQuestReward mobileWorldQuestReward1 = mobileWorldQuestRewardArray[num1];
+							ItemRec record = StaticDB.itemDB.GetRecord(mobileWorldQuestReward1.RecordID);
+							if (record == null || record.ClassID != 2 && record.ClassID != 3 && record.ClassID != 4 && record.ClassID != 6)
+							{
+								num1++;
+							}
+							else
+							{
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.ProfessionMats))
+					{
+						MobileWorldQuestReward[] item1 = current.Item;
+						int num2 = 0;
+						while (num2 < (int)item1.Length)
+						{
+							MobileWorldQuestReward mobileWorldQuestReward2 = item1[num2];
+							ItemRec itemRec = StaticDB.itemDB.GetRecord(mobileWorldQuestReward2.RecordID);
+							if (itemRec == null || itemRec.ClassID != 7)
+							{
+								num2++;
+							}
+							else
+							{
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.PetCharms))
+					{
+						MobileWorldQuestReward[] mobileWorldQuestRewardArray1 = current.Item;
+						int num3 = 0;
+						while (num3 < (int)mobileWorldQuestRewardArray1.Length)
+						{
+							if (mobileWorldQuestRewardArray1[num3].RecordID != 116415)
+							{
+								num3++;
+							}
+							else
+							{
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.Bounty_HighmountainTribes) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(current.QuestID))
+					{
+						MobileBountiesByWorldQuest mobileBountiesByWorldQuest = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary[current.QuestID];
+						int num4 = 0;
+						while (num4 < (int)mobileBountiesByWorldQuest.BountyQuestID.Length)
+						{
+							if (mobileBountiesByWorldQuest.BountyQuestID[num4] != 42233)
+							{
+								num4++;
+							}
+							else
+							{
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.Bounty_CourtOfFarondis) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(current.QuestID))
+					{
+						MobileBountiesByWorldQuest mobileBountiesByWorldQuest1 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary[current.QuestID];
+						int num5 = 0;
+						while (num5 < (int)mobileBountiesByWorldQuest1.BountyQuestID.Length)
+						{
+							if (mobileBountiesByWorldQuest1.BountyQuestID[num5] != 42420)
+							{
+								num5++;
+							}
+							else
+							{
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.Bounty_Dreamweavers) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(current.QuestID))
+					{
+						MobileBountiesByWorldQuest item2 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary[current.QuestID];
+						int num6 = 0;
+						while (num6 < (int)item2.BountyQuestID.Length)
+						{
+							if (item2.BountyQuestID[num6] != 42170)
+							{
+								num6++;
+							}
+							else
+							{
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.Bounty_Wardens) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(current.QuestID))
+					{
+						MobileBountiesByWorldQuest mobileBountiesByWorldQuest2 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary[current.QuestID];
+						int num7 = 0;
+						while (num7 < (int)mobileBountiesByWorldQuest2.BountyQuestID.Length)
+						{
+							if (mobileBountiesByWorldQuest2.BountyQuestID[num7] != 42422)
+							{
+								num7++;
+							}
+							else
+							{
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.Bounty_Nightfallen) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(current.QuestID))
+					{
+						MobileBountiesByWorldQuest item3 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary[current.QuestID];
+						int num8 = 0;
+						while (num8 < (int)item3.BountyQuestID.Length)
+						{
+							if (item3.BountyQuestID[num8] != 42421)
+							{
+								num8++;
+							}
+							else
+							{
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.Bounty_Valarjar) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(current.QuestID))
+					{
+						MobileBountiesByWorldQuest mobileBountiesByWorldQuest3 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary[current.QuestID];
+						int num9 = 0;
+						while (num9 < (int)mobileBountiesByWorldQuest3.BountyQuestID.Length)
+						{
+							if (mobileBountiesByWorldQuest3.BountyQuestID[num9] != 42234)
+							{
+								num9++;
+							}
+							else
+							{
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.Bounty_KirinTor) && PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(current.QuestID))
+					{
+						MobileBountiesByWorldQuest item4 = (MobileBountiesByWorldQuest)PersistentBountyData.bountiesByWorldQuestDictionary[current.QuestID];
+						int num10 = 0;
+						while (num10 < (int)item4.BountyQuestID.Length)
+						{
+							if (item4.BountyQuestID[num10] != 43179)
+							{
+								num10++;
+							}
+							else
+							{
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (this.IsFilterEnabled(MapFilterType.Invasion))
+					{
+						QuestInfoRec questInfoRec = StaticDB.questInfoDB.GetRecord(current.QuestInfoID);
+						if (questInfoRec == null)
+						{
+							break;
+						}
+						else if (questInfoRec.Type == 7)
+						{
+							flag = true;
+						}
+					}
+					if (!flag)
+					{
+						continue;
+					}
+				}
+				GameObject gameObject1 = UnityEngine.Object.Instantiate<GameObject>(AdventureMapPanel.instance.m_AdvMapWorldQuestPrefab);
+				gameObject1.transform.SetParent(this.m_missionAndWordQuestArea.transform, false);
+				float single = 0.10271506f;
+				float startLocationY = (float)current.StartLocationY * -single;
+				float startLocationX = (float)current.StartLocationX * single;
+				float single1 = 1036.88037f;
+				float single2 = 597.2115f;
+				startLocationY = startLocationY + single1;
+				startLocationX = startLocationX + single2;
+				float mWorldMapLowDetail = this.m_worldMapLowDetail.sprite.textureRect.width;
+				float mWorldMapLowDetail1 = this.m_worldMapLowDetail.sprite.textureRect.height;
+				Vector2 vector3 = new Vector3(startLocationY / mWorldMapLowDetail, startLocationX / mWorldMapLowDetail1);
+				RectTransform rectTransform = gameObject1.GetComponent<RectTransform>();
+				rectTransform.anchorMin = vector3;
+				rectTransform.anchorMax = vector3;
+				rectTransform.anchoredPosition = Vector2.zero;
+				gameObject1.GetComponent<AdventureMapWorldQuest>().SetQuestID(current.QuestID);
+				StackableMapIcon stackableMapIcon = gameObject1.GetComponent<StackableMapIcon>();
+				if (stackableMapIcon == null)
+				{
+					continue;
+				}
+				stackableMapIcon.RegisterWithManager();
+			}
+		}
+		finally
+		{
+			IDisposable disposable = enumerator as IDisposable;
+			if (disposable == null)
+			{
+			}
+			disposable.Dispose();
+		}
+		this.m_pinchZoomContentManager.ForceZoomFactorChanged();
 	}
 
 	private void ZoomInTweenCallback(float newZoomFactor)
@@ -670,257 +980,20 @@ public class AdventureMapPanel : MonoBehaviour
 		this.m_pinchZoomContentManager.SetZoom(newZoomFactor, false);
 	}
 
-	public void CenterAndZoomOut()
+	private void ZoomOutTweenCallback(float newZoomFactor)
 	{
-		if (this.m_adventureMapOrderHallNavButton.IsSelected())
-		{
-			this.CenterAndZoom(Vector2.get_zero(), null, false);
-		}
+		this.m_pinchZoomContentManager.SetZoom(newZoomFactor, true);
 	}
 
-	public void CenterAndZoomIn()
+	public enum eZone
 	{
-		if (Input.get_touchCount() != 1)
-		{
-			return;
-		}
-		Vector2 position = Input.GetTouch(0).get_position();
-		this.CenterAndZoom(position, null, true);
-	}
-
-	public void ShowWorldMap(bool show)
-	{
-		this.m_mainMapInfo.get_gameObject().SetActive(show);
-	}
-
-	public void CenterAndZoom(Vector2 tapPos, ZoneButton zoneButton, bool zoomIn)
-	{
-		iTween.Stop(this.m_mapViewContentsRT.get_gameObject());
-		iTween.Stop(base.get_gameObject());
-		this.m_lastTappedZoneButton = zoneButton;
-		Vector3[] array = new Vector3[4];
-		this.m_mapViewRT.GetWorldCorners(array);
-		float num = array[2].x - array[0].x;
-		float num2 = array[2].y - array[0].y;
-		Vector2 vector;
-		vector.x = array[0].x + num * 0.5f;
-		vector.y = array[0].y + num2 * 0.5f;
-		Vector3[] array2 = new Vector3[4];
-		this.m_mapViewContentsRT.GetWorldCorners(array2);
-		float num3 = array2[2].x - array2[0].x;
-		float num4 = array2[2].y - array2[0].y;
-		Vector2 vector2;
-		vector2.x = array2[0].x + num3 * 0.5f;
-		vector2.y = array2[0].y + num4 * 0.5f;
-		MapInfo componentInChildren = base.GetComponentInChildren<MapInfo>();
-		if (componentInChildren == null)
-		{
-			return;
-		}
-		if (zoomIn)
-		{
-			if (this.m_pinchZoomContentManager.m_zoomFactor < 1.001f)
-			{
-				Main.instance.m_UISound.Play_MapZoomIn();
-			}
-			Vector2 vector3 = tapPos - vector2;
-			vector3 *= componentInChildren.m_maxZoomFactor / this.m_pinchZoomContentManager.m_zoomFactor;
-			Vector2 vector4 = vector2 + vector3;
-			iTween.ValueTo(base.get_gameObject(), iTween.Hash(new object[]
-			{
-				"name",
-				"Zoom View In",
-				"from",
-				this.m_pinchZoomContentManager.m_zoomFactor,
-				"to",
-				componentInChildren.m_maxZoomFactor,
-				"easeType",
-				"easeOutCubic",
-				"time",
-				0.8f,
-				"onupdate",
-				"ZoomInTweenCallback"
-			}));
-			iTween.MoveBy(this.m_mapViewContentsRT.get_gameObject(), iTween.Hash(new object[]
-			{
-				"name",
-				"Pan View To Point (in)",
-				"x",
-				vector.x - vector4.x,
-				"y",
-				vector.y - vector4.y,
-				"easeType",
-				"easeOutQuad",
-				"time",
-				0.8f
-			}));
-		}
-		else
-		{
-			if (this.OnZoomOutMap != null)
-			{
-				this.OnZoomOutMap.Invoke();
-			}
-			iTween.ValueTo(base.get_gameObject(), iTween.Hash(new object[]
-			{
-				"name",
-				"Zoom View Out",
-				"from",
-				this.m_pinchZoomContentManager.m_zoomFactor,
-				"to",
-				componentInChildren.m_minZoomFactor,
-				"easeType",
-				"easeOutCubic",
-				"time",
-				0.8f,
-				"onupdate",
-				"ZoomOutTweenCallback"
-			}));
-			iTween.MoveTo(this.m_mapViewContentsRT.get_gameObject(), iTween.Hash(new object[]
-			{
-				"name",
-				"Pan View To Point (out)",
-				"x",
-				vector.x,
-				"y",
-				vector.y,
-				"easeType",
-				"easeOutQuad",
-				"time",
-				0.8f
-			}));
-		}
-	}
-
-	public Vector2 ScreenPointToLocalPointInMapViewRT(Vector2 screenPoint)
-	{
-		Vector2 result;
-		RectTransformUtility.ScreenPointToLocalPointInRectangle(this.m_mapViewRT, screenPoint, this.m_mainCamera, ref result);
-		return result;
-	}
-
-	public void MissionFollowerSlotChanged(int garrFollowerID, bool inParty)
-	{
-		if (this.OnMissionFollowerSlotChanged != null)
-		{
-			this.OnMissionFollowerSlotChanged.Invoke(garrFollowerID, inParty);
-		}
-	}
-
-	public void HandleBountyInfoUpdated()
-	{
-		BountySite[] componentsInChildren = this.m_missionAndWordQuestArea.get_transform().GetComponentsInChildren<BountySite>(true);
-		BountySite[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
-		{
-			BountySite bountySite = array[i];
-			Object.DestroyImmediate(bountySite.get_gameObject());
-		}
-		IEnumerator enumerator = PersistentBountyData.bountyDictionary.get_Values().GetEnumerator();
-		try
-		{
-			while (enumerator.MoveNext())
-			{
-				MobileWorldQuestBounty mobileWorldQuestBounty = (MobileWorldQuestBounty)enumerator.get_Current();
-				GameObject gameObject = Object.Instantiate<GameObject>(this.m_bountySitePrefab);
-				BountySite component = gameObject.GetComponent<BountySite>();
-				component.SetBounty(mobileWorldQuestBounty);
-				gameObject.set_name("BountySite " + mobileWorldQuestBounty.QuestID);
-				RectTransform component2 = gameObject.GetComponent<RectTransform>();
-				gameObject.get_transform().SetParent(this.m_missionAndWordQuestArea.get_transform(), false);
-				component2.set_anchorMin(new Vector2(0.5f, 0.5f));
-				component2.set_anchorMax(new Vector2(0.5f, 0.5f));
-				QuestV2Rec record = StaticDB.questDB.GetRecord(mobileWorldQuestBounty.QuestID);
-				bool flag = true;
-				ZoneMissionOverview zoneMissionOverview = null;
-				int questSortID = record.QuestSortID;
-				if (questSortID == 7502)
-				{
-					goto IL_1AA;
-				}
-				if (questSortID != 7503)
-				{
-					if (questSortID != 7334)
-					{
-						if (questSortID != 7541)
-						{
-							if (questSortID != 7558)
-							{
-								if (questSortID != 7637)
-								{
-									if (questSortID == 8147)
-									{
-										goto IL_1AA;
-									}
-									flag = false;
-								}
-								else
-								{
-									zoneMissionOverview = this.m_allZoneMissionOverviews[4];
-								}
-							}
-							else
-							{
-								zoneMissionOverview = this.m_allZoneMissionOverviews[5];
-							}
-						}
-						else
-						{
-							zoneMissionOverview = this.m_allZoneMissionOverviews[3];
-						}
-					}
-					else
-					{
-						zoneMissionOverview = this.m_allZoneMissionOverviews[0];
-					}
-				}
-				else
-				{
-					zoneMissionOverview = this.m_allZoneMissionOverviews[2];
-				}
-				IL_1C1:
-				if (flag)
-				{
-					if (zoneMissionOverview.zoneNameTag.get_Length() > 0)
-					{
-						gameObject.get_transform().SetParent(zoneMissionOverview.m_bountyButtonRoot.get_transform(), false);
-					}
-					else
-					{
-						gameObject.get_transform().SetParent(zoneMissionOverview.m_anonymousBountyButtonRoot.get_transform(), false);
-					}
-					gameObject.get_transform().set_localPosition(Vector3.get_zero());
-					component.m_errorImage.get_gameObject().SetActive(false);
-				}
-				else
-				{
-					gameObject.get_transform().set_localPosition(new Vector3(0f, 0f, 0f));
-					component.m_errorImage.get_gameObject().SetActive(true);
-				}
-				StackableMapIcon component3 = gameObject.GetComponent<StackableMapIcon>();
-				if (component3 != null)
-				{
-					component3.RegisterWithManager();
-					continue;
-				}
-				continue;
-				IL_1AA:
-				zoneMissionOverview = this.m_allZoneMissionOverviews[6];
-				goto IL_1C1;
-			}
-		}
-		finally
-		{
-			IDisposable disposable = enumerator as IDisposable;
-			if (disposable != null)
-			{
-				disposable.Dispose();
-			}
-		}
-	}
-
-	public void HideRecentCharacterPanel()
-	{
-		this.m_playerInfoDisplay.HideRecentCharacterPanel();
+		Azsuna,
+		BrokenShore,
+		HighMountain,
+		Stormheim,
+		Suramar,
+		ValShara,
+		None,
+		NumZones
 	}
 }

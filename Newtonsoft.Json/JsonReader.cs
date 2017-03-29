@@ -3,28 +3,12 @@ using Newtonsoft.Json.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace Newtonsoft.Json
 {
 	public abstract class JsonReader : IDisposable
 	{
-		protected enum State
-		{
-			Start = 0,
-			Complete = 1,
-			Property = 2,
-			ObjectStart = 3,
-			Object = 4,
-			ArrayStart = 5,
-			Array = 6,
-			Closed = 7,
-			PostValue = 8,
-			ConstructorStart = 9,
-			Constructor = 10,
-			Error = 11,
-			Finished = 12
-		}
-
 		private JsonToken _token;
 
 		private object _value;
@@ -41,6 +25,12 @@ namespace Newtonsoft.Json
 
 		private readonly List<JTokenType> _stack;
 
+		public bool CloseInput
+		{
+			get;
+			set;
+		}
+
 		protected JsonReader.State CurrentState
 		{
 			get
@@ -49,10 +39,17 @@ namespace Newtonsoft.Json
 			}
 		}
 
-		public bool CloseInput
+		public virtual int Depth
 		{
-			get;
-			set;
+			get
+			{
+				int num = this._top - 1;
+				if (!JsonReader.IsStartToken(this.TokenType))
+				{
+					return num;
+				}
+				return num - 1;
+			}
 		}
 
 		public virtual char QuoteChar
@@ -91,19 +88,6 @@ namespace Newtonsoft.Json
 			}
 		}
 
-		public virtual int Depth
-		{
-			get
-			{
-				int num = this._top - 1;
-				if (JsonReader.IsStartToken(this.TokenType))
-				{
-					return num - 1;
-				}
-				return num;
-			}
-		}
-
 		protected JsonReader()
 		{
 			this._currentState = JsonReader.State.Start;
@@ -112,25 +96,100 @@ namespace Newtonsoft.Json
 			this.Push(JTokenType.None);
 		}
 
-		void IDisposable.Dispose()
+		public virtual void Close()
 		{
-			this.Dispose(true);
+			this._currentState = JsonReader.State.Closed;
+			this._token = JsonToken.None;
+			this._value = null;
+			this._valueType = null;
 		}
 
-		private void Push(JTokenType value)
+		protected virtual void Dispose(bool disposing)
 		{
-			this._stack.Add(value);
-			this._top++;
-			this._currentTypeContext = value;
+			if (this._currentState != JsonReader.State.Closed && disposing)
+			{
+				this.Close();
+			}
 		}
 
-		private JTokenType Pop()
+		private JTokenType GetTypeForCloseToken(JsonToken token)
 		{
-			JTokenType result = this.Peek();
-			this._stack.RemoveAt(this._stack.get_Count() - 1);
-			this._top--;
-			this._currentTypeContext = this._stack.get_Item(this._top - 1);
-			return result;
+			switch (token)
+			{
+				case JsonToken.EndObject:
+				{
+					return JTokenType.Object;
+				}
+				case JsonToken.EndArray:
+				{
+					return JTokenType.Array;
+				}
+				case JsonToken.EndConstructor:
+				{
+					return JTokenType.Constructor;
+				}
+			}
+			throw new JsonReaderException("Not a valid close JsonToken: {0}".FormatWith(CultureInfo.InvariantCulture, new object[] { token }));
+		}
+
+		internal static bool IsPrimitiveToken(JsonToken token)
+		{
+			switch (token)
+			{
+				case JsonToken.Integer:
+				case JsonToken.Float:
+				case JsonToken.String:
+				case JsonToken.Boolean:
+				case JsonToken.Null:
+				case JsonToken.Undefined:
+				case JsonToken.Date:
+				case JsonToken.Bytes:
+				{
+					return true;
+				}
+				case JsonToken.EndObject:
+				case JsonToken.EndArray:
+				case JsonToken.EndConstructor:
+				{
+					return false;
+				}
+				default:
+				{
+					return false;
+				}
+			}
+		}
+
+		internal static bool IsStartToken(JsonToken token)
+		{
+			switch (token)
+			{
+				case JsonToken.None:
+				case JsonToken.Comment:
+				case JsonToken.Raw:
+				case JsonToken.Integer:
+				case JsonToken.Float:
+				case JsonToken.String:
+				case JsonToken.Boolean:
+				case JsonToken.Null:
+				case JsonToken.Undefined:
+				case JsonToken.EndObject:
+				case JsonToken.EndArray:
+				case JsonToken.EndConstructor:
+				case JsonToken.Date:
+				case JsonToken.Bytes:
+				{
+					return false;
+				}
+				case JsonToken.StartObject:
+				case JsonToken.StartArray:
+				case JsonToken.StartConstructor:
+				case JsonToken.PropertyName:
+				{
+					return true;
+				}
+			}
+			throw MiscellaneousUtils.CreateArgumentOutOfRangeException("token", token, "Unexpected JsonToken value.");
 		}
 
 		private JTokenType Peek()
@@ -138,13 +197,280 @@ namespace Newtonsoft.Json
 			return this._currentTypeContext;
 		}
 
+		private JTokenType Pop()
+		{
+			JTokenType jTokenType = this.Peek();
+			this._stack.RemoveAt(this._stack.Count - 1);
+			JsonReader jsonReader = this;
+			jsonReader._top = jsonReader._top - 1;
+			this._currentTypeContext = this._stack[this._top - 1];
+			return jTokenType;
+		}
+
+		private void Push(JTokenType value)
+		{
+			this._stack.Add(value);
+			JsonReader jsonReader = this;
+			jsonReader._top = jsonReader._top + 1;
+			this._currentTypeContext = value;
+		}
+
 		public abstract bool Read();
 
 		public abstract byte[] ReadAsBytes();
 
+		public abstract DateTimeOffset? ReadAsDateTimeOffset();
+
 		public abstract decimal? ReadAsDecimal();
 
-		public abstract DateTimeOffset? ReadAsDateTimeOffset();
+		protected void SetStateBasedOnCurrent()
+		{
+			JTokenType jTokenType = this.Peek();
+			switch (jTokenType)
+			{
+				case JTokenType.None:
+				{
+					this._currentState = JsonReader.State.Finished;
+					break;
+				}
+				case JTokenType.Object:
+				{
+					this._currentState = JsonReader.State.Object;
+					break;
+				}
+				case JTokenType.Array:
+				{
+					this._currentState = JsonReader.State.Array;
+					break;
+				}
+				case JTokenType.Constructor:
+				{
+					this._currentState = JsonReader.State.Constructor;
+					break;
+				}
+				default:
+				{
+					throw new JsonReaderException("While setting the reader state back to current object an unexpected JsonType was encountered: {0}".FormatWith(CultureInfo.InvariantCulture, new object[] { jTokenType }));
+				}
+			}
+		}
+
+		protected void SetToken(JsonToken newToken)
+		{
+			this.SetToken(newToken, null);
+		}
+
+		protected virtual void SetToken(JsonToken newToken, object value)
+		{
+			JTokenType jTokenType;
+			this._token = newToken;
+			switch (newToken)
+			{
+				case JsonToken.StartObject:
+				{
+					this._currentState = JsonReader.State.ObjectStart;
+					this.Push(JTokenType.Object);
+					if (this.Peek() == JTokenType.Property && this._currentState == JsonReader.State.PostValue)
+					{
+						jTokenType = this.Pop();
+					}
+					if (value == null)
+					{
+						this._value = null;
+						this._valueType = null;
+					}
+					else
+					{
+						this._value = value;
+						this._valueType = value.GetType();
+					}
+					return;
+				}
+				case JsonToken.StartArray:
+				{
+					this._currentState = JsonReader.State.ArrayStart;
+					this.Push(JTokenType.Array);
+					if (this.Peek() == JTokenType.Property && this._currentState == JsonReader.State.PostValue)
+					{
+						jTokenType = this.Pop();
+					}
+					if (value == null)
+					{
+						this._value = null;
+						this._valueType = null;
+					}
+					else
+					{
+						this._value = value;
+						this._valueType = value.GetType();
+					}
+					return;
+				}
+				case JsonToken.StartConstructor:
+				{
+					this._currentState = JsonReader.State.ConstructorStart;
+					this.Push(JTokenType.Constructor);
+					if (this.Peek() == JTokenType.Property && this._currentState == JsonReader.State.PostValue)
+					{
+						jTokenType = this.Pop();
+					}
+					if (value == null)
+					{
+						this._value = null;
+						this._valueType = null;
+					}
+					else
+					{
+						this._value = value;
+						this._valueType = value.GetType();
+					}
+					return;
+				}
+				case JsonToken.PropertyName:
+				{
+					this._currentState = JsonReader.State.Property;
+					this.Push(JTokenType.Property);
+					if (this.Peek() == JTokenType.Property && this._currentState == JsonReader.State.PostValue)
+					{
+						jTokenType = this.Pop();
+					}
+					if (value == null)
+					{
+						this._value = null;
+						this._valueType = null;
+					}
+					else
+					{
+						this._value = value;
+						this._valueType = value.GetType();
+					}
+					return;
+				}
+				case JsonToken.Comment:
+				{
+					if (this.Peek() == JTokenType.Property && this._currentState == JsonReader.State.PostValue)
+					{
+						jTokenType = this.Pop();
+					}
+					if (value == null)
+					{
+						this._value = null;
+						this._valueType = null;
+					}
+					else
+					{
+						this._value = value;
+						this._valueType = value.GetType();
+					}
+					return;
+				}
+				case JsonToken.Raw:
+				case JsonToken.Integer:
+				case JsonToken.Float:
+				case JsonToken.String:
+				case JsonToken.Boolean:
+				case JsonToken.Null:
+				case JsonToken.Undefined:
+				case JsonToken.Date:
+				case JsonToken.Bytes:
+				{
+					this._currentState = JsonReader.State.PostValue;
+					if (this.Peek() == JTokenType.Property && this._currentState == JsonReader.State.PostValue)
+					{
+						jTokenType = this.Pop();
+					}
+					if (value == null)
+					{
+						this._value = null;
+						this._valueType = null;
+					}
+					else
+					{
+						this._value = value;
+						this._valueType = value.GetType();
+					}
+					return;
+				}
+				case JsonToken.EndObject:
+				{
+					this.ValidateEnd(JsonToken.EndObject);
+					this._currentState = JsonReader.State.PostValue;
+					if (this.Peek() == JTokenType.Property && this._currentState == JsonReader.State.PostValue)
+					{
+						jTokenType = this.Pop();
+					}
+					if (value == null)
+					{
+						this._value = null;
+						this._valueType = null;
+					}
+					else
+					{
+						this._value = value;
+						this._valueType = value.GetType();
+					}
+					return;
+				}
+				case JsonToken.EndArray:
+				{
+					this.ValidateEnd(JsonToken.EndArray);
+					this._currentState = JsonReader.State.PostValue;
+					if (this.Peek() == JTokenType.Property && this._currentState == JsonReader.State.PostValue)
+					{
+						jTokenType = this.Pop();
+					}
+					if (value == null)
+					{
+						this._value = null;
+						this._valueType = null;
+					}
+					else
+					{
+						this._value = value;
+						this._valueType = value.GetType();
+					}
+					return;
+				}
+				case JsonToken.EndConstructor:
+				{
+					this.ValidateEnd(JsonToken.EndConstructor);
+					this._currentState = JsonReader.State.PostValue;
+					if (this.Peek() == JTokenType.Property && this._currentState == JsonReader.State.PostValue)
+					{
+						jTokenType = this.Pop();
+					}
+					if (value == null)
+					{
+						this._value = null;
+						this._valueType = null;
+					}
+					else
+					{
+						this._value = value;
+						this._valueType = value.GetType();
+					}
+					return;
+				}
+				default:
+				{
+					if (this.Peek() == JTokenType.Property && this._currentState == JsonReader.State.PostValue)
+					{
+						jTokenType = this.Pop();
+					}
+					if (value == null)
+					{
+						this._value = null;
+						this._valueType = null;
+					}
+					else
+					{
+						this._value = value;
+						this._valueType = value.GetType();
+					}
+					return;
+				}
+			}
+		}
 
 		public void Skip()
 		{
@@ -157,71 +483,9 @@ namespace Newtonsoft.Json
 			}
 		}
 
-		protected void SetToken(JsonToken newToken)
+		void System.IDisposable.Dispose()
 		{
-			this.SetToken(newToken, null);
-		}
-
-		protected virtual void SetToken(JsonToken newToken, object value)
-		{
-			this._token = newToken;
-			switch (newToken)
-			{
-			case JsonToken.StartObject:
-				this._currentState = JsonReader.State.ObjectStart;
-				this.Push(JTokenType.Object);
-				break;
-			case JsonToken.StartArray:
-				this._currentState = JsonReader.State.ArrayStart;
-				this.Push(JTokenType.Array);
-				break;
-			case JsonToken.StartConstructor:
-				this._currentState = JsonReader.State.ConstructorStart;
-				this.Push(JTokenType.Constructor);
-				break;
-			case JsonToken.PropertyName:
-				this._currentState = JsonReader.State.Property;
-				this.Push(JTokenType.Property);
-				break;
-			case JsonToken.Raw:
-			case JsonToken.Integer:
-			case JsonToken.Float:
-			case JsonToken.String:
-			case JsonToken.Boolean:
-			case JsonToken.Null:
-			case JsonToken.Undefined:
-			case JsonToken.Date:
-			case JsonToken.Bytes:
-				this._currentState = JsonReader.State.PostValue;
-				break;
-			case JsonToken.EndObject:
-				this.ValidateEnd(JsonToken.EndObject);
-				this._currentState = JsonReader.State.PostValue;
-				break;
-			case JsonToken.EndArray:
-				this.ValidateEnd(JsonToken.EndArray);
-				this._currentState = JsonReader.State.PostValue;
-				break;
-			case JsonToken.EndConstructor:
-				this.ValidateEnd(JsonToken.EndConstructor);
-				this._currentState = JsonReader.State.PostValue;
-				break;
-			}
-			JTokenType jTokenType = this.Peek();
-			if (jTokenType == JTokenType.Property && this._currentState == JsonReader.State.PostValue)
-			{
-				this.Pop();
-			}
-			if (value != null)
-			{
-				this._value = value;
-				this._valueType = value.GetType();
-			}
-			else
-			{
-				this._value = null;
-				this._valueType = null;
-			}
+			this.Dispose(true);
 		}
 
 		private void ValidateEnd(JsonToken endToken)
@@ -229,117 +493,25 @@ namespace Newtonsoft.Json
 			JTokenType jTokenType = this.Pop();
 			if (this.GetTypeForCloseToken(endToken) != jTokenType)
 			{
-				throw new JsonReaderException("JsonToken {0} is not valid for closing JsonType {1}.".FormatWith(CultureInfo.get_InvariantCulture(), new object[]
-				{
-					endToken,
-					jTokenType
-				}));
+				throw new JsonReaderException("JsonToken {0} is not valid for closing JsonType {1}.".FormatWith(CultureInfo.InvariantCulture, new object[] { endToken, jTokenType }));
 			}
 		}
 
-		protected void SetStateBasedOnCurrent()
+		protected enum State
 		{
-			JTokenType jTokenType = this.Peek();
-			switch (jTokenType)
-			{
-			case JTokenType.None:
-				this._currentState = JsonReader.State.Finished;
-				break;
-			case JTokenType.Object:
-				this._currentState = JsonReader.State.Object;
-				break;
-			case JTokenType.Array:
-				this._currentState = JsonReader.State.Array;
-				break;
-			case JTokenType.Constructor:
-				this._currentState = JsonReader.State.Constructor;
-				break;
-			default:
-				throw new JsonReaderException("While setting the reader state back to current object an unexpected JsonType was encountered: {0}".FormatWith(CultureInfo.get_InvariantCulture(), new object[]
-				{
-					jTokenType
-				}));
-			}
-		}
-
-		internal static bool IsPrimitiveToken(JsonToken token)
-		{
-			switch (token)
-			{
-			case JsonToken.Integer:
-			case JsonToken.Float:
-			case JsonToken.String:
-			case JsonToken.Boolean:
-			case JsonToken.Null:
-			case JsonToken.Undefined:
-			case JsonToken.Date:
-			case JsonToken.Bytes:
-				return true;
-			}
-			return false;
-		}
-
-		internal static bool IsStartToken(JsonToken token)
-		{
-			switch (token)
-			{
-			case JsonToken.None:
-			case JsonToken.Comment:
-			case JsonToken.Raw:
-			case JsonToken.Integer:
-			case JsonToken.Float:
-			case JsonToken.String:
-			case JsonToken.Boolean:
-			case JsonToken.Null:
-			case JsonToken.Undefined:
-			case JsonToken.EndObject:
-			case JsonToken.EndArray:
-			case JsonToken.EndConstructor:
-			case JsonToken.Date:
-			case JsonToken.Bytes:
-				return false;
-			case JsonToken.StartObject:
-			case JsonToken.StartArray:
-			case JsonToken.StartConstructor:
-			case JsonToken.PropertyName:
-				return true;
-			default:
-				throw MiscellaneousUtils.CreateArgumentOutOfRangeException("token", token, "Unexpected JsonToken value.");
-			}
-		}
-
-		private JTokenType GetTypeForCloseToken(JsonToken token)
-		{
-			switch (token)
-			{
-			case JsonToken.EndObject:
-				return JTokenType.Object;
-			case JsonToken.EndArray:
-				return JTokenType.Array;
-			case JsonToken.EndConstructor:
-				return JTokenType.Constructor;
-			default:
-				throw new JsonReaderException("Not a valid close JsonToken: {0}".FormatWith(CultureInfo.get_InvariantCulture(), new object[]
-				{
-					token
-				}));
-			}
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (this._currentState != JsonReader.State.Closed && disposing)
-			{
-				this.Close();
-			}
-		}
-
-		public virtual void Close()
-		{
-			this._currentState = JsonReader.State.Closed;
-			this._token = JsonToken.None;
-			this._value = null;
-			this._valueType = null;
+			Start,
+			Complete,
+			Property,
+			ObjectStart,
+			Object,
+			ArrayStart,
+			Array,
+			Closed,
+			PostValue,
+			ConstructorStart,
+			Constructor,
+			Error,
+			Finished
 		}
 	}
 }

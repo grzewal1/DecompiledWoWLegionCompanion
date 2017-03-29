@@ -10,25 +10,44 @@ namespace bgs
 	{
 		private Random m_rand;
 
-		private static readonly char[] REPLACEMENT_CHARS = new char[]
-		{
-			'!',
-			'@',
-			'#',
-			'$',
-			'%',
-			'^',
-			'&',
-			'*'
-		};
+		private readonly static char[] REPLACEMENT_CHARS;
 
 		private string m_localeName;
 
 		private WordFilters m_wordFilters;
 
+		static ProfanityAPI()
+		{
+			ProfanityAPI.REPLACEMENT_CHARS = new char[] { '!', '@', '#', '$', '%', '\u005E', '&', '*' };
+		}
+
 		public ProfanityAPI(BattleNetCSharp battlenet) : base(battlenet, "Profanity")
 		{
 			this.m_rand = new Random();
+		}
+
+		private void DownloadCompletedCallback(byte[] data, object userContext)
+		{
+			if (data == null)
+			{
+				base.ApiLog.LogWarning("Downloading of profanity data from depot failed!");
+				return;
+			}
+			base.ApiLog.LogDebug("Downloading of profanity data completed");
+			try
+			{
+				this.m_wordFilters = WordFilters.ParseFrom(data);
+			}
+			catch (Exception exception1)
+			{
+				Exception exception = exception1;
+				base.ApiLog.LogWarning("Failed to parse received data into protocol buffer. Ex  = {0}", new object[] { exception.ToString() });
+			}
+			if (this.m_wordFilters != null && this.m_wordFilters.IsInitialized)
+			{
+				return;
+			}
+			base.ApiLog.LogWarning("WordFilters failed to initialize");
 		}
 
 		public string FilterProfanity(string unfiltered)
@@ -37,56 +56,58 @@ namespace bgs
 			{
 				return unfiltered;
 			}
-			string text = unfiltered;
-			using (List<WordFilter>.Enumerator enumerator = this.m_wordFilters.FiltersList.GetEnumerator())
+			string str = unfiltered;
+			foreach (WordFilter filtersList in this.m_wordFilters.FiltersList)
 			{
-				while (enumerator.MoveNext())
+				if (filtersList.Type == "bad")
 				{
-					WordFilter current = enumerator.get_Current();
-					if (!(current.Type != "bad"))
+					Regex regex = new Regex(filtersList.Regex, RegexOptions.IgnoreCase);
+					MatchCollection matchCollections = regex.Matches(str);
+					if (matchCollections.Count != 0)
 					{
-						Regex regex = new Regex(current.Regex, 1);
-						MatchCollection matchCollection = regex.Matches(text);
-						if (matchCollection.get_Count() != 0)
+						IEnumerator enumerator = matchCollections.GetEnumerator();
+						try
 						{
-							IEnumerator enumerator2 = matchCollection.GetEnumerator();
-							try
+							while (enumerator.MoveNext())
 							{
-								while (enumerator2.MoveNext())
+								Match current = (Match)enumerator.Current;
+								if (current.Success)
 								{
-									Match match = (Match)enumerator2.get_Current();
-									if (match.get_Success())
+									char[] charArray = str.ToCharArray();
+									if (current.Index <= (int)charArray.Length)
 									{
-										char[] array = text.ToCharArray();
-										if (match.get_Index() <= array.Length)
+										int length = current.Length;
+										if (current.Index + current.Length > (int)charArray.Length)
 										{
-											int num = match.get_Length();
-											if (match.get_Index() + match.get_Length() > array.Length)
-											{
-												num = array.Length - match.get_Index();
-											}
-											for (int i = 0; i < num; i++)
-											{
-												array[match.get_Index() + i] = this.GetReplacementChar();
-											}
-											text = new string(array);
+											length = (int)charArray.Length - current.Index;
 										}
+										for (int i = 0; i < length; i++)
+										{
+											charArray[current.Index + i] = this.GetReplacementChar();
+										}
+										str = new string(charArray);
 									}
 								}
 							}
-							finally
+						}
+						finally
+						{
+							IDisposable disposable = enumerator as IDisposable;
+							if (disposable == null)
 							{
-								IDisposable disposable = enumerator2 as IDisposable;
-								if (disposable != null)
-								{
-									disposable.Dispose();
-								}
 							}
+							disposable.Dispose();
 						}
 					}
 				}
 			}
-			return text;
+			return str;
+		}
+
+		private char GetReplacementChar()
+		{
+			int num = this.m_rand.Next((int)ProfanityAPI.REPLACEMENT_CHARS.Length);
+			return ProfanityAPI.REPLACEMENT_CHARS[num];
 		}
 
 		public override void Initialize()
@@ -104,10 +125,7 @@ namespace bgs
 				base.ApiLog.LogWarning("Unable to get Locale from Localization class");
 				this.m_localeName = "enUS";
 			}
-			base.ApiLog.LogDebug("Locale is {0}", new object[]
-			{
-				this.m_localeName
-			});
+			base.ApiLog.LogDebug("Locale is {0}", new object[] { this.m_localeName });
 			resources.LookupResource(new FourCC("BN"), new FourCC("apft"), new FourCC(this.m_localeName), new ResourcesAPI.ResourceLookupCallback(this.ResouceLookupCallback), null);
 		}
 
@@ -118,46 +136,8 @@ namespace bgs
 				base.ApiLog.LogWarning("BN resource look up failed unable to proceed");
 				return;
 			}
-			base.ApiLog.LogDebug("Lookup done Region={0} Usage={1} SHA256={2}", new object[]
-			{
-				contentHandle.Region,
-				contentHandle.Usage,
-				contentHandle.Sha256Digest
-			});
+			base.ApiLog.LogDebug("Lookup done Region={0} Usage={1} SHA256={2}", new object[] { contentHandle.Region, contentHandle.Usage, contentHandle.Sha256Digest });
 			this.m_battleNet.LocalStorage.GetFile(contentHandle, new LocalStorageAPI.DownloadCompletedCallback(this.DownloadCompletedCallback), null);
-		}
-
-		private void DownloadCompletedCallback(byte[] data, object userContext)
-		{
-			if (data == null)
-			{
-				base.ApiLog.LogWarning("Downloading of profanity data from depot failed!");
-				return;
-			}
-			base.ApiLog.LogDebug("Downloading of profanity data completed");
-			try
-			{
-				WordFilters wordFilters = WordFilters.ParseFrom(data);
-				this.m_wordFilters = wordFilters;
-			}
-			catch (Exception ex)
-			{
-				base.ApiLog.LogWarning("Failed to parse received data into protocol buffer. Ex  = {0}", new object[]
-				{
-					ex.ToString()
-				});
-			}
-			if (this.m_wordFilters == null || !this.m_wordFilters.IsInitialized)
-			{
-				base.ApiLog.LogWarning("WordFilters failed to initialize");
-				return;
-			}
-		}
-
-		private char GetReplacementChar()
-		{
-			int num = this.m_rand.Next(ProfanityAPI.REPLACEMENT_CHARS.Length);
-			return ProfanityAPI.REPLACEMENT_CHARS[num];
 		}
 	}
 }

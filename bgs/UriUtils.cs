@@ -5,58 +5,70 @@ namespace bgs
 {
 	public class UriUtils
 	{
-		public static bool GetHostAddressAsIp(string hostName, out string address)
+		public UriUtils()
 		{
-			address = string.Empty;
-			IPAddress iPAddress;
-			if (IPAddress.TryParse(hostName, ref iPAddress))
-			{
-				address = iPAddress.ToString();
-				return true;
-			}
-			return false;
-		}
-
-		public static bool GetHostAddressByDns(string hostName, out string address)
-		{
-			address = string.Empty;
-			try
-			{
-				IPHostEntry hostEntry = Dns.GetHostEntry(hostName);
-				IPAddress[] addressList = hostEntry.get_AddressList();
-				int num = 0;
-				if (num < addressList.Length)
-				{
-					IPAddress iPAddress = addressList[num];
-					address = iPAddress.ToString();
-					return true;
-				}
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-			return false;
 		}
 
 		public static bool GetHostAddress(string hostName, out string address)
 		{
+			bool flag;
 			if (UriUtils.GetHostAddressAsIp(hostName, out address))
 			{
 				return true;
 			}
 			try
 			{
-				if (UriUtils.GetHostAddressByDns(hostName, out address))
+				if (!UriUtils.GetHostAddressByDns(hostName, out address))
 				{
-					return true;
+					return false;
+				}
+				else
+				{
+					flag = true;
 				}
 			}
-			catch (Exception ex)
+			catch (Exception exception)
 			{
-				throw ex;
+				throw exception;
 			}
-			return false;
+			return flag;
+		}
+
+		public static bool GetHostAddressAsIp(string hostName, out string address)
+		{
+			IPAddress pAddress;
+			address = string.Empty;
+			if (!IPAddress.TryParse(hostName, out pAddress))
+			{
+				return false;
+			}
+			address = pAddress.ToString();
+			return true;
+		}
+
+		public static bool GetHostAddressByDns(string hostName, out string address)
+		{
+			bool flag;
+			address = string.Empty;
+			try
+			{
+				IPAddress[] addressList = Dns.GetHostEntry(hostName).AddressList;
+				int num = 0;
+				if (num < (int)addressList.Length)
+				{
+					address = addressList[num].ToString();
+					flag = true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			catch (Exception exception)
+			{
+				throw exception;
+			}
+			return flag;
 		}
 	}
 }

@@ -4,29 +4,9 @@ using WowJamMessages.MobileClientJSON;
 
 public class GuildData
 {
-	public class GuildMember
-	{
-		public MobileGuildMember m_mobileGuildMember;
-
-		public bool m_isLoggedIn;
-	}
-
 	private static GuildData s_instance;
 
 	private Dictionary<string, GuildData.GuildMember> m_guildMemberDictionary;
-
-	public static GuildData instance
-	{
-		get
-		{
-			if (GuildData.s_instance == null)
-			{
-				GuildData.s_instance = new GuildData();
-				GuildData.s_instance.m_guildMemberDictionary = new Dictionary<string, GuildData.GuildMember>();
-			}
-			return GuildData.s_instance;
-		}
-	}
 
 	public static Dictionary<string, GuildData.GuildMember> guildMemberDictionary
 	{
@@ -36,15 +16,45 @@ public class GuildData
 		}
 	}
 
+	public static GuildData instance
+	{
+		get
+		{
+			if (GuildData.s_instance == null)
+			{
+				GuildData.s_instance = new GuildData()
+				{
+					m_guildMemberDictionary = new Dictionary<string, GuildData.GuildMember>()
+				};
+			}
+			return GuildData.s_instance;
+		}
+	}
+
+	static GuildData()
+	{
+	}
+
+	public GuildData()
+	{
+	}
+
 	public static void AddGuildMember(MobileGuildMember mobileGuildMember)
 	{
 		if (!GuildData.instance.m_guildMemberDictionary.ContainsKey(mobileGuildMember.Guid))
 		{
-			GuildData.GuildMember guildMember = new GuildData.GuildMember();
-			guildMember.m_mobileGuildMember = mobileGuildMember;
-			guildMember.m_isLoggedIn = true;
+			GuildData.GuildMember guildMember = new GuildData.GuildMember()
+			{
+				m_mobileGuildMember = mobileGuildMember,
+				m_isLoggedIn = true
+			};
 			GuildData.instance.m_guildMemberDictionary.Add(mobileGuildMember.Guid, guildMember);
 		}
+	}
+
+	public static void ClearData()
+	{
+		GuildData.instance.m_guildMemberDictionary.Clear();
 	}
 
 	public static void RemoveGuildMember(string mobileGuildMemberGUID)
@@ -55,8 +65,14 @@ public class GuildData
 		}
 	}
 
-	public static void ClearData()
+	public class GuildMember
 	{
-		GuildData.instance.m_guildMemberDictionary.Clear();
+		public MobileGuildMember m_mobileGuildMember;
+
+		public bool m_isLoggedIn;
+
+		public GuildMember()
+		{
+		}
 	}
 }

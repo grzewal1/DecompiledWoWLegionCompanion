@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class FollowerDetailListView : MonoBehaviour
 {
+	public FollowerDetailListView()
+	{
+	}
+
 	private void Start()
 	{
 	}

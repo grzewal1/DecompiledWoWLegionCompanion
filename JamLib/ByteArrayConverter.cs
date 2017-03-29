@@ -6,6 +6,10 @@ namespace JamLib
 {
 	public class ByteArrayConverter : JsonConverter
 	{
+		public ByteArrayConverter()
+		{
+		}
+
 		public override bool CanConvert(Type objectType)
 		{
 			return objectType == typeof(byte[]);
@@ -13,36 +17,45 @@ namespace JamLib
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 		{
-			if (reader.TokenType == JsonToken.StartArray)
+			if (reader.TokenType != JsonToken.StartArray)
 			{
-				List<byte> list = new List<byte>();
-				while (reader.Read())
+				throw new Exception(string.Format("Unexpected token parsing binary. Expected StartArray, got {0}.", reader.TokenType));
+			}
+			List<byte> nums = new List<byte>();
+			while (reader.Read())
+			{
+				JsonToken tokenType = reader.TokenType;
+				switch (tokenType)
 				{
-					JsonToken tokenType = reader.TokenType;
-					switch (tokenType)
-					{
 					case JsonToken.Comment:
+					{
 						continue;
-					case JsonToken.Raw:
-					case JsonToken.Float:
-						IL_3A:
-						if (tokenType != JsonToken.EndArray)
+					}
+					case JsonToken.Integer:
+					{
+						nums.Add(Convert.ToByte(reader.Value));
+						continue;
+					}
+					case JsonToken.String:
+					{
+						nums.Add(Convert.ToByte(reader.Value));
+						continue;
+					}
+					default:
+					{
+						if (tokenType == JsonToken.EndArray)
+						{
+							break;
+						}
+						else
 						{
 							throw new Exception(string.Format("Unexpected token when reading bytes: {0}", reader.TokenType));
 						}
-						return list.ToArray();
-					case JsonToken.Integer:
-						list.Add(Convert.ToByte(reader.Value));
-						continue;
-					case JsonToken.String:
-						list.Add(Convert.ToByte(reader.Value));
-						continue;
 					}
-					goto IL_3A;
 				}
-				throw new Exception("Unexpected end when reading bytes.");
+				return nums.ToArray();
 			}
-			throw new Exception(string.Format("Unexpected token parsing binary. Expected StartArray, got {0}.", reader.TokenType));
+			throw new Exception("Unexpected end when reading bytes.");
 		}
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -52,11 +65,11 @@ namespace JamLib
 				writer.WriteNull();
 				return;
 			}
-			byte[] array = (byte[])value;
+			byte[] numArray = (byte[])value;
 			writer.WriteStartArray();
-			for (int i = 0; i < array.Length; i++)
+			for (int i = 0; i < (int)numArray.Length; i++)
 			{
-				writer.WriteValue(array[i]);
+				writer.WriteValue(numArray[i]);
 			}
 			writer.WriteEndArray();
 		}

@@ -1,17 +1,24 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "SpawnTrackerData", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="SpawnTrackerData", Version=28333852)]
 	public class SpawnTrackerData
 	{
-		[FlexJamMember(ArrayDimensions = 1, Name = "questID", Type = FlexJamType.Int32), DataMember(Name = "questID")]
+		[DataMember(Name="questID")]
+		[FlexJamMember(ArrayDimensions=1, Name="questID", Type=FlexJamType.Int32)]
 		public int[] QuestID
 		{
 			get;
 			set;
+		}
+
+		public SpawnTrackerData()
+		{
 		}
 	}
 }

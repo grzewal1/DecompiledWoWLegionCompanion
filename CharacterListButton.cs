@@ -17,18 +17,7 @@ public class CharacterListButton : MonoBehaviour
 
 	public string m_subRegion;
 
-	private void Start()
-	{
-		this.m_characterName.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_characterLevel.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_missingRequirement.set_font(GeneralHelpers.LoadStandardFont());
-	}
-
-	private void Update()
-	{
-	}
-
-	public void SetGUID(string guid)
+	public CharacterListButton()
 	{
 	}
 
@@ -40,5 +29,20 @@ public class CharacterListButton : MonoBehaviour
 	public void PlayClickSound()
 	{
 		Main.instance.m_UISound.Play_DefaultNavClick();
+	}
+
+	public void SetGUID(string guid)
+	{
+	}
+
+	private void Start()
+	{
+		this.m_characterName.font = GeneralHelpers.LoadStandardFont();
+		this.m_characterLevel.font = GeneralHelpers.LoadStandardFont();
+		this.m_missingRequirement.font = GeneralHelpers.LoadStandardFont();
+	}
+
+	private void Update()
+	{
 	}
 }

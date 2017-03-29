@@ -1,18 +1,19 @@
 using bgs.RPCServices;
 using bgs.types;
+using bnet.protocol;
 using bnet.protocol.challenge;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using System.Reflection;
 using System.Text;
 
 namespace bgs
 {
 	public class ChallengeAPI : BattleNetAPI
 	{
-		private const uint PWD_FOURCC = 5265220u;
+		private const uint PWD_FOURCC = 5265220;
 
-		private ServiceDescriptor m_challengeService = new ChallengeService();
+		private ServiceDescriptor m_challengeService = new bgs.RPCServices.ChallengeService();
 
 		private ServiceDescriptor m_challengeNotifyService = new ChallengeNotify();
 
@@ -24,14 +25,6 @@ namespace bgs
 
 		private ExternalChallenge m_nextExternalChallenge;
 
-		public ServiceDescriptor ChallengeService
-		{
-			get
-			{
-				return this.m_challengeService;
-			}
-		}
-
 		public ServiceDescriptor ChallengeNotifyService
 		{
 			get
@@ -40,136 +33,61 @@ namespace bgs
 			}
 		}
 
+		public ServiceDescriptor ChallengeService
+		{
+			get
+			{
+				return this.m_challengeService;
+			}
+		}
+
 		public ChallengeAPI(BattleNetCSharp battlenet) : base(battlenet, "Challenge")
 		{
 		}
 
-		public override void InitRPCListeners(RPCConnection rpcConnection)
+		private void AbortChallenge(ulong id)
 		{
-			base.InitRPCListeners(rpcConnection);
-			rpcConnection.RegisterServiceMethodListener(this.m_challengeNotifyService.Id, 1u, new RPCContextDelegate(this.ChallengeUserCallback));
-			rpcConnection.RegisterServiceMethodListener(this.m_challengeNotifyService.Id, 2u, new RPCContextDelegate(this.ChallengeResultCallback));
-			rpcConnection.RegisterServiceMethodListener(this.m_challengeNotifyService.Id, 3u, new RPCContextDelegate(this.OnExternalChallengeCallback));
-			rpcConnection.RegisterServiceMethodListener(this.m_challengeNotifyService.Id, 4u, new RPCContextDelegate(this.OnExternalChallengeResultCallback));
-		}
-
-		public override void Initialize()
-		{
-			base.Initialize();
-		}
-
-		public override void OnDisconnected()
-		{
-			base.OnDisconnected();
-		}
-
-		public int NumChallenges()
-		{
-			return this.m_challengeUpdateList.get_Count();
-		}
-
-		public void ClearChallenges()
-		{
-			this.m_challengeUpdateList.Clear();
-		}
-
-		public ExternalChallenge GetNextExternalChallenge()
-		{
-			ExternalChallenge nextExternalChallenge = this.m_nextExternalChallenge;
-			if (this.m_nextExternalChallenge != null)
+			ChallengeCancelledRequest challengeCancelledRequest = new ChallengeCancelledRequest();
+			challengeCancelledRequest.SetId((uint)id);
+			this.m_rpcConnection.QueueRequest(this.ChallengeService.Id, 3, challengeCancelledRequest, new RPCContextDelegate(this.AbortChallengeCallback), 0);
+			uint key = 0;
+			bool flag = false;
+			foreach (KeyValuePair<uint, ChallengeInfo> mChallengePendingList in this.m_challengePendingList)
 			{
-				this.m_nextExternalChallenge = this.m_nextExternalChallenge.Next;
+				if (mChallengePendingList.Value.challengeId != id)
+				{
+					continue;
+				}
+				key = mChallengePendingList.Key;
+				flag = true;
+				break;
 			}
-			return nextExternalChallenge;
+			if (flag)
+			{
+				this.m_challengePendingList.Remove(key);
+			}
 		}
 
-		public void GetChallenges([Out] ChallengeInfo[] challenges)
+		private void AbortChallengeCallback(RPCContext context)
 		{
-			this.m_challengeUpdateList.CopyTo(challenges);
 		}
 
 		public void AnswerChallenge(ulong challengeID, string answer)
 		{
 			ChallengeAnsweredRequest challengeAnsweredRequest = new ChallengeAnsweredRequest();
 			challengeAnsweredRequest.SetAnswer("pass");
-			byte[] data = new byte[]
-			{
-				2,
-				3,
-				4,
-				5,
-				6,
-				7
-			};
-			challengeAnsweredRequest.SetData(data);
+			challengeAnsweredRequest.SetData(new byte[] { typeof(<PrivateImplementationDetails>).GetField("$$field-12").FieldHandle });
 			if (!challengeAnsweredRequest.IsInitialized)
 			{
 				return;
 			}
-			RPCContext rPCContext = this.m_rpcConnection.QueueRequest(this.ChallengeService.Id, 2u, challengeAnsweredRequest, new RPCContextDelegate(this.ChallengeAnsweredCallback), 0u);
+			RPCContext rPCContext = this.m_rpcConnection.QueueRequest(this.ChallengeService.Id, 2, challengeAnsweredRequest, new RPCContextDelegate(this.ChallengeAnsweredCallback), 0);
 			this.s_pendingAnswers.Add(rPCContext.Header.Token, challengeID);
 		}
 
 		public void CancelChallenge(ulong challengeID)
 		{
 			this.AbortChallenge(challengeID);
-		}
-
-		private void ChallengeUserCallback(RPCContext context)
-		{
-			ChallengeUserRequest challengeUserRequest = ChallengeUserRequest.ParseFrom(context.Payload);
-			if (!challengeUserRequest.IsInitialized)
-			{
-				return;
-			}
-			ulong num = (ulong)challengeUserRequest.Id;
-			bool flag = false;
-			for (int i = 0; i < challengeUserRequest.ChallengesCount; i++)
-			{
-				Challenge challenge = challengeUserRequest.Challenges.get_Item(i);
-				if (challenge.Type == 5265220u)
-				{
-					flag = true;
-					break;
-				}
-			}
-			if (!flag)
-			{
-				this.AbortChallenge(num);
-				return;
-			}
-			ChallengePickedRequest challengePickedRequest = new ChallengePickedRequest();
-			challengePickedRequest.SetChallenge(5265220u);
-			challengePickedRequest.SetId((uint)num);
-			challengePickedRequest.SetNewChallengeProtocol(true);
-			RPCContext rPCContext = this.m_rpcConnection.QueueRequest(this.ChallengeService.Id, 1u, challengePickedRequest, new RPCContextDelegate(this.ChallengedPickedCallback), 0u);
-			ChallengeInfo challengeInfo = default(ChallengeInfo);
-			challengeInfo.challengeId = num;
-			challengeInfo.isRetry = false;
-			this.m_challengePendingList.Add(rPCContext.Header.Token, challengeInfo);
-		}
-
-		private void ChallengeResultCallback(RPCContext context)
-		{
-		}
-
-		private void ChallengedPickedCallback(RPCContext context)
-		{
-			ChallengeInfo challengeInfo;
-			if (!this.m_challengePendingList.TryGetValue(context.Header.Token, ref challengeInfo))
-			{
-				base.ApiLog.LogWarning("Battle.net Challenge API C#: Received unexpected ChallengedPicked.");
-				return;
-			}
-			BattleNetErrors status = (BattleNetErrors)context.Header.Status;
-			if (status != BattleNetErrors.ERROR_OK)
-			{
-				this.m_challengePendingList.Remove(context.Header.Token);
-				base.ApiLog.LogWarning("Battle.net Challenge API C#: Failed ChallengedPicked. " + status);
-				return;
-			}
-			this.m_challengeUpdateList.Add(challengeInfo);
-			this.m_challengePendingList.Remove(context.Header.Token);
 		}
 
 		private void ChallengeAnsweredCallback(RPCContext context)
@@ -179,49 +97,128 @@ namespace bgs
 			{
 				return;
 			}
-			ulong challengeId = 0uL;
-			if (!this.s_pendingAnswers.TryGetValue(context.Header.Token, ref challengeId))
+			ulong num = (ulong)0;
+			if (!this.s_pendingAnswers.TryGetValue(context.Header.Token, out num))
 			{
 				return;
 			}
 			if (challengeAnsweredResponse.HasDoRetry && challengeAnsweredResponse.DoRetry)
 			{
-				ChallengeInfo challengeInfo = default(ChallengeInfo);
-				challengeInfo.challengeId = challengeId;
-				challengeInfo.isRetry = true;
+				ChallengeInfo challengeInfo = new ChallengeInfo()
+				{
+					challengeId = num,
+					isRetry = true
+				};
 				this.m_challengeUpdateList.Add(challengeInfo);
 			}
 			this.s_pendingAnswers.Remove(context.Header.Token);
 		}
 
-		private void AbortChallengeCallback(RPCContext context)
+		private void ChallengedPickedCallback(RPCContext context)
+		{
+			ChallengeInfo challengeInfo;
+			if (!this.m_challengePendingList.TryGetValue(context.Header.Token, out challengeInfo))
+			{
+				base.ApiLog.LogWarning("Battle.net Challenge API C#: Received unexpected ChallengedPicked.");
+				return;
+			}
+			BattleNetErrors status = (BattleNetErrors)context.Header.Status;
+			if (status == BattleNetErrors.ERROR_OK)
+			{
+				this.m_challengeUpdateList.Add(challengeInfo);
+				this.m_challengePendingList.Remove(context.Header.Token);
+				return;
+			}
+			this.m_challengePendingList.Remove(context.Header.Token);
+			base.ApiLog.LogWarning(string.Concat("Battle.net Challenge API C#: Failed ChallengedPicked. ", status));
+		}
+
+		private void ChallengeResultCallback(RPCContext context)
 		{
 		}
 
-		private void AbortChallenge(ulong id)
+		private void ChallengeUserCallback(RPCContext context)
 		{
-			ChallengeCancelledRequest challengeCancelledRequest = new ChallengeCancelledRequest();
-			challengeCancelledRequest.SetId((uint)id);
-			this.m_rpcConnection.QueueRequest(this.ChallengeService.Id, 3u, challengeCancelledRequest, new RPCContextDelegate(this.AbortChallengeCallback), 0u);
-			uint num = 0u;
-			bool flag = false;
-			using (Dictionary<uint, ChallengeInfo>.Enumerator enumerator = this.m_challengePendingList.GetEnumerator())
+			ChallengeUserRequest challengeUserRequest = ChallengeUserRequest.ParseFrom(context.Payload);
+			if (!challengeUserRequest.IsInitialized)
 			{
-				while (enumerator.MoveNext())
+				return;
+			}
+			ulong id = (ulong)challengeUserRequest.Id;
+			bool flag = false;
+			int num = 0;
+			while (num < challengeUserRequest.ChallengesCount)
+			{
+				if (challengeUserRequest.Challenges[num].Type != 5265220)
 				{
-					KeyValuePair<uint, ChallengeInfo> current = enumerator.get_Current();
-					if (current.get_Value().challengeId == id)
-					{
-						num = current.get_Key();
-						flag = true;
-						break;
-					}
+					num++;
+				}
+				else
+				{
+					flag = true;
+					break;
 				}
 			}
-			if (flag)
+			if (!flag)
 			{
-				this.m_challengePendingList.Remove(num);
+				this.AbortChallenge(id);
+				return;
 			}
+			ChallengePickedRequest challengePickedRequest = new ChallengePickedRequest();
+			challengePickedRequest.SetChallenge(5265220);
+			challengePickedRequest.SetId((uint)id);
+			challengePickedRequest.SetNewChallengeProtocol(true);
+			RPCContext rPCContext = this.m_rpcConnection.QueueRequest(this.ChallengeService.Id, 1, challengePickedRequest, new RPCContextDelegate(this.ChallengedPickedCallback), 0);
+			ChallengeInfo challengeInfo = new ChallengeInfo()
+			{
+				challengeId = id,
+				isRetry = false
+			};
+			this.m_challengePendingList.Add(rPCContext.Header.Token, challengeInfo);
+		}
+
+		public void ClearChallenges()
+		{
+			this.m_challengeUpdateList.Clear();
+		}
+
+		public void GetChallenges([Out] ChallengeInfo[] challenges)
+		{
+			this.m_challengeUpdateList.CopyTo(challenges);
+		}
+
+		public ExternalChallenge GetNextExternalChallenge()
+		{
+			ExternalChallenge mNextExternalChallenge = this.m_nextExternalChallenge;
+			if (this.m_nextExternalChallenge != null)
+			{
+				this.m_nextExternalChallenge = this.m_nextExternalChallenge.Next;
+			}
+			return mNextExternalChallenge;
+		}
+
+		public override void Initialize()
+		{
+			base.Initialize();
+		}
+
+		public override void InitRPCListeners(RPCConnection rpcConnection)
+		{
+			base.InitRPCListeners(rpcConnection);
+			rpcConnection.RegisterServiceMethodListener(this.m_challengeNotifyService.Id, 1, new RPCContextDelegate(this.ChallengeUserCallback));
+			rpcConnection.RegisterServiceMethodListener(this.m_challengeNotifyService.Id, 2, new RPCContextDelegate(this.ChallengeResultCallback));
+			rpcConnection.RegisterServiceMethodListener(this.m_challengeNotifyService.Id, 3, new RPCContextDelegate(this.OnExternalChallengeCallback));
+			rpcConnection.RegisterServiceMethodListener(this.m_challengeNotifyService.Id, 4, new RPCContextDelegate(this.OnExternalChallengeResultCallback));
+		}
+
+		public int NumChallenges()
+		{
+			return this.m_challengeUpdateList.Count;
+		}
+
+		public override void OnDisconnected()
+		{
+			base.OnDisconnected();
 		}
 
 		private void OnExternalChallengeCallback(RPCContext context)
@@ -229,38 +226,27 @@ namespace bgs
 			ChallengeExternalRequest challengeExternalRequest = ChallengeExternalRequest.ParseFrom(context.Payload);
 			if (!challengeExternalRequest.IsInitialized || !challengeExternalRequest.HasPayload)
 			{
-				base.ApiLog.LogWarning("Bad ChallengeExternalRequest received IsInitialized={0} HasRequestToken={1} HasPayload={2} HasPayloadType={3}", new object[]
-				{
-					challengeExternalRequest.IsInitialized,
-					challengeExternalRequest.HasRequestToken,
-					challengeExternalRequest.HasPayload,
-					challengeExternalRequest.HasPayloadType
-				});
+				base.ApiLog.LogWarning("Bad ChallengeExternalRequest received IsInitialized={0} HasRequestToken={1} HasPayload={2} HasPayloadType={3}", new object[] { challengeExternalRequest.IsInitialized, challengeExternalRequest.HasRequestToken, challengeExternalRequest.HasPayload, challengeExternalRequest.HasPayloadType });
 				return;
 			}
 			if (challengeExternalRequest.PayloadType != "web_auth_url")
 			{
-				base.ApiLog.LogWarning("Received a PayloadType we don't know how to handle PayloadType={0}", new object[]
-				{
-					challengeExternalRequest.PayloadType
-				});
+				base.ApiLog.LogWarning("Received a PayloadType we don't know how to handle PayloadType={0}", new object[] { challengeExternalRequest.PayloadType });
 				return;
 			}
-			ExternalChallenge externalChallenge = new ExternalChallenge();
-			externalChallenge.PayLoadType = challengeExternalRequest.PayloadType;
-			externalChallenge.URL = Encoding.get_ASCII().GetString(challengeExternalRequest.Payload);
-			base.ApiLog.LogDebug("Received external challenge PayLoadType={0} URL={1}", new object[]
+			ExternalChallenge externalChallenge = new ExternalChallenge()
 			{
-				externalChallenge.PayLoadType,
-				externalChallenge.URL
-			});
-			if (this.m_nextExternalChallenge == null)
+				PayLoadType = challengeExternalRequest.PayloadType,
+				URL = Encoding.ASCII.GetString(challengeExternalRequest.Payload)
+			};
+			base.ApiLog.LogDebug("Received external challenge PayLoadType={0} URL={1}", new object[] { externalChallenge.PayLoadType, externalChallenge.URL });
+			if (this.m_nextExternalChallenge != null)
 			{
-				this.m_nextExternalChallenge = externalChallenge;
+				this.m_nextExternalChallenge.Next = externalChallenge;
 			}
 			else
 			{
-				this.m_nextExternalChallenge.Next = externalChallenge;
+				this.m_nextExternalChallenge = externalChallenge;
 			}
 		}
 

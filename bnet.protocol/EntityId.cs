@@ -1,17 +1,12 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace bnet.protocol
 {
 	public class EntityId : IProtoBuf
 	{
 		public ulong High
-		{
-			get;
-			set;
-		}
-
-		public ulong Low
 		{
 			get;
 			set;
@@ -25,6 +20,16 @@ namespace bnet.protocol
 			}
 		}
 
+		public ulong Low
+		{
+			get;
+			set;
+		}
+
+		public EntityId()
+		{
+		}
+
 		public void Deserialize(Stream stream)
 		{
 			EntityId.Deserialize(stream, this);
@@ -32,7 +37,57 @@ namespace bnet.protocol
 
 		public static EntityId Deserialize(Stream stream, EntityId instance)
 		{
-			return EntityId.Deserialize(stream, instance, -1L);
+			return EntityId.Deserialize(stream, instance, (long)-1);
+		}
+
+		public static EntityId Deserialize(Stream stream, EntityId instance, long limit)
+		{
+			BinaryReader binaryReader = new BinaryReader(stream);
+			while (true)
+			{
+				if (limit < (long)0 || stream.Position < limit)
+				{
+					int num = stream.ReadByte();
+					if (num != -1)
+					{
+						int num1 = num;
+						if (num1 == 9)
+						{
+							instance.High = binaryReader.ReadUInt64();
+						}
+						else if (num1 == 17)
+						{
+							instance.Low = binaryReader.ReadUInt64();
+						}
+						else
+						{
+							Key key = ProtocolParser.ReadKey((byte)num, stream);
+							if (key.Field == 0)
+							{
+								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+							}
+							ProtocolParser.SkipKey(stream, key);
+						}
+					}
+					else
+					{
+						if (limit >= (long)0)
+						{
+							throw new EndOfStreamException();
+						}
+						break;
+					}
+				}
+				else
+				{
+					if (stream.Position != limit)
+					{
+						throw new ProtocolBufferException("Read past max limit");
+					}
+					break;
+				}
+			}
+			return instance;
 		}
 
 		public static EntityId DeserializeLengthDelimited(Stream stream)
@@ -44,56 +99,44 @@ namespace bnet.protocol
 
 		public static EntityId DeserializeLengthDelimited(Stream stream, EntityId instance)
 		{
-			long num = (long)((ulong)ProtocolParser.ReadUInt32(stream));
-			num += stream.get_Position();
-			return EntityId.Deserialize(stream, instance, num);
+			long position = (long)ProtocolParser.ReadUInt32(stream);
+			position = position + stream.Position;
+			return EntityId.Deserialize(stream, instance, position);
 		}
 
-		public static EntityId Deserialize(Stream stream, EntityId instance, long limit)
+		public override bool Equals(object obj)
 		{
-			BinaryReader binaryReader = new BinaryReader(stream);
-			while (limit < 0L || stream.get_Position() < limit)
+			EntityId entityId = obj as EntityId;
+			if (entityId == null)
 			{
-				int num = stream.ReadByte();
-				if (num == -1)
-				{
-					if (limit >= 0L)
-					{
-						throw new EndOfStreamException();
-					}
-					return instance;
-				}
-				else
-				{
-					int num2 = num;
-					if (num2 != 9)
-					{
-						if (num2 != 17)
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							uint field = key.Field;
-							if (field == 0u)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-						else
-						{
-							instance.Low = binaryReader.ReadUInt64();
-						}
-					}
-					else
-					{
-						instance.High = binaryReader.ReadUInt64();
-					}
-				}
+				return false;
 			}
-			if (stream.get_Position() == limit)
+			if (!this.High.Equals(entityId.High))
 			{
-				return instance;
+				return false;
 			}
-			throw new ProtocolBufferException("Read past max limit");
+			if (!this.Low.Equals(entityId.Low))
+			{
+				return false;
+			}
+			return true;
+		}
+
+		public override int GetHashCode()
+		{
+			int hashCode = this.GetType().GetHashCode();
+			hashCode = hashCode ^ this.High.GetHashCode();
+			return hashCode ^ this.Low.GetHashCode();
+		}
+
+		public uint GetSerializedSize()
+		{
+			return 0 + 8 + 8 + 2;
+		}
+
+		public static EntityId ParseFrom(byte[] bs)
+		{
+			return ProtobufUtil.ParseFrom<EntityId>(bs, 0, -1);
 		}
 
 		public void Serialize(Stream stream)
@@ -110,14 +153,6 @@ namespace bnet.protocol
 			binaryWriter.Write(instance.Low);
 		}
 
-		public uint GetSerializedSize()
-		{
-			uint num = 0u;
-			num += 8u;
-			num += 8u;
-			return num + 2u;
-		}
-
 		public void SetHigh(ulong val)
 		{
 			this.High = val;
@@ -126,24 +161,6 @@ namespace bnet.protocol
 		public void SetLow(ulong val)
 		{
 			this.Low = val;
-		}
-
-		public override int GetHashCode()
-		{
-			int num = base.GetType().GetHashCode();
-			num ^= this.High.GetHashCode();
-			return num ^ this.Low.GetHashCode();
-		}
-
-		public override bool Equals(object obj)
-		{
-			EntityId entityId = obj as EntityId;
-			return entityId != null && this.High.Equals(entityId.High) && this.Low.Equals(entityId.Low);
-		}
-
-		public static EntityId ParseFrom(byte[] bs)
-		{
-			return ProtobufUtil.ParseFrom<EntityId>(bs, 0, -1);
 		}
 	}
 }

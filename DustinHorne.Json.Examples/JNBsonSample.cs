@@ -9,45 +9,48 @@ namespace DustinHorne.Json.Examples
 {
 	public class JNBsonSample
 	{
+		public JNBsonSample()
+		{
+		}
+
 		public void Sample()
 		{
-			JNSimpleObjectModel jNSimpleObjectModel = new JNSimpleObjectModel();
-			jNSimpleObjectModel.IntValue = 5;
-			jNSimpleObjectModel.FloatValue = 4.98f;
-			jNSimpleObjectModel.StringValue = "Simple Object";
-			JNSimpleObjectModel arg_54_0 = jNSimpleObjectModel;
-			List<int> list = new List<int>();
-			list.Add(4);
-			list.Add(7);
-			list.Add(25);
-			list.Add(34);
-			arg_54_0.IntList = list;
-			jNSimpleObjectModel.ObjectType = JNObjectType.BaseClass;
-			JNSimpleObjectModel value = jNSimpleObjectModel;
+			JNSimpleObjectModel jNSimpleObjectModel;
+			JNSimpleObjectModel jNSimpleObjectModel1 = new JNSimpleObjectModel()
+			{
+				IntValue = 5,
+				FloatValue = 4.98f,
+				StringValue = "Simple Object",
+				IntList = new List<int>()
+				{
+					4,
+					7,
+					25,
+					34
+				},
+				ObjectType = JNObjectType.BaseClass
+			};
+			JNSimpleObjectModel jNSimpleObjectModel2 = jNSimpleObjectModel1;
 			byte[] array = new byte[0];
 			using (MemoryStream memoryStream = new MemoryStream())
 			{
 				using (BsonWriter bsonWriter = new BsonWriter(memoryStream))
 				{
-					JsonSerializer jsonSerializer = new JsonSerializer();
-					jsonSerializer.Serialize(bsonWriter, value);
+					(new JsonSerializer()).Serialize(bsonWriter, jNSimpleObjectModel2);
 				}
 				array = memoryStream.ToArray();
-				string text = Convert.ToBase64String(array);
-				Debug.Log(text);
+				Debug.Log(Convert.ToBase64String(array));
 			}
-			JNSimpleObjectModel jNSimpleObjectModel2;
-			using (MemoryStream memoryStream2 = new MemoryStream(array))
+			using (MemoryStream memoryStream1 = new MemoryStream(array))
 			{
-				using (BsonReader bsonReader = new BsonReader(memoryStream2))
+				using (BsonReader bsonReader = new BsonReader(memoryStream1))
 				{
-					JsonSerializer jsonSerializer2 = new JsonSerializer();
-					jNSimpleObjectModel2 = jsonSerializer2.Deserialize<JNSimpleObjectModel>(bsonReader);
+					jNSimpleObjectModel = (new JsonSerializer()).Deserialize<JNSimpleObjectModel>(bsonReader);
 				}
 			}
-			if (jNSimpleObjectModel2 != null)
+			if (jNSimpleObjectModel != null)
 			{
-				Debug.Log(jNSimpleObjectModel2.StringValue);
+				Debug.Log(jNSimpleObjectModel.StringValue);
 			}
 		}
 	}

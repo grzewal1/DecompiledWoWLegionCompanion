@@ -1,31 +1,40 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "UnitAuraEffectDebugInfo", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="UnitAuraEffectDebugInfo", Version=28333852)]
 	public class UnitAuraEffectDebugInfo
 	{
-		[FlexJamMember(Name = "active", Type = FlexJamType.Bool), DataMember(Name = "active")]
+		[DataMember(Name="active")]
+		[FlexJamMember(Name="active", Type=FlexJamType.Bool)]
 		public bool Active
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "effectIndex", Type = FlexJamType.Int32), DataMember(Name = "effectIndex")]
+		[DataMember(Name="amount")]
+		[FlexJamMember(Name="amount", Type=FlexJamType.Float)]
+		public float Amount
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="effectIndex")]
+		[FlexJamMember(Name="effectIndex", Type=FlexJamType.Int32)]
 		public int EffectIndex
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "amount", Type = FlexJamType.Float), DataMember(Name = "amount")]
-		public float Amount
+		public UnitAuraEffectDebugInfo()
 		{
-			get;
-			set;
 		}
 	}
 }

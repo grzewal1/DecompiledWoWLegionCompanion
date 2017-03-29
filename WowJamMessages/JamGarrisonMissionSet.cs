@@ -1,24 +1,32 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamGarrisonMissionSet", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamGarrisonMissionSet", Version=28333852)]
 	public class JamGarrisonMissionSet
 	{
-		[FlexJamMember(Name = "garrMissionSetID", Type = FlexJamType.Int32), DataMember(Name = "garrMissionSetID")]
+		[DataMember(Name="garrMissionSetID")]
+		[FlexJamMember(Name="garrMissionSetID", Type=FlexJamType.Int32)]
 		public int GarrMissionSetID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "lastUpdateTime", Type = FlexJamType.Int32), DataMember(Name = "lastUpdateTime")]
+		[DataMember(Name="lastUpdateTime")]
+		[FlexJamMember(Name="lastUpdateTime", Type=FlexJamType.Int32)]
 		public int LastUpdateTime
 		{
 			get;
 			set;
+		}
+
+		public JamGarrisonMissionSet()
+		{
 		}
 	}
 }

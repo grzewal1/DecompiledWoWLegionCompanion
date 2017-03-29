@@ -1,14 +1,15 @@
 using System;
+using System.Runtime.CompilerServices;
 
 public class Dustin
 {
-	public string Name
+	public int Age
 	{
 		get;
 		private set;
 	}
 
-	public int Age
+	public string Name
 	{
 		get;
 		private set;

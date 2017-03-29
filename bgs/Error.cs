@@ -1,21 +1,22 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace bgs
 {
 	public struct Error
 	{
-		public BattleNetErrors EnumVal
-		{
-			get;
-			private set;
-		}
-
 		public uint Code
 		{
 			get
 			{
 				return (uint)this.EnumVal;
 			}
+		}
+
+		public BattleNetErrors EnumVal
+		{
+			get;
+			private set;
 		}
 
 		public string Name
@@ -31,16 +32,11 @@ namespace bgs
 			this.EnumVal = code;
 		}
 
-		public override string ToString()
-		{
-			return string.Format("{0} {1}", this.Code, this.Name);
-		}
-
 		public override bool Equals(object obj)
 		{
 			if (obj is BattleNetErrors)
 			{
-				return this.EnumVal == (BattleNetErrors)((uint)obj);
+				return (uint)this.EnumVal == (uint)obj;
 			}
 			if (obj is Error)
 			{
@@ -48,26 +44,36 @@ namespace bgs
 			}
 			if (obj is int)
 			{
-				return this.EnumVal == (BattleNetErrors)((int)obj);
+				return (int)this.EnumVal == (int)obj;
 			}
 			if (obj is uint)
 			{
-				return this.EnumVal == (BattleNetErrors)((uint)obj);
+				return (uint)this.EnumVal == (uint)obj;
 			}
 			if (obj is long)
 			{
-				return (ulong)this.EnumVal == (ulong)((long)obj);
+				return (ulong)this.EnumVal == (long)obj;
 			}
-			if (obj is ulong)
+			if (!(obj is ulong))
 			{
-				return (ulong)this.EnumVal == (ulong)obj;
+				return this.Equals(obj);
 			}
-			return base.Equals(obj);
+			return (ulong)this.EnumVal == (ulong)obj;
 		}
 
 		public override int GetHashCode()
 		{
 			return this.Code.GetHashCode();
+		}
+
+		public static bool operator ==(Error a, BattleNetErrors b)
+		{
+			return a.EnumVal == b;
+		}
+
+		public static bool operator ==(Error a, uint b)
+		{
+			return (uint)a.EnumVal == b;
 		}
 
 		public static implicit operator Error(BattleNetErrors code)
@@ -80,24 +86,19 @@ namespace bgs
 			return new Error((BattleNetErrors)code);
 		}
 
-		public static bool operator ==(Error a, BattleNetErrors b)
-		{
-			return a.EnumVal == b;
-		}
-
 		public static bool operator !=(Error a, BattleNetErrors b)
 		{
 			return a.EnumVal != b;
 		}
 
-		public static bool operator ==(Error a, uint b)
-		{
-			return a.EnumVal == (BattleNetErrors)b;
-		}
-
 		public static bool operator !=(Error a, uint b)
 		{
-			return a.EnumVal != (BattleNetErrors)b;
+			return (uint)a.EnumVal != b;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("{0} {1}", this.Code, this.Name);
 		}
 	}
 }

@@ -8,73 +8,71 @@ namespace WowStaticData
 	{
 		private Hashtable m_records;
 
-		public VW_MobileSpellRec GetRecord(int id)
+		public VW_MobileSpellDB()
 		{
-			return (VW_MobileSpellRec)this.m_records.get_Item(id);
 		}
 
 		public void EnumRecords(Predicate<VW_MobileSpellRec> callback)
 		{
-			IEnumerator enumerator = this.m_records.get_Values().GetEnumerator();
+			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
 			try
 			{
 				while (enumerator.MoveNext())
 				{
-					VW_MobileSpellRec vW_MobileSpellRec = (VW_MobileSpellRec)enumerator.get_Current();
-					if (!callback.Invoke(vW_MobileSpellRec))
+					if (callback((VW_MobileSpellRec)enumerator.Current))
 					{
-						break;
+						continue;
 					}
+					break;
 				}
 			}
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
+				if (disposable == null)
 				{
-					disposable.Dispose();
 				}
+				disposable.Dispose();
 			}
+		}
+
+		public VW_MobileSpellRec GetRecord(int id)
+		{
+			return (VW_MobileSpellRec)this.m_records[id];
 		}
 
 		public bool Load(string path, AssetBundle nonLocalizedBundle, AssetBundle localizedBundle, string locale)
 		{
-			string text = string.Concat(new string[]
-			{
-				path,
-				locale,
-				"/VW_MobileSpell_",
-				locale,
-				".txt"
-			});
+			string str = string.Concat(new string[] { path, locale, "/VW_MobileSpell_", locale, ".txt" });
 			if (this.m_records != null)
 			{
-				Debug.Log("Already loaded static db " + text);
+				Debug.Log(string.Concat("Already loaded static db ", str));
 				return false;
 			}
-			TextAsset textAsset = localizedBundle.LoadAsset<TextAsset>(text);
+			TextAsset textAsset = localizedBundle.LoadAsset<TextAsset>(str);
 			if (textAsset == null)
 			{
-				Debug.Log("Unable to load static db " + text);
+				Debug.Log(string.Concat("Unable to load static db ", str));
 				return false;
 			}
-			string text2 = textAsset.ToString();
+			string str1 = textAsset.ToString();
 			this.m_records = new Hashtable();
 			int num = 0;
-			int num2;
+			int num1 = 0;
 			do
 			{
-				num2 = text2.IndexOf('\n', num);
-				if (num2 >= 0)
+				num = str1.IndexOf('\n', num1);
+				if (num < 0)
 				{
-					string valueLine = text2.Substring(num, num2 - num + 1).Trim();
-					VW_MobileSpellRec vW_MobileSpellRec = new VW_MobileSpellRec();
-					vW_MobileSpellRec.Deserialize(valueLine);
-					this.m_records.Add(vW_MobileSpellRec.ID, vW_MobileSpellRec);
-					num = num2 + 1;
+					continue;
 				}
+				string str2 = str1.Substring(num1, num - num1 + 1).Trim();
+				VW_MobileSpellRec vWMobileSpellRec = new VW_MobileSpellRec();
+				vWMobileSpellRec.Deserialize(str2);
+				this.m_records.Add(vWMobileSpellRec.ID, vWMobileSpellRec);
+				num1 = num + 1;
 			}
-			while (num2 > 0);
+			while (num > 0);
 			return true;
 		}
 	}

@@ -1,52 +1,64 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamCharacterShipment", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamCharacterShipment", Version=28333852)]
 	public class JamCharacterShipment
 	{
-		[FlexJamMember(Name = "shipmentDuration", Type = FlexJamType.Int32), DataMember(Name = "shipmentDuration")]
-		public int ShipmentDuration
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "assignedFollowerDBID", Type = FlexJamType.UInt64), DataMember(Name = "assignedFollowerDBID")]
+		[DataMember(Name="assignedFollowerDBID")]
+		[FlexJamMember(Name="assignedFollowerDBID", Type=FlexJamType.UInt64)]
 		public ulong AssignedFollowerDBID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "shipmentID", Type = FlexJamType.UInt64), DataMember(Name = "shipmentID")]
-		public ulong ShipmentID
+		[DataMember(Name="buildingType")]
+		[FlexJamMember(Name="buildingType", Type=FlexJamType.Int32)]
+		public int BuildingType
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "shipmentRecID", Type = FlexJamType.Int32), DataMember(Name = "shipmentRecID")]
-		public int ShipmentRecID
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "creationTime", Type = FlexJamType.Int32), DataMember(Name = "creationTime")]
+		[DataMember(Name="creationTime")]
+		[FlexJamMember(Name="creationTime", Type=FlexJamType.Int32)]
 		public int CreationTime
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "buildingType", Type = FlexJamType.Int32), DataMember(Name = "buildingType")]
-		public int BuildingType
+		[DataMember(Name="shipmentDuration")]
+		[FlexJamMember(Name="shipmentDuration", Type=FlexJamType.Int32)]
+		public int ShipmentDuration
 		{
 			get;
 			set;
+		}
+
+		[DataMember(Name="shipmentID")]
+		[FlexJamMember(Name="shipmentID", Type=FlexJamType.UInt64)]
+		public ulong ShipmentID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="shipmentRecID")]
+		[FlexJamMember(Name="shipmentRecID", Type=FlexJamType.Int32)]
+		public int ShipmentRecID
+		{
+			get;
+			set;
+		}
+
+		public JamCharacterShipment()
+		{
 		}
 	}
 }

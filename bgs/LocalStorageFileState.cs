@@ -1,5 +1,6 @@
 using System;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 
 namespace bgs
 {
@@ -19,21 +20,13 @@ namespace bgs
 
 		private int m_ID;
 
-		public Socket Socket
-		{
-			get
-			{
-				return this.Connection.Socket;
-			}
-		}
-
-		public string FailureMessage
+		public LocalStorageAPI.DownloadCompletedCallback Callback
 		{
 			get;
 			set;
 		}
 
-		public LocalStorageAPI.DownloadCompletedCallback Callback
+		public string FailureMessage
 		{
 			get;
 			set;
@@ -47,6 +40,14 @@ namespace bgs
 			}
 		}
 
+		public System.Net.Sockets.Socket Socket
+		{
+			get
+			{
+				return this.Connection.Socket;
+			}
+		}
+
 		public LocalStorageFileState(int id)
 		{
 			this.m_ID = id;
@@ -54,13 +55,7 @@ namespace bgs
 
 		public override string ToString()
 		{
-			return string.Format("[Region={0} Usage={1} SHA256={2} ID={3}]", new object[]
-			{
-				this.CH.Region,
-				this.CH.Usage,
-				this.CH.Sha256Digest,
-				this.m_ID
-			});
+			return string.Format("[Region={0} Usage={1} SHA256={2} ID={3}]", new object[] { this.CH.Region, this.CH.Usage, this.CH.Sha256Digest, this.m_ID });
 		}
 	}
 }

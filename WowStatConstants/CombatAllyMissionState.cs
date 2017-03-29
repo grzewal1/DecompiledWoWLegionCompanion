@@ -4,8 +4,8 @@ namespace WowStatConstants
 {
 	public enum CombatAllyMissionState
 	{
-		notAvailable = 0,
-		available = 1,
-		inProgress = 2
+		notAvailable,
+		available,
+		inProgress
 	}
 }

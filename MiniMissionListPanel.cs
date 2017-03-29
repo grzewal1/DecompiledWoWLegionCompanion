@@ -43,48 +43,18 @@ public class MiniMissionListPanel : MonoBehaviour
 
 	private GameObject m_currentMissionStartedEffectObj;
 
+	public MiniMissionListPanel()
+	{
+	}
+
 	private void Awake()
 	{
-		this.m_availableMissionsTabLabel.set_font(GeneralHelpers.LoadFancyFont());
-		this.m_inProgressMissionsTabLabel.set_font(GeneralHelpers.LoadFancyFont());
-		this.m_noMissionsAvailableLabel.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_noMissionsAvailableLabel.set_text(StaticDB.GetString("NO_MISSIONS_AVAILABLE", "No missions are currently available."));
-		this.m_noMissionsInProgressLabel.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_noMissionsInProgressLabel.set_text(StaticDB.GetString("NO_MISSIONS_IN_PROGRESS", "No missions are currently in progress."));
-	}
-
-	public void OnEnable()
-	{
-		Main expr_05 = Main.instance;
-		expr_05.GarrisonDataResetFinishedAction = (Action)Delegate.Combine(expr_05.GarrisonDataResetFinishedAction, new Action(this.HandleGarrisonDataResetFinished));
-		Main expr_2B = Main.instance;
-		expr_2B.MissionAddedAction = (Action<int, int>)Delegate.Combine(expr_2B.MissionAddedAction, new Action<int, int>(this.HandleMissionAdded));
-		this.InitMissionList();
-		this.ShowAvailableMissionList();
-	}
-
-	private void OnDisable()
-	{
-		Main expr_05 = Main.instance;
-		expr_05.GarrisonDataResetFinishedAction = (Action)Delegate.Remove(expr_05.GarrisonDataResetFinishedAction, new Action(this.HandleGarrisonDataResetFinished));
-		Main expr_2B = Main.instance;
-		expr_2B.MissionAddedAction = (Action<int, int>)Delegate.Remove(expr_2B.MissionAddedAction, new Action<int, int>(this.HandleMissionAdded));
-	}
-
-	public void ShowAvailableMissionList()
-	{
-		this.m_availableMissionListScrollView.SetActive(true);
-		this.m_inProgressMissionListScrollView.SetActive(false);
-		this.m_availableMissionsTabSelectedImage.get_gameObject().SetActive(true);
-		this.m_inProgressMissionsTabSelectedImage.get_gameObject().SetActive(false);
-	}
-
-	public void ShowInProgressMissionList()
-	{
-		this.m_availableMissionListScrollView.SetActive(false);
-		this.m_inProgressMissionListScrollView.SetActive(true);
-		this.m_availableMissionsTabSelectedImage.get_gameObject().SetActive(false);
-		this.m_inProgressMissionsTabSelectedImage.get_gameObject().SetActive(true);
+		this.m_availableMissionsTabLabel.font = GeneralHelpers.LoadFancyFont();
+		this.m_inProgressMissionsTabLabel.font = GeneralHelpers.LoadFancyFont();
+		this.m_noMissionsAvailableLabel.font = GeneralHelpers.LoadStandardFont();
+		this.m_noMissionsAvailableLabel.text = StaticDB.GetString("NO_MISSIONS_AVAILABLE", "No missions are currently available.");
+		this.m_noMissionsInProgressLabel.font = GeneralHelpers.LoadStandardFont();
+		this.m_noMissionsInProgressLabel.text = StaticDB.GetString("NO_MISSIONS_IN_PROGRESS", "No missions are currently in progress.");
 	}
 
 	private void HandleGarrisonDataResetFinished()
@@ -99,105 +69,106 @@ public class MiniMissionListPanel : MonoBehaviour
 
 	public void InitMissionList()
 	{
-		this.m_combatAllyListItem.get_gameObject().SetActive(false);
+		this.m_combatAllyListItem.gameObject.SetActive(false);
 		MiniMissionListItem[] componentsInChildren = this.m_availableMission_listContents.GetComponentsInChildren<MiniMissionListItem>(true);
-		MiniMissionListItem[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			MiniMissionListItem miniMissionListItem = array[i];
+			MiniMissionListItem miniMissionListItem = componentsInChildren[i];
 			bool flag = true;
 			if (PersistentMissionData.missionDictionary.ContainsKey(miniMissionListItem.GetMissionID()))
 			{
-				JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary.get_Item(miniMissionListItem.GetMissionID());
-				if (jamGarrisonMobileMission.MissionState == 0)
+				JamGarrisonMobileMission item = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary[miniMissionListItem.GetMissionID()];
+				if (item.MissionState == 0)
 				{
 					flag = false;
-					miniMissionListItem.UpdateMechanicPreview(false, jamGarrisonMobileMission);
+					miniMissionListItem.UpdateMechanicPreview(false, item);
 				}
 			}
 			if (flag)
 			{
-				Object.DestroyImmediate(miniMissionListItem.get_gameObject());
+				UnityEngine.Object.DestroyImmediate(miniMissionListItem.gameObject);
 			}
 		}
-		componentsInChildren = this.m_inProgressMission_listContents.GetComponentsInChildren<MiniMissionListItem>(true);
-		MiniMissionListItem[] array2 = componentsInChildren;
-		for (int j = 0; j < array2.Length; j++)
+		MiniMissionListItem[] miniMissionListItemArray = this.m_inProgressMission_listContents.GetComponentsInChildren<MiniMissionListItem>(true);
+		for (int j = 0; j < (int)miniMissionListItemArray.Length; j++)
 		{
-			MiniMissionListItem miniMissionListItem2 = array2[j];
-			bool flag2 = true;
-			if (PersistentMissionData.missionDictionary.ContainsKey(miniMissionListItem2.GetMissionID()))
+			MiniMissionListItem miniMissionListItem1 = miniMissionListItemArray[j];
+			bool flag1 = true;
+			if (PersistentMissionData.missionDictionary.ContainsKey(miniMissionListItem1.GetMissionID()) && ((JamGarrisonMobileMission)PersistentMissionData.missionDictionary[miniMissionListItem1.GetMissionID()]).MissionState != 0)
 			{
-				JamGarrisonMobileMission jamGarrisonMobileMission2 = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary.get_Item(miniMissionListItem2.GetMissionID());
-				if (jamGarrisonMobileMission2.MissionState != 0)
-				{
-					flag2 = false;
-				}
+				flag1 = false;
 			}
-			if (flag2)
+			if (flag1)
 			{
-				Object.DestroyImmediate(miniMissionListItem2.get_gameObject());
+				UnityEngine.Object.DestroyImmediate(miniMissionListItem1.gameObject);
 			}
 		}
-		MiniMissionListItem[] componentsInChildren2 = this.m_availableMission_listContents.GetComponentsInChildren<MiniMissionListItem>(true);
-		MiniMissionListItem[] componentsInChildren3 = this.m_inProgressMission_listContents.GetComponentsInChildren<MiniMissionListItem>(true);
-		IEnumerator enumerator = PersistentMissionData.missionDictionary.get_Values().GetEnumerator();
+		MiniMissionListItem[] componentsInChildren1 = this.m_availableMission_listContents.GetComponentsInChildren<MiniMissionListItem>(true);
+		MiniMissionListItem[] miniMissionListItemArray1 = this.m_inProgressMission_listContents.GetComponentsInChildren<MiniMissionListItem>(true);
+		IEnumerator enumerator = PersistentMissionData.missionDictionary.Values.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				JamGarrisonMobileMission jamGarrisonMobileMission3 = (JamGarrisonMobileMission)enumerator.get_Current();
-				bool flag3 = false;
-				MiniMissionListItem[] array3 = componentsInChildren2;
-				for (int k = 0; k < array3.Length; k++)
+				JamGarrisonMobileMission current = (JamGarrisonMobileMission)enumerator.Current;
+				bool flag2 = false;
+				MiniMissionListItem[] miniMissionListItemArray2 = componentsInChildren1;
+				int num = 0;
+				while (num < (int)miniMissionListItemArray2.Length)
 				{
-					MiniMissionListItem miniMissionListItem3 = array3[k];
-					if (miniMissionListItem3.GetMissionID() == jamGarrisonMobileMission3.MissionRecID)
+					if (miniMissionListItemArray2[num].GetMissionID() != current.MissionRecID)
 					{
-						flag3 = true;
+						num++;
+					}
+					else
+					{
+						flag2 = true;
 						break;
 					}
 				}
-				if (!flag3)
+				if (!flag2)
 				{
-					MiniMissionListItem[] array4 = componentsInChildren3;
-					for (int l = 0; l < array4.Length; l++)
+					MiniMissionListItem[] miniMissionListItemArray3 = miniMissionListItemArray1;
+					int num1 = 0;
+					while (num1 < (int)miniMissionListItemArray3.Length)
 					{
-						MiniMissionListItem miniMissionListItem4 = array4[l];
-						if (miniMissionListItem4.GetMissionID() == jamGarrisonMobileMission3.MissionRecID)
+						if (miniMissionListItemArray3[num1].GetMissionID() != current.MissionRecID)
 						{
-							flag3 = true;
+							num1++;
+						}
+						else
+						{
+							flag2 = true;
 							break;
 						}
 					}
 				}
-				if (!flag3)
+				if (!flag2)
 				{
-					GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(jamGarrisonMobileMission3.MissionRecID);
+					GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(current.MissionRecID);
 					if (record == null)
 					{
-						Debug.LogWarning("Mission Not Found: ID " + jamGarrisonMobileMission3.MissionRecID);
+						Debug.LogWarning(string.Concat("Mission Not Found: ID ", current.MissionRecID));
 					}
-					else if (record.GarrFollowerTypeID == 4u)
+					else if (record.GarrFollowerTypeID == 4)
 					{
-						if ((record.Flags & 16u) != 0u)
+						if ((record.Flags & 16) == 0)
 						{
-							this.m_combatAllyListItem.get_gameObject().SetActive(true);
-						}
-						else
-						{
-							GameObject gameObject = Object.Instantiate<GameObject>(this.m_miniMissionListItemPrefab);
-							if (jamGarrisonMobileMission3.MissionState == 0)
+							GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_miniMissionListItemPrefab);
+							if (current.MissionState != 0)
 							{
-								gameObject.get_transform().SetParent(this.m_availableMission_listContents.get_transform(), false);
+								gameObject.transform.SetParent(this.m_inProgressMission_listContents.transform, false);
+								this.ShowMissionStartedAnim();
 							}
 							else
 							{
-								gameObject.get_transform().SetParent(this.m_inProgressMission_listContents.get_transform(), false);
-								this.ShowMissionStartedAnim();
+								gameObject.transform.SetParent(this.m_availableMission_listContents.transform, false);
 							}
-							MiniMissionListItem component = gameObject.GetComponent<MiniMissionListItem>();
-							component.SetMission(jamGarrisonMobileMission3);
+							gameObject.GetComponent<MiniMissionListItem>().SetMission(current);
+						}
+						else
+						{
+							this.m_combatAllyListItem.gameObject.SetActive(true);
 						}
 					}
 				}
@@ -206,19 +177,49 @@ public class MiniMissionListPanel : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable != null)
+			if (disposable == null)
 			{
-				disposable.Dispose();
 			}
+			disposable.Dispose();
 		}
-		componentsInChildren2 = this.m_availableMission_listContents.GetComponentsInChildren<MiniMissionListItem>(true);
-		componentsInChildren3 = this.m_inProgressMission_listContents.GetComponentsInChildren<MiniMissionListItem>(true);
-		int num = componentsInChildren2.Length;
-		int num2 = componentsInChildren3.Length;
-		this.m_availableMissionsTabLabel.set_text(StaticDB.GetString("AVAILABLE", null) + " - " + num);
-		this.m_inProgressMissionsTabLabel.set_text(StaticDB.GetString("IN_PROGRESS", null) + " - " + num2);
-		this.m_noMissionsAvailableLabel.get_gameObject().SetActive(num == 0);
-		this.m_noMissionsInProgressLabel.get_gameObject().SetActive(num2 == 0);
+		componentsInChildren1 = this.m_availableMission_listContents.GetComponentsInChildren<MiniMissionListItem>(true);
+		miniMissionListItemArray1 = this.m_inProgressMission_listContents.GetComponentsInChildren<MiniMissionListItem>(true);
+		int length = (int)componentsInChildren1.Length;
+		int length1 = (int)miniMissionListItemArray1.Length;
+		this.m_availableMissionsTabLabel.text = string.Concat(StaticDB.GetString("AVAILABLE", null), " - ", length);
+		this.m_inProgressMissionsTabLabel.text = string.Concat(StaticDB.GetString("IN_PROGRESS", null), " - ", length1);
+		this.m_noMissionsAvailableLabel.gameObject.SetActive(length == 0);
+		this.m_noMissionsInProgressLabel.gameObject.SetActive(length1 == 0);
+	}
+
+	private void OnDisable()
+	{
+		Main.instance.GarrisonDataResetFinishedAction -= new Action(this.HandleGarrisonDataResetFinished);
+		Main.instance.MissionAddedAction -= new Action<int, int>(this.HandleMissionAdded);
+	}
+
+	public void OnEnable()
+	{
+		Main.instance.GarrisonDataResetFinishedAction += new Action(this.HandleGarrisonDataResetFinished);
+		Main.instance.MissionAddedAction += new Action<int, int>(this.HandleMissionAdded);
+		this.InitMissionList();
+		this.ShowAvailableMissionList();
+	}
+
+	public void ShowAvailableMissionList()
+	{
+		this.m_availableMissionListScrollView.SetActive(true);
+		this.m_inProgressMissionListScrollView.SetActive(false);
+		this.m_availableMissionsTabSelectedImage.gameObject.SetActive(true);
+		this.m_inProgressMissionsTabSelectedImage.gameObject.SetActive(false);
+	}
+
+	public void ShowInProgressMissionList()
+	{
+		this.m_availableMissionListScrollView.SetActive(false);
+		this.m_inProgressMissionListScrollView.SetActive(true);
+		this.m_availableMissionsTabSelectedImage.gameObject.SetActive(false);
+		this.m_inProgressMissionsTabSelectedImage.gameObject.SetActive(true);
 	}
 
 	private void ShowMissionStartedAnim()
@@ -227,9 +228,9 @@ public class MiniMissionListPanel : MonoBehaviour
 		{
 			return;
 		}
-		this.m_currentMissionStartedEffectObj = Object.Instantiate<GameObject>(this.m_missionStartedEffectObjPrefab);
-		this.m_currentMissionStartedEffectObj.get_transform().SetParent(this.m_inProgressMissionsTabButton.get_transform(), false);
-		this.m_currentMissionStartedEffectObj.get_transform().set_localPosition(Vector3.get_zero());
+		this.m_currentMissionStartedEffectObj = UnityEngine.Object.Instantiate<GameObject>(this.m_missionStartedEffectObjPrefab);
+		this.m_currentMissionStartedEffectObj.transform.SetParent(this.m_inProgressMissionsTabButton.transform, false);
+		this.m_currentMissionStartedEffectObj.transform.localPosition = Vector3.zero;
 	}
 
 	private void Update()

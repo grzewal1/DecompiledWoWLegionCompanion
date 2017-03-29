@@ -2,6 +2,7 @@ using bnet.protocol.attribute;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace bnet.protocol
@@ -24,12 +25,76 @@ namespace bnet.protocol
 
 		private uint _RelegationRole;
 
-		private List<Attribute> _Attribute = new List<Attribute>();
+		private List<bnet.protocol.attribute.Attribute> _Attribute = new List<bnet.protocol.attribute.Attribute>();
+
+		public List<uint> AssignableRole
+		{
+			get
+			{
+				return this._AssignableRole;
+			}
+			set
+			{
+				this._AssignableRole = value;
+			}
+		}
+
+		public int AssignableRoleCount
+		{
+			get
+			{
+				return this._AssignableRole.Count;
+			}
+		}
+
+		public List<uint> AssignableRoleList
+		{
+			get
+			{
+				return this._AssignableRole;
+			}
+		}
+
+		public List<bnet.protocol.attribute.Attribute> Attribute
+		{
+			get
+			{
+				return this._Attribute;
+			}
+			set
+			{
+				this._Attribute = value;
+			}
+		}
+
+		public int AttributeCount
+		{
+			get
+			{
+				return this._Attribute.Count;
+			}
+		}
+
+		public List<bnet.protocol.attribute.Attribute> AttributeList
+		{
+			get
+			{
+				return this._Attribute;
+			}
+		}
 
 		public uint Id
 		{
 			get;
 			set;
+		}
+
+		public bool IsInitialized
+		{
+			get
+			{
+				return true;
+			}
 		}
 
 		public string Name
@@ -50,6 +115,14 @@ namespace bnet.protocol
 			}
 		}
 
+		public int PrivilegeCount
+		{
+			get
+			{
+				return this._Privilege.Count;
+			}
+		}
+
 		public List<string> PrivilegeList
 		{
 			get
@@ -58,39 +131,16 @@ namespace bnet.protocol
 			}
 		}
 
-		public int PrivilegeCount
+		public uint RelegationRole
 		{
 			get
 			{
-				return this._Privilege.get_Count();
-			}
-		}
-
-		public List<uint> AssignableRole
-		{
-			get
-			{
-				return this._AssignableRole;
+				return this._RelegationRole;
 			}
 			set
 			{
-				this._AssignableRole = value;
-			}
-		}
-
-		public List<uint> AssignableRoleList
-		{
-			get
-			{
-				return this._AssignableRole;
-			}
-		}
-
-		public int AssignableRoleCount
-		{
-			get
-			{
-				return this._AssignableRole.get_Count();
+				this._RelegationRole = value;
+				this.HasRelegationRole = true;
 			}
 		}
 
@@ -120,53 +170,38 @@ namespace bnet.protocol
 			}
 		}
 
-		public uint RelegationRole
+		public Role()
 		{
-			get
-			{
-				return this._RelegationRole;
-			}
-			set
-			{
-				this._RelegationRole = value;
-				this.HasRelegationRole = true;
-			}
 		}
 
-		public List<Attribute> Attribute
+		public void AddAssignableRole(uint val)
 		{
-			get
-			{
-				return this._Attribute;
-			}
-			set
-			{
-				this._Attribute = value;
-			}
+			this._AssignableRole.Add(val);
 		}
 
-		public List<Attribute> AttributeList
+		public void AddAttribute(bnet.protocol.attribute.Attribute val)
 		{
-			get
-			{
-				return this._Attribute;
-			}
+			this._Attribute.Add(val);
 		}
 
-		public int AttributeCount
+		public void AddPrivilege(string val)
 		{
-			get
-			{
-				return this._Attribute.get_Count();
-			}
+			this._Privilege.Add(val);
 		}
 
-		public bool IsInitialized
+		public void ClearAssignableRole()
 		{
-			get
-			{
-				return true;
-			}
+			this._AssignableRole.Clear();
+		}
+
+		public void ClearAttribute()
+		{
+			this._Attribute.Clear();
+		}
+
+		public void ClearPrivilege()
+		{
+			this._Privilege.Clear();
 		}
 
 		public void Deserialize(Stream stream)
@@ -176,21 +211,7 @@ namespace bnet.protocol
 
 		public static Role Deserialize(Stream stream, Role instance)
 		{
-			return Role.Deserialize(stream, instance, -1L);
-		}
-
-		public static Role DeserializeLengthDelimited(Stream stream)
-		{
-			Role role = new Role();
-			Role.DeserializeLengthDelimited(stream, role);
-			return role;
-		}
-
-		public static Role DeserializeLengthDelimited(Stream stream, Role instance)
-		{
-			long num = (long)((ulong)ProtocolParser.ReadUInt32(stream));
-			num += stream.get_Position();
-			return Role.Deserialize(stream, instance, num);
+			return Role.Deserialize(stream, instance, (long)-1);
 		}
 
 		public static Role Deserialize(Stream stream, Role instance, long limit)
@@ -207,359 +228,100 @@ namespace bnet.protocol
 			instance.Unique = false;
 			if (instance.Attribute == null)
 			{
-				instance.Attribute = new List<Attribute>();
+				instance.Attribute = new List<bnet.protocol.attribute.Attribute>();
 			}
-			while (limit < 0L || stream.get_Position() < limit)
+			while (true)
 			{
-				int num = stream.ReadByte();
-				if (num == -1)
+				if (limit < (long)0 || stream.Position < limit)
 				{
-					if (limit >= 0L)
+					int num = stream.ReadByte();
+					if (num != -1)
 					{
-						throw new EndOfStreamException();
-					}
-					return instance;
-				}
-				else
-				{
-					int num2 = num;
-					if (num2 != 8)
-					{
-						if (num2 != 18)
+						int num1 = num;
+						if (num1 == 8)
 						{
-							if (num2 != 26)
+							instance.Id = ProtocolParser.ReadUInt32(stream);
+						}
+						else if (num1 == 18)
+						{
+							instance.Name = ProtocolParser.ReadString(stream);
+						}
+						else if (num1 == 26)
+						{
+							instance.Privilege.Add(ProtocolParser.ReadString(stream));
+						}
+						else if (num1 == 34)
+						{
+							long position = (long)ProtocolParser.ReadUInt32(stream);
+							position = position + stream.Position;
+							while (stream.Position < position)
 							{
-								if (num2 != 34)
-								{
-									if (num2 != 40)
-									{
-										if (num2 != 48)
-										{
-											if (num2 != 56)
-											{
-												if (num2 != 66)
-												{
-													Key key = ProtocolParser.ReadKey((byte)num, stream);
-													uint field = key.Field;
-													if (field == 0u)
-													{
-														throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-													}
-													ProtocolParser.SkipKey(stream, key);
-												}
-												else
-												{
-													instance.Attribute.Add(bnet.protocol.attribute.Attribute.DeserializeLengthDelimited(stream));
-												}
-											}
-											else
-											{
-												instance.RelegationRole = ProtocolParser.ReadUInt32(stream);
-											}
-										}
-										else
-										{
-											instance.Unique = ProtocolParser.ReadBool(stream);
-										}
-									}
-									else
-									{
-										instance.Required = ProtocolParser.ReadBool(stream);
-									}
-								}
-								else
-								{
-									long num3 = (long)((ulong)ProtocolParser.ReadUInt32(stream));
-									num3 += stream.get_Position();
-									while (stream.get_Position() < num3)
-									{
-										instance.AssignableRole.Add(ProtocolParser.ReadUInt32(stream));
-									}
-									if (stream.get_Position() != num3)
-									{
-										throw new ProtocolBufferException("Read too many bytes in packed data");
-									}
-								}
+								instance.AssignableRole.Add(ProtocolParser.ReadUInt32(stream));
 							}
-							else
+							if (stream.Position != position)
 							{
-								instance.Privilege.Add(ProtocolParser.ReadString(stream));
+								throw new ProtocolBufferException("Read too many bytes in packed data");
 							}
+						}
+						else if (num1 == 40)
+						{
+							instance.Required = ProtocolParser.ReadBool(stream);
+						}
+						else if (num1 == 48)
+						{
+							instance.Unique = ProtocolParser.ReadBool(stream);
+						}
+						else if (num1 == 56)
+						{
+							instance.RelegationRole = ProtocolParser.ReadUInt32(stream);
+						}
+						else if (num1 == 66)
+						{
+							instance.Attribute.Add(bnet.protocol.attribute.Attribute.DeserializeLengthDelimited(stream));
 						}
 						else
 						{
-							instance.Name = ProtocolParser.ReadString(stream);
+							Key key = ProtocolParser.ReadKey((byte)num, stream);
+							if (key.Field == 0)
+							{
+								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+							}
+							ProtocolParser.SkipKey(stream, key);
 						}
 					}
 					else
 					{
-						instance.Id = ProtocolParser.ReadUInt32(stream);
+						if (limit >= (long)0)
+						{
+							throw new EndOfStreamException();
+						}
+						break;
 					}
 				}
-			}
-			if (stream.get_Position() == limit)
-			{
-				return instance;
-			}
-			throw new ProtocolBufferException("Read past max limit");
-		}
-
-		public void Serialize(Stream stream)
-		{
-			Role.Serialize(stream, this);
-		}
-
-		public static void Serialize(Stream stream, Role instance)
-		{
-			stream.WriteByte(8);
-			ProtocolParser.WriteUInt32(stream, instance.Id);
-			if (instance.Name == null)
-			{
-				throw new ArgumentNullException("Name", "Required by proto specification.");
-			}
-			stream.WriteByte(18);
-			ProtocolParser.WriteBytes(stream, Encoding.get_UTF8().GetBytes(instance.Name));
-			if (instance.Privilege.get_Count() > 0)
-			{
-				using (List<string>.Enumerator enumerator = instance.Privilege.GetEnumerator())
+				else
 				{
-					while (enumerator.MoveNext())
+					if (stream.Position != limit)
 					{
-						string current = enumerator.get_Current();
-						stream.WriteByte(26);
-						ProtocolParser.WriteBytes(stream, Encoding.get_UTF8().GetBytes(current));
+						throw new ProtocolBufferException("Read past max limit");
 					}
+					break;
 				}
 			}
-			if (instance.AssignableRole.get_Count() > 0)
-			{
-				stream.WriteByte(34);
-				uint num = 0u;
-				using (List<uint>.Enumerator enumerator2 = instance.AssignableRole.GetEnumerator())
-				{
-					while (enumerator2.MoveNext())
-					{
-						uint current2 = enumerator2.get_Current();
-						num += ProtocolParser.SizeOfUInt32(current2);
-					}
-				}
-				ProtocolParser.WriteUInt32(stream, num);
-				using (List<uint>.Enumerator enumerator3 = instance.AssignableRole.GetEnumerator())
-				{
-					while (enumerator3.MoveNext())
-					{
-						uint current3 = enumerator3.get_Current();
-						ProtocolParser.WriteUInt32(stream, current3);
-					}
-				}
-			}
-			if (instance.HasRequired)
-			{
-				stream.WriteByte(40);
-				ProtocolParser.WriteBool(stream, instance.Required);
-			}
-			if (instance.HasUnique)
-			{
-				stream.WriteByte(48);
-				ProtocolParser.WriteBool(stream, instance.Unique);
-			}
-			if (instance.HasRelegationRole)
-			{
-				stream.WriteByte(56);
-				ProtocolParser.WriteUInt32(stream, instance.RelegationRole);
-			}
-			if (instance.Attribute.get_Count() > 0)
-			{
-				using (List<Attribute>.Enumerator enumerator4 = instance.Attribute.GetEnumerator())
-				{
-					while (enumerator4.MoveNext())
-					{
-						Attribute current4 = enumerator4.get_Current();
-						stream.WriteByte(66);
-						ProtocolParser.WriteUInt32(stream, current4.GetSerializedSize());
-						bnet.protocol.attribute.Attribute.Serialize(stream, current4);
-					}
-				}
-			}
+			return instance;
 		}
 
-		public uint GetSerializedSize()
+		public static Role DeserializeLengthDelimited(Stream stream)
 		{
-			uint num = 0u;
-			num += ProtocolParser.SizeOfUInt32(this.Id);
-			uint byteCount = (uint)Encoding.get_UTF8().GetByteCount(this.Name);
-			num += ProtocolParser.SizeOfUInt32(byteCount) + byteCount;
-			if (this.Privilege.get_Count() > 0)
-			{
-				using (List<string>.Enumerator enumerator = this.Privilege.GetEnumerator())
-				{
-					while (enumerator.MoveNext())
-					{
-						string current = enumerator.get_Current();
-						num += 1u;
-						uint byteCount2 = (uint)Encoding.get_UTF8().GetByteCount(current);
-						num += ProtocolParser.SizeOfUInt32(byteCount2) + byteCount2;
-					}
-				}
-			}
-			if (this.AssignableRole.get_Count() > 0)
-			{
-				num += 1u;
-				uint num2 = num;
-				using (List<uint>.Enumerator enumerator2 = this.AssignableRole.GetEnumerator())
-				{
-					while (enumerator2.MoveNext())
-					{
-						uint current2 = enumerator2.get_Current();
-						num += ProtocolParser.SizeOfUInt32(current2);
-					}
-				}
-				num += ProtocolParser.SizeOfUInt32(num - num2);
-			}
-			if (this.HasRequired)
-			{
-				num += 1u;
-				num += 1u;
-			}
-			if (this.HasUnique)
-			{
-				num += 1u;
-				num += 1u;
-			}
-			if (this.HasRelegationRole)
-			{
-				num += 1u;
-				num += ProtocolParser.SizeOfUInt32(this.RelegationRole);
-			}
-			if (this.Attribute.get_Count() > 0)
-			{
-				using (List<Attribute>.Enumerator enumerator3 = this.Attribute.GetEnumerator())
-				{
-					while (enumerator3.MoveNext())
-					{
-						Attribute current3 = enumerator3.get_Current();
-						num += 1u;
-						uint serializedSize = current3.GetSerializedSize();
-						num += serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
-					}
-				}
-			}
-			num += 2u;
-			return num;
+			Role role = new Role();
+			Role.DeserializeLengthDelimited(stream, role);
+			return role;
 		}
 
-		public void SetId(uint val)
+		public static Role DeserializeLengthDelimited(Stream stream, Role instance)
 		{
-			this.Id = val;
-		}
-
-		public void SetName(string val)
-		{
-			this.Name = val;
-		}
-
-		public void AddPrivilege(string val)
-		{
-			this._Privilege.Add(val);
-		}
-
-		public void ClearPrivilege()
-		{
-			this._Privilege.Clear();
-		}
-
-		public void SetPrivilege(List<string> val)
-		{
-			this.Privilege = val;
-		}
-
-		public void AddAssignableRole(uint val)
-		{
-			this._AssignableRole.Add(val);
-		}
-
-		public void ClearAssignableRole()
-		{
-			this._AssignableRole.Clear();
-		}
-
-		public void SetAssignableRole(List<uint> val)
-		{
-			this.AssignableRole = val;
-		}
-
-		public void SetRequired(bool val)
-		{
-			this.Required = val;
-		}
-
-		public void SetUnique(bool val)
-		{
-			this.Unique = val;
-		}
-
-		public void SetRelegationRole(uint val)
-		{
-			this.RelegationRole = val;
-		}
-
-		public void AddAttribute(Attribute val)
-		{
-			this._Attribute.Add(val);
-		}
-
-		public void ClearAttribute()
-		{
-			this._Attribute.Clear();
-		}
-
-		public void SetAttribute(List<Attribute> val)
-		{
-			this.Attribute = val;
-		}
-
-		public override int GetHashCode()
-		{
-			int num = base.GetType().GetHashCode();
-			num ^= this.Id.GetHashCode();
-			num ^= this.Name.GetHashCode();
-			using (List<string>.Enumerator enumerator = this.Privilege.GetEnumerator())
-			{
-				while (enumerator.MoveNext())
-				{
-					string current = enumerator.get_Current();
-					num ^= current.GetHashCode();
-				}
-			}
-			using (List<uint>.Enumerator enumerator2 = this.AssignableRole.GetEnumerator())
-			{
-				while (enumerator2.MoveNext())
-				{
-					uint current2 = enumerator2.get_Current();
-					num ^= current2.GetHashCode();
-				}
-			}
-			if (this.HasRequired)
-			{
-				num ^= this.Required.GetHashCode();
-			}
-			if (this.HasUnique)
-			{
-				num ^= this.Unique.GetHashCode();
-			}
-			if (this.HasRelegationRole)
-			{
-				num ^= this.RelegationRole.GetHashCode();
-			}
-			using (List<Attribute>.Enumerator enumerator3 = this.Attribute.GetEnumerator())
-			{
-				while (enumerator3.MoveNext())
-				{
-					Attribute current3 = enumerator3.get_Current();
-					num ^= current3.GetHashCode();
-				}
-			}
-			return num;
+			long position = (long)ProtocolParser.ReadUInt32(stream);
+			position = position + stream.Position;
+			return Role.Deserialize(stream, instance, position);
 		}
 
 		public override bool Equals(object obj)
@@ -577,47 +339,47 @@ namespace bnet.protocol
 			{
 				return false;
 			}
-			if (this.Privilege.get_Count() != role.Privilege.get_Count())
+			if (this.Privilege.Count != role.Privilege.Count)
 			{
 				return false;
 			}
-			for (int i = 0; i < this.Privilege.get_Count(); i++)
+			for (int i = 0; i < this.Privilege.Count; i++)
 			{
-				if (!this.Privilege.get_Item(i).Equals(role.Privilege.get_Item(i)))
+				if (!this.Privilege[i].Equals(role.Privilege[i]))
 				{
 					return false;
 				}
 			}
-			if (this.AssignableRole.get_Count() != role.AssignableRole.get_Count())
+			if (this.AssignableRole.Count != role.AssignableRole.Count)
 			{
 				return false;
 			}
-			for (int j = 0; j < this.AssignableRole.get_Count(); j++)
+			for (int j = 0; j < this.AssignableRole.Count; j++)
 			{
-				if (!this.AssignableRole.get_Item(j).Equals(role.AssignableRole.get_Item(j)))
+				if (!this.AssignableRole[j].Equals(role.AssignableRole[j]))
 				{
 					return false;
 				}
 			}
-			if (this.HasRequired != role.HasRequired || (this.HasRequired && !this.Required.Equals(role.Required)))
+			if (this.HasRequired != role.HasRequired || this.HasRequired && !this.Required.Equals(role.Required))
 			{
 				return false;
 			}
-			if (this.HasUnique != role.HasUnique || (this.HasUnique && !this.Unique.Equals(role.Unique)))
+			if (this.HasUnique != role.HasUnique || this.HasUnique && !this.Unique.Equals(role.Unique))
 			{
 				return false;
 			}
-			if (this.HasRelegationRole != role.HasRelegationRole || (this.HasRelegationRole && !this.RelegationRole.Equals(role.RelegationRole)))
+			if (this.HasRelegationRole != role.HasRelegationRole || this.HasRelegationRole && !this.RelegationRole.Equals(role.RelegationRole))
 			{
 				return false;
 			}
-			if (this.Attribute.get_Count() != role.Attribute.get_Count())
+			if (this.Attribute.Count != role.Attribute.Count)
 			{
 				return false;
 			}
-			for (int k = 0; k < this.Attribute.get_Count(); k++)
+			for (int k = 0; k < this.Attribute.Count; k++)
 			{
-				if (!this.Attribute.get_Item(k).Equals(role.Attribute.get_Item(k)))
+				if (!this.Attribute[k].Equals(role.Attribute[k]))
 				{
 					return false;
 				}
@@ -625,9 +387,197 @@ namespace bnet.protocol
 			return true;
 		}
 
+		public override int GetHashCode()
+		{
+			int hashCode = this.GetType().GetHashCode();
+			hashCode = hashCode ^ this.Id.GetHashCode();
+			hashCode = hashCode ^ this.Name.GetHashCode();
+			foreach (string privilege in this.Privilege)
+			{
+				hashCode = hashCode ^ privilege.GetHashCode();
+			}
+			foreach (uint assignableRole in this.AssignableRole)
+			{
+				hashCode = hashCode ^ assignableRole.GetHashCode();
+			}
+			if (this.HasRequired)
+			{
+				hashCode = hashCode ^ this.Required.GetHashCode();
+			}
+			if (this.HasUnique)
+			{
+				hashCode = hashCode ^ this.Unique.GetHashCode();
+			}
+			if (this.HasRelegationRole)
+			{
+				hashCode = hashCode ^ this.RelegationRole.GetHashCode();
+			}
+			foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)
+			{
+				hashCode = hashCode ^ attribute.GetHashCode();
+			}
+			return hashCode;
+		}
+
+		public uint GetSerializedSize()
+		{
+			uint num = 0;
+			num = num + ProtocolParser.SizeOfUInt32(this.Id);
+			uint byteCount = (uint)Encoding.UTF8.GetByteCount(this.Name);
+			num = num + ProtocolParser.SizeOfUInt32(byteCount) + byteCount;
+			if (this.Privilege.Count > 0)
+			{
+				foreach (string privilege in this.Privilege)
+				{
+					num++;
+					uint byteCount1 = (uint)Encoding.UTF8.GetByteCount(privilege);
+					num = num + ProtocolParser.SizeOfUInt32(byteCount1) + byteCount1;
+				}
+			}
+			if (this.AssignableRole.Count > 0)
+			{
+				num++;
+				uint num1 = num;
+				foreach (uint assignableRole in this.AssignableRole)
+				{
+					num = num + ProtocolParser.SizeOfUInt32(assignableRole);
+				}
+				num = num + ProtocolParser.SizeOfUInt32(num - num1);
+			}
+			if (this.HasRequired)
+			{
+				num++;
+				num++;
+			}
+			if (this.HasUnique)
+			{
+				num++;
+				num++;
+			}
+			if (this.HasRelegationRole)
+			{
+				num++;
+				num = num + ProtocolParser.SizeOfUInt32(this.RelegationRole);
+			}
+			if (this.Attribute.Count > 0)
+			{
+				foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)
+				{
+					num++;
+					uint serializedSize = attribute.GetSerializedSize();
+					num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
+				}
+			}
+			num = num + 2;
+			return num;
+		}
+
 		public static Role ParseFrom(byte[] bs)
 		{
 			return ProtobufUtil.ParseFrom<Role>(bs, 0, -1);
+		}
+
+		public void Serialize(Stream stream)
+		{
+			Role.Serialize(stream, this);
+		}
+
+		public static void Serialize(Stream stream, Role instance)
+		{
+			stream.WriteByte(8);
+			ProtocolParser.WriteUInt32(stream, instance.Id);
+			if (instance.Name == null)
+			{
+				throw new ArgumentNullException("Name", "Required by proto specification.");
+			}
+			stream.WriteByte(18);
+			ProtocolParser.WriteBytes(stream, Encoding.UTF8.GetBytes(instance.Name));
+			if (instance.Privilege.Count > 0)
+			{
+				foreach (string privilege in instance.Privilege)
+				{
+					stream.WriteByte(26);
+					ProtocolParser.WriteBytes(stream, Encoding.UTF8.GetBytes(privilege));
+				}
+			}
+			if (instance.AssignableRole.Count > 0)
+			{
+				stream.WriteByte(34);
+				uint num = 0;
+				foreach (uint assignableRole in instance.AssignableRole)
+				{
+					num = num + ProtocolParser.SizeOfUInt32(assignableRole);
+				}
+				ProtocolParser.WriteUInt32(stream, num);
+				foreach (uint assignableRole1 in instance.AssignableRole)
+				{
+					ProtocolParser.WriteUInt32(stream, assignableRole1);
+				}
+			}
+			if (instance.HasRequired)
+			{
+				stream.WriteByte(40);
+				ProtocolParser.WriteBool(stream, instance.Required);
+			}
+			if (instance.HasUnique)
+			{
+				stream.WriteByte(48);
+				ProtocolParser.WriteBool(stream, instance.Unique);
+			}
+			if (instance.HasRelegationRole)
+			{
+				stream.WriteByte(56);
+				ProtocolParser.WriteUInt32(stream, instance.RelegationRole);
+			}
+			if (instance.Attribute.Count > 0)
+			{
+				foreach (bnet.protocol.attribute.Attribute attribute in instance.Attribute)
+				{
+					stream.WriteByte(66);
+					ProtocolParser.WriteUInt32(stream, attribute.GetSerializedSize());
+					bnet.protocol.attribute.Attribute.Serialize(stream, attribute);
+				}
+			}
+		}
+
+		public void SetAssignableRole(List<uint> val)
+		{
+			this.AssignableRole = val;
+		}
+
+		public void SetAttribute(List<bnet.protocol.attribute.Attribute> val)
+		{
+			this.Attribute = val;
+		}
+
+		public void SetId(uint val)
+		{
+			this.Id = val;
+		}
+
+		public void SetName(string val)
+		{
+			this.Name = val;
+		}
+
+		public void SetPrivilege(List<string> val)
+		{
+			this.Privilege = val;
+		}
+
+		public void SetRelegationRole(uint val)
+		{
+			this.RelegationRole = val;
+		}
+
+		public void SetRequired(bool val)
+		{
+			this.Required = val;
+		}
+
+		public void SetUnique(bool val)
+		{
+			this.Unique = val;
 		}
 	}
 }

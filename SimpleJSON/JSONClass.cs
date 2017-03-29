@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace SimpleJSON
 {
@@ -11,25 +14,42 @@ namespace SimpleJSON
 	{
 		private Dictionary<string, JSONNode> m_Dict = new Dictionary<string, JSONNode>();
 
+		public override IEnumerable<JSONNode> Childs
+		{
+			get
+			{
+				JSONClass.<>c__Iterator11 variable = null;
+				return variable;
+			}
+		}
+
+		public override int Count
+		{
+			get
+			{
+				return this.m_Dict.Count;
+			}
+		}
+
 		public override JSONNode this[string aKey]
 		{
 			get
 			{
-				if (this.m_Dict.ContainsKey(aKey))
+				if (!this.m_Dict.ContainsKey(aKey))
 				{
-					return this.m_Dict.get_Item(aKey);
+					return new JSONLazyCreator(this, aKey);
 				}
-				return new JSONLazyCreator(this, aKey);
+				return this.m_Dict[aKey];
 			}
 			set
 			{
-				if (this.m_Dict.ContainsKey(aKey))
+				if (!this.m_Dict.ContainsKey(aKey))
 				{
-					this.m_Dict.set_Item(aKey, value);
+					this.m_Dict.Add(aKey, value);
 				}
 				else
 				{
-					this.m_Dict.Add(aKey, value);
+					this.m_Dict[aKey] = value;
 				}
 			}
 		}
@@ -38,68 +58,48 @@ namespace SimpleJSON
 		{
 			get
 			{
-				if (aIndex < 0 || aIndex >= this.m_Dict.get_Count())
+				if (aIndex < 0 || aIndex >= this.m_Dict.Count)
 				{
 					return null;
 				}
-				return Enumerable.ElementAt<KeyValuePair<string, JSONNode>>(this.m_Dict, aIndex).get_Value();
+				return this.m_Dict.ElementAt<KeyValuePair<string, JSONNode>>(aIndex).Value;
 			}
 			set
 			{
-				if (aIndex < 0 || aIndex >= this.m_Dict.get_Count())
+				if (aIndex < 0 || aIndex >= this.m_Dict.Count)
 				{
 					return;
 				}
-				string key = Enumerable.ElementAt<KeyValuePair<string, JSONNode>>(this.m_Dict, aIndex).get_Key();
-				this.m_Dict.set_Item(key, value);
+				string key = this.m_Dict.ElementAt<KeyValuePair<string, JSONNode>>(aIndex).Key;
+				this.m_Dict[key] = value;
 			}
 		}
 
-		public override int Count
+		public JSONClass()
 		{
-			get
-			{
-				return this.m_Dict.get_Count();
-			}
-		}
-
-		public override IEnumerable<JSONNode> Childs
-		{
-			get
-			{
-				Dictionary<string, JSONNode>.Enumerator enumerator = this.m_Dict.GetEnumerator();
-				try
-				{
-					while (enumerator.MoveNext())
-					{
-						KeyValuePair<string, JSONNode> current = enumerator.get_Current();
-						yield return current.get_Value();
-					}
-				}
-				finally
-				{
-				}
-				yield break;
-			}
 		}
 
 		public override void Add(string aKey, JSONNode aItem)
 		{
-			if (!string.IsNullOrEmpty(aKey))
-			{
-				if (this.m_Dict.ContainsKey(aKey))
-				{
-					this.m_Dict.set_Item(aKey, aItem);
-				}
-				else
-				{
-					this.m_Dict.Add(aKey, aItem);
-				}
-			}
-			else
+			if (string.IsNullOrEmpty(aKey))
 			{
 				this.m_Dict.Add(Guid.NewGuid().ToString(), aItem);
 			}
+			else if (!this.m_Dict.ContainsKey(aKey))
+			{
+				this.m_Dict.Add(aKey, aItem);
+			}
+			else
+			{
+				this.m_Dict[aKey] = aItem;
+			}
+		}
+
+		[DebuggerHidden]
+		public IEnumerator GetEnumerator()
+		{
+			JSONClass.<GetEnumerator>c__Iterator12 variable = null;
+			return variable;
 		}
 
 		public override JSONNode Remove(string aKey)
@@ -108,124 +108,83 @@ namespace SimpleJSON
 			{
 				return null;
 			}
-			JSONNode result = this.m_Dict.get_Item(aKey);
+			JSONNode item = this.m_Dict[aKey];
 			this.m_Dict.Remove(aKey);
-			return result;
+			return item;
 		}
 
 		public override JSONNode Remove(int aIndex)
 		{
-			if (aIndex < 0 || aIndex >= this.m_Dict.get_Count())
+			if (aIndex < 0 || aIndex >= this.m_Dict.Count)
 			{
 				return null;
 			}
-			KeyValuePair<string, JSONNode> keyValuePair = Enumerable.ElementAt<KeyValuePair<string, JSONNode>>(this.m_Dict, aIndex);
-			this.m_Dict.Remove(keyValuePair.get_Key());
-			return keyValuePair.get_Value();
+			KeyValuePair<string, JSONNode> keyValuePair = this.m_Dict.ElementAt<KeyValuePair<string, JSONNode>>(aIndex);
+			this.m_Dict.Remove(keyValuePair.Key);
+			return keyValuePair.Value;
 		}
 
 		public override JSONNode Remove(JSONNode aNode)
 		{
-			JSONNode result;
+			JSONNode jSONNode;
 			try
 			{
-				KeyValuePair<string, JSONNode> keyValuePair = Enumerable.First<KeyValuePair<string, JSONNode>>(Enumerable.Where<KeyValuePair<string, JSONNode>>(this.m_Dict, (KeyValuePair<string, JSONNode> k) => k.get_Value() == aNode));
-				this.m_Dict.Remove(keyValuePair.get_Key());
-				result = aNode;
+				KeyValuePair<string, JSONNode> keyValuePair = (
+					from k in this.m_Dict
+					where k.Value == aNode
+					select k).First<KeyValuePair<string, JSONNode>>();
+				this.m_Dict.Remove(keyValuePair.Key);
+				jSONNode = aNode;
 			}
 			catch
 			{
-				result = null;
+				jSONNode = null;
 			}
-			return result;
-		}
-
-		[DebuggerHidden]
-		public IEnumerator GetEnumerator()
-		{
-			Dictionary<string, JSONNode>.Enumerator enumerator = this.m_Dict.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					KeyValuePair<string, JSONNode> current = enumerator.get_Current();
-					yield return current;
-				}
-			}
-			finally
-			{
-			}
-			yield break;
-		}
-
-		public override string ToString()
-		{
-			string text = "{";
-			using (Dictionary<string, JSONNode>.Enumerator enumerator = this.m_Dict.GetEnumerator())
-			{
-				while (enumerator.MoveNext())
-				{
-					KeyValuePair<string, JSONNode> current = enumerator.get_Current();
-					if (text.get_Length() > 2)
-					{
-						text += ", ";
-					}
-					string text2 = text;
-					text = string.Concat(new string[]
-					{
-						text2,
-						"\"",
-						JSONNode.Escape(current.get_Key()),
-						"\":",
-						current.get_Value().ToString()
-					});
-				}
-			}
-			text += "}";
-			return text;
-		}
-
-		public override string ToString(string aPrefix)
-		{
-			string text = "{ ";
-			using (Dictionary<string, JSONNode>.Enumerator enumerator = this.m_Dict.GetEnumerator())
-			{
-				while (enumerator.MoveNext())
-				{
-					KeyValuePair<string, JSONNode> current = enumerator.get_Current();
-					if (text.get_Length() > 3)
-					{
-						text += ", ";
-					}
-					text = text + "\n" + aPrefix + "   ";
-					string text2 = text;
-					text = string.Concat(new string[]
-					{
-						text2,
-						"\"",
-						JSONNode.Escape(current.get_Key()),
-						"\" : ",
-						current.get_Value().ToString(aPrefix + "   ")
-					});
-				}
-			}
-			text = text + "\n" + aPrefix + "}";
-			return text;
+			return jSONNode;
 		}
 
 		public override void Serialize(BinaryWriter aWriter)
 		{
-			aWriter.Write(2);
-			aWriter.Write(this.m_Dict.get_Count());
-			using (Dictionary<string, JSONNode>.KeyCollection.Enumerator enumerator = this.m_Dict.get_Keys().GetEnumerator())
+			aWriter.Write((byte)2);
+			aWriter.Write(this.m_Dict.Count);
+			foreach (string key in this.m_Dict.Keys)
 			{
-				while (enumerator.MoveNext())
-				{
-					string current = enumerator.get_Current();
-					aWriter.Write(current);
-					this.m_Dict.get_Item(current).Serialize(aWriter);
-				}
+				aWriter.Write(key);
+				this.m_Dict[key].Serialize(aWriter);
 			}
+		}
+
+		public override string ToString()
+		{
+			string str = "{";
+			foreach (KeyValuePair<string, JSONNode> mDict in this.m_Dict)
+			{
+				if (str.Length > 2)
+				{
+					str = string.Concat(str, ", ");
+				}
+				string str1 = str;
+				str = string.Concat(new string[] { str1, "\"", JSONNode.Escape(mDict.Key), "\":", mDict.Value.ToString() });
+			}
+			str = string.Concat(str, "}");
+			return str;
+		}
+
+		public override string ToString(string aPrefix)
+		{
+			string str = "{ ";
+			foreach (KeyValuePair<string, JSONNode> mDict in this.m_Dict)
+			{
+				if (str.Length > 3)
+				{
+					str = string.Concat(str, ", ");
+				}
+				str = string.Concat(str, "\n", aPrefix, "   ");
+				string str1 = str;
+				str = string.Concat(new string[] { str1, "\"", JSONNode.Escape(mDict.Key), "\" : ", mDict.Value.ToString(string.Concat(aPrefix, "   ")) });
+			}
+			str = string.Concat(str, "\n", aPrefix, "}");
+			return str;
 		}
 	}
 }

@@ -8,73 +8,71 @@ namespace WowStaticData
 	{
 		private Hashtable m_records;
 
-		public GarrMissionTypeRec GetRecord(int id)
+		public GarrMissionTypeDB()
 		{
-			return (GarrMissionTypeRec)this.m_records.get_Item(id);
 		}
 
 		public void EnumRecords(Predicate<GarrMissionTypeRec> callback)
 		{
-			IEnumerator enumerator = this.m_records.get_Values().GetEnumerator();
+			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
 			try
 			{
 				while (enumerator.MoveNext())
 				{
-					GarrMissionTypeRec garrMissionTypeRec = (GarrMissionTypeRec)enumerator.get_Current();
-					if (!callback.Invoke(garrMissionTypeRec))
+					if (callback((GarrMissionTypeRec)enumerator.Current))
 					{
-						break;
+						continue;
 					}
+					break;
 				}
 			}
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
+				if (disposable == null)
 				{
-					disposable.Dispose();
 				}
+				disposable.Dispose();
 			}
+		}
+
+		public GarrMissionTypeRec GetRecord(int id)
+		{
+			return (GarrMissionTypeRec)this.m_records[id];
 		}
 
 		public bool Load(string path, AssetBundle nonLocalizedBundle, AssetBundle localizedBundle, string locale)
 		{
-			string text = string.Concat(new string[]
-			{
-				path,
-				locale,
-				"/GarrMissionType_",
-				locale,
-				".txt"
-			});
+			string str = string.Concat(new string[] { path, locale, "/GarrMissionType_", locale, ".txt" });
 			if (this.m_records != null)
 			{
-				Debug.Log("Already loaded static db " + text);
+				Debug.Log(string.Concat("Already loaded static db ", str));
 				return false;
 			}
-			TextAsset textAsset = localizedBundle.LoadAsset<TextAsset>(text);
+			TextAsset textAsset = localizedBundle.LoadAsset<TextAsset>(str);
 			if (textAsset == null)
 			{
-				Debug.Log("Unable to load static db " + text);
+				Debug.Log(string.Concat("Unable to load static db ", str));
 				return false;
 			}
-			string text2 = textAsset.ToString();
+			string str1 = textAsset.ToString();
 			this.m_records = new Hashtable();
 			int num = 0;
-			int num2;
+			int num1 = 0;
 			do
 			{
-				num2 = text2.IndexOf('\n', num);
-				if (num2 >= 0)
+				num = str1.IndexOf('\n', num1);
+				if (num < 0)
 				{
-					string valueLine = text2.Substring(num, num2 - num + 1).Trim();
-					GarrMissionTypeRec garrMissionTypeRec = new GarrMissionTypeRec();
-					garrMissionTypeRec.Deserialize(valueLine);
-					this.m_records.Add(garrMissionTypeRec.ID, garrMissionTypeRec);
-					num = num2 + 1;
+					continue;
 				}
+				string str2 = str1.Substring(num1, num - num1 + 1).Trim();
+				GarrMissionTypeRec garrMissionTypeRec = new GarrMissionTypeRec();
+				garrMissionTypeRec.Deserialize(str2);
+				this.m_records.Add(garrMissionTypeRec.ID, garrMissionTypeRec);
+				num1 = num + 1;
 			}
-			while (num2 > 0);
+			while (num > 0);
 			return true;
 		}
 	}

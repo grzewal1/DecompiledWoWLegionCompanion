@@ -16,31 +16,19 @@ public class FelGlowEffect : MonoBehaviour
 
 	private Color m_color;
 
+	public FelGlowEffect()
+	{
+	}
+
 	private void Awake()
 	{
-		iTween.ValueTo(base.get_gameObject(), iTween.Hash(new object[]
-		{
-			"name",
-			"Fel Glow Effect",
-			"from",
-			this.m_alphaMin,
-			"to",
-			this.m_alphaMax,
-			"easeType",
-			this.m_easeType,
-			"time",
-			this.m_duration,
-			"looptype",
-			iTween.LoopType.pingPong,
-			"onupdate",
-			"UpdateAlphaCallback"
-		}));
+		iTween.ValueTo(base.gameObject, iTween.Hash(new object[] { "name", "Fel Glow Effect", "from", this.m_alphaMin, "to", this.m_alphaMax, "easeType", this.m_easeType, "time", this.m_duration, "looptype", iTween.LoopType.pingPong, "onupdate", "UpdateAlphaCallback" }));
 	}
 
 	private void UpdateAlphaCallback(float alpha)
 	{
-		this.m_color = this.m_effectImage.get_color();
+		this.m_color = this.m_effectImage.color;
 		this.m_color.a = alpha;
-		this.m_effectImage.set_color(this.m_color);
+		this.m_effectImage.color = this.m_color;
 	}
 }

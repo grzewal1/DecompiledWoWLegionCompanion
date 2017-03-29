@@ -1,51 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace bgs
 {
 	public class SslClientConnection : IClientConnection<BattleNetPacket>
 	{
-		private enum ConnectionState
-		{
-			Disconnected = 0,
-			Connecting = 1,
-			ConnectionFailed = 2,
-			Connected = 3
-		}
-
-		private enum ConnectionEventTypes
-		{
-			OnConnected = 0,
-			OnDisconnected = 1,
-			OnPacketCompleted = 2
-		}
-
-		private class ConnectionEvent
-		{
-			public SslClientConnection.ConnectionEventTypes Type
-			{
-				get;
-				set;
-			}
-
-			public BattleNetErrors Error
-			{
-				get;
-				set;
-			}
-
-			public BattleNetPacket Packet
-			{
-				get;
-				set;
-			}
-		}
-
 		private const float BLOCKING_SEND_TIME_OUT = 1f;
 
-		private static int RECEIVE_BUFFER_SIZE = 262144;
+		private static int RECEIVE_BUFFER_SIZE;
 
-		private static int BACKING_BUFFER_SIZE = 262144;
+		private static int BACKING_BUFFER_SIZE;
 
 		private SslClientConnection.ConnectionState m_connectionState;
 
@@ -97,12 +63,96 @@ namespace bgs
 			set;
 		}
 
+		static SslClientConnection()
+		{
+			SslClientConnection.RECEIVE_BUFFER_SIZE = 262144;
+			SslClientConnection.BACKING_BUFFER_SIZE = 262144;
+		}
+
 		public SslClientConnection(SslCertBundleSettings bundleSettings)
 		{
 			this.m_connectionState = SslClientConnection.ConnectionState.Disconnected;
 			this.m_receiveBuffer = new byte[SslClientConnection.RECEIVE_BUFFER_SIZE];
 			this.m_backingBuffer = new byte[SslClientConnection.BACKING_BUFFER_SIZE];
 			this.m_bundleSettings = bundleSettings;
+		}
+
+		public bool AddConnectHandler(ConnectHandler handler)
+		{
+			if (this.m_connectHandlers.Contains(handler))
+			{
+				return false;
+			}
+			this.m_connectHandlers.Add(handler);
+			return true;
+		}
+
+		public bool AddDisconnectHandler(DisconnectHandler handler)
+		{
+			if (this.m_disconnectHandlers.Contains(handler))
+			{
+				return false;
+			}
+			this.m_disconnectHandlers.Add(handler);
+			return true;
+		}
+
+		public void AddListener(IClientConnectionListener<BattleNetPacket> listener, object state)
+		{
+			this.m_listeners.Add(listener);
+			this.m_listenerStates.Add(state);
+		}
+
+		private void BytesReceived(byte[] bytes, int nBytes, int offset)
+		{
+			while (nBytes > 0)
+			{
+				if (this.m_currentPacket == null)
+				{
+					this.m_currentPacket = new BattleNetPacket();
+				}
+				int num = this.m_currentPacket.Decode(bytes, offset, nBytes);
+				nBytes = nBytes - num;
+				offset = offset + num;
+				if (!this.m_currentPacket.IsLoaded())
+				{
+					Array.Copy(bytes, offset, this.m_backingBuffer, 0, nBytes);
+					this.m_backingBufferBytes = nBytes;
+					return;
+				}
+				SslClientConnection.ConnectionEvent connectionEvent = new SslClientConnection.ConnectionEvent()
+				{
+					Type = SslClientConnection.ConnectionEventTypes.OnPacketCompleted
+				};
+				lock (this.m_currentPacket)
+				{
+					this.m_connectionEvents.Add(connectionEvent);
+				}
+				this.m_currentPacket = null;
+			}
+			this.m_backingBufferBytes = 0;
+		}
+
+		private void BytesReceived(int nBytes)
+		{
+			if (this.m_backingBufferBytes <= 0)
+			{
+				this.BytesReceived(this.m_receiveBuffer, nBytes, 0);
+			}
+			else
+			{
+				int mBackingBufferBytes = this.m_backingBufferBytes + nBytes;
+				if (mBackingBufferBytes > (int)this.m_backingBuffer.Length)
+				{
+					int bACKINGBUFFERSIZE = (mBackingBufferBytes + SslClientConnection.BACKING_BUFFER_SIZE - 1) / SslClientConnection.BACKING_BUFFER_SIZE;
+					byte[] numArray = new byte[bACKINGBUFFERSIZE * SslClientConnection.BACKING_BUFFER_SIZE];
+					Array.Copy(this.m_backingBuffer, 0, numArray, 0, (int)this.m_backingBuffer.Length);
+					this.m_backingBuffer = numArray;
+				}
+				Array.Copy(this.m_receiveBuffer, 0, this.m_backingBuffer, this.m_backingBufferBytes, nBytes);
+				this.m_backingBufferBytes = 0;
+				this.BytesReceived(this.m_backingBuffer, mBackingBufferBytes, 0);
+			}
 		}
 
 		public void Connect(string host, int port)
@@ -116,220 +166,15 @@ namespace bgs
 			{
 				this.m_sslSocket.BeginConnect(host, port, this.m_bundleSettings, new SslSocket.BeginConnectDelegate(this.ConnectCallback));
 			}
-			catch (Exception ex)
+			catch (Exception exception1)
 			{
-				string text = this.m_hostAddress + ":" + this.m_hostPort;
-				LogAdapter.Log(LogLevel.Warning, "Could not connect to " + text + " -- " + ex.get_Message());
+				Exception exception = exception1;
+				string str = string.Concat(this.m_hostAddress, ":", this.m_hostPort);
+				LogAdapter.Log(LogLevel.Warning, string.Concat("Could not connect to ", str, " -- ", exception.Message));
 				this.m_connectionState = SslClientConnection.ConnectionState.ConnectionFailed;
 				this.TriggerOnConnectHandler(BattleNetErrors.ERROR_RPC_PEER_UNKNOWN);
 			}
 			this.m_bundleSettings = null;
-		}
-
-		public void Disconnect()
-		{
-			if (this.m_sslSocket != null)
-			{
-				this.m_sslSocket.Close();
-				this.m_sslSocket = null;
-			}
-			this.m_connectionState = SslClientConnection.ConnectionState.Disconnected;
-		}
-
-		public bool AddConnectHandler(ConnectHandler handler)
-		{
-			if (this.m_connectHandlers.Contains(handler))
-			{
-				return false;
-			}
-			this.m_connectHandlers.Add(handler);
-			return true;
-		}
-
-		public bool RemoveConnectHandler(ConnectHandler handler)
-		{
-			return this.m_connectHandlers.Remove(handler);
-		}
-
-		public bool AddDisconnectHandler(DisconnectHandler handler)
-		{
-			if (this.m_disconnectHandlers.Contains(handler))
-			{
-				return false;
-			}
-			this.m_disconnectHandlers.Add(handler);
-			return true;
-		}
-
-		public bool RemoveDisconnectHandler(DisconnectHandler handler)
-		{
-			return this.m_disconnectHandlers.Remove(handler);
-		}
-
-		private void SendBytes(byte[] bytes)
-		{
-			if (bytes.Length > 0)
-			{
-				bool block = this.BlockOnSend;
-				object blockLock = new object();
-				this.m_sslSocket.BeginSend(bytes, delegate(bool wasSent)
-				{
-					if (!wasSent)
-					{
-						this.TriggerOnDisconnectHandler(BattleNetErrors.ERROR_RPC_CONNECTION_TIMED_OUT);
-					}
-					object blockLock2 = blockLock;
-					lock (blockLock2)
-					{
-						block = false;
-					}
-				});
-				if (this.BlockOnSend)
-				{
-					float num = (float)BattleNet.GetRealTimeSinceStartup();
-					while ((float)BattleNet.GetRealTimeSinceStartup() - num < 1f)
-					{
-						object blockLock3 = blockLock;
-						lock (blockLock3)
-						{
-							if (!block)
-							{
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		public void SendPacket(BattleNetPacket packet)
-		{
-			byte[] bytes = packet.Encode();
-			this.SendBytes(bytes);
-		}
-
-		public void QueuePacket(BattleNetPacket packet)
-		{
-			this.m_outQueue.Enqueue(packet);
-		}
-
-		public void AddListener(IClientConnectionListener<BattleNetPacket> listener, object state)
-		{
-			this.m_listeners.Add(listener);
-			this.m_listenerStates.Add(state);
-		}
-
-		public void RemoveListener(IClientConnectionListener<BattleNetPacket> listener)
-		{
-			while (this.m_listeners.Remove(listener))
-			{
-			}
-		}
-
-		public void Update()
-		{
-			SslSocket.Process();
-			List<SslClientConnection.ConnectionEvent> connectionEvents = this.m_connectionEvents;
-			lock (connectionEvents)
-			{
-				using (List<SslClientConnection.ConnectionEvent>.Enumerator enumerator = this.m_connectionEvents.GetEnumerator())
-				{
-					while (enumerator.MoveNext())
-					{
-						SslClientConnection.ConnectionEvent current = enumerator.get_Current();
-						switch (current.Type)
-						{
-						case SslClientConnection.ConnectionEventTypes.OnConnected:
-						{
-							if (current.Error != BattleNetErrors.ERROR_OK)
-							{
-								this.Disconnect();
-								this.m_connectionState = SslClientConnection.ConnectionState.ConnectionFailed;
-							}
-							else
-							{
-								this.m_connectionState = SslClientConnection.ConnectionState.Connected;
-							}
-							ConnectHandler[] array = this.m_connectHandlers.ToArray();
-							for (int i = 0; i < array.Length; i++)
-							{
-								ConnectHandler connectHandler = array[i];
-								connectHandler(current.Error);
-							}
-							break;
-						}
-						case SslClientConnection.ConnectionEventTypes.OnDisconnected:
-						{
-							if (current.Error != BattleNetErrors.ERROR_OK)
-							{
-								this.Disconnect();
-							}
-							DisconnectHandler[] array2 = this.m_disconnectHandlers.ToArray();
-							for (int j = 0; j < array2.Length; j++)
-							{
-								DisconnectHandler disconnectHandler = array2[j];
-								disconnectHandler(current.Error);
-							}
-							break;
-						}
-						case SslClientConnection.ConnectionEventTypes.OnPacketCompleted:
-							for (int k = 0; k < this.m_listeners.get_Count(); k++)
-							{
-								IClientConnectionListener<BattleNetPacket> clientConnectionListener = this.m_listeners.get_Item(k);
-								object state = this.m_listenerStates.get_Item(k);
-								clientConnectionListener.PacketReceived(current.Packet, state);
-							}
-							break;
-						}
-					}
-				}
-				this.m_connectionEvents.Clear();
-			}
-			if (this.m_sslSocket == null || this.m_connectionState != SslClientConnection.ConnectionState.Connected)
-			{
-				return;
-			}
-			while (this.m_outQueue.get_Count() > 0)
-			{
-				if (this.OnlyOneSend && !this.m_sslSocket.m_canSend)
-				{
-					return;
-				}
-				BattleNetPacket packet = this.m_outQueue.Dequeue();
-				this.SendPacket(packet);
-			}
-		}
-
-		~SslClientConnection()
-		{
-			if (this.m_sslSocket != null)
-			{
-				this.Disconnect();
-			}
-		}
-
-		private void TriggerOnConnectHandler(BattleNetErrors error)
-		{
-			SslClientConnection.ConnectionEvent connectionEvent = new SslClientConnection.ConnectionEvent();
-			connectionEvent.Type = SslClientConnection.ConnectionEventTypes.OnConnected;
-			connectionEvent.Error = error;
-			List<SslClientConnection.ConnectionEvent> connectionEvents = this.m_connectionEvents;
-			lock (connectionEvents)
-			{
-				this.m_connectionEvents.Add(connectionEvent);
-			}
-		}
-
-		private void TriggerOnDisconnectHandler(BattleNetErrors error)
-		{
-			SslClientConnection.ConnectionEvent connectionEvent = new SslClientConnection.ConnectionEvent();
-			connectionEvent.Type = SslClientConnection.ConnectionEventTypes.OnDisconnected;
-			connectionEvent.Error = error;
-			List<SslClientConnection.ConnectionEvent> connectionEvents = this.m_connectionEvents;
-			lock (connectionEvents)
-			{
-				this.m_connectionEvents.Add(connectionEvent);
-			}
 		}
 
 		private void ConnectCallback(bool connectFailed, bool isEncrypted, bool isSigned)
@@ -340,7 +185,7 @@ namespace bgs
 				{
 					this.m_sslSocket.BeginReceive(this.m_receiveBuffer, SslClientConnection.RECEIVE_BUFFER_SIZE, new SslSocket.BeginReceiveDelegate(this.ReceiveCallback));
 				}
-				catch (Exception)
+				catch (Exception exception)
 				{
 					connectFailed = true;
 				}
@@ -355,56 +200,27 @@ namespace bgs
 			}
 		}
 
-		private void BytesReceived(byte[] bytes, int nBytes, int offset)
+		public void Disconnect()
 		{
-			while (nBytes > 0)
+			if (this.m_sslSocket != null)
 			{
-				if (this.m_currentPacket == null)
-				{
-					this.m_currentPacket = new BattleNetPacket();
-				}
-				int num = this.m_currentPacket.Decode(bytes, offset, nBytes);
-				nBytes -= num;
-				offset += num;
-				if (!this.m_currentPacket.IsLoaded())
-				{
-					Array.Copy(bytes, offset, this.m_backingBuffer, 0, nBytes);
-					this.m_backingBufferBytes = nBytes;
-					return;
-				}
-				SslClientConnection.ConnectionEvent connectionEvent = new SslClientConnection.ConnectionEvent();
-				connectionEvent.Type = SslClientConnection.ConnectionEventTypes.OnPacketCompleted;
-				connectionEvent.Packet = this.m_currentPacket;
-				List<SslClientConnection.ConnectionEvent> connectionEvents = this.m_connectionEvents;
-				lock (connectionEvents)
-				{
-					this.m_connectionEvents.Add(connectionEvent);
-				}
-				this.m_currentPacket = null;
+				this.m_sslSocket.Close();
+				this.m_sslSocket = null;
 			}
-			this.m_backingBufferBytes = 0;
+			this.m_connectionState = SslClientConnection.ConnectionState.Disconnected;
 		}
 
-		private void BytesReceived(int nBytes)
+		~SslClientConnection()
 		{
-			if (this.m_backingBufferBytes > 0)
+			if (this.m_sslSocket != null)
 			{
-				int num = this.m_backingBufferBytes + nBytes;
-				if (num > this.m_backingBuffer.Length)
-				{
-					int num2 = (num + SslClientConnection.BACKING_BUFFER_SIZE - 1) / SslClientConnection.BACKING_BUFFER_SIZE;
-					byte[] array = new byte[num2 * SslClientConnection.BACKING_BUFFER_SIZE];
-					Array.Copy(this.m_backingBuffer, 0, array, 0, this.m_backingBuffer.Length);
-					this.m_backingBuffer = array;
-				}
-				Array.Copy(this.m_receiveBuffer, 0, this.m_backingBuffer, this.m_backingBufferBytes, nBytes);
-				this.m_backingBufferBytes = 0;
-				this.BytesReceived(this.m_backingBuffer, num, 0);
+				this.Disconnect();
 			}
-			else
-			{
-				this.BytesReceived(this.m_receiveBuffer, nBytes, 0);
-			}
+		}
+
+		public void QueuePacket(BattleNetPacket packet)
+		{
+			this.m_outQueue.Enqueue(packet);
 		}
 
 		private void ReceiveCallback(int bytesReceived)
@@ -424,11 +240,223 @@ namespace bgs
 						this.m_sslSocket.BeginReceive(this.m_receiveBuffer, SslClientConnection.RECEIVE_BUFFER_SIZE, new SslSocket.BeginReceiveDelegate(this.ReceiveCallback));
 					}
 				}
-				catch (Exception)
+				catch (Exception exception)
 				{
 					this.TriggerOnDisconnectHandler(BattleNetErrors.ERROR_RPC_PEER_DISCONNECTED);
 				}
 			}
+		}
+
+		public bool RemoveConnectHandler(ConnectHandler handler)
+		{
+			return this.m_connectHandlers.Remove(handler);
+		}
+
+		public bool RemoveDisconnectHandler(DisconnectHandler handler)
+		{
+			return this.m_disconnectHandlers.Remove(handler);
+		}
+
+		public void RemoveListener(IClientConnectionListener<BattleNetPacket> listener)
+		{
+			while (this.m_listeners.Remove(listener))
+			{
+			}
+		}
+
+		private void SendBytes(byte[] bytes)
+		{
+			// 
+			// Current member / type: System.Void bgs.SslClientConnection::SendBytes(System.Byte[])
+			// File path: C:\Users\RenameME-4\Desktop\wow_app\wow_v1.2.0_com.blizzard.wowcompanion\assets\bin\Data\Managed\Assembly-CSharp.dll
+			// 
+			// Product version: 2017.1.116.2
+			// Exception in: System.Void SendBytes(System.Byte[])
+			// 
+			// La référence d'objet n'est pas définie à une instance d'un objet.
+			//    à ..() dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 81
+			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 24
+			//    à ..Visit(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 69
+			//    à ..(DecompilationContext ,  ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 19
+			//    à ..(MethodBody ,  , ILanguage ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\DecompilationPipeline.cs:ligne 88
+			//    à ..(MethodBody , ILanguage ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\DecompilationPipeline.cs:ligne 70
+			//    à Telerik.JustDecompiler.Decompiler.Extensions.( , ILanguage , MethodBody , DecompilationContext& ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\Extensions.cs:ligne 95
+			//    à Telerik.JustDecompiler.Decompiler.Extensions.(MethodBody , ILanguage , DecompilationContext ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\Extensions.cs:ligne 72
+			//    à ...( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildAnonymousDelegatesStep.cs:ligne 317
+			//    à ..(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeTransformer.cs:ligne 125
+			//    à ..Visit(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeTransformer.cs:ligne 270
+			//    à ..Visit[,]( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeTransformer.cs:ligne 280
+			//    à ..Visit( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeTransformer.cs:ligne 316
+			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeTransformer.cs:ligne 493
+			//    à ..(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeTransformer.cs:ligne 87
+			//    à ..Visit(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeTransformer.cs:ligne 270
+			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeTransformer.cs:ligne 377
+			//    à ..(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeTransformer.cs:ligne 59
+			//    à ..Visit(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeTransformer.cs:ligne 270
+			//    à ...Match( , Int32 ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildAnonymousDelegatesStep.cs:ligne 112
+			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildAnonymousDelegatesStep.cs:ligne 28
+			//    à ..Visit(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 69
+			//    à ..(IfStatement ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 399
+			//    à ..Visit(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 78
+			//    à ..Visit(IEnumerable ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 374
+			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 379
+			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildAnonymousDelegatesStep.cs:ligne 33
+			//    à ..(DecompilationContext ,  ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildAnonymousDelegatesStep.cs:ligne 21
+			//    à ..(MethodBody ,  , ILanguage ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\DecompilationPipeline.cs:ligne 88
+			//    à ..(MethodBody , ILanguage ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\DecompilationPipeline.cs:ligne 70
+			//    à Telerik.JustDecompiler.Decompiler.Extensions.( , ILanguage , MethodBody , DecompilationContext& ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\Extensions.cs:ligne 95
+			//    à Telerik.JustDecompiler.Decompiler.Extensions.(MethodBody , ILanguage , DecompilationContext& ,  ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\Extensions.cs:ligne 58
+			//    à ..(ILanguage , MethodDefinition ,  ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\WriterContextServices\BaseWriterContextService.cs:ligne 117
+			// 
+			// mailto: JustDecompilePublicFeedback@telerik.com
+
+		}
+
+		public void SendPacket(BattleNetPacket packet)
+		{
+			this.SendBytes(packet.Encode());
+		}
+
+		private void TriggerOnConnectHandler(BattleNetErrors error)
+		{
+			SslClientConnection.ConnectionEvent connectionEvent = new SslClientConnection.ConnectionEvent()
+			{
+				Type = SslClientConnection.ConnectionEventTypes.OnConnected
+			};
+			lock (error)
+			{
+				this.m_connectionEvents.Add(connectionEvent);
+			}
+		}
+
+		private void TriggerOnDisconnectHandler(BattleNetErrors error)
+		{
+			SslClientConnection.ConnectionEvent connectionEvent = new SslClientConnection.ConnectionEvent()
+			{
+				Type = SslClientConnection.ConnectionEventTypes.OnDisconnected
+			};
+			lock (error)
+			{
+				this.m_connectionEvents.Add(connectionEvent);
+			}
+		}
+
+		public void Update()
+		{
+			SslSocket.Process();
+			List<SslClientConnection.ConnectionEvent> mConnectionEvents = this.m_connectionEvents;
+			Monitor.Enter(mConnectionEvents);
+			try
+			{
+				foreach (SslClientConnection.ConnectionEvent mConnectionEvent in this.m_connectionEvents)
+				{
+					switch (mConnectionEvent.Type)
+					{
+						case SslClientConnection.ConnectionEventTypes.OnConnected:
+						{
+							if (mConnectionEvent.Error == BattleNetErrors.ERROR_OK)
+							{
+								this.m_connectionState = SslClientConnection.ConnectionState.Connected;
+							}
+							else
+							{
+								this.Disconnect();
+								this.m_connectionState = SslClientConnection.ConnectionState.ConnectionFailed;
+							}
+							ConnectHandler[] array = this.m_connectHandlers.ToArray();
+							for (int i = 0; i < (int)array.Length; i++)
+							{
+								array[i](mConnectionEvent.Error);
+							}
+							continue;
+						}
+						case SslClientConnection.ConnectionEventTypes.OnDisconnected:
+						{
+							if (mConnectionEvent.Error != BattleNetErrors.ERROR_OK)
+							{
+								this.Disconnect();
+							}
+							DisconnectHandler[] disconnectHandlerArray = this.m_disconnectHandlers.ToArray();
+							for (int j = 0; j < (int)disconnectHandlerArray.Length; j++)
+							{
+								disconnectHandlerArray[j](mConnectionEvent.Error);
+							}
+							continue;
+						}
+						case SslClientConnection.ConnectionEventTypes.OnPacketCompleted:
+						{
+							for (int k = 0; k < this.m_listeners.Count; k++)
+							{
+								IClientConnectionListener<BattleNetPacket> item = this.m_listeners[k];
+								object obj = this.m_listenerStates[k];
+								item.PacketReceived(mConnectionEvent.Packet, obj);
+							}
+							continue;
+						}
+						default:
+						{
+							continue;
+						}
+					}
+				}
+				this.m_connectionEvents.Clear();
+			}
+			finally
+			{
+				Monitor.Exit(mConnectionEvents);
+			}
+			if (this.m_sslSocket == null || this.m_connectionState != SslClientConnection.ConnectionState.Connected)
+			{
+				return;
+			}
+			while (this.m_outQueue.Count > 0)
+			{
+				if (this.OnlyOneSend && !this.m_sslSocket.m_canSend)
+				{
+					return;
+				}
+				this.SendPacket(this.m_outQueue.Dequeue());
+			}
+		}
+
+		private class ConnectionEvent
+		{
+			public BattleNetErrors Error
+			{
+				get;
+				set;
+			}
+
+			public BattleNetPacket Packet
+			{
+				get;
+				set;
+			}
+
+			public SslClientConnection.ConnectionEventTypes Type
+			{
+				get;
+				set;
+			}
+
+			public ConnectionEvent()
+			{
+			}
+		}
+
+		private enum ConnectionEventTypes
+		{
+			OnConnected,
+			OnDisconnected,
+			OnPacketCompleted
+		}
+
+		private enum ConnectionState
+		{
+			Disconnected,
+			Connecting,
+			ConnectionFailed,
+			Connected
 		}
 	}
 }

@@ -1,33 +1,31 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 
 namespace bgs
 {
 	public class TcpConnection
 	{
-		private Socket m_socket;
+		private System.Net.Sockets.Socket m_socket;
 
 		private Queue<IPAddress> m_candidateIPAddresses;
 
 		private IPAddress m_resolvedIPAddress;
 
-		public Action<string> LogDebug = delegate
-		{
-		};
+		public Action<string> LogDebug = new Action<string>((string argument0) => {
+		});
 
-		public Action<string> LogWarning = delegate
-		{
-		};
+		public Action<string> LogWarning = new Action<string>((string argument1) => {
+		});
 
-		public Action OnFailure = delegate
-		{
-		};
+		public Action OnFailure = new Action(() => {
+		});
 
-		public Action OnSuccess = delegate
-		{
-		};
+		public Action OnSuccess = new Action(() => {
+		});
 
 		public string Host
 		{
@@ -49,7 +47,7 @@ namespace bgs
 			}
 		}
 
-		public Socket Socket
+		public System.Net.Sockets.Socket Socket
 		{
 			get
 			{
@@ -57,158 +55,80 @@ namespace bgs
 			}
 		}
 
+		public TcpConnection()
+		{
+		}
+
 		public void Connect(string host, int port)
 		{
-			this.LogWarning.Invoke(string.Format("TcpConnection - Connecting to host: {0}, port: {1}", host, port));
+			IPAddress pAddress;
+			this.LogWarning(string.Format("TcpConnection - Connecting to host: {0}, port: {1}", host, port));
 			this.Host = host;
 			this.Port = port;
 			this.m_candidateIPAddresses = new Queue<IPAddress>();
-			IPAddress iPAddress;
-			if (IPAddress.TryParse(this.Host, ref iPAddress))
+			if (IPAddress.TryParse(this.Host, out pAddress))
 			{
-				this.m_candidateIPAddresses.Enqueue(iPAddress);
+				this.m_candidateIPAddresses.Enqueue(pAddress);
 			}
 			try
 			{
 				Dns.BeginGetHostByName(this.Host, new AsyncCallback(this.GetHostEntryCallback), null);
 			}
-			catch (Exception ex)
+			catch (Exception exception1)
 			{
-				this.LogWarning.Invoke(string.Format("TcpConnection - Connect() failed, could not get host entry. ip: {0}, port: {1}, exception: {2}", this.Host, this.Port, ex.get_Message()));
-				this.OnFailure.Invoke();
-			}
-		}
-
-		private void GetHostEntryCallback(IAsyncResult ar)
-		{
-			IPHostEntry iPHostEntry = Dns.EndGetHostByName(ar);
-			Array.Sort<IPAddress>(iPHostEntry.get_AddressList(), delegate(IPAddress x, IPAddress y)
-			{
-				if (x.get_AddressFamily() < y.get_AddressFamily())
-				{
-					return -1;
-				}
-				if (x.get_AddressFamily() > y.get_AddressFamily())
-				{
-					return 1;
-				}
-				return 0;
-			});
-			IPAddress[] addressList = iPHostEntry.get_AddressList();
-			for (int i = 0; i < addressList.Length; i++)
-			{
-				IPAddress iPAddress = addressList[i];
-				this.m_candidateIPAddresses.Enqueue(iPAddress);
-			}
-			this.ConnectInternal();
-		}
-
-		private void ConnectInternal()
-		{
-			this.LogDebug.Invoke(string.Format("TcpConnection - ConnectInternal. address-count: {0}", this.m_candidateIPAddresses.get_Count()));
-			this.Disconnect();
-			if (this.m_candidateIPAddresses.get_Count() == 0)
-			{
-				this.LogWarning.Invoke(string.Format("TcpConnection - Could not connect to ip: {0}, port: {1}", this.Host, this.Port));
-				this.OnFailure.Invoke();
-				return;
-			}
-			this.m_resolvedIPAddress = this.m_candidateIPAddresses.Dequeue();
-			IPEndPoint iPEndPoint = new IPEndPoint(this.m_resolvedIPAddress, this.Port);
-			this.LogDebug.Invoke(string.Format("TcpConnection - Create Socket with ip: {0}, port: {1}, af: {2}", this.m_resolvedIPAddress, this.Port, this.m_resolvedIPAddress.get_AddressFamily()));
-			this.m_socket = new Socket(this.m_resolvedIPAddress.get_AddressFamily(), 1, 6);
-			try
-			{
-				this.m_socket.BeginConnect(iPEndPoint, new AsyncCallback(this.ConnectCallback), null);
-			}
-			catch (Exception ex)
-			{
-				this.LogDebug.Invoke(string.Format("TcpConnection - BeginConnect() failed. ip: {0}, port: {1}, af: {2}, exception: {3}", new object[]
-				{
-					this.m_resolvedIPAddress,
-					this.Port,
-					this.m_resolvedIPAddress.get_AddressFamily(),
-					ex.get_Message()
-				}));
-				this.ConnectInternal();
+				Exception exception = exception1;
+				this.LogWarning(string.Format("TcpConnection - Connect() failed, could not get host entry. ip: {0}, port: {1}, exception: {2}", this.Host, this.Port, exception.Message));
+				this.OnFailure();
 			}
 		}
 
 		private void ConnectCallback(IAsyncResult ar)
 		{
-			Exception ex = null;
+			Exception exception = null;
 			try
 			{
 				this.m_socket.EndConnect(ar);
 			}
-			catch (Exception ex2)
+			catch (Exception exception1)
 			{
-				ex = ex2;
+				exception = exception1;
 			}
-			if (ex != null || !this.m_socket.get_Connected())
+			if (exception != null || !this.m_socket.Connected)
 			{
-				this.LogDebug.Invoke(string.Format("TcpConnection - EndConnect() failed. ip: {0}, port: {1}, af: {2}, exception: {3}", new object[]
-				{
-					this.m_resolvedIPAddress,
-					this.Port,
-					this.m_resolvedIPAddress.get_AddressFamily(),
-					ex.get_Message()
-				}));
+				this.LogDebug(string.Format("TcpConnection - EndConnect() failed. ip: {0}, port: {1}, af: {2}, exception: {3}", new object[] { this.m_resolvedIPAddress, this.Port, this.m_resolvedIPAddress.AddressFamily, exception.Message }));
 				this.ConnectInternal();
 			}
 			else
 			{
-				this.LogDebug.Invoke(string.Format("TcpConnection - Connected to ip: {0}, port: {1}, af: {2}", this.m_resolvedIPAddress, this.Port, this.m_resolvedIPAddress.get_AddressFamily()));
-				this.OnSuccess.Invoke();
+				this.LogDebug(string.Format("TcpConnection - Connected to ip: {0}, port: {1}, af: {2}", this.m_resolvedIPAddress, this.Port, this.m_resolvedIPAddress.AddressFamily));
+				this.OnSuccess();
 			}
 		}
 
-		public bool MatchSslCertName(IEnumerable<string> certNames)
+		private void ConnectInternal()
 		{
-			IPHostEntry hostEntry = Dns.GetHostEntry(this.Host);
-			using (IEnumerator<string> enumerator = certNames.GetEnumerator())
+			this.LogDebug(string.Format("TcpConnection - ConnectInternal. address-count: {0}", this.m_candidateIPAddresses.Count));
+			this.Disconnect();
+			if (this.m_candidateIPAddresses.Count == 0)
 			{
-				while (enumerator.MoveNext())
-				{
-					string current = enumerator.get_Current();
-					if (current.StartsWith("::ffff:"))
-					{
-						string text = current.Substring("::ffff:".get_Length());
-						IPHostEntry hostEntry2 = Dns.GetHostEntry(text);
-						IPAddress[] addressList = hostEntry2.get_AddressList();
-						for (int i = 0; i < addressList.Length; i++)
-						{
-							IPAddress iPAddress = addressList[i];
-							IPAddress[] addressList2 = hostEntry.get_AddressList();
-							for (int j = 0; j < addressList2.Length; j++)
-							{
-								IPAddress iPAddress2 = addressList2[j];
-								if (iPAddress2.Equals(iPAddress))
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
+				this.LogWarning(string.Format("TcpConnection - Could not connect to ip: {0}, port: {1}", this.Host, this.Port));
+				this.OnFailure();
+				return;
 			}
-			string text2 = string.Format("TcpConnection - MatchSslCertName failed.", new object[0]);
-			using (IEnumerator<string> enumerator2 = certNames.GetEnumerator())
+			this.m_resolvedIPAddress = this.m_candidateIPAddresses.Dequeue();
+			IPEndPoint pEndPoint = new IPEndPoint(this.m_resolvedIPAddress, this.Port);
+			this.LogDebug(string.Format("TcpConnection - Create Socket with ip: {0}, port: {1}, af: {2}", this.m_resolvedIPAddress, this.Port, this.m_resolvedIPAddress.AddressFamily));
+			this.m_socket = new System.Net.Sockets.Socket(this.m_resolvedIPAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+			try
 			{
-				while (enumerator2.MoveNext())
-				{
-					string current2 = enumerator2.get_Current();
-					text2 += string.Format("\n\t certName: {0}", current2);
-				}
+				this.m_socket.BeginConnect(pEndPoint, new AsyncCallback(this.ConnectCallback), null);
 			}
-			IPAddress[] addressList3 = hostEntry.get_AddressList();
-			for (int k = 0; k < addressList3.Length; k++)
+			catch (Exception exception1)
 			{
-				IPAddress iPAddress3 = addressList3[k];
-				text2 += string.Format("\n\t hostAddress: {0}", iPAddress3);
+				Exception exception = exception1;
+				this.LogDebug(string.Format("TcpConnection - BeginConnect() failed. ip: {0}, port: {1}, af: {2}, exception: {3}", new object[] { this.m_resolvedIPAddress, this.Port, this.m_resolvedIPAddress.AddressFamily, exception.Message }));
+				this.ConnectInternal();
 			}
-			this.LogWarning.Invoke(text2);
-			return false;
 		}
 
 		public void Disconnect()
@@ -217,19 +137,115 @@ namespace bgs
 			{
 				return;
 			}
-			if (this.m_socket.get_Connected())
+			if (this.m_socket.Connected)
 			{
 				try
 				{
-					this.m_socket.Shutdown(2);
+					this.m_socket.Shutdown(SocketShutdown.Both);
 					this.m_socket.Close();
 				}
-				catch (SocketException ex)
+				catch (SocketException socketException)
 				{
-					this.LogWarning.Invoke(string.Format("TcpConnection.Disconnect() - SocketException: {0}", ex.get_Message()));
+					this.LogWarning(string.Format("TcpConnection.Disconnect() - SocketException: {0}", socketException.Message));
 				}
 			}
 			this.m_socket = null;
+		}
+
+		private void GetHostEntryCallback(IAsyncResult ar)
+		{
+			IPHostEntry pHostEntry = Dns.EndGetHostByName(ar);
+			Array.Sort<IPAddress>(pHostEntry.AddressList, (IPAddress x, IPAddress y) => {
+				if (x.AddressFamily < y.AddressFamily)
+				{
+					return -1;
+				}
+				if (x.AddressFamily > y.AddressFamily)
+				{
+					return 1;
+				}
+				return 0;
+			});
+			IPAddress[] addressList = pHostEntry.AddressList;
+			for (int i = 0; i < (int)addressList.Length; i++)
+			{
+				IPAddress pAddress = addressList[i];
+				this.m_candidateIPAddresses.Enqueue(pAddress);
+			}
+			this.ConnectInternal();
+		}
+
+		public bool MatchSslCertName(IEnumerable<string> certNames)
+		{
+			bool flag;
+			IPHostEntry hostEntry = Dns.GetHostEntry(this.Host);
+			IEnumerator<string> enumerator = certNames.GetEnumerator();
+			try
+			{
+				while (enumerator.MoveNext())
+				{
+					string current = enumerator.Current;
+					if (!current.StartsWith("::ffff:"))
+					{
+						continue;
+					}
+					string str = current.Substring("::ffff:".Length);
+					IPAddress[] addressList = Dns.GetHostEntry(str).AddressList;
+					for (int i = 0; i < (int)addressList.Length; i++)
+					{
+						IPAddress pAddress = addressList[i];
+						IPAddress[] pAddressArray = hostEntry.AddressList;
+						int num = 0;
+						while (num < (int)pAddressArray.Length)
+						{
+							if (!pAddressArray[num].Equals(pAddress))
+							{
+								num++;
+							}
+							else
+							{
+								flag = true;
+								return flag;
+							}
+						}
+					}
+				}
+				goto Label0;
+			}
+			finally
+			{
+				if (enumerator == null)
+				{
+				}
+				enumerator.Dispose();
+			}
+			return flag;
+		Label0:
+			string str1 = string.Format("TcpConnection - MatchSslCertName failed.", new object[0]);
+			IEnumerator<string> enumerator1 = certNames.GetEnumerator();
+			try
+			{
+				while (enumerator1.MoveNext())
+				{
+					string current1 = enumerator1.Current;
+					str1 = string.Concat(str1, string.Format("\n\t certName: {0}", current1));
+				}
+			}
+			finally
+			{
+				if (enumerator1 == null)
+				{
+				}
+				enumerator1.Dispose();
+			}
+			IPAddress[] addressList1 = hostEntry.AddressList;
+			for (int j = 0; j < (int)addressList1.Length; j++)
+			{
+				IPAddress pAddress1 = addressList1[j];
+				str1 = string.Concat(str1, string.Format("\n\t hostAddress: {0}", pAddress1));
+			}
+			this.LogWarning(str1);
+			return false;
 		}
 	}
 }

@@ -5,80 +5,17 @@ using System.Text;
 
 public class ConfigFile
 {
-	public enum LineType
-	{
-		UNKNOWN = 0,
-		COMMENT = 1,
-		SECTION = 2,
-		ENTRY = 3
-	}
-
-	public class Line
-	{
-		public string m_raw = string.Empty;
-
-		public ConfigFile.LineType m_type;
-
-		public string m_sectionName = string.Empty;
-
-		public string m_lineKey = string.Empty;
-
-		public string m_fullKey = string.Empty;
-
-		public string m_value = string.Empty;
-
-		public bool m_quoteValue;
-	}
-
 	private string m_path;
 
 	private List<ConfigFile.Line> m_lines = new List<ConfigFile.Line>();
 
-	public string GetPath()
+	public ConfigFile()
 	{
-		return this.m_path;
 	}
 
-	public bool LightLoad(string path)
+	public void Clear()
 	{
-		return this.Load(path, true);
-	}
-
-	public bool FullLoad(string path)
-	{
-		return this.Load(path, false);
-	}
-
-	public bool Save(string path = null)
-	{
-		if (path == null)
-		{
-			path = this.m_path;
-		}
-		if (path == null)
-		{
-			Console.WriteLine("ConfigFile.Save() - no path given");
-			return false;
-		}
-		string text = this.GenerateText();
-		try
-		{
-			FileUtils.SetFileWritableFlag(path, true);
-			File.WriteAllText(path, text);
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine(string.Format("ConfigFile.Save() - Failed to write file at {0}. Exception={1}", path, ex.get_Message()));
-			return false;
-		}
-		this.m_path = path;
-		return true;
-	}
-
-	public bool Has(string key)
-	{
-		ConfigFile.Line line = this.FindEntry(key);
-		return line != null;
+		this.m_lines.Clear();
 	}
 
 	public bool Delete(string key, bool removeEmptySections = true)
@@ -91,43 +28,118 @@ public class ConfigFile
 		this.m_lines.RemoveAt(num);
 		if (removeEmptySections)
 		{
-			int i;
-			for (i = num - 1; i >= 0; i--)
+			int num1 = num - 1;
+			while (num1 >= 0)
 			{
-				ConfigFile.Line line = this.m_lines.get_Item(i);
-				if (line.m_type == ConfigFile.LineType.SECTION)
+				ConfigFile.Line item = this.m_lines[num1];
+				if (item.m_type != ConfigFile.LineType.SECTION)
+				{
+					if (!string.IsNullOrEmpty(item.m_raw.Trim()))
+					{
+						return true;
+					}
+					num1--;
+				}
+				else
 				{
 					break;
 				}
-				string text = line.m_raw.Trim();
-				if (!string.IsNullOrEmpty(text))
-				{
-					return true;
-				}
 			}
-			int j;
-			for (j = num; j < this.m_lines.get_Count(); j++)
+			int num2 = num;
+			while (num2 < this.m_lines.Count)
 			{
-				ConfigFile.Line line2 = this.m_lines.get_Item(j);
-				if (line2.m_type == ConfigFile.LineType.SECTION)
+				ConfigFile.Line line = this.m_lines[num2];
+				if (line.m_type != ConfigFile.LineType.SECTION)
+				{
+					if (!string.IsNullOrEmpty(line.m_raw.Trim()))
+					{
+						return true;
+					}
+					num2++;
+				}
+				else
 				{
 					break;
 				}
-				string text2 = line2.m_raw.Trim();
-				if (!string.IsNullOrEmpty(text2))
-				{
-					return true;
-				}
 			}
-			int num2 = j - i;
-			this.m_lines.RemoveRange(i, num2);
+			this.m_lines.RemoveRange(num1, num2 - num1);
 		}
 		return true;
 	}
 
-	public void Clear()
+	private ConfigFile.Line FindEntry(string fullKey)
 	{
-		this.m_lines.Clear();
+		int num = this.FindEntryIndex(fullKey);
+		if (num < 0)
+		{
+			return null;
+		}
+		return this.m_lines[num];
+	}
+
+	private int FindEntryIndex(string fullKey)
+	{
+		for (int i = 0; i < this.m_lines.Count; i++)
+		{
+			ConfigFile.Line item = this.m_lines[i];
+			if (item.m_type == ConfigFile.LineType.ENTRY)
+			{
+				if (item.m_fullKey.Equals(fullKey, StringComparison.OrdinalIgnoreCase))
+				{
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	private int FindSectionIndex(string sectionName)
+	{
+		for (int i = 0; i < this.m_lines.Count; i++)
+		{
+			ConfigFile.Line item = this.m_lines[i];
+			if (item.m_type == ConfigFile.LineType.SECTION)
+			{
+				if (item.m_sectionName.Equals(sectionName, StringComparison.OrdinalIgnoreCase))
+				{
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	public bool FullLoad(string path)
+	{
+		return this.Load(path, false);
+	}
+
+	public string GenerateText()
+	{
+		StringBuilder stringBuilder = new StringBuilder();
+		for (int i = 0; i < this.m_lines.Count; i++)
+		{
+			ConfigFile.Line item = this.m_lines[i];
+			ConfigFile.LineType mType = item.m_type;
+			if (mType == ConfigFile.LineType.SECTION)
+			{
+				stringBuilder.AppendFormat("[{0}]", item.m_sectionName);
+			}
+			else if (mType != ConfigFile.LineType.ENTRY)
+			{
+				stringBuilder.Append(item.m_raw);
+			}
+			else if (!item.m_quoteValue)
+			{
+				stringBuilder.AppendFormat("{0} = {1}", item.m_lineKey, item.m_value);
+			}
+			else
+			{
+				stringBuilder.AppendFormat("{0} = \"{1}\"", item.m_lineKey, item.m_value);
+			}
+			stringBuilder.AppendLine();
+		}
+		return stringBuilder.ToString();
 	}
 
 	public string Get(string key, string defaultVal = "")
@@ -170,63 +182,24 @@ public class ConfigFile
 		return GeneralUtils.ForceFloat(line.m_value);
 	}
 
-	public bool Set(string key, object val)
-	{
-		string val2 = (val != null) ? val.ToString() : string.Empty;
-		return this.Set(key, val2);
-	}
-
-	public bool Set(string key, bool val)
-	{
-		string val2 = (!val) ? "false" : "true";
-		return this.Set(key, val2);
-	}
-
-	public bool Set(string key, string val)
-	{
-		ConfigFile.Line line = this.RegisterEntry(key);
-		if (line == null)
-		{
-			return false;
-		}
-		line.m_value = val;
-		return true;
-	}
-
 	public List<ConfigFile.Line> GetLines()
 	{
 		return this.m_lines;
 	}
 
-	public string GenerateText()
+	public string GetPath()
 	{
-		StringBuilder stringBuilder = new StringBuilder();
-		for (int i = 0; i < this.m_lines.get_Count(); i++)
-		{
-			ConfigFile.Line line = this.m_lines.get_Item(i);
-			ConfigFile.LineType type = line.m_type;
-			if (type != ConfigFile.LineType.SECTION)
-			{
-				if (type != ConfigFile.LineType.ENTRY)
-				{
-					stringBuilder.Append(line.m_raw);
-				}
-				else if (line.m_quoteValue)
-				{
-					stringBuilder.AppendFormat("{0} = \"{1}\"", line.m_lineKey, line.m_value);
-				}
-				else
-				{
-					stringBuilder.AppendFormat("{0} = {1}", line.m_lineKey, line.m_value);
-				}
-			}
-			else
-			{
-				stringBuilder.AppendFormat("[{0}]", line.m_sectionName);
-			}
-			stringBuilder.AppendLine();
-		}
-		return stringBuilder.ToString();
+		return this.m_path;
+	}
+
+	public bool Has(string key)
+	{
+		return this.FindEntry(key) != null;
+	}
+
+	public bool LightLoad(string path)
+	{
+		return this.Load(path, true);
 	}
 
 	private bool Load(string path, bool ignoreUselessLines)
@@ -235,74 +208,81 @@ public class ConfigFile
 		this.m_lines.Clear();
 		if (!File.Exists(path))
 		{
-			Console.WriteLine("Error loading config file " + path);
+			Console.WriteLine(string.Concat("Error loading config file ", path));
 			return false;
 		}
 		int num = 1;
 		using (StreamReader streamReader = File.OpenText(path))
 		{
-			string text = string.Empty;
+			string empty = string.Empty;
 			while (streamReader.Peek() != -1)
 			{
-				string text2 = streamReader.ReadLine();
-				string text3 = text2.Trim();
-				if (!ignoreUselessLines || text3.get_Length() > 0)
+				string str = streamReader.ReadLine();
+				string str1 = str.Trim();
+				if (!ignoreUselessLines || str1.Length > 0)
 				{
-					bool flag = text3.get_Length() > 0 && text3.get_Chars(0) == ';';
+					bool flag = (str1.Length <= 0 ? false : str1[0] == ';');
 					if (!ignoreUselessLines || !flag)
 					{
-						ConfigFile.Line line = new ConfigFile.Line();
-						line.m_raw = text2;
-						line.m_sectionName = text;
+						ConfigFile.Line line = new ConfigFile.Line()
+						{
+							m_raw = str,
+							m_sectionName = empty
+						};
 						if (flag)
 						{
 							line.m_type = ConfigFile.LineType.COMMENT;
 						}
-						else if (text3.get_Length() > 0)
+						else if (str1.Length > 0)
 						{
-							if (text3.get_Chars(0) == '[')
+							if (str1[0] != '[')
 							{
-								if (text3.get_Length() < 2 || text3.get_Chars(text3.get_Length() - 1) != ']')
+								int num1 = str1.IndexOf('=');
+								if (num1 >= 0)
 								{
-									Console.WriteLine(string.Format("ConfigFile.Load() - invalid section \"{0}\" on line {1} in file {2}", text2, num, path));
+									string str2 = str1.Substring(0, num1).Trim();
+									string str3 = str1.Substring(num1 + 1, str1.Length - num1 - 1).Trim();
+									if (str3.Length > 2)
+									{
+										int length = str3.Length - 1;
+										if ((str3[0] == '\"' || str3[0] == '“' || str3[0] == '”') && (str3[length] == '\"' || str3[length] == '“' || str3[length] == '”'))
+										{
+											str3 = str3.Substring(1, str3.Length - 2);
+											line.m_quoteValue = true;
+										}
+									}
+									line.m_type = ConfigFile.LineType.ENTRY;
+									line.m_fullKey = string.Format("{0}.{1}", empty, str2);
+									line.m_lineKey = str2;
+									line.m_value = str3;
+								}
+								else
+								{
+									Console.WriteLine(string.Format("ConfigFile.Load() - invalid entry \"{0}\" on line {1} in file {2}", str, num, path));
 									if (!ignoreUselessLines)
 									{
 										this.m_lines.Add(line);
 									}
 									continue;
 								}
-								line.m_type = ConfigFile.LineType.SECTION;
-								text = (line.m_sectionName = text3.Substring(1, text3.get_Length() - 2));
-								this.m_lines.Add(line);
+							}
+							else if (str1.Length < 2 || str1[str1.Length - 1] != ']')
+							{
+								Console.WriteLine(string.Format("ConfigFile.Load() - invalid section \"{0}\" on line {1} in file {2}", str, num, path));
+								if (!ignoreUselessLines)
+								{
+									this.m_lines.Add(line);
+								}
 								continue;
 							}
 							else
 							{
-								int num2 = text3.IndexOf('=');
-								if (num2 < 0)
-								{
-									Console.WriteLine(string.Format("ConfigFile.Load() - invalid entry \"{0}\" on line {1} in file {2}", text2, num, path));
-									if (!ignoreUselessLines)
-									{
-										this.m_lines.Add(line);
-									}
-									continue;
-								}
-								string text4 = text3.Substring(0, num2).Trim();
-								string text5 = text3.Substring(num2 + 1, text3.get_Length() - num2 - 1).Trim();
-								if (text5.get_Length() > 2)
-								{
-									int num3 = text5.get_Length() - 1;
-									if ((text5.get_Chars(0) == '"' || text5.get_Chars(0) == '“' || text5.get_Chars(0) == '”') && (text5.get_Chars(num3) == '"' || text5.get_Chars(num3) == '“' || text5.get_Chars(num3) == '”'))
-									{
-										text5 = text5.Substring(1, text5.get_Length() - 2);
-										line.m_quoteValue = true;
-									}
-								}
-								line.m_type = ConfigFile.LineType.ENTRY;
-								line.m_fullKey = string.Format("{0}.{1}", text, text4);
-								line.m_lineKey = text4;
-								line.m_value = text5;
+								line.m_type = ConfigFile.LineType.SECTION;
+								string str4 = str1.Substring(1, str1.Length - 2);
+								empty = str4;
+								line.m_sectionName = str4;
+								this.m_lines.Add(line);
+								continue;
 							}
 						}
 						this.m_lines.Add(line);
@@ -312,48 +292,6 @@ public class ConfigFile
 		}
 		this.m_path = path;
 		return true;
-	}
-
-	private int FindSectionIndex(string sectionName)
-	{
-		for (int i = 0; i < this.m_lines.get_Count(); i++)
-		{
-			ConfigFile.Line line = this.m_lines.get_Item(i);
-			if (line.m_type == ConfigFile.LineType.SECTION)
-			{
-				if (line.m_sectionName.Equals(sectionName, 5))
-				{
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	private ConfigFile.Line FindEntry(string fullKey)
-	{
-		int num = this.FindEntryIndex(fullKey);
-		if (num < 0)
-		{
-			return null;
-		}
-		return this.m_lines.get_Item(num);
-	}
-
-	private int FindEntryIndex(string fullKey)
-	{
-		for (int i = 0; i < this.m_lines.get_Count(); i++)
-		{
-			ConfigFile.Line line = this.m_lines.get_Item(i);
-			if (line.m_type == ConfigFile.LineType.ENTRY)
-			{
-				if (line.m_fullKey.Equals(fullKey, 5))
-				{
-					return i;
-				}
-			}
-		}
-		return -1;
 	}
 
 	private ConfigFile.Line RegisterEntry(string fullKey)
@@ -367,62 +305,151 @@ public class ConfigFile
 		{
 			return null;
 		}
-		string sectionName = fullKey.Substring(0, num);
-		string text = string.Empty;
-		if (fullKey.get_Length() > num + 1)
+		string str = fullKey.Substring(0, num);
+		string empty = string.Empty;
+		if (fullKey.Length > num + 1)
 		{
-			text = fullKey.Substring(num + 1, fullKey.get_Length() - num - 1);
+			empty = fullKey.Substring(num + 1, fullKey.Length - num - 1);
 		}
 		ConfigFile.Line line = null;
-		int num2 = this.FindSectionIndex(sectionName);
-		if (num2 < 0)
+		int num1 = this.FindSectionIndex(str);
+		if (num1 >= 0)
 		{
-			ConfigFile.Line line2 = new ConfigFile.Line();
-			if (this.m_lines.get_Count() > 0)
+			int num2 = num1 + 1;
+			while (num2 < this.m_lines.Count)
 			{
-				line2.m_sectionName = this.m_lines.get_Item(this.m_lines.get_Count() - 1).m_sectionName;
-			}
-			this.m_lines.Add(line2);
-			ConfigFile.Line line3 = new ConfigFile.Line();
-			line3.m_type = ConfigFile.LineType.SECTION;
-			line3.m_sectionName = sectionName;
-			this.m_lines.Add(line3);
-			line = new ConfigFile.Line();
-			line.m_type = ConfigFile.LineType.ENTRY;
-			line.m_sectionName = sectionName;
-			line.m_lineKey = text;
-			line.m_fullKey = fullKey;
-			this.m_lines.Add(line);
-		}
-		else
-		{
-			int i;
-			for (i = num2 + 1; i < this.m_lines.get_Count(); i++)
-			{
-				ConfigFile.Line line4 = this.m_lines.get_Item(i);
-				if (line4.m_type == ConfigFile.LineType.SECTION)
+				ConfigFile.Line item = this.m_lines[num2];
+				if (item.m_type != ConfigFile.LineType.SECTION)
+				{
+					if (item.m_type == ConfigFile.LineType.ENTRY)
+					{
+						if (item.m_lineKey.Equals(empty, StringComparison.OrdinalIgnoreCase))
+						{
+							line = item;
+							break;
+						}
+					}
+					num2++;
+				}
+				else
 				{
 					break;
-				}
-				if (line4.m_type == ConfigFile.LineType.ENTRY)
-				{
-					if (line4.m_lineKey.Equals(text, 5))
-					{
-						line = line4;
-						break;
-					}
 				}
 			}
 			if (line == null)
 			{
-				line = new ConfigFile.Line();
-				line.m_type = ConfigFile.LineType.ENTRY;
-				line.m_sectionName = sectionName;
-				line.m_lineKey = text;
-				line.m_fullKey = fullKey;
-				this.m_lines.Insert(i, line);
+				line = new ConfigFile.Line()
+				{
+					m_type = ConfigFile.LineType.ENTRY,
+					m_sectionName = str,
+					m_lineKey = empty,
+					m_fullKey = fullKey
+				};
+				this.m_lines.Insert(num2, line);
 			}
 		}
+		else
+		{
+			ConfigFile.Line mSectionName = new ConfigFile.Line();
+			if (this.m_lines.Count > 0)
+			{
+				mSectionName.m_sectionName = this.m_lines[this.m_lines.Count - 1].m_sectionName;
+			}
+			this.m_lines.Add(mSectionName);
+			ConfigFile.Line line1 = new ConfigFile.Line()
+			{
+				m_type = ConfigFile.LineType.SECTION,
+				m_sectionName = str
+			};
+			this.m_lines.Add(line1);
+			line = new ConfigFile.Line()
+			{
+				m_type = ConfigFile.LineType.ENTRY,
+				m_sectionName = str,
+				m_lineKey = empty,
+				m_fullKey = fullKey
+			};
+			this.m_lines.Add(line);
+		}
 		return line;
+	}
+
+	public bool Save(string path = null)
+	{
+		bool flag;
+		if (path == null)
+		{
+			path = this.m_path;
+		}
+		if (path == null)
+		{
+			Console.WriteLine("ConfigFile.Save() - no path given");
+			return false;
+		}
+		string str = this.GenerateText();
+		try
+		{
+			FileUtils.SetFileWritableFlag(path, true);
+			File.WriteAllText(path, str);
+			this.m_path = path;
+			return true;
+		}
+		catch (Exception exception1)
+		{
+			Exception exception = exception1;
+			Console.WriteLine(string.Format("ConfigFile.Save() - Failed to write file at {0}. Exception={1}", path, exception.Message));
+			flag = false;
+		}
+		return flag;
+	}
+
+	public bool Set(string key, object val)
+	{
+		return this.Set(key, (val != null ? val.ToString() : string.Empty));
+	}
+
+	public bool Set(string key, bool val)
+	{
+		return this.Set(key, (!val ? "false" : "true"));
+	}
+
+	public bool Set(string key, string val)
+	{
+		ConfigFile.Line line = this.RegisterEntry(key);
+		if (line == null)
+		{
+			return false;
+		}
+		line.m_value = val;
+		return true;
+	}
+
+	public class Line
+	{
+		public string m_raw;
+
+		public ConfigFile.LineType m_type;
+
+		public string m_sectionName;
+
+		public string m_lineKey;
+
+		public string m_fullKey;
+
+		public string m_value;
+
+		public bool m_quoteValue;
+
+		public Line()
+		{
+		}
+	}
+
+	public enum LineType
+	{
+		UNKNOWN,
+		COMMENT,
+		SECTION,
+		ENTRY
 	}
 }

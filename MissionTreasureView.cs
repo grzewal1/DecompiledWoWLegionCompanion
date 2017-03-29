@@ -6,9 +6,13 @@ public class MissionTreasureView : MonoBehaviour
 {
 	public Text m_chanceText;
 
+	public MissionTreasureView()
+	{
+	}
+
 	private void Start()
 	{
-		this.m_chanceText.set_text(StaticDB.GetString("CHANCE", null));
+		this.m_chanceText.text = StaticDB.GetString("CHANCE", null);
 	}
 
 	private void Update()

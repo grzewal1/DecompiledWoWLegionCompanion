@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace bnet.protocol
 {
@@ -15,6 +16,14 @@ namespace bnet.protocol
 			set;
 		}
 
+		public bool IsInitialized
+		{
+			get
+			{
+				return true;
+			}
+		}
+
 		public ulong ObjectId
 		{
 			get
@@ -28,12 +37,8 @@ namespace bnet.protocol
 			}
 		}
 
-		public bool IsInitialized
+		public ObjectAddress()
 		{
-			get
-			{
-				return true;
-			}
 		}
 
 		public void Deserialize(Stream stream)
@@ -43,7 +48,64 @@ namespace bnet.protocol
 
 		public static ObjectAddress Deserialize(Stream stream, ObjectAddress instance)
 		{
-			return ObjectAddress.Deserialize(stream, instance, -1L);
+			return ObjectAddress.Deserialize(stream, instance, (long)-1);
+		}
+
+		public static ObjectAddress Deserialize(Stream stream, ObjectAddress instance, long limit)
+		{
+			instance.ObjectId = (ulong)0;
+			while (true)
+			{
+				if (limit < (long)0 || stream.Position < limit)
+				{
+					int num = stream.ReadByte();
+					if (num != -1)
+					{
+						int num1 = num;
+						if (num1 != 10)
+						{
+							if (num1 == 16)
+							{
+								instance.ObjectId = ProtocolParser.ReadUInt64(stream);
+							}
+							else
+							{
+								Key key = ProtocolParser.ReadKey((byte)num, stream);
+								if (key.Field == 0)
+								{
+									throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+								}
+								ProtocolParser.SkipKey(stream, key);
+							}
+						}
+						else if (instance.Host != null)
+						{
+							ProcessId.DeserializeLengthDelimited(stream, instance.Host);
+						}
+						else
+						{
+							instance.Host = ProcessId.DeserializeLengthDelimited(stream);
+						}
+					}
+					else
+					{
+						if (limit >= (long)0)
+						{
+							throw new EndOfStreamException();
+						}
+						break;
+					}
+				}
+				else
+				{
+					if (stream.Position != limit)
+					{
+						throw new ProtocolBufferException("Read past max limit");
+					}
+					break;
+				}
+			}
+			return instance;
 		}
 
 		public static ObjectAddress DeserializeLengthDelimited(Stream stream)
@@ -55,60 +117,57 @@ namespace bnet.protocol
 
 		public static ObjectAddress DeserializeLengthDelimited(Stream stream, ObjectAddress instance)
 		{
-			long num = (long)((ulong)ProtocolParser.ReadUInt32(stream));
-			num += stream.get_Position();
-			return ObjectAddress.Deserialize(stream, instance, num);
+			long position = (long)ProtocolParser.ReadUInt32(stream);
+			position = position + stream.Position;
+			return ObjectAddress.Deserialize(stream, instance, position);
 		}
 
-		public static ObjectAddress Deserialize(Stream stream, ObjectAddress instance, long limit)
+		public override bool Equals(object obj)
 		{
-			instance.ObjectId = 0uL;
-			while (limit < 0L || stream.get_Position() < limit)
+			ObjectAddress objectAddress = obj as ObjectAddress;
+			if (objectAddress == null)
 			{
-				int num = stream.ReadByte();
-				if (num == -1)
-				{
-					if (limit >= 0L)
-					{
-						throw new EndOfStreamException();
-					}
-					return instance;
-				}
-				else
-				{
-					int num2 = num;
-					if (num2 != 10)
-					{
-						if (num2 != 16)
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							uint field = key.Field;
-							if (field == 0u)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-						else
-						{
-							instance.ObjectId = ProtocolParser.ReadUInt64(stream);
-						}
-					}
-					else if (instance.Host == null)
-					{
-						instance.Host = ProcessId.DeserializeLengthDelimited(stream);
-					}
-					else
-					{
-						ProcessId.DeserializeLengthDelimited(stream, instance.Host);
-					}
-				}
+				return false;
 			}
-			if (stream.get_Position() == limit)
+			if (!this.Host.Equals(objectAddress.Host))
 			{
-				return instance;
+				return false;
 			}
-			throw new ProtocolBufferException("Read past max limit");
+			if (this.HasObjectId == objectAddress.HasObjectId && (!this.HasObjectId || this.ObjectId.Equals(objectAddress.ObjectId)))
+			{
+				return true;
+			}
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			int hashCode = this.GetType().GetHashCode();
+			hashCode = hashCode ^ this.Host.GetHashCode();
+			if (this.HasObjectId)
+			{
+				hashCode = hashCode ^ this.ObjectId.GetHashCode();
+			}
+			return hashCode;
+		}
+
+		public uint GetSerializedSize()
+		{
+			uint num = 0;
+			uint serializedSize = this.Host.GetSerializedSize();
+			num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
+			if (this.HasObjectId)
+			{
+				num++;
+				num = num + ProtocolParser.SizeOfUInt64(this.ObjectId);
+			}
+			num++;
+			return num;
+		}
+
+		public static ObjectAddress ParseFrom(byte[] bs)
+		{
+			return ProtobufUtil.ParseFrom<ObjectAddress>(bs, 0, -1);
 		}
 
 		public void Serialize(Stream stream)
@@ -132,19 +191,6 @@ namespace bnet.protocol
 			}
 		}
 
-		public uint GetSerializedSize()
-		{
-			uint num = 0u;
-			uint serializedSize = this.Host.GetSerializedSize();
-			num += serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
-			if (this.HasObjectId)
-			{
-				num += 1u;
-				num += ProtocolParser.SizeOfUInt64(this.ObjectId);
-			}
-			return num + 1u;
-		}
-
 		public void SetHost(ProcessId val)
 		{
 			this.Host = val;
@@ -153,28 +199,6 @@ namespace bnet.protocol
 		public void SetObjectId(ulong val)
 		{
 			this.ObjectId = val;
-		}
-
-		public override int GetHashCode()
-		{
-			int num = base.GetType().GetHashCode();
-			num ^= this.Host.GetHashCode();
-			if (this.HasObjectId)
-			{
-				num ^= this.ObjectId.GetHashCode();
-			}
-			return num;
-		}
-
-		public override bool Equals(object obj)
-		{
-			ObjectAddress objectAddress = obj as ObjectAddress;
-			return objectAddress != null && this.Host.Equals(objectAddress.Host) && this.HasObjectId == objectAddress.HasObjectId && (!this.HasObjectId || this.ObjectId.Equals(objectAddress.ObjectId));
-		}
-
-		public static ObjectAddress ParseFrom(byte[] bs)
-		{
-			return ProtobufUtil.ParseFrom<ObjectAddress>(bs, 0, -1);
 		}
 	}
 }

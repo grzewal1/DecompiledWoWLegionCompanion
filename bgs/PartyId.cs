@@ -1,20 +1,15 @@
 using bgs.types;
 using bnet.protocol;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace bgs
 {
 	public class PartyId
 	{
-		public static readonly PartyId Empty = new PartyId(0uL, 0uL);
+		public readonly static PartyId Empty;
 
 		public ulong Hi
-		{
-			get;
-			private set;
-		}
-
-		public ulong Lo
 		{
 			get;
 			private set;
@@ -24,13 +19,24 @@ namespace bgs
 		{
 			get
 			{
-				return this.Hi == 0uL && this.Lo == 0uL;
+				return (this.Hi != 0 ? false : this.Lo == (long)0);
 			}
+		}
+
+		public ulong Lo
+		{
+			get;
+			private set;
+		}
+
+		static PartyId()
+		{
+			PartyId.Empty = new PartyId((ulong)0, (ulong)0);
 		}
 
 		public PartyId()
 		{
-			ulong num = 0uL;
+			ulong num = (ulong)0;
 			this.Lo = num;
 			this.Hi = num;
 		}
@@ -45,34 +51,13 @@ namespace bgs
 			this.Set(partyEntityId.hi, partyEntityId.lo);
 		}
 
-		public void Set(ulong highBits, ulong lowBits)
-		{
-			this.Hi = highBits;
-			this.Lo = lowBits;
-		}
-
 		public override bool Equals(object obj)
 		{
-			if (obj is PartyId)
+			if (!(obj is PartyId))
 			{
-				return this == (PartyId)obj;
+				return this.Equals(obj);
 			}
-			return base.Equals(obj);
-		}
-
-		public override int GetHashCode()
-		{
-			return this.Hi.GetHashCode() ^ this.Lo.GetHashCode();
-		}
-
-		public override string ToString()
-		{
-			return string.Format("{0}-{1}", this.Hi, this.Lo);
-		}
-
-		public static PartyId FromEntityId(bgs.types.EntityId entityId)
-		{
-			return new PartyId(entityId);
+			return this == (PartyId)obj;
 		}
 
 		public static PartyId FromBnetEntityId(BnetEntityId entityId)
@@ -80,18 +65,32 @@ namespace bgs
 			return new PartyId(entityId.GetHi(), entityId.GetLo());
 		}
 
+		public static PartyId FromEntityId(bgs.types.EntityId entityId)
+		{
+			return new PartyId(entityId);
+		}
+
 		public static PartyId FromProtocol(bnet.protocol.EntityId protoEntityId)
 		{
 			return new PartyId(protoEntityId.High, protoEntityId.Low);
 		}
 
-		public bgs.types.EntityId ToEntityId()
+		public override int GetHashCode()
 		{
-			return new bgs.types.EntityId
+			return this.Hi.GetHashCode() ^ this.Lo.GetHashCode();
+		}
+
+		public static bool operator ==(PartyId a, PartyId b)
+		{
+			if (a == null)
 			{
-				hi = this.Hi,
-				lo = this.Lo
-			};
+				return b == null;
+			}
+			if (b == null)
+			{
+				return false;
+			}
+			return (a.Hi != b.Hi ? false : a.Lo == b.Lo);
 		}
 
 		public static implicit operator PartyId(BnetEntityId entityId)
@@ -103,18 +102,30 @@ namespace bgs
 			return new PartyId(entityId.GetHi(), entityId.GetLo());
 		}
 
-		public static bool operator ==(PartyId a, PartyId b)
-		{
-			if (a == null)
-			{
-				return b == null;
-			}
-			return b != null && a.Hi == b.Hi && a.Lo == b.Lo;
-		}
-
 		public static bool operator !=(PartyId a, PartyId b)
 		{
 			return !(a == b);
+		}
+
+		public void Set(ulong highBits, ulong lowBits)
+		{
+			this.Hi = highBits;
+			this.Lo = lowBits;
+		}
+
+		public bgs.types.EntityId ToEntityId()
+		{
+			bgs.types.EntityId entityId = new bgs.types.EntityId()
+			{
+				hi = this.Hi,
+				lo = this.Lo
+			};
+			return entityId;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("{0}-{1}", this.Hi, this.Lo);
 		}
 	}
 }

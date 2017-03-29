@@ -1,24 +1,32 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "ScriptTableValueDebugInfo", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="ScriptTableValueDebugInfo", Version=28333852)]
 	public class ScriptTableValueDebugInfo
 	{
-		[FlexJamMember(Name = "keyName", Type = FlexJamType.String), DataMember(Name = "keyName")]
+		[DataMember(Name="keyName")]
+		[FlexJamMember(Name="keyName", Type=FlexJamType.String)]
 		public string KeyName
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "valueName", Type = FlexJamType.String), DataMember(Name = "valueName")]
+		[DataMember(Name="valueName")]
+		[FlexJamMember(Name="valueName", Type=FlexJamType.String)]
 		public string ValueName
 		{
 			get;
 			set;
+		}
+
+		public ScriptTableValueDebugInfo()
+		{
 		}
 	}
 }

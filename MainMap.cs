@@ -16,15 +16,19 @@ public class MainMap : MonoBehaviour
 
 	public Text m_numMissionsText_ValShara;
 
+	public MainMap()
+	{
+	}
+
+	public void SetNumAvailableMissions(int aszunaNumMissions, int brokenShoreNumMissions, int highMaintainNumMissions, int stormheimNumMissions, int suramarNumMissions, int valSharaNumMissions)
+	{
+	}
+
 	private void Start()
 	{
 	}
 
 	private void Update()
-	{
-	}
-
-	public void SetNumAvailableMissions(int aszunaNumMissions, int brokenShoreNumMissions, int highMaintainNumMissions, int stormheimNumMissions, int suramarNumMissions, int valSharaNumMissions)
 	{
 	}
 }

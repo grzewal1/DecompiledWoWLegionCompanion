@@ -5,13 +5,12 @@ namespace bgs
 {
 	public class constants
 	{
-		public enum BNetState
+		public const ushort RouteToAnyUtil = 0;
+
+		public const float ResubsribeAttemptDelaySeconds = 120f;
+
+		public constants()
 		{
-			BATTLE_NET_UNKNOWN = 0,
-			BATTLE_NET_LOGGING_IN = 1,
-			BATTLE_NET_TIMEOUT = 2,
-			BATTLE_NET_LOGIN_FAILED = 3,
-			BATTLE_NET_LOGGED_IN = 4
 		}
 
 		public enum BnetRegion
@@ -31,22 +30,27 @@ namespace bgs
 			REGION_PTR = 98
 		}
 
+		public enum BNetState
+		{
+			BATTLE_NET_UNKNOWN,
+			BATTLE_NET_LOGGING_IN,
+			BATTLE_NET_TIMEOUT,
+			BATTLE_NET_LOGIN_FAILED,
+			BATTLE_NET_LOGGED_IN
+		}
+
 		public enum MobileEnv
 		{
 			[Description("Development")]
-			DEVELOPMENT = 0,
+			DEVELOPMENT,
 			[Description("Production")]
-			PRODUCTION = 1
+			PRODUCTION
 		}
 
 		public enum RuntimeEnvironment
 		{
-			Mono = 0,
-			MSDotNet = 1
+			Mono,
+			MSDotNet
 		}
-
-		public const ushort RouteToAnyUtil = 0;
-
-		public const float ResubsribeAttemptDelaySeconds = 120f;
 	}
 }

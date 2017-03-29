@@ -13,8 +13,10 @@ public class MissionDataCache
 		{
 			if (MissionDataCache.s_instance == null)
 			{
-				MissionDataCache.s_instance = new MissionDataCache();
-				MissionDataCache.s_instance.m_missionDataDictionary = new Hashtable();
+				MissionDataCache.s_instance = new MissionDataCache()
+				{
+					m_missionDataDictionary = new Hashtable()
+				};
 			}
 			return MissionDataCache.s_instance;
 		}
@@ -28,15 +30,23 @@ public class MissionDataCache
 		}
 	}
 
+	static MissionDataCache()
+	{
+	}
+
+	public MissionDataCache()
+	{
+	}
+
 	public static void AddOrUpdateMissionData(int garrMissionID, int successChance)
 	{
-		if (!MissionDataCache.instance.m_missionDataDictionary.ContainsKey(garrMissionID))
+		if (MissionDataCache.instance.m_missionDataDictionary.ContainsKey(garrMissionID))
 		{
+			MissionDataCache.instance.m_missionDataDictionary.Remove(garrMissionID);
 			MissionDataCache.instance.m_missionDataDictionary.Add(garrMissionID, successChance);
 		}
 		else
 		{
-			MissionDataCache.instance.m_missionDataDictionary.Remove(garrMissionID);
 			MissionDataCache.instance.m_missionDataDictionary.Add(garrMissionID, successChance);
 		}
 	}

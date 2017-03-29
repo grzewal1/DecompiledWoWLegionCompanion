@@ -24,6 +24,10 @@ public class MissionEncounter : MonoBehaviour
 
 	private int m_garrMechanicID;
 
+	public MissionEncounter()
+	{
+	}
+
 	public int GetEncounterID()
 	{
 		return this.m_garrEncounterID;
@@ -41,40 +45,39 @@ public class MissionEncounter : MonoBehaviour
 		GarrEncounterRec record = StaticDB.garrEncounterDB.GetRecord(garrEncounterID);
 		if (record == null)
 		{
-			this.nameText.set_text(string.Empty + garrEncounterID);
+			this.nameText.text = string.Concat(string.Empty, garrEncounterID);
 			return;
 		}
-		this.nameText.set_text(record.Name);
+		this.nameText.text = record.Name;
 		Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.PortraitIcons, record.PortraitFileDataID);
-		if (sprite != null)
+		if (sprite == null)
 		{
-			this.portraitImage.set_sprite(sprite);
+			this.missingIconText.gameObject.SetActive(true);
+			this.missingIconText.text = string.Concat(string.Empty, record.PortraitFileDataID);
 		}
 		else
 		{
-			this.missingIconText.get_gameObject().SetActive(true);
-			this.missingIconText.set_text(string.Empty + record.PortraitFileDataID);
+			this.portraitImage.sprite = sprite;
 		}
 		if (this.m_missionMechanicPrefab != null)
 		{
-			GameObject gameObject = Object.Instantiate<GameObject>(this.m_missionMechanicPrefab);
-			gameObject.get_transform().SetParent(this.m_mechanicRoot.get_transform(), false);
-			MissionMechanic component = gameObject.GetComponent<MissionMechanic>();
-			component.SetMechanicTypeWithMechanicID(garrMechanicID, false);
+			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_missionMechanicPrefab);
+			gameObject.transform.SetParent(this.m_mechanicRoot.transform, false);
+			gameObject.GetComponent<MissionMechanic>().SetMechanicTypeWithMechanicID(garrMechanicID, false);
 		}
 		if (this.m_mechanicEffectDisplayPrefab != null)
 		{
-			GarrMechanicRec record2 = StaticDB.garrMechanicDB.GetRecord(garrMechanicID);
-			if (record2 == null)
+			GarrMechanicRec garrMechanicRec = StaticDB.garrMechanicDB.GetRecord(garrMechanicID);
+			if (garrMechanicRec == null)
 			{
 				this.m_mechanicRoot.SetActive(false);
 			}
-			if (record2 != null && record2.GarrAbilityID != 0)
+			if (garrMechanicRec != null && garrMechanicRec.GarrAbilityID != 0)
 			{
-				GameObject gameObject2 = Object.Instantiate<GameObject>(this.m_mechanicEffectDisplayPrefab);
-				gameObject2.get_transform().SetParent(this.m_mechanicEffectRoot.get_transform(), false);
-				AbilityDisplay component2 = gameObject2.GetComponent<AbilityDisplay>();
-				component2.SetAbility(record2.GarrAbilityID, false, false, null);
+				GameObject gameObject1 = UnityEngine.Object.Instantiate<GameObject>(this.m_mechanicEffectDisplayPrefab);
+				gameObject1.transform.SetParent(this.m_mechanicEffectRoot.transform, false);
+				AbilityDisplay component = gameObject1.GetComponent<AbilityDisplay>();
+				component.SetAbility(garrMechanicRec.GarrAbilityID, false, false, null);
 			}
 		}
 	}

@@ -9,12 +9,7 @@ public class ZoneButton : MonoBehaviour
 
 	private string m_zoneName;
 
-	private void Start()
-	{
-		this.m_zoneName = StaticDB.GetString(this.m_zoneNameTag, null);
-	}
-
-	private void Update()
+	public ZoneButton()
 	{
 	}
 
@@ -26,17 +21,23 @@ public class ZoneButton : MonoBehaviour
 	public void OnTap()
 	{
 		AdventureMapPanel.instance.SetSelectedIconContainer(null);
-		if (AdventureMapPanel.instance.m_testEnableTapToZoomOut && Mathf.Approximately(AdventureMapPanel.instance.m_pinchZoomContentManager.m_zoomFactor, AdventureMapPanel.instance.m_mainMapInfo.m_maxZoomFactor))
+		if (!AdventureMapPanel.instance.m_testEnableTapToZoomOut || !Mathf.Approximately(AdventureMapPanel.instance.m_pinchZoomContentManager.m_zoomFactor, AdventureMapPanel.instance.m_mainMapInfo.m_maxZoomFactor))
 		{
-			if (AdventureMapPanel.instance.GetCurrentMapMission() > 0 || AdventureMapPanel.instance.GetCurrentWorldQuest() > 0)
-			{
-				AdventureMapPanel.instance.SelectMissionFromMap(0);
-				AdventureMapPanel.instance.SelectWorldQuest(0);
-			}
+			AdventureMapPanel.instance.CenterAndZoom(base.transform.position, this, true);
 		}
-		else
+		else if (AdventureMapPanel.instance.GetCurrentMapMission() > 0 || AdventureMapPanel.instance.GetCurrentWorldQuest() > 0)
 		{
-			AdventureMapPanel.instance.CenterAndZoom(base.get_transform().get_position(), this, true);
+			AdventureMapPanel.instance.SelectMissionFromMap(0);
+			AdventureMapPanel.instance.SelectWorldQuest(0);
 		}
+	}
+
+	private void Start()
+	{
+		this.m_zoneName = StaticDB.GetString(this.m_zoneNameTag, null);
+	}
+
+	private void Update()
+	{
 	}
 }

@@ -3,18 +3,14 @@ using UnityEngine;
 
 public class MissionFollowerSlotGroup : MonoBehaviour
 {
-	private void Start()
-	{
-	}
-
-	private void Update()
+	public MissionFollowerSlotGroup()
 	{
 	}
 
 	public bool SetFollower(int garrFollowerID, Sprite followerPortraitImage, Color qualityColor, bool forceReplaceFirstSlot = false)
 	{
-		MissionFollowerSlot[] componentsInChildren = base.get_gameObject().GetComponentsInChildren<MissionFollowerSlot>(true);
-		for (int i = 0; i < componentsInChildren.Length; i++)
+		MissionFollowerSlot[] componentsInChildren = base.gameObject.GetComponentsInChildren<MissionFollowerSlot>(true);
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
 			if (componentsInChildren[i].GetCurrentGarrFollowerID() == garrFollowerID)
 			{
@@ -31,7 +27,7 @@ public class MissionFollowerSlotGroup : MonoBehaviour
 			componentsInChildren[0].SetFollower(garrFollowerID);
 			return true;
 		}
-		for (int j = 0; j < componentsInChildren.Length; j++)
+		for (int j = 0; j < (int)componentsInChildren.Length; j++)
 		{
 			if (!componentsInChildren[j].IsOccupied())
 			{
@@ -40,5 +36,13 @@ public class MissionFollowerSlotGroup : MonoBehaviour
 			}
 		}
 		return false;
+	}
+
+	private void Start()
+	{
+	}
+
+	private void Update()
+	{
 	}
 }

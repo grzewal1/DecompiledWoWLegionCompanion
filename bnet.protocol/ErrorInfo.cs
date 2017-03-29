@@ -1,17 +1,26 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace bnet.protocol
 {
 	public class ErrorInfo : IProtoBuf
 	{
-		public ObjectAddress ObjectAddress
+		public bool IsInitialized
+		{
+			get
+			{
+				return true;
+			}
+		}
+
+		public uint MethodId
 		{
 			get;
 			set;
 		}
 
-		public uint Status
+		public bnet.protocol.ObjectAddress ObjectAddress
 		{
 			get;
 			set;
@@ -23,18 +32,14 @@ namespace bnet.protocol
 			set;
 		}
 
-		public uint MethodId
+		public uint Status
 		{
 			get;
 			set;
 		}
 
-		public bool IsInitialized
+		public ErrorInfo()
 		{
-			get
-			{
-				return true;
-			}
 		}
 
 		public void Deserialize(Stream stream)
@@ -44,7 +49,71 @@ namespace bnet.protocol
 
 		public static ErrorInfo Deserialize(Stream stream, ErrorInfo instance)
 		{
-			return ErrorInfo.Deserialize(stream, instance, -1L);
+			return ErrorInfo.Deserialize(stream, instance, (long)-1);
+		}
+
+		public static ErrorInfo Deserialize(Stream stream, ErrorInfo instance, long limit)
+		{
+			while (true)
+			{
+				if (limit < (long)0 || stream.Position < limit)
+				{
+					int num = stream.ReadByte();
+					if (num != -1)
+					{
+						int num1 = num;
+						if (num1 == 10)
+						{
+							if (instance.ObjectAddress != null)
+							{
+								bnet.protocol.ObjectAddress.DeserializeLengthDelimited(stream, instance.ObjectAddress);
+							}
+							else
+							{
+								instance.ObjectAddress = bnet.protocol.ObjectAddress.DeserializeLengthDelimited(stream);
+							}
+						}
+						else if (num1 == 16)
+						{
+							instance.Status = ProtocolParser.ReadUInt32(stream);
+						}
+						else if (num1 == 24)
+						{
+							instance.ServiceHash = ProtocolParser.ReadUInt32(stream);
+						}
+						else if (num1 == 32)
+						{
+							instance.MethodId = ProtocolParser.ReadUInt32(stream);
+						}
+						else
+						{
+							Key key = ProtocolParser.ReadKey((byte)num, stream);
+							if (key.Field == 0)
+							{
+								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+							}
+							ProtocolParser.SkipKey(stream, key);
+						}
+					}
+					else
+					{
+						if (limit >= (long)0)
+						{
+							throw new EndOfStreamException();
+						}
+						break;
+					}
+				}
+				else
+				{
+					if (stream.Position != limit)
+					{
+						throw new ProtocolBufferException("Read past max limit");
+					}
+					break;
+				}
+			}
+			return instance;
 		}
 
 		public static ErrorInfo DeserializeLengthDelimited(Stream stream)
@@ -56,73 +125,60 @@ namespace bnet.protocol
 
 		public static ErrorInfo DeserializeLengthDelimited(Stream stream, ErrorInfo instance)
 		{
-			long num = (long)((ulong)ProtocolParser.ReadUInt32(stream));
-			num += stream.get_Position();
-			return ErrorInfo.Deserialize(stream, instance, num);
+			long position = (long)ProtocolParser.ReadUInt32(stream);
+			position = position + stream.Position;
+			return ErrorInfo.Deserialize(stream, instance, position);
 		}
 
-		public static ErrorInfo Deserialize(Stream stream, ErrorInfo instance, long limit)
+		public override bool Equals(object obj)
 		{
-			while (limit < 0L || stream.get_Position() < limit)
+			ErrorInfo errorInfo = obj as ErrorInfo;
+			if (errorInfo == null)
 			{
-				int num = stream.ReadByte();
-				if (num == -1)
-				{
-					if (limit >= 0L)
-					{
-						throw new EndOfStreamException();
-					}
-					return instance;
-				}
-				else
-				{
-					int num2 = num;
-					if (num2 != 10)
-					{
-						if (num2 != 16)
-						{
-							if (num2 != 24)
-							{
-								if (num2 != 32)
-								{
-									Key key = ProtocolParser.ReadKey((byte)num, stream);
-									uint field = key.Field;
-									if (field == 0u)
-									{
-										throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-									}
-									ProtocolParser.SkipKey(stream, key);
-								}
-								else
-								{
-									instance.MethodId = ProtocolParser.ReadUInt32(stream);
-								}
-							}
-							else
-							{
-								instance.ServiceHash = ProtocolParser.ReadUInt32(stream);
-							}
-						}
-						else
-						{
-							instance.Status = ProtocolParser.ReadUInt32(stream);
-						}
-					}
-					else if (instance.ObjectAddress == null)
-					{
-						instance.ObjectAddress = ObjectAddress.DeserializeLengthDelimited(stream);
-					}
-					else
-					{
-						ObjectAddress.DeserializeLengthDelimited(stream, instance.ObjectAddress);
-					}
-				}
+				return false;
 			}
-			if (stream.get_Position() == limit)
+			if (!this.ObjectAddress.Equals(errorInfo.ObjectAddress))
 			{
-				return instance;
+				return false;
 			}
-			throw new ProtocolBufferException("Read past max limit");
+			if (!this.Status.Equals(errorInfo.Status))
+			{
+				return false;
+			}
+			if (!this.ServiceHash.Equals(errorInfo.ServiceHash))
+			{
+				return false;
+			}
+			if (!this.MethodId.Equals(errorInfo.MethodId))
+			{
+				return false;
+			}
+			return true;
+		}
+
+		public override int GetHashCode()
+		{
+			int hashCode = this.GetType().GetHashCode();
+			hashCode = hashCode ^ this.ObjectAddress.GetHashCode();
+			hashCode = hashCode ^ this.Status.GetHashCode();
+			hashCode = hashCode ^ this.ServiceHash.GetHashCode();
+			return hashCode ^ this.MethodId.GetHashCode();
+		}
+
+		public uint GetSerializedSize()
+		{
+			uint num = 0;
+			uint serializedSize = this.ObjectAddress.GetSerializedSize();
+			num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
+			num = num + ProtocolParser.SizeOfUInt32(this.Status);
+			num = num + ProtocolParser.SizeOfUInt32(this.ServiceHash);
+			num = num + ProtocolParser.SizeOfUInt32(this.MethodId);
+			return num + 4;
+		}
+
+		public static ErrorInfo ParseFrom(byte[] bs)
+		{
+			return ProtobufUtil.ParseFrom<ErrorInfo>(bs, 0, -1);
 		}
 
 		public void Serialize(Stream stream)
@@ -138,7 +194,7 @@ namespace bnet.protocol
 			}
 			stream.WriteByte(10);
 			ProtocolParser.WriteUInt32(stream, instance.ObjectAddress.GetSerializedSize());
-			ObjectAddress.Serialize(stream, instance.ObjectAddress);
+			bnet.protocol.ObjectAddress.Serialize(stream, instance.ObjectAddress);
 			stream.WriteByte(16);
 			ProtocolParser.WriteUInt32(stream, instance.Status);
 			stream.WriteByte(24);
@@ -147,25 +203,14 @@ namespace bnet.protocol
 			ProtocolParser.WriteUInt32(stream, instance.MethodId);
 		}
 
-		public uint GetSerializedSize()
+		public void SetMethodId(uint val)
 		{
-			uint num = 0u;
-			uint serializedSize = this.ObjectAddress.GetSerializedSize();
-			num += serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
-			num += ProtocolParser.SizeOfUInt32(this.Status);
-			num += ProtocolParser.SizeOfUInt32(this.ServiceHash);
-			num += ProtocolParser.SizeOfUInt32(this.MethodId);
-			return num + 4u;
+			this.MethodId = val;
 		}
 
-		public void SetObjectAddress(ObjectAddress val)
+		public void SetObjectAddress(bnet.protocol.ObjectAddress val)
 		{
 			this.ObjectAddress = val;
-		}
-
-		public void SetStatus(uint val)
-		{
-			this.Status = val;
 		}
 
 		public void SetServiceHash(uint val)
@@ -173,29 +218,9 @@ namespace bnet.protocol
 			this.ServiceHash = val;
 		}
 
-		public void SetMethodId(uint val)
+		public void SetStatus(uint val)
 		{
-			this.MethodId = val;
-		}
-
-		public override int GetHashCode()
-		{
-			int num = base.GetType().GetHashCode();
-			num ^= this.ObjectAddress.GetHashCode();
-			num ^= this.Status.GetHashCode();
-			num ^= this.ServiceHash.GetHashCode();
-			return num ^ this.MethodId.GetHashCode();
-		}
-
-		public override bool Equals(object obj)
-		{
-			ErrorInfo errorInfo = obj as ErrorInfo;
-			return errorInfo != null && this.ObjectAddress.Equals(errorInfo.ObjectAddress) && this.Status.Equals(errorInfo.Status) && this.ServiceHash.Equals(errorInfo.ServiceHash) && this.MethodId.Equals(errorInfo.MethodId);
-		}
-
-		public static ErrorInfo ParseFrom(byte[] bs)
-		{
-			return ProtobufUtil.ParseFrom<ErrorInfo>(bs, 0, -1);
+			this.Status = val;
 		}
 	}
 }

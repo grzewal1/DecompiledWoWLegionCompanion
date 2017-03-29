@@ -7,10 +7,10 @@ namespace WowJamMessages
 	public enum LOOT_LIST_ITEM_TYPE
 	{
 		[EnumMember]
-		LOOT_LIST_ITEM = 0,
+		LOOT_LIST_ITEM,
 		[EnumMember]
-		LOOT_LIST_CURRENCY = 1,
+		LOOT_LIST_CURRENCY,
 		[EnumMember]
-		LOOT_LIST_TRACKING_QUEST = 2
+		LOOT_LIST_TRACKING_QUEST
 	}
 }

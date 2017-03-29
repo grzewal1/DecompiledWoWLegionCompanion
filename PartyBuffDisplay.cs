@@ -12,21 +12,25 @@ public class PartyBuffDisplay : MonoBehaviour
 
 	public Text m_abilityDescription;
 
+	public PartyBuffDisplay()
+	{
+	}
+
 	public void SetAbility(int garrAbilityID)
 	{
 		GarrAbilityRec record = StaticDB.garrAbilityDB.GetRecord(garrAbilityID);
 		if (record == null)
 		{
-			Debug.LogWarning("Invalid garrAbilityID " + garrAbilityID);
+			Debug.LogWarning(string.Concat("Invalid garrAbilityID ", garrAbilityID));
 			return;
 		}
-		this.m_abilityName.set_text(record.Name);
-		this.m_abilityDescription.set_text(WowTextParser.parser.Parse(record.Description, 0));
-		this.m_abilityDescription.set_supportRichText(WowTextParser.parser.IsRichText());
+		this.m_abilityName.text = record.Name;
+		this.m_abilityDescription.text = WowTextParser.parser.Parse(record.Description, 0);
+		this.m_abilityDescription.supportRichText = WowTextParser.parser.IsRichText();
 		Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, record.IconFileDataID);
 		if (sprite != null)
 		{
-			this.m_abilityIcon.set_sprite(sprite);
+			this.m_abilityIcon.sprite = sprite;
 		}
 	}
 }

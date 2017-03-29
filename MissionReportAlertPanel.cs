@@ -32,110 +32,29 @@ public class MissionReportAlertPanel : MonoBehaviour
 
 	private Dictionary<int, bool> _requestedMissionCollection;
 
-	private Dictionary<int, bool> GetRequestedMissionCollectionDictionary()
+	public MissionReportAlertPanel()
 	{
-		if (this._requestedMissionCollection == null)
-		{
-			this._requestedMissionCollection = new Dictionary<int, bool>();
-		}
-		return this._requestedMissionCollection;
 	}
 
 	private void Awake()
 	{
 	}
 
-	private void Update()
-	{
-		this.completedMissionsText.set_text(string.Empty + PersistentMissionData.GetNumCompletedMissions(false) + " Completed Missions");
-	}
-
-	private void OnEnable()
-	{
-		this.GetRequestedMissionCollectionDictionary().Clear();
-		this.okButton.SetActive(false);
-		this.mainCanvas.set_renderMode(1);
-		if (GarrisonStatus.Faction() == PVP_FACTION.HORDE)
-		{
-			this.hordeCommander.SetActive(true);
-			this.allianceCommander.SetActive(false);
-		}
-		else
-		{
-			this.hordeCommander.SetActive(false);
-			this.allianceCommander.SetActive(true);
-		}
-		this.completedMissionsText.set_text(string.Empty + PersistentMissionData.GetNumCompletedMissions(false) + " Completed Missions");
-		MissionListItem[] componentsInChildren = this.completedMissionListContents.GetComponentsInChildren<MissionListItem>(true);
-		for (int i = 0; i < componentsInChildren.Length; i++)
-		{
-			Object.DestroyImmediate(componentsInChildren[i].get_gameObject());
-		}
-		MissionRewardDisplay[] componentsInChildren2 = this.missionRewardsIconArea.GetComponentsInChildren<MissionRewardDisplay>(true);
-		for (int j = 0; j < componentsInChildren2.Length; j++)
-		{
-			Object.DestroyImmediate(componentsInChildren2[j].get_gameObject());
-		}
-		this.missionReportView.SetActive(true);
-		this.missionResultsView.SetActive(false);
-	}
-
-	private void OnDisable()
-	{
-		this.mainCanvas.set_renderMode(0);
-	}
-
-	private bool MissionIsOnCompletedMissionList(int garrMissionID)
-	{
-		MissionListItem[] componentsInChildren = this.completedMissionListContents.GetComponentsInChildren<MissionListItem>(true);
-		for (int i = 0; i < componentsInChildren.Length; i++)
-		{
-			if (componentsInChildren[i].garrMissionID == garrMissionID)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private void PopulateCompletedMissionList()
-	{
-		IEnumerator enumerator = PersistentMissionData.missionDictionary.get_Values().GetEnumerator();
-		try
-		{
-			while (enumerator.MoveNext())
-			{
-				JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)enumerator.get_Current();
-				if ((jamGarrisonMobileMission.MissionState == 2 || jamGarrisonMobileMission.MissionState == 6) && !this.MissionIsOnCompletedMissionList(jamGarrisonMobileMission.MissionRecID))
-				{
-					GameObject gameObject = Object.Instantiate<GameObject>(this.missionListItemPrefab);
-					gameObject.get_transform().SetParent(this.completedMissionListContents.get_transform(), false);
-					MissionListItem component = gameObject.GetComponent<MissionListItem>();
-					component.Init(jamGarrisonMobileMission.MissionRecID);
-					component.isResultsItem = true;
-				}
-			}
-		}
-		finally
-		{
-			IDisposable disposable = enumerator as IDisposable;
-			if (disposable != null)
-			{
-				disposable.Dispose();
-			}
-		}
-	}
-
 	private void CollectFirstCompletedMission()
 	{
 		MissionListItem[] componentsInChildren = this.completedMissionListContents.GetComponentsInChildren<MissionListItem>(true);
-		for (int i = 0; i < componentsInChildren.Length; i++)
+		int num = 0;
+		while (num < (int)componentsInChildren.Length)
 		{
-			JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary.get_Item(componentsInChildren[i].garrMissionID);
-			if (!this.GetRequestedMissionCollectionDictionary().ContainsKey(componentsInChildren[i].garrMissionID) && PersistentMissionData.missionDictionary.ContainsKey(componentsInChildren[i].garrMissionID) && jamGarrisonMobileMission.MissionState == 2)
+			JamGarrisonMobileMission item = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary[componentsInChildren[num].garrMissionID];
+			if (this.GetRequestedMissionCollectionDictionary().ContainsKey(componentsInChildren[num].garrMissionID) || !PersistentMissionData.missionDictionary.ContainsKey(componentsInChildren[num].garrMissionID) || item.MissionState != 2)
 			{
-				this.GetRequestedMissionCollectionDictionary().Add(componentsInChildren[i].garrMissionID, true);
-				Main.instance.ClaimMissionBonus(componentsInChildren[i].garrMissionID);
+				num++;
+			}
+			else
+			{
+				this.GetRequestedMissionCollectionDictionary().Add(componentsInChildren[num].garrMissionID, true);
+				Main.instance.ClaimMissionBonus(componentsInChildren[num].garrMissionID);
 				break;
 			}
 		}
@@ -150,42 +69,99 @@ public class MissionReportAlertPanel : MonoBehaviour
 		this.CollectFirstCompletedMission();
 	}
 
+	private Dictionary<int, bool> GetRequestedMissionCollectionDictionary()
+	{
+		if (this._requestedMissionCollection == null)
+		{
+			this._requestedMissionCollection = new Dictionary<int, bool>();
+		}
+		return this._requestedMissionCollection;
+	}
+
+	private bool MissionIsOnCompletedMissionList(int garrMissionID)
+	{
+		MissionListItem[] componentsInChildren = this.completedMissionListContents.GetComponentsInChildren<MissionListItem>(true);
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
+		{
+			if (componentsInChildren[i].garrMissionID == garrMissionID)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void OnDisable()
+	{
+		this.mainCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+	}
+
+	private void OnEnable()
+	{
+		this.GetRequestedMissionCollectionDictionary().Clear();
+		this.okButton.SetActive(false);
+		this.mainCanvas.renderMode = RenderMode.ScreenSpaceCamera;
+		if (GarrisonStatus.Faction() != PVP_FACTION.HORDE)
+		{
+			this.hordeCommander.SetActive(false);
+			this.allianceCommander.SetActive(true);
+		}
+		else
+		{
+			this.hordeCommander.SetActive(true);
+			this.allianceCommander.SetActive(false);
+		}
+		this.completedMissionsText.text = string.Concat(string.Empty, PersistentMissionData.GetNumCompletedMissions(false), " Completed Missions");
+		MissionListItem[] componentsInChildren = this.completedMissionListContents.GetComponentsInChildren<MissionListItem>(true);
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
+		{
+			UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
+		}
+		MissionRewardDisplay[] missionRewardDisplayArray = this.missionRewardsIconArea.GetComponentsInChildren<MissionRewardDisplay>(true);
+		for (int j = 0; j < (int)missionRewardDisplayArray.Length; j++)
+		{
+			UnityEngine.Object.DestroyImmediate(missionRewardDisplayArray[j].gameObject);
+		}
+		this.missionReportView.SetActive(true);
+		this.missionResultsView.SetActive(false);
+	}
+
 	public void OnMissionStatusChanged()
 	{
 		this.PopulateCompletedMissionList();
 		this.CollectFirstCompletedMission();
 		int num = 0;
 		MissionListItem[] componentsInChildren = this.completedMissionListContents.GetComponentsInChildren<MissionListItem>(true);
-		MissionRewardDisplay[] componentsInChildren2 = this.missionRewardsIconArea.get_transform().GetComponentsInChildren<MissionRewardDisplay>(true);
-		for (int i = 0; i < componentsInChildren2.Length; i++)
+		MissionRewardDisplay[] missionRewardDisplayArray = this.missionRewardsIconArea.transform.GetComponentsInChildren<MissionRewardDisplay>(true);
+		for (int i = 0; i < (int)missionRewardDisplayArray.Length; i++)
 		{
-			Object.DestroyImmediate(componentsInChildren2[i].get_gameObject());
+			UnityEngine.Object.DestroyImmediate(missionRewardDisplayArray[i].gameObject);
 		}
-		for (int j = 0; j < componentsInChildren.Length; j++)
+		for (int j = 0; j < (int)componentsInChildren.Length; j++)
 		{
-			JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary.get_Item(componentsInChildren[j].garrMissionID);
-			if (PersistentMissionData.missionDictionary.ContainsKey(componentsInChildren[j].garrMissionID) && jamGarrisonMobileMission.MissionState == 6)
+			JamGarrisonMobileMission item = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary[componentsInChildren[j].garrMissionID];
+			if (!PersistentMissionData.missionDictionary.ContainsKey(componentsInChildren[j].garrMissionID) || item.MissionState != 6)
 			{
-				componentsInChildren[j].inProgressDarkener.SetActive(true);
-				componentsInChildren[j].missionResultsText.get_gameObject().SetActive(true);
-				if (this.GetRequestedMissionCollectionDictionary().ContainsKey(componentsInChildren[j].garrMissionID))
-				{
-					componentsInChildren[j].missionResultsText.set_text("<color=#00ff00ff>SUCCEEDED!</color>");
-					MissionRewardDisplay[] componentsInChildren3 = componentsInChildren[j].missionRewardGroup.GetComponentsInChildren<MissionRewardDisplay>(true);
-					for (int k = 0; k < componentsInChildren3.Length; k++)
-					{
-						GameObject gameObject = Object.Instantiate<GameObject>(this.missionRewardResultsDisplayPrefab);
-						gameObject.get_transform().SetParent(this.missionRewardsIconArea.get_transform(), false);
-					}
-				}
-				else
-				{
-					componentsInChildren[j].missionResultsText.set_text("<color=#ff0000ff>FAILED</color>");
-				}
+				num++;
 			}
 			else
 			{
-				num++;
+				componentsInChildren[j].inProgressDarkener.SetActive(true);
+				componentsInChildren[j].missionResultsText.gameObject.SetActive(true);
+				if (!this.GetRequestedMissionCollectionDictionary().ContainsKey(componentsInChildren[j].garrMissionID))
+				{
+					componentsInChildren[j].missionResultsText.text = "<color=#ff0000ff>FAILED</color>";
+				}
+				else
+				{
+					componentsInChildren[j].missionResultsText.text = "<color=#00ff00ff>SUCCEEDED!</color>";
+					MissionRewardDisplay[] componentsInChildren1 = componentsInChildren[j].missionRewardGroup.GetComponentsInChildren<MissionRewardDisplay>(true);
+					for (int k = 0; k < (int)componentsInChildren1.Length; k++)
+					{
+						GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.missionRewardResultsDisplayPrefab);
+						gameObject.transform.SetParent(this.missionRewardsIconArea.transform, false);
+					}
+				}
 			}
 			if (num == 0)
 			{
@@ -194,10 +170,44 @@ public class MissionReportAlertPanel : MonoBehaviour
 		}
 	}
 
+	private void PopulateCompletedMissionList()
+	{
+		IEnumerator enumerator = PersistentMissionData.missionDictionary.Values.GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				JamGarrisonMobileMission current = (JamGarrisonMobileMission)enumerator.Current;
+				if (current.MissionState != 2 && current.MissionState != 6 || this.MissionIsOnCompletedMissionList(current.MissionRecID))
+				{
+					continue;
+				}
+				GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.missionListItemPrefab);
+				gameObject.transform.SetParent(this.completedMissionListContents.transform, false);
+				MissionListItem component = gameObject.GetComponent<MissionListItem>();
+				component.Init(current.MissionRecID);
+				component.isResultsItem = true;
+			}
+		}
+		finally
+		{
+			IDisposable disposable = enumerator as IDisposable;
+			if (disposable == null)
+			{
+			}
+			disposable.Dispose();
+		}
+	}
+
 	public void ShowMissionListAndRefreshData()
 	{
 		Debug.Log("Request Data Refresh");
 		Main.instance.MobileRequestData();
 		Main.instance.allPanels.ShowAdventureMap();
+	}
+
+	private void Update()
+	{
+		this.completedMissionsText.text = string.Concat(string.Empty, PersistentMissionData.GetNumCompletedMissions(false), " Completed Missions");
 	}
 }

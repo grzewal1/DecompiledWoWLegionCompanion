@@ -21,80 +21,32 @@ public class RealmListView : MonoBehaviour
 
 	public Text m_cancelText;
 
-	private void Start()
+	public RealmListView()
 	{
-		this.m_titleText.set_font(GeneralHelpers.LoadFancyFont());
-		this.m_titleText.set_text(StaticDB.GetString("REALM_SELECTION", null));
-		this.m_cancelText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_cancelText.set_text(StaticDB.GetString("CANCEL", null));
-	}
-
-	private void Update()
-	{
-	}
-
-	private void OnEnable()
-	{
-		if (Main.instance)
-		{
-		}
-	}
-
-	public void ClearBnRealmList()
-	{
-		BnLoginButton[] componentsInChildren = this.loginListContents.get_transform().GetComponentsInChildren<BnLoginButton>(true);
-		for (int i = 0; i < componentsInChildren.Length; i++)
-		{
-			Object.DestroyImmediate(componentsInChildren[i].get_gameObject());
-		}
-		BnGameAccountButton[] componentsInChildren2 = this.loginListContents.get_transform().GetComponentsInChildren<BnGameAccountButton>(true);
-		for (int j = 0; j < componentsInChildren2.Length; j++)
-		{
-			Object.DestroyImmediate(componentsInChildren2[j].get_gameObject());
-		}
-	}
-
-	public void AddGameAccountButton(EntityId gameAccount, string name, bool isBanned, bool isSuspended)
-	{
-		BnLoginButton[] componentsInChildren = this.loginListContents.GetComponentsInChildren<BnLoginButton>();
-		int num = (componentsInChildren == null) ? 0 : componentsInChildren.Length;
-		GameObject gameObject = Object.Instantiate<GameObject>(this.gameAccountButtonPrefab);
-		gameObject.get_transform().SetParent(this.loginListContents.get_transform(), false);
-		BnGameAccountButton component = gameObject.GetComponent<BnGameAccountButton>();
-		component.SetInfo(gameAccount, name, isBanned, isSuspended);
-		FancyEntrance component2 = gameObject.GetComponent<FancyEntrance>();
-		component2.m_timeToDelayEntrance = this.m_listItemInitialEntranceDelay + this.m_listItemEntranceDelay * (float)num;
-		component2.Activate();
 	}
 
 	public void AddBnLoginButton(string realmName, ulong realmAddress, string subRegion, int characterCount, bool online)
 	{
 		BnLoginButton[] componentsInChildren = this.loginListContents.GetComponentsInChildren<BnLoginButton>();
-		int num = (componentsInChildren == null) ? 0 : componentsInChildren.Length;
-		GameObject gameObject = Object.Instantiate<GameObject>(this.bnLoginListItemPrefab);
-		gameObject.get_transform().SetParent(this.loginListContents.get_transform(), false);
-		BnLoginButton component = gameObject.GetComponent<BnLoginButton>();
-		component.SetInfo(realmAddress, realmName, subRegion, characterCount, online);
-		FancyEntrance component2 = gameObject.GetComponent<FancyEntrance>();
-		component2.m_timeToDelayEntrance = this.m_listItemInitialEntranceDelay + this.m_listItemEntranceDelay * (float)num;
-		component2.Activate();
+		int num = (componentsInChildren == null ? 0 : (int)componentsInChildren.Length);
+		GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.bnLoginListItemPrefab);
+		gameObject.transform.SetParent(this.loginListContents.transform, false);
+		gameObject.GetComponent<BnLoginButton>().SetInfo(realmAddress, realmName, subRegion, characterCount, online);
+		FancyEntrance component = gameObject.GetComponent<FancyEntrance>();
+		component.m_timeToDelayEntrance = this.m_listItemInitialEntranceDelay + this.m_listItemEntranceDelay * (float)num;
+		component.Activate();
 	}
 
-	public void UpdateLoginButton(ulong realmAddress, bool online)
+	public void AddGameAccountButton(EntityId gameAccount, string name, bool isBanned, bool isSuspended)
 	{
 		BnLoginButton[] componentsInChildren = this.loginListContents.GetComponentsInChildren<BnLoginButton>();
-		if (componentsInChildren == null)
-		{
-			return;
-		}
-		for (int i = 0; i < componentsInChildren.Length; i++)
-		{
-			if (componentsInChildren[i].GetRealmAddress() == realmAddress)
-			{
-				componentsInChildren[i].SetOnline(online);
-				return;
-			}
-		}
+		int num = (componentsInChildren == null ? 0 : (int)componentsInChildren.Length);
+		GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.gameAccountButtonPrefab);
+		gameObject.transform.SetParent(this.loginListContents.transform, false);
+		gameObject.GetComponent<BnGameAccountButton>().SetInfo(gameAccount, name, isBanned, isSuspended);
+		FancyEntrance component = gameObject.GetComponent<FancyEntrance>();
+		component.m_timeToDelayEntrance = this.m_listItemInitialEntranceDelay + this.m_listItemEntranceDelay * (float)num;
+		component.Activate();
 	}
 
 	public bool BnLoginButtonExists(ulong realmAddress)
@@ -104,7 +56,7 @@ public class RealmListView : MonoBehaviour
 		{
 			return false;
 		}
-		for (int i = 0; i < componentsInChildren.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
 			if (componentsInChildren[i].GetRealmAddress() == realmAddress)
 			{
@@ -114,13 +66,61 @@ public class RealmListView : MonoBehaviour
 		return false;
 	}
 
-	public void SetRealmListTitle()
+	public void ClearBnRealmList()
 	{
-		this.m_titleText.set_text(StaticDB.GetString("REALM_SELECTION", null));
+		BnLoginButton[] componentsInChildren = this.loginListContents.transform.GetComponentsInChildren<BnLoginButton>(true);
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
+		{
+			UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
+		}
+		BnGameAccountButton[] bnGameAccountButtonArray = this.loginListContents.transform.GetComponentsInChildren<BnGameAccountButton>(true);
+		for (int j = 0; j < (int)bnGameAccountButtonArray.Length; j++)
+		{
+			UnityEngine.Object.DestroyImmediate(bnGameAccountButtonArray[j].gameObject);
+		}
+	}
+
+	private void OnEnable()
+	{
+		!Main.instance;
 	}
 
 	public void SetGameAccountTitle()
 	{
-		this.m_titleText.set_text(StaticDB.GetString("ACCOUNT_SELECTION", null));
+		this.m_titleText.text = StaticDB.GetString("ACCOUNT_SELECTION", null);
+	}
+
+	public void SetRealmListTitle()
+	{
+		this.m_titleText.text = StaticDB.GetString("REALM_SELECTION", null);
+	}
+
+	private void Start()
+	{
+		this.m_titleText.font = GeneralHelpers.LoadFancyFont();
+		this.m_titleText.text = StaticDB.GetString("REALM_SELECTION", null);
+		this.m_cancelText.font = GeneralHelpers.LoadStandardFont();
+		this.m_cancelText.text = StaticDB.GetString("CANCEL", null);
+	}
+
+	private void Update()
+	{
+	}
+
+	public void UpdateLoginButton(ulong realmAddress, bool online)
+	{
+		BnLoginButton[] componentsInChildren = this.loginListContents.GetComponentsInChildren<BnLoginButton>();
+		if (componentsInChildren == null)
+		{
+			return;
+		}
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
+		{
+			if (componentsInChildren[i].GetRealmAddress() == realmAddress)
+			{
+				componentsInChildren[i].SetOnline(online);
+				return;
+			}
+		}
 	}
 }

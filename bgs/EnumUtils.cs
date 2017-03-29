@@ -8,144 +8,160 @@ namespace bgs
 {
 	public class EnumUtils
 	{
-		private static Dictionary<Type, Dictionary<string, object>> s_enumCache = new Dictionary<Type, Dictionary<string, object>>();
+		private static Dictionary<Type, Dictionary<string, object>> s_enumCache;
 
-		public static string GetString<T>(T enumVal)
+		static EnumUtils()
 		{
-			string text = enumVal.ToString();
-			FieldInfo field = enumVal.GetType().GetField(text);
-			DescriptionAttribute[] array = (DescriptionAttribute[])field.GetCustomAttributes(typeof(DescriptionAttribute), false);
-			if (array.Length > 0)
-			{
-				return array[0].get_Description();
-			}
-			return text;
+			EnumUtils.s_enumCache = new Dictionary<Type, Dictionary<string, object>>();
 		}
 
-		public static bool TryGetEnum<T>(string str, StringComparison comparisonType, out T result)
+		public EnumUtils()
 		{
-			Type typeFromHandle = typeof(T);
-			Dictionary<string, object> dictionary;
-			EnumUtils.s_enumCache.TryGetValue(typeFromHandle, ref dictionary);
-			object obj;
-			if (dictionary != null && dictionary.TryGetValue(str, ref obj))
-			{
-				result = (T)((object)obj);
-				return true;
-			}
-			IEnumerator enumerator = Enum.GetValues(typeFromHandle).GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					T t = (T)((object)enumerator.get_Current());
-					bool flag = false;
-					string @string = EnumUtils.GetString<T>(t);
-					if (@string.Equals(str, comparisonType))
-					{
-						flag = true;
-						result = t;
-					}
-					else
-					{
-						FieldInfo field = t.GetType().GetField(t.ToString());
-						DescriptionAttribute[] array = (DescriptionAttribute[])field.GetCustomAttributes(typeof(DescriptionAttribute), false);
-						for (int i = 0; i < array.Length; i++)
-						{
-							if (array[i].get_Description().Equals(str, comparisonType))
-							{
-								flag = true;
-								break;
-							}
-						}
-					}
-					if (flag)
-					{
-						if (dictionary == null)
-						{
-							dictionary = new Dictionary<string, object>();
-							EnumUtils.s_enumCache.Add(typeFromHandle, dictionary);
-						}
-						if (!dictionary.ContainsKey(str))
-						{
-							dictionary.Add(str, t);
-						}
-						result = t;
-						return true;
-					}
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
-				{
-					disposable.Dispose();
-				}
-			}
-			result = default(T);
-			return false;
 		}
 
 		public static T GetEnum<T>(string str)
 		{
-			return EnumUtils.GetEnum<T>(str, 4);
+			return EnumUtils.GetEnum<T>(str, StringComparison.Ordinal);
 		}
 
 		public static T GetEnum<T>(string str, StringComparison comparisonType)
 		{
-			T result;
-			if (EnumUtils.TryGetEnum<T>(str, comparisonType, out result))
+			T t;
+			if (!EnumUtils.TryGetEnum<T>(str, comparisonType, out t))
 			{
-				return result;
+				throw new ArgumentException(string.Format("EnumUtils.GetEnum() - \"{0}\" has no matching value in enum {1}", str, typeof(T)));
 			}
-			string text = string.Format("EnumUtils.GetEnum() - \"{0}\" has no matching value in enum {1}", str, typeof(T));
-			throw new ArgumentException(text);
+			return t;
 		}
 
-		public static bool TryGetEnum<T>(string str, out T outVal)
+		public static string GetString<T>(T enumVal)
 		{
-			return EnumUtils.TryGetEnum<T>(str, 4, out outVal);
-		}
-
-		public static T Parse<T>(string str)
-		{
-			return (T)((object)Enum.Parse(typeof(T), str));
-		}
-
-		public static T SafeParse<T>(string str)
-		{
-			T result;
-			try
+			string str = enumVal.ToString();
+			FieldInfo field = enumVal.GetType().GetField(str);
+			DescriptionAttribute[] customAttributes = (DescriptionAttribute[])field.GetCustomAttributes(typeof(DescriptionAttribute), false);
+			if ((int)customAttributes.Length <= 0)
 			{
-				result = (T)((object)Enum.Parse(typeof(T), str));
+				return str;
 			}
-			catch (Exception)
-			{
-				result = default(T);
-			}
-			return result;
-		}
-
-		public static bool TryCast<T>(object inVal, out T outVal)
-		{
-			outVal = default(T);
-			bool result;
-			try
-			{
-				outVal = (T)((object)inVal);
-				result = true;
-			}
-			catch (Exception)
-			{
-				result = false;
-			}
-			return result;
+			return customAttributes[0].Description;
 		}
 
 		public static int Length<T>()
 		{
-			return Enum.GetValues(typeof(T)).get_Length();
+			return Enum.GetValues(typeof(T)).Length;
+		}
+
+		public static T Parse<T>(string str)
+		{
+			return (T)Enum.Parse(typeof(T), str);
+		}
+
+		public static T SafeParse<T>(string str)
+		{
+			T t;
+			try
+			{
+				t = (T)Enum.Parse(typeof(T), str);
+			}
+			catch (Exception exception)
+			{
+				t = default(T);
+			}
+			return t;
+		}
+
+		public static bool TryCast<T>(object inVal, out T outVal)
+		{
+			bool flag;
+			outVal = default(T);
+			try
+			{
+				outVal = (T)inVal;
+				flag = true;
+			}
+			catch (Exception exception)
+			{
+				flag = false;
+			}
+			return flag;
+		}
+
+		public static bool TryGetEnum<T>(string str, StringComparison comparisonType, out T result)
+		{
+			Dictionary<string, object> strs;
+			object obj;
+			bool flag;
+			Type type = typeof(T);
+			EnumUtils.s_enumCache.TryGetValue(type, out strs);
+			if (strs != null && strs.TryGetValue(str, out obj))
+			{
+				result = (T)obj;
+				return true;
+			}
+			IEnumerator enumerator = Enum.GetValues(type).GetEnumerator();
+			try
+			{
+				while (enumerator.MoveNext())
+				{
+					T current = (T)enumerator.Current;
+					bool flag1 = false;
+					if (!EnumUtils.GetString<T>(current).Equals(str, comparisonType))
+					{
+						FieldInfo field = current.GetType().GetField(current.ToString());
+						DescriptionAttribute[] customAttributes = (DescriptionAttribute[])field.GetCustomAttributes(typeof(DescriptionAttribute), false);
+						int num = 0;
+						while (num < (int)customAttributes.Length)
+						{
+							if (!customAttributes[num].Description.Equals(str, comparisonType))
+							{
+								num++;
+							}
+							else
+							{
+								flag1 = true;
+								break;
+							}
+						}
+					}
+					else
+					{
+						flag1 = true;
+						result = current;
+					}
+					if (!flag1)
+					{
+						continue;
+					}
+					if (strs == null)
+					{
+						strs = new Dictionary<string, object>();
+						EnumUtils.s_enumCache.Add(type, strs);
+					}
+					if (!strs.ContainsKey(str))
+					{
+						strs.Add(str, current);
+					}
+					result = current;
+					flag = true;
+					return flag;
+				}
+				result = default(T);
+				return false;
+			}
+			finally
+			{
+				IDisposable disposable = enumerator as IDisposable;
+				if (disposable == null)
+				{
+				}
+				disposable.Dispose();
+			}
+			return flag;
+		}
+
+		public static bool TryGetEnum<T>(string str, out T outVal)
+		{
+			return EnumUtils.TryGetEnum<T>(str, StringComparison.Ordinal, out outVal);
 		}
 	}
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace DustinHorne.Json.Examples
 {
@@ -8,6 +9,10 @@ namespace DustinHorne.Json.Examples
 		{
 			get;
 			set;
+		}
+
+		public JNSubClassModel()
+		{
 		}
 	}
 }

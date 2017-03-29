@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace bnet.protocol
@@ -16,6 +17,14 @@ namespace bnet.protocol
 			set;
 		}
 
+		public bool IsInitialized
+		{
+			get
+			{
+				return true;
+			}
+		}
+
 		public uint Port
 		{
 			get
@@ -29,12 +38,8 @@ namespace bnet.protocol
 			}
 		}
 
-		public bool IsInitialized
+		public Address()
 		{
-			get
-			{
-				return true;
-			}
 		}
 
 		public void Deserialize(Stream stream)
@@ -44,7 +49,56 @@ namespace bnet.protocol
 
 		public static Address Deserialize(Stream stream, Address instance)
 		{
-			return Address.Deserialize(stream, instance, -1L);
+			return Address.Deserialize(stream, instance, (long)-1);
+		}
+
+		public static Address Deserialize(Stream stream, Address instance, long limit)
+		{
+			while (true)
+			{
+				if (limit < (long)0 || stream.Position < limit)
+				{
+					int num = stream.ReadByte();
+					if (num != -1)
+					{
+						int num1 = num;
+						if (num1 == 10)
+						{
+							instance.Address_ = ProtocolParser.ReadString(stream);
+						}
+						else if (num1 == 16)
+						{
+							instance.Port = ProtocolParser.ReadUInt32(stream);
+						}
+						else
+						{
+							Key key = ProtocolParser.ReadKey((byte)num, stream);
+							if (key.Field == 0)
+							{
+								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+							}
+							ProtocolParser.SkipKey(stream, key);
+						}
+					}
+					else
+					{
+						if (limit >= (long)0)
+						{
+							throw new EndOfStreamException();
+						}
+						break;
+					}
+				}
+				else
+				{
+					if (stream.Position != limit)
+					{
+						throw new ProtocolBufferException("Read past max limit");
+					}
+					break;
+				}
+			}
+			return instance;
 		}
 
 		public static Address DeserializeLengthDelimited(Stream stream)
@@ -56,55 +110,57 @@ namespace bnet.protocol
 
 		public static Address DeserializeLengthDelimited(Stream stream, Address instance)
 		{
-			long num = (long)((ulong)ProtocolParser.ReadUInt32(stream));
-			num += stream.get_Position();
-			return Address.Deserialize(stream, instance, num);
+			long position = (long)ProtocolParser.ReadUInt32(stream);
+			position = position + stream.Position;
+			return Address.Deserialize(stream, instance, position);
 		}
 
-		public static Address Deserialize(Stream stream, Address instance, long limit)
+		public override bool Equals(object obj)
 		{
-			while (limit < 0L || stream.get_Position() < limit)
+			Address address = obj as Address;
+			if (address == null)
 			{
-				int num = stream.ReadByte();
-				if (num == -1)
-				{
-					if (limit >= 0L)
-					{
-						throw new EndOfStreamException();
-					}
-					return instance;
-				}
-				else
-				{
-					int num2 = num;
-					if (num2 != 10)
-					{
-						if (num2 != 16)
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							uint field = key.Field;
-							if (field == 0u)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-						else
-						{
-							instance.Port = ProtocolParser.ReadUInt32(stream);
-						}
-					}
-					else
-					{
-						instance.Address_ = ProtocolParser.ReadString(stream);
-					}
-				}
+				return false;
 			}
-			if (stream.get_Position() == limit)
+			if (!this.Address_.Equals(address.Address_))
 			{
-				return instance;
+				return false;
 			}
-			throw new ProtocolBufferException("Read past max limit");
+			if (this.HasPort == address.HasPort && (!this.HasPort || this.Port.Equals(address.Port)))
+			{
+				return true;
+			}
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			int hashCode = this.GetType().GetHashCode();
+			hashCode = hashCode ^ this.Address_.GetHashCode();
+			if (this.HasPort)
+			{
+				hashCode = hashCode ^ this.Port.GetHashCode();
+			}
+			return hashCode;
+		}
+
+		public uint GetSerializedSize()
+		{
+			uint num = 0;
+			uint byteCount = (uint)Encoding.UTF8.GetByteCount(this.Address_);
+			num = num + ProtocolParser.SizeOfUInt32(byteCount) + byteCount;
+			if (this.HasPort)
+			{
+				num++;
+				num = num + ProtocolParser.SizeOfUInt32(this.Port);
+			}
+			num++;
+			return num;
+		}
+
+		public static Address ParseFrom(byte[] bs)
+		{
+			return ProtobufUtil.ParseFrom<Address>(bs, 0, -1);
 		}
 
 		public void Serialize(Stream stream)
@@ -119,25 +175,12 @@ namespace bnet.protocol
 				throw new ArgumentNullException("Address_", "Required by proto specification.");
 			}
 			stream.WriteByte(10);
-			ProtocolParser.WriteBytes(stream, Encoding.get_UTF8().GetBytes(instance.Address_));
+			ProtocolParser.WriteBytes(stream, Encoding.UTF8.GetBytes(instance.Address_));
 			if (instance.HasPort)
 			{
 				stream.WriteByte(16);
 				ProtocolParser.WriteUInt32(stream, instance.Port);
 			}
-		}
-
-		public uint GetSerializedSize()
-		{
-			uint num = 0u;
-			uint byteCount = (uint)Encoding.get_UTF8().GetByteCount(this.Address_);
-			num += ProtocolParser.SizeOfUInt32(byteCount) + byteCount;
-			if (this.HasPort)
-			{
-				num += 1u;
-				num += ProtocolParser.SizeOfUInt32(this.Port);
-			}
-			return num + 1u;
 		}
 
 		public void SetAddress_(string val)
@@ -148,28 +191,6 @@ namespace bnet.protocol
 		public void SetPort(uint val)
 		{
 			this.Port = val;
-		}
-
-		public override int GetHashCode()
-		{
-			int num = base.GetType().GetHashCode();
-			num ^= this.Address_.GetHashCode();
-			if (this.HasPort)
-			{
-				num ^= this.Port.GetHashCode();
-			}
-			return num;
-		}
-
-		public override bool Equals(object obj)
-		{
-			Address address = obj as Address;
-			return address != null && this.Address_.Equals(address.Address_) && this.HasPort == address.HasPort && (!this.HasPort || this.Port.Equals(address.Port));
-		}
-
-		public static Address ParseFrom(byte[] bs)
-		{
-			return ProtobufUtil.ParseFrom<Address>(bs, 0, -1);
 		}
 	}
 }

@@ -3,133 +3,13 @@ using Newtonsoft.Json.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace Newtonsoft.Json
 {
 	public abstract class JsonWriter : IDisposable
 	{
-		private enum State
-		{
-			Start = 0,
-			Property = 1,
-			ObjectStart = 2,
-			Object = 3,
-			ArrayStart = 4,
-			Array = 5,
-			ConstructorStart = 6,
-			Constructor = 7,
-			Bytes = 8,
-			Closed = 9,
-			Error = 10
-		}
-
-		private static readonly JsonWriter.State[][] stateArray = new JsonWriter.State[][]
-		{
-			new JsonWriter.State[]
-			{
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error
-			},
-			new JsonWriter.State[]
-			{
-				JsonWriter.State.ObjectStart,
-				JsonWriter.State.ObjectStart,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.ObjectStart,
-				JsonWriter.State.ObjectStart,
-				JsonWriter.State.ObjectStart,
-				JsonWriter.State.ObjectStart,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error
-			},
-			new JsonWriter.State[]
-			{
-				JsonWriter.State.ArrayStart,
-				JsonWriter.State.ArrayStart,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.ArrayStart,
-				JsonWriter.State.ArrayStart,
-				JsonWriter.State.ArrayStart,
-				JsonWriter.State.ArrayStart,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error
-			},
-			new JsonWriter.State[]
-			{
-				JsonWriter.State.ConstructorStart,
-				JsonWriter.State.ConstructorStart,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.ConstructorStart,
-				JsonWriter.State.ConstructorStart,
-				JsonWriter.State.ConstructorStart,
-				JsonWriter.State.ConstructorStart,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error
-			},
-			new JsonWriter.State[]
-			{
-				JsonWriter.State.Property,
-				JsonWriter.State.Error,
-				JsonWriter.State.Property,
-				JsonWriter.State.Property,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error
-			},
-			new JsonWriter.State[]
-			{
-				JsonWriter.State.Start,
-				JsonWriter.State.Property,
-				JsonWriter.State.ObjectStart,
-				JsonWriter.State.Object,
-				JsonWriter.State.ArrayStart,
-				JsonWriter.State.Array,
-				JsonWriter.State.Constructor,
-				JsonWriter.State.Constructor,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error
-			},
-			new JsonWriter.State[]
-			{
-				JsonWriter.State.Start,
-				JsonWriter.State.Property,
-				JsonWriter.State.ObjectStart,
-				JsonWriter.State.Object,
-				JsonWriter.State.ArrayStart,
-				JsonWriter.State.Array,
-				JsonWriter.State.Constructor,
-				JsonWriter.State.Constructor,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error
-			},
-			new JsonWriter.State[]
-			{
-				JsonWriter.State.Start,
-				JsonWriter.State.Object,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error,
-				JsonWriter.State.Array,
-				JsonWriter.State.Array,
-				JsonWriter.State.Constructor,
-				JsonWriter.State.Constructor,
-				JsonWriter.State.Error,
-				JsonWriter.State.Error
-			}
-		};
+		private readonly static JsonWriter.State[][] stateArray;
 
 		private int _top;
 
@@ -137,7 +17,7 @@ namespace Newtonsoft.Json
 
 		private JsonWriter.State _currentState;
 
-		private Formatting _formatting;
+		private Newtonsoft.Json.Formatting _formatting;
 
 		public bool CloseOutput
 		{
@@ -145,43 +25,7 @@ namespace Newtonsoft.Json
 			set;
 		}
 
-		protected internal int Top
-		{
-			get
-			{
-				return this._top;
-			}
-		}
-
-		public WriteState WriteState
-		{
-			get
-			{
-				switch (this._currentState)
-				{
-				case JsonWriter.State.Start:
-					return WriteState.Start;
-				case JsonWriter.State.Property:
-					return WriteState.Property;
-				case JsonWriter.State.ObjectStart:
-				case JsonWriter.State.Object:
-					return WriteState.Object;
-				case JsonWriter.State.ArrayStart:
-				case JsonWriter.State.Array:
-					return WriteState.Array;
-				case JsonWriter.State.ConstructorStart:
-				case JsonWriter.State.Constructor:
-					return WriteState.Constructor;
-				case JsonWriter.State.Closed:
-					return WriteState.Closed;
-				case JsonWriter.State.Error:
-					return WriteState.Error;
-				}
-				throw new JsonWriterException("Invalid state: " + this._currentState);
-			}
-		}
-
-		public Formatting Formatting
+		public Newtonsoft.Json.Formatting Formatting
 		{
 			get
 			{
@@ -193,259 +37,127 @@ namespace Newtonsoft.Json
 			}
 		}
 
+		protected internal int Top
+		{
+			get
+			{
+				return this._top;
+			}
+		}
+
+		public Newtonsoft.Json.WriteState WriteState
+		{
+			get
+			{
+				switch (this._currentState)
+				{
+					case JsonWriter.State.Start:
+					{
+						return Newtonsoft.Json.WriteState.Start;
+					}
+					case JsonWriter.State.Property:
+					{
+						return Newtonsoft.Json.WriteState.Property;
+					}
+					case JsonWriter.State.ObjectStart:
+					case JsonWriter.State.Object:
+					{
+						return Newtonsoft.Json.WriteState.Object;
+					}
+					case JsonWriter.State.ArrayStart:
+					case JsonWriter.State.Array:
+					{
+						return Newtonsoft.Json.WriteState.Array;
+					}
+					case JsonWriter.State.ConstructorStart:
+					case JsonWriter.State.Constructor:
+					{
+						return Newtonsoft.Json.WriteState.Constructor;
+					}
+					case JsonWriter.State.Bytes:
+					{
+						throw new JsonWriterException(string.Concat("Invalid state: ", this._currentState));
+					}
+					case JsonWriter.State.Closed:
+					{
+						return Newtonsoft.Json.WriteState.Closed;
+					}
+					case JsonWriter.State.Error:
+					{
+						return Newtonsoft.Json.WriteState.Error;
+					}
+					default:
+					{
+						throw new JsonWriterException(string.Concat("Invalid state: ", this._currentState));
+					}
+				}
+			}
+		}
+
+		static JsonWriter()
+		{
+			JsonWriter.stateArray = new JsonWriter.State[][] { new JsonWriter.State[] { JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.Error }, new JsonWriter.State[] { JsonWriter.State.ObjectStart, JsonWriter.State.ObjectStart, JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.ObjectStart, JsonWriter.State.ObjectStart, JsonWriter.State.ObjectStart, JsonWriter.State.ObjectStart, JsonWriter.State.Error, JsonWriter.State.Error }, new JsonWriter.State[] { JsonWriter.State.ArrayStart, JsonWriter.State.ArrayStart, JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.ArrayStart, JsonWriter.State.ArrayStart, JsonWriter.State.ArrayStart, JsonWriter.State.ArrayStart, JsonWriter.State.Error, JsonWriter.State.Error }, new JsonWriter.State[] { JsonWriter.State.ConstructorStart, JsonWriter.State.ConstructorStart, JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.ConstructorStart, JsonWriter.State.ConstructorStart, JsonWriter.State.ConstructorStart, JsonWriter.State.ConstructorStart, JsonWriter.State.Error, JsonWriter.State.Error }, new JsonWriter.State[] { JsonWriter.State.Property, JsonWriter.State.Error, JsonWriter.State.Property, JsonWriter.State.Property, JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.Error }, new JsonWriter.State[] { JsonWriter.State.Start, JsonWriter.State.Property, JsonWriter.State.ObjectStart, JsonWriter.State.Object, JsonWriter.State.ArrayStart, JsonWriter.State.Array, JsonWriter.State.Constructor, JsonWriter.State.Constructor, JsonWriter.State.Error, JsonWriter.State.Error }, new JsonWriter.State[] { JsonWriter.State.Start, JsonWriter.State.Property, JsonWriter.State.ObjectStart, JsonWriter.State.Object, JsonWriter.State.ArrayStart, JsonWriter.State.Array, JsonWriter.State.Constructor, JsonWriter.State.Constructor, JsonWriter.State.Error, JsonWriter.State.Error }, new JsonWriter.State[] { JsonWriter.State.Start, JsonWriter.State.Object, JsonWriter.State.Error, JsonWriter.State.Error, JsonWriter.State.Array, JsonWriter.State.Array, JsonWriter.State.Constructor, JsonWriter.State.Constructor, JsonWriter.State.Error, JsonWriter.State.Error } };
+		}
+
 		protected JsonWriter()
 		{
-			this._stack = new List<JTokenType>(8);
-			this._stack.Add(JTokenType.None);
+			this._stack = new List<JTokenType>(8)
+			{
+				JTokenType.None
+			};
 			this._currentState = JsonWriter.State.Start;
-			this._formatting = Formatting.None;
+			this._formatting = Newtonsoft.Json.Formatting.None;
 			this.CloseOutput = true;
 		}
 
-		void IDisposable.Dispose()
+		internal void AutoComplete(JsonToken tokenBeingWritten)
 		{
-			this.Dispose(true);
-		}
-
-		private void Push(JTokenType value)
-		{
-			this._top++;
-			if (this._stack.get_Count() <= this._top)
+			int num;
+			switch (tokenBeingWritten)
 			{
-				this._stack.Add(value);
-			}
-			else
-			{
-				this._stack.set_Item(this._top, value);
-			}
-		}
-
-		private JTokenType Pop()
-		{
-			JTokenType result = this.Peek();
-			this._top--;
-			return result;
-		}
-
-		private JTokenType Peek()
-		{
-			return this._stack.get_Item(this._top);
-		}
-
-		public abstract void Flush();
-
-		public virtual void Close()
-		{
-			this.AutoCompleteAll();
-		}
-
-		public virtual void WriteStartObject()
-		{
-			this.AutoComplete(JsonToken.StartObject);
-			this.Push(JTokenType.Object);
-		}
-
-		public virtual void WriteEndObject()
-		{
-			this.AutoCompleteClose(JsonToken.EndObject);
-		}
-
-		public virtual void WriteStartArray()
-		{
-			this.AutoComplete(JsonToken.StartArray);
-			this.Push(JTokenType.Array);
-		}
-
-		public virtual void WriteEndArray()
-		{
-			this.AutoCompleteClose(JsonToken.EndArray);
-		}
-
-		public virtual void WriteStartConstructor(string name)
-		{
-			this.AutoComplete(JsonToken.StartConstructor);
-			this.Push(JTokenType.Constructor);
-		}
-
-		public virtual void WriteEndConstructor()
-		{
-			this.AutoCompleteClose(JsonToken.EndConstructor);
-		}
-
-		public virtual void WritePropertyName(string name)
-		{
-			this.AutoComplete(JsonToken.PropertyName);
-		}
-
-		public virtual void WriteEnd()
-		{
-			this.WriteEnd(this.Peek());
-		}
-
-		public void WriteToken(JsonReader reader)
-		{
-			ValidationUtils.ArgumentNotNull(reader, "reader");
-			int initialDepth;
-			if (reader.TokenType == JsonToken.None)
-			{
-				initialDepth = -1;
-			}
-			else if (!this.IsStartToken(reader.TokenType))
-			{
-				initialDepth = reader.Depth + 1;
-			}
-			else
-			{
-				initialDepth = reader.Depth;
-			}
-			this.WriteToken(reader, initialDepth);
-		}
-
-		internal void WriteToken(JsonReader reader, int initialDepth)
-		{
-			while (true)
-			{
-				switch (reader.TokenType)
-				{
-				case JsonToken.None:
-					goto IL_1DB;
-				case JsonToken.StartObject:
-					this.WriteStartObject();
-					goto IL_1DB;
-				case JsonToken.StartArray:
-					this.WriteStartArray();
-					goto IL_1DB;
-				case JsonToken.StartConstructor:
-				{
-					string text = reader.Value.ToString();
-					if (string.Compare(text, "Date", 4) == 0)
-					{
-						this.WriteConstructorDate(reader);
-					}
-					else
-					{
-						this.WriteStartConstructor(reader.Value.ToString());
-					}
-					goto IL_1DB;
-				}
-				case JsonToken.PropertyName:
-					this.WritePropertyName(reader.Value.ToString());
-					goto IL_1DB;
-				case JsonToken.Comment:
-					this.WriteComment(reader.Value.ToString());
-					goto IL_1DB;
-				case JsonToken.Raw:
-					this.WriteRawValue((string)reader.Value);
-					goto IL_1DB;
 				case JsonToken.Integer:
-					this.WriteValue(Convert.ToInt64(reader.Value, CultureInfo.get_InvariantCulture()));
-					goto IL_1DB;
 				case JsonToken.Float:
-					this.WriteValue(Convert.ToDouble(reader.Value, CultureInfo.get_InvariantCulture()));
-					goto IL_1DB;
 				case JsonToken.String:
-					this.WriteValue(reader.Value.ToString());
-					goto IL_1DB;
 				case JsonToken.Boolean:
-					this.WriteValue(Convert.ToBoolean(reader.Value, CultureInfo.get_InvariantCulture()));
-					goto IL_1DB;
 				case JsonToken.Null:
-					this.WriteNull();
-					goto IL_1DB;
 				case JsonToken.Undefined:
-					this.WriteUndefined();
-					goto IL_1DB;
-				case JsonToken.EndObject:
-					this.WriteEndObject();
-					goto IL_1DB;
-				case JsonToken.EndArray:
-					this.WriteEndArray();
-					goto IL_1DB;
-				case JsonToken.EndConstructor:
-					this.WriteEndConstructor();
-					goto IL_1DB;
 				case JsonToken.Date:
-					this.WriteValue((DateTime)reader.Value);
-					goto IL_1DB;
 				case JsonToken.Bytes:
-					this.WriteValue((byte[])reader.Value);
-					goto IL_1DB;
-				}
-				break;
-				IL_1DB:
-				if (initialDepth - 1 >= reader.Depth - ((!this.IsEndToken(reader.TokenType)) ? 0 : 1) || !reader.Read())
 				{
-					return;
+					num = 7;
+					break;
+				}
+				case JsonToken.EndObject:
+				case JsonToken.EndArray:
+				case JsonToken.EndConstructor:
+				{
+					num = (int)tokenBeingWritten;
+					break;
+				}
+				default:
+				{
+					goto case JsonToken.EndConstructor;
 				}
 			}
-			throw MiscellaneousUtils.CreateArgumentOutOfRangeException("TokenType", reader.TokenType, "Unexpected token type.");
-		}
-
-		private void WriteConstructorDate(JsonReader reader)
-		{
-			if (!reader.Read())
+			JsonWriter.State state = JsonWriter.stateArray[num][(int)this._currentState];
+			if (state == JsonWriter.State.Error)
 			{
-				throw new Exception("Unexpected end while reading date constructor.");
+				throw new JsonWriterException("Token {0} in state {1} would result in an invalid JavaScript object.".FormatWith(CultureInfo.InvariantCulture, new object[] { tokenBeingWritten.ToString(), this._currentState.ToString() }));
 			}
-			if (reader.TokenType != JsonToken.Integer)
+			if ((this._currentState == JsonWriter.State.Object || this._currentState == JsonWriter.State.Array || this._currentState == JsonWriter.State.Constructor) && tokenBeingWritten != JsonToken.Comment)
 			{
-				throw new Exception("Unexpected token while reading date constructor. Expected Integer, got " + reader.TokenType);
+				this.WriteValueDelimiter();
 			}
-			long javaScriptTicks = (long)reader.Value;
-			DateTime value = JsonConvert.ConvertJavaScriptTicksToDateTime(javaScriptTicks);
-			if (!reader.Read())
+			else if (this._currentState == JsonWriter.State.Property && this._formatting == Newtonsoft.Json.Formatting.Indented)
 			{
-				throw new Exception("Unexpected end while reading date constructor.");
+				this.WriteIndentSpace();
 			}
-			if (reader.TokenType != JsonToken.EndConstructor)
+			Newtonsoft.Json.WriteState writeState = this.WriteState;
+			if (tokenBeingWritten == JsonToken.PropertyName && writeState != Newtonsoft.Json.WriteState.Start || writeState == Newtonsoft.Json.WriteState.Array || writeState == Newtonsoft.Json.WriteState.Constructor)
 			{
-				throw new Exception("Unexpected token while reading date constructor. Expected EndConstructor, got " + reader.TokenType);
+				this.WriteIndent();
 			}
-			this.WriteValue(value);
-		}
-
-		private bool IsEndToken(JsonToken token)
-		{
-			switch (token)
-			{
-			case JsonToken.EndObject:
-			case JsonToken.EndArray:
-			case JsonToken.EndConstructor:
-				return true;
-			default:
-				return false;
-			}
-		}
-
-		private bool IsStartToken(JsonToken token)
-		{
-			switch (token)
-			{
-			case JsonToken.StartObject:
-			case JsonToken.StartArray:
-			case JsonToken.StartConstructor:
-				return true;
-			default:
-				return false;
-			}
-		}
-
-		private void WriteEnd(JTokenType type)
-		{
-			switch (type)
-			{
-			case JTokenType.Object:
-				this.WriteEndObject();
-				break;
-			case JTokenType.Array:
-				this.WriteEndArray();
-				break;
-			case JTokenType.Constructor:
-				this.WriteEndConstructor();
-				break;
-			default:
-				throw new JsonWriterException("Unexpected type when writing end: " + type);
-			}
+			this._currentState = state;
 		}
 
 		private void AutoCompleteAll()
@@ -456,45 +168,19 @@ namespace Newtonsoft.Json
 			}
 		}
 
-		private JTokenType GetTypeForCloseToken(JsonToken token)
-		{
-			switch (token)
-			{
-			case JsonToken.EndObject:
-				return JTokenType.Object;
-			case JsonToken.EndArray:
-				return JTokenType.Array;
-			case JsonToken.EndConstructor:
-				return JTokenType.Constructor;
-			default:
-				throw new JsonWriterException("No type for token: " + token);
-			}
-		}
-
-		private JsonToken GetCloseTokenForType(JTokenType type)
-		{
-			switch (type)
-			{
-			case JTokenType.Object:
-				return JsonToken.EndObject;
-			case JTokenType.Array:
-				return JsonToken.EndArray;
-			case JTokenType.Constructor:
-				return JsonToken.EndConstructor;
-			default:
-				throw new JsonWriterException("No close token for type: " + type);
-			}
-		}
-
 		private void AutoCompleteClose(JsonToken tokenBeingClosed)
 		{
 			int num = 0;
-			for (int i = 0; i < this._top; i++)
+			int num1 = 0;
+			while (num1 < this._top)
 			{
-				int num2 = this._top - i;
-				if (this._stack.get_Item(num2) == this.GetTypeForCloseToken(tokenBeingClosed))
+				if (this._stack[this._top - num1] != this.GetTypeForCloseToken(tokenBeingClosed))
 				{
-					num = i + 1;
+					num1++;
+				}
+				else
+				{
+					num = num1 + 1;
 					break;
 				}
 			}
@@ -502,7 +188,7 @@ namespace Newtonsoft.Json
 			{
 				throw new JsonWriterException("No token to close.");
 			}
-			for (int j = 0; j < num; j++)
+			for (int i = 0; i < num; i++)
 			{
 				JsonToken closeTokenForType = this.GetCloseTokenForType(this.Pop());
 				if (this._currentState != JsonWriter.State.ObjectStart && this._currentState != JsonWriter.State.ArrayStart)
@@ -514,20 +200,203 @@ namespace Newtonsoft.Json
 			JTokenType jTokenType = this.Peek();
 			switch (jTokenType)
 			{
-			case JTokenType.None:
-				this._currentState = JsonWriter.State.Start;
-				break;
-			case JTokenType.Object:
-				this._currentState = JsonWriter.State.Object;
-				break;
-			case JTokenType.Array:
-				this._currentState = JsonWriter.State.Array;
-				break;
-			case JTokenType.Constructor:
-				this._currentState = JsonWriter.State.Array;
-				break;
-			default:
-				throw new JsonWriterException("Unknown JsonType: " + jTokenType);
+				case JTokenType.None:
+				{
+					this._currentState = JsonWriter.State.Start;
+					break;
+				}
+				case JTokenType.Object:
+				{
+					this._currentState = JsonWriter.State.Object;
+					break;
+				}
+				case JTokenType.Array:
+				{
+					this._currentState = JsonWriter.State.Array;
+					break;
+				}
+				case JTokenType.Constructor:
+				{
+					this._currentState = JsonWriter.State.Array;
+					break;
+				}
+				default:
+				{
+					throw new JsonWriterException(string.Concat("Unknown JsonType: ", jTokenType));
+				}
+			}
+		}
+
+		public virtual void Close()
+		{
+			this.AutoCompleteAll();
+		}
+
+		private void Dispose(bool disposing)
+		{
+			if (this.WriteState != Newtonsoft.Json.WriteState.Closed)
+			{
+				this.Close();
+			}
+		}
+
+		public abstract void Flush();
+
+		private JsonToken GetCloseTokenForType(JTokenType type)
+		{
+			switch (type)
+			{
+				case JTokenType.Object:
+				{
+					return JsonToken.EndObject;
+				}
+				case JTokenType.Array:
+				{
+					return JsonToken.EndArray;
+				}
+				case JTokenType.Constructor:
+				{
+					return JsonToken.EndConstructor;
+				}
+			}
+			throw new JsonWriterException(string.Concat("No close token for type: ", type));
+		}
+
+		private JTokenType GetTypeForCloseToken(JsonToken token)
+		{
+			switch (token)
+			{
+				case JsonToken.EndObject:
+				{
+					return JTokenType.Object;
+				}
+				case JsonToken.EndArray:
+				{
+					return JTokenType.Array;
+				}
+				case JsonToken.EndConstructor:
+				{
+					return JTokenType.Constructor;
+				}
+			}
+			throw new JsonWriterException(string.Concat("No type for token: ", token));
+		}
+
+		private bool IsEndToken(JsonToken token)
+		{
+			switch (token)
+			{
+				case JsonToken.EndObject:
+				case JsonToken.EndArray:
+				case JsonToken.EndConstructor:
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private bool IsStartToken(JsonToken token)
+		{
+			switch (token)
+			{
+				case JsonToken.StartObject:
+				case JsonToken.StartArray:
+				case JsonToken.StartConstructor:
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private JTokenType Peek()
+		{
+			return this._stack[this._top];
+		}
+
+		private JTokenType Pop()
+		{
+			JTokenType jTokenType = this.Peek();
+			JsonWriter jsonWriter = this;
+			jsonWriter._top = jsonWriter._top - 1;
+			return jTokenType;
+		}
+
+		private void Push(JTokenType value)
+		{
+			JsonWriter jsonWriter = this;
+			jsonWriter._top = jsonWriter._top + 1;
+			if (this._stack.Count > this._top)
+			{
+				this._stack[this._top] = value;
+			}
+			else
+			{
+				this._stack.Add(value);
+			}
+		}
+
+		void System.IDisposable.Dispose()
+		{
+			this.Dispose(true);
+		}
+
+		public virtual void WriteComment(string text)
+		{
+			this.AutoComplete(JsonToken.Comment);
+		}
+
+		private void WriteConstructorDate(JsonReader reader)
+		{
+			if (!reader.Read())
+			{
+				throw new Exception("Unexpected end while reading date constructor.");
+			}
+			if (reader.TokenType != JsonToken.Integer)
+			{
+				throw new Exception(string.Concat("Unexpected token while reading date constructor. Expected Integer, got ", reader.TokenType));
+			}
+			DateTime dateTime = JsonConvert.ConvertJavaScriptTicksToDateTime((long)reader.Value);
+			if (!reader.Read())
+			{
+				throw new Exception("Unexpected end while reading date constructor.");
+			}
+			if (reader.TokenType != JsonToken.EndConstructor)
+			{
+				throw new Exception(string.Concat("Unexpected token while reading date constructor. Expected EndConstructor, got ", reader.TokenType));
+			}
+			this.WriteValue(dateTime);
+		}
+
+		public virtual void WriteEnd()
+		{
+			this.WriteEnd(this.Peek());
+		}
+
+		private void WriteEnd(JTokenType type)
+		{
+			switch (type)
+			{
+				case JTokenType.Object:
+				{
+					this.WriteEndObject();
+					break;
+				}
+				case JTokenType.Array:
+				{
+					this.WriteEndArray();
+					break;
+				}
+				case JTokenType.Constructor:
+				{
+					this.WriteEndConstructor();
+					break;
+				}
+				default:
+				{
+					throw new JsonWriterException(string.Concat("Unexpected type when writing end: ", type));
+				}
 			}
 		}
 
@@ -535,11 +404,22 @@ namespace Newtonsoft.Json
 		{
 		}
 
-		protected virtual void WriteIndent()
+		public virtual void WriteEndArray()
 		{
+			this.AutoCompleteClose(JsonToken.EndArray);
 		}
 
-		protected virtual void WriteValueDelimiter()
+		public virtual void WriteEndConstructor()
+		{
+			this.AutoCompleteClose(JsonToken.EndConstructor);
+		}
+
+		public virtual void WriteEndObject()
+		{
+			this.AutoCompleteClose(JsonToken.EndObject);
+		}
+
+		protected virtual void WriteIndent()
 		{
 		}
 
@@ -547,63 +427,14 @@ namespace Newtonsoft.Json
 		{
 		}
 
-		internal void AutoComplete(JsonToken tokenBeingWritten)
-		{
-			int num;
-			switch (tokenBeingWritten)
-			{
-			case JsonToken.Integer:
-			case JsonToken.Float:
-			case JsonToken.String:
-			case JsonToken.Boolean:
-			case JsonToken.Null:
-			case JsonToken.Undefined:
-			case JsonToken.Date:
-			case JsonToken.Bytes:
-				num = 7;
-				goto IL_49;
-			case JsonToken.EndObject:
-			case JsonToken.EndArray:
-			case JsonToken.EndConstructor:
-				IL_3B:
-				num = (int)tokenBeingWritten;
-				goto IL_49;
-			}
-			goto IL_3B;
-			IL_49:
-			JsonWriter.State state = JsonWriter.stateArray[num][(int)this._currentState];
-			if (state == JsonWriter.State.Error)
-			{
-				throw new JsonWriterException("Token {0} in state {1} would result in an invalid JavaScript object.".FormatWith(CultureInfo.get_InvariantCulture(), new object[]
-				{
-					tokenBeingWritten.ToString(),
-					this._currentState.ToString()
-				}));
-			}
-			if ((this._currentState == JsonWriter.State.Object || this._currentState == JsonWriter.State.Array || this._currentState == JsonWriter.State.Constructor) && tokenBeingWritten != JsonToken.Comment)
-			{
-				this.WriteValueDelimiter();
-			}
-			else if (this._currentState == JsonWriter.State.Property && this._formatting == Formatting.Indented)
-			{
-				this.WriteIndentSpace();
-			}
-			WriteState writeState = this.WriteState;
-			if ((tokenBeingWritten == JsonToken.PropertyName && writeState != WriteState.Start) || writeState == WriteState.Array || writeState == WriteState.Constructor)
-			{
-				this.WriteIndent();
-			}
-			this._currentState = state;
-		}
-
 		public virtual void WriteNull()
 		{
 			this.AutoComplete(JsonToken.Null);
 		}
 
-		public virtual void WriteUndefined()
+		public virtual void WritePropertyName(string name)
 		{
-			this.AutoComplete(JsonToken.Undefined);
+			this.AutoComplete(JsonToken.PropertyName);
 		}
 
 		public virtual void WriteRaw(string json)
@@ -614,6 +445,161 @@ namespace Newtonsoft.Json
 		{
 			this.AutoComplete(JsonToken.Undefined);
 			this.WriteRaw(json);
+		}
+
+		public virtual void WriteStartArray()
+		{
+			this.AutoComplete(JsonToken.StartArray);
+			this.Push(JTokenType.Array);
+		}
+
+		public virtual void WriteStartConstructor(string name)
+		{
+			this.AutoComplete(JsonToken.StartConstructor);
+			this.Push(JTokenType.Constructor);
+		}
+
+		public virtual void WriteStartObject()
+		{
+			this.AutoComplete(JsonToken.StartObject);
+			this.Push(JTokenType.Object);
+		}
+
+		public void WriteToken(JsonReader reader)
+		{
+			int num;
+			ValidationUtils.ArgumentNotNull(reader, "reader");
+			if (reader.TokenType != JsonToken.None)
+			{
+				num = (this.IsStartToken(reader.TokenType) ? reader.Depth : reader.Depth + 1);
+			}
+			else
+			{
+				num = -1;
+			}
+			this.WriteToken(reader, num);
+		}
+
+		internal void WriteToken(JsonReader reader, int initialDepth)
+		{
+			int depth;
+			int num;
+			int num1;
+			do
+			{
+				switch (reader.TokenType)
+				{
+					case JsonToken.None:
+					{
+						break;
+					}
+					case JsonToken.StartObject:
+					{
+						this.WriteStartObject();
+						break;
+					}
+					case JsonToken.StartArray:
+					{
+						this.WriteStartArray();
+						break;
+					}
+					case JsonToken.StartConstructor:
+					{
+						if (string.Compare(reader.Value.ToString(), "Date", StringComparison.Ordinal) != 0)
+						{
+							this.WriteStartConstructor(reader.Value.ToString());
+						}
+						else
+						{
+							this.WriteConstructorDate(reader);
+						}
+						break;
+					}
+					case JsonToken.PropertyName:
+					{
+						this.WritePropertyName(reader.Value.ToString());
+						break;
+					}
+					case JsonToken.Comment:
+					{
+						this.WriteComment(reader.Value.ToString());
+						break;
+					}
+					case JsonToken.Raw:
+					{
+						this.WriteRawValue((string)reader.Value);
+						break;
+					}
+					case JsonToken.Integer:
+					{
+						this.WriteValue(Convert.ToInt64(reader.Value, CultureInfo.InvariantCulture));
+						break;
+					}
+					case JsonToken.Float:
+					{
+						this.WriteValue(Convert.ToDouble(reader.Value, CultureInfo.InvariantCulture));
+						break;
+					}
+					case JsonToken.String:
+					{
+						this.WriteValue(reader.Value.ToString());
+						break;
+					}
+					case JsonToken.Boolean:
+					{
+						this.WriteValue(Convert.ToBoolean(reader.Value, CultureInfo.InvariantCulture));
+						break;
+					}
+					case JsonToken.Null:
+					{
+						this.WriteNull();
+						break;
+					}
+					case JsonToken.Undefined:
+					{
+						this.WriteUndefined();
+						break;
+					}
+					case JsonToken.EndObject:
+					{
+						this.WriteEndObject();
+						break;
+					}
+					case JsonToken.EndArray:
+					{
+						this.WriteEndArray();
+						break;
+					}
+					case JsonToken.EndConstructor:
+					{
+						this.WriteEndConstructor();
+						break;
+					}
+					case JsonToken.Date:
+					{
+						this.WriteValue((DateTime)reader.Value);
+						break;
+					}
+					case JsonToken.Bytes:
+					{
+						this.WriteValue((byte[])reader.Value);
+						break;
+					}
+					default:
+					{
+						throw MiscellaneousUtils.CreateArgumentOutOfRangeException("TokenType", reader.TokenType, "Unexpected token type.");
+					}
+				}
+				num1 = initialDepth - 1;
+				depth = reader.Depth;
+				num = (!this.IsEndToken(reader.TokenType) ? 0 : 1);
+			}
+			while (num1 < depth - num && reader.Read());
+		}
+
+		public virtual void WriteUndefined()
+		{
+			this.AutoComplete(JsonToken.Undefined);
 		}
 
 		public virtual void WriteValue(string value)
@@ -708,229 +694,229 @@ namespace Newtonsoft.Json
 
 		public virtual void WriteValue(int? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(uint? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(long? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(ulong? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(float? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(double? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(bool? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(short? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(ushort? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(char? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(byte? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(sbyte? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(decimal? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(DateTime? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(DateTimeOffset? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(Guid? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(TimeSpan? value)
 		{
-			if (!value.get_HasValue())
+			if (value.HasValue)
 			{
-				this.WriteNull();
+				this.WriteValue(value.Value);
 			}
 			else
 			{
-				this.WriteValue(value.get_Value());
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(byte[] value)
 		{
-			if (value == null)
+			if (value != null)
 			{
-				this.WriteNull();
+				this.AutoComplete(JsonToken.Bytes);
 			}
 			else
 			{
-				this.AutoComplete(JsonToken.Bytes);
+				this.WriteNull();
 			}
 		}
 
 		public virtual void WriteValue(Uri value)
 		{
-			if (value == null)
+			if (value != null)
 			{
-				this.WriteNull();
+				this.AutoComplete(JsonToken.String);
 			}
 			else
 			{
-				this.AutoComplete(JsonToken.String);
+				this.WriteNull();
 			}
 		}
 
@@ -941,62 +927,7 @@ namespace Newtonsoft.Json
 				this.WriteNull();
 				return;
 			}
-			if (value is IConvertible)
-			{
-				IConvertible convertible = value as IConvertible;
-				switch (convertible.GetTypeCode())
-				{
-				case 2:
-					this.WriteNull();
-					return;
-				case 3:
-					this.WriteValue(convertible.ToBoolean(CultureInfo.get_InvariantCulture()));
-					return;
-				case 4:
-					this.WriteValue(convertible.ToChar(CultureInfo.get_InvariantCulture()));
-					return;
-				case 5:
-					this.WriteValue(convertible.ToSByte(CultureInfo.get_InvariantCulture()));
-					return;
-				case 6:
-					this.WriteValue(convertible.ToByte(CultureInfo.get_InvariantCulture()));
-					return;
-				case 7:
-					this.WriteValue(convertible.ToInt16(CultureInfo.get_InvariantCulture()));
-					return;
-				case 8:
-					this.WriteValue(convertible.ToUInt16(CultureInfo.get_InvariantCulture()));
-					return;
-				case 9:
-					this.WriteValue(convertible.ToInt32(CultureInfo.get_InvariantCulture()));
-					return;
-				case 10:
-					this.WriteValue(convertible.ToUInt32(CultureInfo.get_InvariantCulture()));
-					return;
-				case 11:
-					this.WriteValue(convertible.ToInt64(CultureInfo.get_InvariantCulture()));
-					return;
-				case 12:
-					this.WriteValue(convertible.ToUInt64(CultureInfo.get_InvariantCulture()));
-					return;
-				case 13:
-					this.WriteValue(convertible.ToSingle(CultureInfo.get_InvariantCulture()));
-					return;
-				case 14:
-					this.WriteValue(convertible.ToDouble(CultureInfo.get_InvariantCulture()));
-					return;
-				case 15:
-					this.WriteValue(convertible.ToDecimal(CultureInfo.get_InvariantCulture()));
-					return;
-				case 16:
-					this.WriteValue(convertible.ToDateTime(CultureInfo.get_InvariantCulture()));
-					return;
-				case 18:
-					this.WriteValue(convertible.ToString(CultureInfo.get_InvariantCulture()));
-					return;
-				}
-			}
-			else
+			if (!(value is IConvertible))
 			{
 				if (value is DateTimeOffset)
 				{
@@ -1024,15 +955,106 @@ namespace Newtonsoft.Json
 					return;
 				}
 			}
-			throw new ArgumentException("Unsupported type: {0}. Use the JsonSerializer class to get the object's JSON representation.".FormatWith(CultureInfo.get_InvariantCulture(), new object[]
+			else
 			{
-				value.GetType()
-			}));
+				IConvertible convertible = value as IConvertible;
+				switch (convertible.GetTypeCode())
+				{
+					case TypeCode.DBNull:
+					{
+						this.WriteNull();
+						return;
+					}
+					case TypeCode.Boolean:
+					{
+						this.WriteValue(convertible.ToBoolean(CultureInfo.InvariantCulture));
+						return;
+					}
+					case TypeCode.Char:
+					{
+						this.WriteValue(convertible.ToChar(CultureInfo.InvariantCulture));
+						return;
+					}
+					case TypeCode.SByte:
+					{
+						this.WriteValue(convertible.ToSByte(CultureInfo.InvariantCulture));
+						return;
+					}
+					case TypeCode.Byte:
+					{
+						this.WriteValue(convertible.ToByte(CultureInfo.InvariantCulture));
+						return;
+					}
+					case TypeCode.Int16:
+					{
+						this.WriteValue(convertible.ToInt16(CultureInfo.InvariantCulture));
+						return;
+					}
+					case TypeCode.UInt16:
+					{
+						this.WriteValue(convertible.ToUInt16(CultureInfo.InvariantCulture));
+						return;
+					}
+					case TypeCode.Int32:
+					{
+						this.WriteValue(convertible.ToInt32(CultureInfo.InvariantCulture));
+						return;
+					}
+					case TypeCode.UInt32:
+					{
+						this.WriteValue(convertible.ToUInt32(CultureInfo.InvariantCulture));
+						return;
+					}
+					case TypeCode.Int64:
+					{
+						this.WriteValue(convertible.ToInt64(CultureInfo.InvariantCulture));
+						return;
+					}
+					case TypeCode.UInt64:
+					{
+						this.WriteValue(convertible.ToUInt64(CultureInfo.InvariantCulture));
+						return;
+					}
+					case TypeCode.Single:
+					{
+						this.WriteValue(convertible.ToSingle(CultureInfo.InvariantCulture));
+						return;
+					}
+					case TypeCode.Double:
+					{
+						this.WriteValue(convertible.ToDouble(CultureInfo.InvariantCulture));
+						return;
+					}
+					case TypeCode.Decimal:
+					{
+						this.WriteValue(convertible.ToDecimal(CultureInfo.InvariantCulture));
+						return;
+					}
+					case TypeCode.DateTime:
+					{
+						this.WriteValue(convertible.ToDateTime(CultureInfo.InvariantCulture));
+						return;
+					}
+					case TypeCode.Object | TypeCode.DateTime:
+					{
+						break;
+					}
+					case TypeCode.String:
+					{
+						this.WriteValue(convertible.ToString(CultureInfo.InvariantCulture));
+						return;
+					}
+					default:
+					{
+						goto case TypeCode.Object | TypeCode.DateTime;
+					}
+				}
+			}
+			throw new ArgumentException("Unsupported type: {0}. Use the JsonSerializer class to get the object's JSON representation.".FormatWith(CultureInfo.InvariantCulture, new object[] { value.GetType() }));
 		}
 
-		public virtual void WriteComment(string text)
+		protected virtual void WriteValueDelimiter()
 		{
-			this.AutoComplete(JsonToken.Comment);
 		}
 
 		public virtual void WriteWhitespace(string ws)
@@ -1043,12 +1065,19 @@ namespace Newtonsoft.Json
 			}
 		}
 
-		private void Dispose(bool disposing)
+		private enum State
 		{
-			if (this.WriteState != WriteState.Closed)
-			{
-				this.Close();
-			}
+			Start,
+			Property,
+			ObjectStart,
+			Object,
+			ArrayStart,
+			Array,
+			ConstructorStart,
+			Constructor,
+			Bytes,
+			Closed,
+			Error
 		}
 	}
 }

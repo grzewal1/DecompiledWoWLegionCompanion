@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class SampleInfo : MonoBehaviour
 {
+	public SampleInfo()
+	{
+	}
+
 	private void OnGUI()
 	{
 		GUILayout.Label("iTween can spin, shake, punch, move, handle audio, fade color and transparency \nand much more with each task needing only one line of code.", new GUILayoutOption[0]);

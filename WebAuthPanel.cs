@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class WebAuthPanel : MonoBehaviour
 {
+	public WebAuthPanel()
+	{
+	}
+
 	private void Start()
 	{
 	}

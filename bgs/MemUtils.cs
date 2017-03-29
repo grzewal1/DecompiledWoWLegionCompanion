@@ -15,21 +15,6 @@ namespace bgs
 			Marshal.FreeHGlobal(ptr);
 		}
 
-		public static byte[] PtrToBytes(IntPtr ptr, int size)
-		{
-			if (ptr == IntPtr.Zero)
-			{
-				return null;
-			}
-			if (size == 0)
-			{
-				return null;
-			}
-			byte[] array = new byte[size];
-			Marshal.Copy(ptr, array, 0, size);
-			return array;
-		}
-
 		public static IntPtr PtrFromBytes(byte[] bytes)
 		{
 			return MemUtils.PtrFromBytes(bytes, 0);
@@ -41,8 +26,8 @@ namespace bgs
 			{
 				return IntPtr.Zero;
 			}
-			int len = bytes.Length - offset;
-			return MemUtils.PtrFromBytes(bytes, offset, len);
+			int length = (int)bytes.Length - offset;
+			return MemUtils.PtrFromBytes(bytes, offset, length);
 		}
 
 		public static IntPtr PtrFromBytes(byte[] bytes, int offset, int len)
@@ -60,53 +45,19 @@ namespace bgs
 			return intPtr;
 		}
 
-		public static byte[] StructToBytes<T>(T t)
+		public static byte[] PtrToBytes(IntPtr ptr, int size)
 		{
-			int num = Marshal.SizeOf(typeof(T));
-			byte[] array = new byte[num];
-			IntPtr intPtr = Marshal.AllocHGlobal(num);
-			Marshal.StructureToPtr(t, intPtr, true);
-			Marshal.Copy(intPtr, array, 0, num);
-			Marshal.FreeHGlobal(intPtr);
-			return array;
-		}
-
-		public static T StructFromBytes<T>(byte[] bytes)
-		{
-			return MemUtils.StructFromBytes<T>(bytes, 0);
-		}
-
-		public static T StructFromBytes<T>(byte[] bytes, int offset)
-		{
-			Type typeFromHandle = typeof(T);
-			int num = Marshal.SizeOf(typeFromHandle);
-			if (bytes == null)
+			if (ptr == IntPtr.Zero)
 			{
-				return default(T);
+				return null;
 			}
-			if (bytes.Length - offset < num)
+			if (size == 0)
 			{
-				return default(T);
+				return null;
 			}
-			IntPtr intPtr = Marshal.AllocHGlobal(num);
-			Marshal.Copy(bytes, offset, intPtr, num);
-			T result = (T)((object)Marshal.PtrToStructure(intPtr, typeFromHandle));
-			Marshal.FreeHGlobal(intPtr);
-			return result;
-		}
-
-		public static IntPtr Utf8PtrFromString(string managedString)
-		{
-			if (managedString == null)
-			{
-				return IntPtr.Zero;
-			}
-			int num = 1 + Encoding.get_UTF8().GetByteCount(managedString);
-			byte[] array = new byte[num];
-			Encoding.get_UTF8().GetBytes(managedString, 0, managedString.get_Length(), array, 0);
-			IntPtr intPtr = Marshal.AllocHGlobal(num);
-			Marshal.Copy(array, 0, intPtr, num);
-			return intPtr;
+			byte[] numArray = new byte[size];
+			Marshal.Copy(ptr, numArray, 0, size);
+			return numArray;
 		}
 
 		public static string StringFromUtf8Ptr(IntPtr ptr)
@@ -127,9 +78,9 @@ namespace bgs
 			{
 				return null;
 			}
-			byte[] array = new byte[len];
-			Marshal.Copy(ptr, array, 0, len);
-			return Encoding.get_UTF8().GetString(array);
+			byte[] numArray = new byte[len];
+			Marshal.Copy(ptr, numArray, 0, len);
+			return Encoding.UTF8.GetString(numArray);
 		}
 
 		public static int StringPtrByteLen(IntPtr ptr)
@@ -144,6 +95,55 @@ namespace bgs
 				num++;
 			}
 			return num;
+		}
+
+		public static T StructFromBytes<T>(byte[] bytes)
+		{
+			return MemUtils.StructFromBytes<T>(bytes, 0);
+		}
+
+		public static T StructFromBytes<T>(byte[] bytes, int offset)
+		{
+			Type type = typeof(T);
+			int num = Marshal.SizeOf(type);
+			if (bytes == null)
+			{
+				return default(T);
+			}
+			if ((int)bytes.Length - offset < num)
+			{
+				return default(T);
+			}
+			IntPtr intPtr = Marshal.AllocHGlobal(num);
+			Marshal.Copy(bytes, offset, intPtr, num);
+			T structure = (T)Marshal.PtrToStructure(intPtr, type);
+			Marshal.FreeHGlobal(intPtr);
+			return structure;
+		}
+
+		public static byte[] StructToBytes<T>(T t)
+		{
+			int num = Marshal.SizeOf(typeof(T));
+			byte[] numArray = new byte[num];
+			IntPtr intPtr = Marshal.AllocHGlobal(num);
+			Marshal.StructureToPtr(t, intPtr, true);
+			Marshal.Copy(intPtr, numArray, 0, num);
+			Marshal.FreeHGlobal(intPtr);
+			return numArray;
+		}
+
+		public static IntPtr Utf8PtrFromString(string managedString)
+		{
+			if (managedString == null)
+			{
+				return IntPtr.Zero;
+			}
+			int byteCount = 1 + Encoding.UTF8.GetByteCount(managedString);
+			byte[] numArray = new byte[byteCount];
+			Encoding.UTF8.GetBytes(managedString, 0, managedString.Length, numArray, 0);
+			IntPtr intPtr = Marshal.AllocHGlobal(byteCount);
+			Marshal.Copy(numArray, 0, intPtr, byteCount);
+			return intPtr;
 		}
 	}
 }

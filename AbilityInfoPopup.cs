@@ -12,12 +12,8 @@ public class AbilityInfoPopup : MonoBehaviour
 
 	public Text m_abilityDescription;
 
-	public void OnEnable()
+	public AbilityInfoPopup()
 	{
-		Main.instance.m_UISound.Play_ShowGenericTooltip();
-		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
-		Main.instance.m_canvasBlurManager.AddBlurRef_Level2Canvas();
-		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
 	}
 
 	private void OnDisable()
@@ -27,21 +23,29 @@ public class AbilityInfoPopup : MonoBehaviour
 		Main.instance.m_backButtonManager.PopBackAction();
 	}
 
+	public void OnEnable()
+	{
+		Main.instance.m_UISound.Play_ShowGenericTooltip();
+		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
+		Main.instance.m_canvasBlurManager.AddBlurRef_Level2Canvas();
+		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
+	}
+
 	public void SetAbility(int garrAbilityID)
 	{
 		GarrAbilityRec record = StaticDB.garrAbilityDB.GetRecord(garrAbilityID);
 		if (record == null)
 		{
-			Debug.LogWarning("Invalid garrAbilityID " + garrAbilityID);
+			Debug.LogWarning(string.Concat("Invalid garrAbilityID ", garrAbilityID));
 			return;
 		}
-		this.m_abilityNameText.set_text(record.Name);
-		this.m_abilityDescription.set_text(WowTextParser.parser.Parse(record.Description, 0));
-		this.m_abilityDescription.set_supportRichText(WowTextParser.parser.IsRichText());
+		this.m_abilityNameText.text = record.Name;
+		this.m_abilityDescription.text = WowTextParser.parser.Parse(record.Description, 0);
+		this.m_abilityDescription.supportRichText = WowTextParser.parser.IsRichText();
 		Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, record.IconFileDataID);
 		if (sprite != null)
 		{
-			this.m_abilityIcon.set_sprite(sprite);
+			this.m_abilityIcon.sprite = sprite;
 		}
 	}
 
@@ -50,27 +54,27 @@ public class AbilityInfoPopup : MonoBehaviour
 		VW_MobileSpellRec record = StaticDB.vw_mobileSpellDB.GetRecord(spellID);
 		if (record == null)
 		{
-			this.m_abilityNameText.set_text("Err Spell ID " + spellID);
-			Debug.LogWarning("Invalid spellID " + spellID);
+			this.m_abilityNameText.text = string.Concat("Err Spell ID ", spellID);
+			Debug.LogWarning(string.Concat("Invalid spellID ", spellID));
 			return;
 		}
 		Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, record.SpellIconFileDataID);
-		if (sprite != null)
+		if (sprite == null)
 		{
-			this.m_abilityIcon.set_sprite(sprite);
+			Debug.LogWarning(string.Concat("Invalid or missing icon: ", record.SpellIconFileDataID));
 		}
 		else
 		{
-			Debug.LogWarning("Invalid or missing icon: " + record.SpellIconFileDataID);
+			this.m_abilityIcon.sprite = sprite;
 		}
-		this.m_abilityNameText.set_text(record.Name);
-		SpellTooltipRec record2 = StaticDB.spellTooltipDB.GetRecord(spellID);
-		if (record2 == null)
+		this.m_abilityNameText.text = record.Name;
+		SpellTooltipRec spellTooltipRec = StaticDB.spellTooltipDB.GetRecord(spellID);
+		if (spellTooltipRec != null)
 		{
-			this.m_abilityNameText.set_text("Err Tooltip ID " + spellID);
-			Debug.LogWarning("Invalid Tooltip " + spellID);
+			this.m_abilityDescription.text = WowTextParser.parser.Parse(spellTooltipRec.Description, 0);
 			return;
 		}
-		this.m_abilityDescription.set_text(WowTextParser.parser.Parse(record2.Description, 0));
+		this.m_abilityNameText.text = string.Concat("Err Tooltip ID ", spellID);
+		Debug.LogWarning(string.Concat("Invalid Tooltip ", spellID));
 	}
 }

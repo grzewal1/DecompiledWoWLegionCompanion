@@ -5,14 +5,26 @@ namespace JamLib
 {
 	public class NonStringExpandableObjectConverter : ExpandableObjectConverter
 	{
-		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+		public NonStringExpandableObjectConverter()
 		{
-			return destinationType != typeof(string) && base.CanConvertTo(context, destinationType);
 		}
 
 		public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
 		{
-			return sourceType != typeof(string) && base.CanConvertFrom(context, sourceType);
+			if (sourceType == typeof(string))
+			{
+				return false;
+			}
+			return base.CanConvertFrom(context, sourceType);
+		}
+
+		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+		{
+			if (destinationType == typeof(string))
+			{
+				return false;
+			}
+			return base.CanConvertTo(context, destinationType);
 		}
 	}
 }

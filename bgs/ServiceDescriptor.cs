@@ -1,10 +1,11 @@
+using bnet.protocol;
 using System;
 
 namespace bgs
 {
 	public class ServiceDescriptor
 	{
-		private const uint INVALID_SERVICE_ID = 255u;
+		private const uint INVALID_SERVICE_ID = 255;
 
 		private string name;
 
@@ -14,11 +15,11 @@ namespace bgs
 
 		protected MethodDescriptor[] Methods;
 
-		public string Name
+		public uint Hash
 		{
 			get
 			{
-				return this.name;
+				return this.hash;
 			}
 		}
 
@@ -34,43 +35,20 @@ namespace bgs
 			}
 		}
 
-		public uint Hash
+		public string Name
 		{
 			get
 			{
-				return this.hash;
+				return this.name;
 			}
 		}
 
 		public ServiceDescriptor(string n)
 		{
 			this.name = n;
-			this.id = 255u;
+			this.id = 255;
 			this.hash = Compute32.Hash(this.name);
-			Console.WriteLine(string.Concat(new object[]
-			{
-				"service: ",
-				n,
-				", hash: ",
-				this.hash
-			}));
-		}
-
-		public void RegisterMethodListener(uint method_id, RPCContextDelegate callback)
-		{
-			if (this.Methods != null && method_id > 0u && (ulong)method_id <= (ulong)((long)this.Methods.Length))
-			{
-				this.Methods[(int)((UIntPtr)method_id)].RegisterListener(callback);
-			}
-		}
-
-		public string GetMethodName(uint method_id)
-		{
-			if (this.Methods != null && method_id > 0u && (ulong)method_id <= (ulong)((long)this.Methods.Length))
-			{
-				return this.Methods[(int)((UIntPtr)method_id)].Name;
-			}
-			return string.Empty;
+			Console.WriteLine(string.Concat(new object[] { "service: ", n, ", hash: ", this.hash }));
 		}
 
 		public int GetMethodCount()
@@ -79,20 +57,23 @@ namespace bgs
 			{
 				return 0;
 			}
-			return this.Methods.Length;
+			return (int)this.Methods.Length;
 		}
 
 		public MethodDescriptor GetMethodDescriptor(uint method_id)
 		{
-			if (this.Methods == null)
+			unsafe
 			{
-				return null;
+				if (this.Methods == null)
+				{
+					return null;
+				}
+				if ((ulong)method_id >= (long)((int)this.Methods.Length))
+				{
+					return null;
+				}
+				return this.Methods[method_id];
 			}
-			if ((ulong)method_id >= (ulong)((long)this.Methods.Length))
-			{
-				return null;
-			}
-			return this.Methods[(int)((UIntPtr)method_id)];
 		}
 
 		public MethodDescriptor GetMethodDescriptorByName(string name)
@@ -102,7 +83,7 @@ namespace bgs
 				return null;
 			}
 			MethodDescriptor[] methods = this.Methods;
-			for (int i = 0; i < methods.Length; i++)
+			for (int i = 0; i < (int)methods.Length; i++)
 			{
 				MethodDescriptor methodDescriptor = methods[i];
 				if (methodDescriptor != null && methodDescriptor.Name == name)
@@ -113,53 +94,77 @@ namespace bgs
 			return null;
 		}
 
+		public string GetMethodName(uint method_id)
+		{
+			unsafe
+			{
+				if (this.Methods == null || method_id <= 0 || (ulong)method_id > (long)((int)this.Methods.Length))
+				{
+					return string.Empty;
+				}
+				return this.Methods[method_id].Name;
+			}
+		}
+
 		public MethodDescriptor.ParseMethod GetParser(uint method_id)
 		{
-			if (this.Methods == null)
+			unsafe
 			{
-				BattleNet.Log.LogWarning("ServiceDescriptor unable to get parser, no methods have been set.");
-				return null;
-			}
-			if (method_id <= 0u)
-			{
-				BattleNet.Log.LogWarning("ServiceDescriptor unable to get parser, invalid index={0}/{1}", new object[]
+				if (this.Methods == null)
 				{
-					method_id,
-					this.Methods.Length
-				});
-				return null;
-			}
-			if ((ulong)method_id >= (ulong)((long)this.Methods.Length))
-			{
-				BattleNet.Log.LogWarning("ServiceDescriptor unable to get parser, invalid index={0}/{1}", new object[]
+					BattleNet.Log.LogWarning("ServiceDescriptor unable to get parser, no methods have been set.");
+					return null;
+				}
+				if (method_id <= 0)
 				{
-					method_id,
-					this.Methods.Length
-				});
-				return null;
-			}
-			if (this.Methods[(int)((UIntPtr)method_id)].Parser == null)
-			{
-				BattleNet.Log.LogWarning("ServiceDescriptor unable to get parser, invalid index={0}/{1}", new object[]
+					BattleNet.Log.LogWarning("ServiceDescriptor unable to get parser, invalid index={0}/{1}", new object[] { method_id, (int)this.Methods.Length });
+					return null;
+				}
+				if ((ulong)method_id >= (long)((int)this.Methods.Length))
 				{
-					method_id,
-					this.Methods.Length
-				});
+					BattleNet.Log.LogWarning("ServiceDescriptor unable to get parser, invalid index={0}/{1}", new object[] { method_id, (int)this.Methods.Length });
+					return null;
+				}
+				if (this.Methods[method_id].Parser != null)
+				{
+					return this.Methods[method_id].Parser;
+				}
+				BattleNet.Log.LogWarning("ServiceDescriptor unable to get parser, invalid index={0}/{1}", new object[] { method_id, (int)this.Methods.Length });
 				return null;
 			}
-			return this.Methods[(int)((UIntPtr)method_id)].Parser;
 		}
 
 		public bool HasMethodListener(uint method_id)
 		{
-			return this.Methods != null && method_id > 0u && (ulong)method_id <= (ulong)((long)this.Methods.Length) && this.Methods[(int)((UIntPtr)method_id)].HasListener();
+			unsafe
+			{
+				if (this.Methods == null || method_id <= 0 || (ulong)method_id > (long)((int)this.Methods.Length))
+				{
+					return false;
+				}
+				return this.Methods[method_id].HasListener();
+			}
 		}
 
 		public void NotifyMethodListener(RPCContext context)
 		{
-			if (this.Methods != null && context.Header.MethodId > 0u && (ulong)context.Header.MethodId <= (ulong)((long)this.Methods.Length))
+			unsafe
 			{
-				this.Methods[(int)((UIntPtr)context.Header.MethodId)].NotifyListener(context);
+				if (this.Methods != null && context.Header.MethodId > 0 && (ulong)context.Header.MethodId <= (long)((int)this.Methods.Length))
+				{
+					this.Methods[context.Header.MethodId].NotifyListener(context);
+				}
+			}
+		}
+
+		public void RegisterMethodListener(uint method_id, RPCContextDelegate callback)
+		{
+			unsafe
+			{
+				if (this.Methods != null && method_id > 0 && (ulong)method_id <= (long)((int)this.Methods.Length))
+				{
+					this.Methods[method_id].RegisterListener(callback);
+				}
 			}
 		}
 	}

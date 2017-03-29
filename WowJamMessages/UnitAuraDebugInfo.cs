@@ -1,87 +1,104 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "UnitAuraDebugInfo", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="UnitAuraDebugInfo", Version=28333852)]
 	public class UnitAuraDebugInfo
 	{
-		[FlexJamMember(Name = "spellID", Type = FlexJamType.Int32), DataMember(Name = "spellID")]
-		public int SpellID
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "fromItemSet", Type = FlexJamType.Bool), DataMember(Name = "fromItemSet")]
-		public bool FromItemSet
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "serverOnly", Type = FlexJamType.Bool), DataMember(Name = "serverOnly")]
-		public bool ServerOnly
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "fromEnchantment", Type = FlexJamType.Bool), DataMember(Name = "fromEnchantment")]
-		public bool FromEnchantment
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "enchantmentSlot", Type = FlexJamType.Int32), DataMember(Name = "enchantmentSlot")]
-		public int EnchantmentSlot
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(ArrayDimensions = 1, Name = "effectDebugInfo", Type = FlexJamType.Struct), DataMember(Name = "effectDebugInfo")]
+		[DataMember(Name="effectDebugInfo")]
+		[FlexJamMember(ArrayDimensions=1, Name="effectDebugInfo", Type=FlexJamType.Struct)]
 		public UnitAuraEffectDebugInfo[] EffectDebugInfo
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "paused", Type = FlexJamType.Bool), DataMember(Name = "paused")]
-		public bool Paused
+		[DataMember(Name="enchantmentSlot")]
+		[FlexJamMember(Name="enchantmentSlot", Type=FlexJamType.Int32)]
+		public int EnchantmentSlot
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "itemName", Type = FlexJamType.String), DataMember(Name = "itemName")]
-		public string ItemName
+		[DataMember(Name="fromEnchantment")]
+		[FlexJamMember(Name="fromEnchantment", Type=FlexJamType.Bool)]
+		public bool FromEnchantment
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "name", Type = FlexJamType.String), DataMember(Name = "name")]
-		public string Name
+		[DataMember(Name="fromItem")]
+		[FlexJamMember(Name="fromItem", Type=FlexJamType.Bool)]
+		public bool FromItem
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "itemID", Type = FlexJamType.Int32), DataMember(Name = "itemID")]
+		[DataMember(Name="fromItemSet")]
+		[FlexJamMember(Name="fromItemSet", Type=FlexJamType.Bool)]
+		public bool FromItemSet
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="itemID")]
+		[FlexJamMember(Name="itemID", Type=FlexJamType.Int32)]
 		public int ItemID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "fromItem", Type = FlexJamType.Bool), DataMember(Name = "fromItem")]
-		public bool FromItem
+		[DataMember(Name="itemName")]
+		[FlexJamMember(Name="itemName", Type=FlexJamType.String)]
+		public string ItemName
 		{
 			get;
 			set;
+		}
+
+		[DataMember(Name="name")]
+		[FlexJamMember(Name="name", Type=FlexJamType.String)]
+		public string Name
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="paused")]
+		[FlexJamMember(Name="paused", Type=FlexJamType.Bool)]
+		public bool Paused
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="serverOnly")]
+		[FlexJamMember(Name="serverOnly", Type=FlexJamType.Bool)]
+		public bool ServerOnly
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="spellID")]
+		[FlexJamMember(Name="spellID", Type=FlexJamType.Int32)]
+		public int SpellID
+		{
+			get;
+			set;
+		}
+
+		public UnitAuraDebugInfo()
+		{
 		}
 	}
 }

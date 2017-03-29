@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using WowJamMessages;
 using WowStatConstants;
@@ -8,106 +9,6 @@ using WowStaticData;
 
 public class FollowerListView : MonoBehaviour
 {
-	private class FollowerComparer : IComparer<KeyValuePair<int, JamGarrisonFollower>>
-	{
-		public MissionDetailView m_missionDetailViewForComparer;
-
-		private bool HasUsefulAbility(JamGarrisonFollower follower)
-		{
-			bool hasUsefulAbility = false;
-			if (this.m_missionDetailViewForComparer == null)
-			{
-				return false;
-			}
-			MissionMechanic[] mechanics = this.m_missionDetailViewForComparer.get_gameObject().GetComponentsInChildren<MissionMechanic>(true);
-			if (mechanics == null)
-			{
-				return false;
-			}
-			for (int i = 0; i < follower.AbilityID.Length; i++)
-			{
-				GarrAbilityRec record = StaticDB.garrAbilityDB.GetRecord(follower.AbilityID[i]);
-				if (record != null)
-				{
-					if ((record.Flags & 1u) == 0u)
-					{
-						StaticDB.garrAbilityEffectDB.EnumRecordsByParentID(record.ID, delegate(GarrAbilityEffectRec garrAbilityEffectRec)
-						{
-							if (garrAbilityEffectRec.GarrMechanicTypeID == 0u)
-							{
-								return true;
-							}
-							if (garrAbilityEffectRec.AbilityAction != 0u)
-							{
-								return true;
-							}
-							GarrMechanicTypeRec record2 = StaticDB.garrMechanicTypeDB.GetRecord((int)garrAbilityEffectRec.GarrMechanicTypeID);
-							if (record2 == null)
-							{
-								return true;
-							}
-							bool flag = false;
-							for (int j = 0; j < mechanics.Length; j++)
-							{
-								if (mechanics[j].m_missionMechanicTypeID == record2.ID)
-								{
-									flag = true;
-									break;
-								}
-							}
-							if (!flag)
-							{
-								return true;
-							}
-							hasUsefulAbility = true;
-							return false;
-						});
-						if (hasUsefulAbility)
-						{
-							break;
-						}
-					}
-				}
-			}
-			return hasUsefulAbility;
-		}
-
-		public int Compare(KeyValuePair<int, JamGarrisonFollower> follower1, KeyValuePair<int, JamGarrisonFollower> follower2)
-		{
-			JamGarrisonFollower value = follower1.get_Value();
-			JamGarrisonFollower value2 = follower2.get_Value();
-			FollowerStatus followerStatus = GeneralHelpers.GetFollowerStatus(value);
-			FollowerStatus followerStatus2 = GeneralHelpers.GetFollowerStatus(value2);
-			if (followerStatus != followerStatus2)
-			{
-				return followerStatus - followerStatus2;
-			}
-			bool flag = this.HasUsefulAbility(value);
-			bool flag2 = this.HasUsefulAbility(value2);
-			if (flag != flag2)
-			{
-				return (!flag) ? 1 : -1;
-			}
-			int num = (value.ItemLevelArmor + value.ItemLevelWeapon) / 2;
-			int num2 = (value2.ItemLevelArmor + value2.ItemLevelWeapon) / 2;
-			if (num2 != num)
-			{
-				return num2 - num;
-			}
-			if (value.Quality != value2.Quality)
-			{
-				return value2.Quality - value.Quality;
-			}
-			bool flag3 = (value.Flags & 8) != 0;
-			bool flag4 = (value2.Flags & 8) != 0;
-			if (flag3 != flag4)
-			{
-				return (!flag4) ? 1 : -1;
-			}
-			return 0;
-		}
-	}
-
 	private List<KeyValuePair<int, JamGarrisonFollower>> m_sortedFollowerList;
 
 	public GameObject m_followerListViewContents;
@@ -120,63 +21,8 @@ public class FollowerListView : MonoBehaviour
 
 	public bool m_usedForMissionList;
 
-	private void Start()
+	public FollowerListView()
 	{
-		this.InitFollowerList();
-		Main expr_0B = Main.instance;
-		expr_0B.GarrisonDataResetFinishedAction = (Action)Delegate.Combine(expr_0B.GarrisonDataResetFinishedAction, new Action(this.InitFollowerList));
-	}
-
-	private void OnEnable()
-	{
-		if (this.m_usedForMissionList)
-		{
-			if (AdventureMapPanel.instance != null)
-			{
-				AdventureMapPanel expr_20 = AdventureMapPanel.instance;
-				expr_20.MissionSelectedFromListAction = (Action<int>)Delegate.Combine(expr_20.MissionSelectedFromListAction, new Action<int>(this.HandleMissionChanged));
-			}
-		}
-		else if (AdventureMapPanel.instance != null)
-		{
-			AdventureMapPanel expr_5B = AdventureMapPanel.instance;
-			expr_5B.MissionMapSelectionChangedAction = (Action<int>)Delegate.Combine(expr_5B.MissionMapSelectionChangedAction, new Action<int>(this.HandleMissionChanged));
-		}
-	}
-
-	private void OnDisable()
-	{
-		if (this.m_usedForMissionList)
-		{
-			if (AdventureMapPanel.instance != null)
-			{
-				AdventureMapPanel expr_20 = AdventureMapPanel.instance;
-				expr_20.MissionSelectedFromListAction = (Action<int>)Delegate.Remove(expr_20.MissionSelectedFromListAction, new Action<int>(this.HandleMissionChanged));
-			}
-		}
-		else if (AdventureMapPanel.instance != null)
-		{
-			AdventureMapPanel expr_5B = AdventureMapPanel.instance;
-			expr_5B.MissionMapSelectionChangedAction = (Action<int>)Delegate.Remove(expr_5B.MissionMapSelectionChangedAction, new Action<int>(this.HandleMissionChanged));
-		}
-	}
-
-	private void SyncVisibleListOrderToSortedFollowerList()
-	{
-		FollowerListItem[] componentsInChildren = this.m_followerListViewContents.GetComponentsInChildren<FollowerListItem>(true);
-		for (int i = 0; i < this.m_sortedFollowerList.get_Count(); i++)
-		{
-			FollowerListItem[] array = componentsInChildren;
-			for (int j = 0; j < array.Length; j++)
-			{
-				FollowerListItem followerListItem = array[j];
-				if (followerListItem.m_followerID == this.m_sortedFollowerList.get_Item(i).get_Value().GarrFollowerID)
-				{
-					followerListItem.get_transform().SetSiblingIndex(i);
-					break;
-				}
-			}
-		}
 	}
 
 	public void HandleMissionChanged(int garrMissionID)
@@ -192,6 +38,65 @@ public class FollowerListView : MonoBehaviour
 		this.UpdateAllAvailabilityStatus();
 	}
 
+	public void InitFollowerList()
+	{
+		FollowerListItem[] componentsInChildren = this.m_followerListViewContents.GetComponentsInChildren<FollowerListItem>(true);
+		FollowerListItem[] followerListItemArray = componentsInChildren;
+		for (int i = 0; i < (int)followerListItemArray.Length; i++)
+		{
+			FollowerListItem followerListItem = followerListItemArray[i];
+			if (PersistentFollowerData.followerDictionary.ContainsKey(followerListItem.m_followerID))
+			{
+				JamGarrisonFollower item = PersistentFollowerData.followerDictionary[followerListItem.m_followerID];
+				if ((item.Flags & 8) == 0 || item.Durability > 0)
+				{
+					followerListItem.SetFollower(item);
+				}
+				else
+				{
+					followerListItem.gameObject.SetActive(false);
+					followerListItem.transform.SetParent(Main.instance.transform);
+				}
+			}
+			else
+			{
+				followerListItem.gameObject.SetActive(false);
+				followerListItem.transform.SetParent(Main.instance.transform);
+			}
+		}
+		Transform mFollowerListViewContents = this.m_followerListViewContents.transform;
+		float single = this.m_followerListViewContents.transform.localPosition.x;
+		Vector3 vector3 = this.m_followerListViewContents.transform.localPosition;
+		mFollowerListViewContents.localPosition = new Vector3(single, 0f, vector3.z);
+		this.SortFollowerListData();
+		componentsInChildren = this.m_followerListViewContents.GetComponentsInChildren<FollowerListItem>(true);
+		foreach (KeyValuePair<int, JamGarrisonFollower> mSortedFollowerList in this.m_sortedFollowerList)
+		{
+			bool flag = false;
+			FollowerListItem[] followerListItemArray1 = componentsInChildren;
+			int num = 0;
+			while (num < (int)followerListItemArray1.Length)
+			{
+				if (followerListItemArray1[num].m_followerID != mSortedFollowerList.Value.GarrFollowerID)
+				{
+					num++;
+				}
+				else
+				{
+					flag = true;
+					break;
+				}
+			}
+			if (!flag)
+			{
+				if ((mSortedFollowerList.Value.Flags & 8) == 0 || mSortedFollowerList.Value.Durability > 0)
+				{
+					this.InsertFollowerIntoListView(mSortedFollowerList.Value);
+				}
+			}
+		}
+	}
+
 	private FollowerListItem InsertFollowerIntoListView(JamGarrisonFollower follower)
 	{
 		GarrFollowerRec record = StaticDB.garrFollowerDB.GetRecord(follower.GarrFollowerID);
@@ -199,116 +104,226 @@ public class FollowerListView : MonoBehaviour
 		{
 			return null;
 		}
-		if (record.GarrFollowerTypeID != 4u)
+		if (record.GarrFollowerTypeID != 4)
 		{
 			return null;
 		}
 		if (this.m_isCombatAllyList)
 		{
-			bool flag = (follower.Flags & 8) != 0;
+			bool flags = (follower.Flags & 8) != 0;
 			FollowerStatus followerStatus = GeneralHelpers.GetFollowerStatus(follower);
-			if (flag || follower.ZoneSupportSpellID <= 0 || followerStatus == FollowerStatus.inactive || followerStatus == FollowerStatus.fatigued || followerStatus == FollowerStatus.inBuilding)
+			if (flags || follower.ZoneSupportSpellID <= 0 || followerStatus == FollowerStatus.inactive || followerStatus == FollowerStatus.fatigued || followerStatus == FollowerStatus.inBuilding)
 			{
 				return null;
 			}
 		}
-		GameObject gameObject = Object.Instantiate<GameObject>(this.m_followerListItemPrefab);
-		gameObject.get_transform().SetParent(this.m_followerListViewContents.get_transform(), false);
+		GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_followerListItemPrefab);
+		gameObject.transform.SetParent(this.m_followerListViewContents.transform, false);
 		FollowerListItem component = gameObject.GetComponent<FollowerListItem>();
 		component.SetFollower(follower);
 		return component;
 	}
 
-	private void SortFollowerListData()
+	private void OnDisable()
 	{
-		this.m_sortedFollowerList = Enumerable.ToList<KeyValuePair<int, JamGarrisonFollower>>(PersistentFollowerData.followerDictionary);
-		FollowerListView.FollowerComparer followerComparer = new FollowerListView.FollowerComparer();
-		followerComparer.m_missionDetailViewForComparer = this.m_missionDetailView;
-		this.m_sortedFollowerList.Sort(followerComparer);
-	}
-
-	public void InitFollowerList()
-	{
-		FollowerListItem[] componentsInChildren = this.m_followerListViewContents.GetComponentsInChildren<FollowerListItem>(true);
-		FollowerListItem[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
+		if (this.m_usedForMissionList)
 		{
-			FollowerListItem followerListItem = array[i];
-			if (!PersistentFollowerData.followerDictionary.ContainsKey(followerListItem.m_followerID))
+			if (AdventureMapPanel.instance != null)
 			{
-				followerListItem.get_gameObject().SetActive(false);
-				followerListItem.get_transform().SetParent(Main.instance.get_transform());
-			}
-			else
-			{
-				JamGarrisonFollower jamGarrisonFollower = PersistentFollowerData.followerDictionary.get_Item(followerListItem.m_followerID);
-				bool flag = (jamGarrisonFollower.Flags & 8) != 0;
-				if (flag && jamGarrisonFollower.Durability <= 0)
-				{
-					followerListItem.get_gameObject().SetActive(false);
-					followerListItem.get_transform().SetParent(Main.instance.get_transform());
-				}
-				else
-				{
-					followerListItem.SetFollower(jamGarrisonFollower);
-				}
+				AdventureMapPanel.instance.MissionSelectedFromListAction -= new Action<int>(this.HandleMissionChanged);
 			}
 		}
-		this.m_followerListViewContents.get_transform().set_localPosition(new Vector3(this.m_followerListViewContents.get_transform().get_localPosition().x, 0f, this.m_followerListViewContents.get_transform().get_localPosition().z));
-		this.SortFollowerListData();
-		componentsInChildren = this.m_followerListViewContents.GetComponentsInChildren<FollowerListItem>(true);
-		using (List<KeyValuePair<int, JamGarrisonFollower>>.Enumerator enumerator = this.m_sortedFollowerList.GetEnumerator())
+		else if (AdventureMapPanel.instance != null)
 		{
-			while (enumerator.MoveNext())
-			{
-				KeyValuePair<int, JamGarrisonFollower> current = enumerator.get_Current();
-				bool flag2 = false;
-				FollowerListItem[] array2 = componentsInChildren;
-				for (int j = 0; j < array2.Length; j++)
-				{
-					FollowerListItem followerListItem2 = array2[j];
-					if (followerListItem2.m_followerID == current.get_Value().GarrFollowerID)
-					{
-						flag2 = true;
-						break;
-					}
-				}
-				if (!flag2)
-				{
-					bool flag3 = (current.get_Value().Flags & 8) != 0;
-					if (!flag3 || current.get_Value().Durability > 0)
-					{
-						this.InsertFollowerIntoListView(current.get_Value());
-					}
-				}
-			}
+			AdventureMapPanel.instance.MissionMapSelectionChangedAction -= new Action<int>(this.HandleMissionChanged);
 		}
 	}
 
-	public void UpdateUsefulAbilitiesDisplay()
+	private void OnEnable()
 	{
-		FollowerListItem[] componentsInChildren = this.m_followerListViewContents.GetComponentsInChildren<FollowerListItem>(true);
-		for (int i = 0; i < componentsInChildren.Length; i++)
+		if (this.m_usedForMissionList)
 		{
-			componentsInChildren[i].UpdateUsefulAbilitiesDisplay((!this.m_usedForMissionList) ? AdventureMapPanel.instance.GetCurrentMapMission() : AdventureMapPanel.instance.GetCurrentListMission());
+			if (AdventureMapPanel.instance != null)
+			{
+				AdventureMapPanel.instance.MissionSelectedFromListAction += new Action<int>(this.HandleMissionChanged);
+			}
+		}
+		else if (AdventureMapPanel.instance != null)
+		{
+			AdventureMapPanel.instance.MissionMapSelectionChangedAction += new Action<int>(this.HandleMissionChanged);
 		}
 	}
 
 	public void RemoveAllFromParty()
 	{
 		FollowerListItem[] componentsInChildren = this.m_followerListViewContents.GetComponentsInChildren<FollowerListItem>(true);
-		for (int i = 0; i < componentsInChildren.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
 			componentsInChildren[i].RemoveFromParty();
+		}
+	}
+
+	private void SortFollowerListData()
+	{
+		this.m_sortedFollowerList = PersistentFollowerData.followerDictionary.ToList<KeyValuePair<int, JamGarrisonFollower>>();
+		FollowerListView.FollowerComparer followerComparer = new FollowerListView.FollowerComparer()
+		{
+			m_missionDetailViewForComparer = this.m_missionDetailView
+		};
+		this.m_sortedFollowerList.Sort(followerComparer);
+	}
+
+	private void Start()
+	{
+		this.InitFollowerList();
+		Main.instance.GarrisonDataResetFinishedAction += new Action(this.InitFollowerList);
+	}
+
+	private void SyncVisibleListOrderToSortedFollowerList()
+	{
+		FollowerListItem[] componentsInChildren = this.m_followerListViewContents.GetComponentsInChildren<FollowerListItem>(true);
+		for (int i = 0; i < this.m_sortedFollowerList.Count; i++)
+		{
+			FollowerListItem[] followerListItemArray = componentsInChildren;
+			int num = 0;
+			while (num < (int)followerListItemArray.Length)
+			{
+				FollowerListItem followerListItem = followerListItemArray[num];
+				if (followerListItem.m_followerID != this.m_sortedFollowerList[i].Value.GarrFollowerID)
+				{
+					num++;
+				}
+				else
+				{
+					followerListItem.transform.SetSiblingIndex(i);
+					break;
+				}
+			}
 		}
 	}
 
 	private void UpdateAllAvailabilityStatus()
 	{
 		FollowerListItem[] componentsInChildren = this.m_followerListViewContents.GetComponentsInChildren<FollowerListItem>(true);
-		for (int i = 0; i < componentsInChildren.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			componentsInChildren[i].SetAvailabilityStatus(PersistentFollowerData.followerDictionary.get_Item(componentsInChildren[i].m_followerID));
+			componentsInChildren[i].SetAvailabilityStatus(PersistentFollowerData.followerDictionary[componentsInChildren[i].m_followerID]);
+		}
+	}
+
+	public void UpdateUsefulAbilitiesDisplay()
+	{
+		FollowerListItem[] componentsInChildren = this.m_followerListViewContents.GetComponentsInChildren<FollowerListItem>(true);
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
+		{
+			componentsInChildren[i].UpdateUsefulAbilitiesDisplay((!this.m_usedForMissionList ? AdventureMapPanel.instance.GetCurrentMapMission() : AdventureMapPanel.instance.GetCurrentListMission()));
+		}
+	}
+
+	private class FollowerComparer : IComparer<KeyValuePair<int, JamGarrisonFollower>>
+	{
+		public MissionDetailView m_missionDetailViewForComparer;
+
+		public FollowerComparer()
+		{
+		}
+
+		public int Compare(KeyValuePair<int, JamGarrisonFollower> follower1, KeyValuePair<int, JamGarrisonFollower> follower2)
+		{
+			JamGarrisonFollower value = follower1.Value;
+			JamGarrisonFollower jamGarrisonFollower = follower2.Value;
+			FollowerStatus followerStatus = GeneralHelpers.GetFollowerStatus(value);
+			FollowerStatus followerStatu = GeneralHelpers.GetFollowerStatus(jamGarrisonFollower);
+			if (followerStatus != followerStatu)
+			{
+				return (int)followerStatus - (int)followerStatu;
+			}
+			bool flag = this.HasUsefulAbility(value);
+			if (flag != this.HasUsefulAbility(jamGarrisonFollower))
+			{
+				return (!flag ? 1 : -1);
+			}
+			int itemLevelArmor = (value.ItemLevelArmor + value.ItemLevelWeapon) / 2;
+			int num = (jamGarrisonFollower.ItemLevelArmor + jamGarrisonFollower.ItemLevelWeapon) / 2;
+			if (num != itemLevelArmor)
+			{
+				return num - itemLevelArmor;
+			}
+			if (value.Quality != jamGarrisonFollower.Quality)
+			{
+				return jamGarrisonFollower.Quality - value.Quality;
+			}
+			bool flags = (value.Flags & 8) != 0;
+			bool flags1 = (jamGarrisonFollower.Flags & 8) != 0;
+			if (flags == flags1)
+			{
+				return 0;
+			}
+			return (!flags1 ? 1 : -1);
+		}
+
+		private bool HasUsefulAbility(JamGarrisonFollower follower)
+		{
+			bool flag1 = false;
+			if (this.m_missionDetailViewForComparer == null)
+			{
+				return false;
+			}
+			MissionMechanic[] componentsInChildren = this.m_missionDetailViewForComparer.gameObject.GetComponentsInChildren<MissionMechanic>(true);
+			if (componentsInChildren == null)
+			{
+				return false;
+			}
+			for (int i = 0; i < (int)follower.AbilityID.Length; i++)
+			{
+				GarrAbilityRec garrAbilityRec = StaticDB.garrAbilityDB.GetRecord(follower.AbilityID[i]);
+				if (garrAbilityRec != null)
+				{
+					if ((garrAbilityRec.Flags & 1) == 0)
+					{
+						StaticDB.garrAbilityEffectDB.EnumRecordsByParentID(garrAbilityRec.ID, (GarrAbilityEffectRec garrAbilityEffectRec) => {
+							if (garrAbilityEffectRec.GarrMechanicTypeID == 0)
+							{
+								return true;
+							}
+							if (garrAbilityEffectRec.AbilityAction != 0)
+							{
+								return true;
+							}
+							GarrMechanicTypeRec record = StaticDB.garrMechanicTypeDB.GetRecord((int)garrAbilityEffectRec.GarrMechanicTypeID);
+							if (record == null)
+							{
+								return true;
+							}
+							bool flag = false;
+							int num = 0;
+							while (num < (int)componentsInChildren.Length)
+							{
+								if (componentsInChildren[num].m_missionMechanicTypeID != record.ID)
+								{
+									num++;
+								}
+								else
+								{
+									flag = true;
+									break;
+								}
+							}
+							if (!flag)
+							{
+								return true;
+							}
+							flag1 = true;
+							return false;
+						});
+						if (flag1)
+						{
+							break;
+						}
+					}
+				}
+			}
+			return flag1;
 		}
 	}
 }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 using WowJamMessages;
@@ -13,9 +15,13 @@ public class MissionFollowerSlot : MonoBehaviour
 
 	public Image m_qualityColorImage;
 
+	public Image m_qualityColorImage_TitleQuality;
+
 	public Image m_portraitRingImage;
 
 	public Image m_levelBorderImage;
+
+	public Image m_levelBorderImage_TitleQuality;
 
 	public Text m_levelText;
 
@@ -47,31 +53,69 @@ public class MissionFollowerSlot : MonoBehaviour
 
 	private int currentGarrFollowerID;
 
+	public MissionFollowerSlot()
+	{
+	}
+
 	private void Awake()
 	{
 		this.ClearFollower();
 	}
 
-	private void Start()
+	public void ClearFollower()
 	{
-		if (this.m_missionDetailView != null)
+		if (this.currentGarrFollowerID != 0)
 		{
-			MissionDetailView expr_17 = this.m_missionDetailView;
-			expr_17.FollowerSlotsChangedAction = (Action)Delegate.Combine(expr_17.FollowerSlotsChangedAction, new Action(this.InitHeartPanel));
+			GameObject gameObject = base.transform.parent.parent.parent.parent.gameObject;
+			gameObject.BroadcastMessage("RemoveFromParty", this.currentGarrFollowerID, SendMessageOptions.DontRequireReceiver);
+		}
+		this.SetFollower(0);
+		if (this.m_disableButtonWhenFollowerAssigned)
+		{
+			this.m_portraitFrameImage.GetComponent<Image>().enabled = true;
 		}
 	}
 
-	private void OnDestroy()
+	public int GetCurrentGarrFollowerID()
 	{
-		if (this.m_missionDetailView != null)
-		{
-			MissionDetailView expr_17 = this.m_missionDetailView;
-			expr_17.FollowerSlotsChangedAction = (Action)Delegate.Remove(expr_17.FollowerSlotsChangedAction, new Action(this.InitHeartPanel));
-		}
+		return this.currentGarrFollowerID;
 	}
 
-	private void Update()
+	public void InitHeartPanel()
 	{
+		if (this.m_heartPanel == null || this.m_follower == null || this.m_garrFollowerRec == null)
+		{
+			return;
+		}
+		Image[] componentsInChildren = this.m_heartArea.GetComponentsInChildren<Image>(true);
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
+		{
+			Image image = componentsInChildren[i];
+			if (image != null && image.gameObject != this.m_heartArea)
+			{
+				UnityEngine.Object.DestroyImmediate(image.gameObject);
+			}
+		}
+		int durability = 1;
+		if (GeneralHelpers.MissionHasUncounteredDeadly(this.m_enemyPortraitsGroup))
+		{
+			durability = this.m_follower.Durability;
+		}
+		for (int j = 0; j < this.m_follower.Durability - durability; j++)
+		{
+			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_fullHeartPrefab);
+			gameObject.transform.SetParent(this.m_heartArea.transform, false);
+		}
+		for (int k = 0; k < durability; k++)
+		{
+			GameObject gameObject1 = UnityEngine.Object.Instantiate<GameObject>(this.m_outlineHeartPrefab);
+			gameObject1.transform.SetParent(this.m_heartArea.transform, false);
+		}
+		for (int l = 0; l < this.m_garrFollowerRec.Vitality - this.m_follower.Durability; l++)
+		{
+			GameObject gameObject2 = UnityEngine.Object.Instantiate<GameObject>(this.m_emptyHeartPrefab);
+			gameObject2.transform.SetParent(this.m_heartArea.transform, false);
+		}
 	}
 
 	public bool IsOccupied()
@@ -79,9 +123,12 @@ public class MissionFollowerSlot : MonoBehaviour
 		return this.isOccupied;
 	}
 
-	public int GetCurrentGarrFollowerID()
+	private void OnDestroy()
 	{
-		return this.currentGarrFollowerID;
+		if (this.m_missionDetailView != null)
+		{
+			this.m_missionDetailView.FollowerSlotsChangedAction -= new Action(this.InitHeartPanel);
+		}
 	}
 
 	public void OnTapCombatAllySlot()
@@ -97,21 +144,13 @@ public class MissionFollowerSlot : MonoBehaviour
 		if (this.m_missionDetailView != null)
 		{
 			this.ClearFollower();
+			this.PlayUnslotSound();
 		}
 	}
 
-	public void ClearFollower()
+	public void PlayUnslotSound()
 	{
-		if (this.currentGarrFollowerID != 0)
-		{
-			GameObject gameObject = base.get_transform().get_parent().get_parent().get_parent().get_parent().get_gameObject();
-			gameObject.BroadcastMessage("RemoveFromParty", this.currentGarrFollowerID, 1);
-		}
-		this.SetFollower(0);
-		if (this.m_disableButtonWhenFollowerAssigned)
-		{
-			this.m_portraitFrameImage.GetComponent<Image>().set_enabled(true);
-		}
+		Main.instance.m_UISound.Play_DefaultNavClick();
 	}
 
 	public void SetFollower(int garrFollowerID)
@@ -123,11 +162,11 @@ public class MissionFollowerSlot : MonoBehaviour
 			RectTransform[] componentsInChildren = this.m_abilityAreaRootObject.GetComponentsInChildren<RectTransform>(true);
 			if (componentsInChildren != null)
 			{
-				for (int i = 0; i < componentsInChildren.Length; i++)
+				for (int i = 0; i < (int)componentsInChildren.Length; i++)
 				{
-					if (componentsInChildren[i] != null && componentsInChildren[i] != this.m_abilityAreaRootObject.get_transform())
+					if (componentsInChildren[i] != null && componentsInChildren[i] != this.m_abilityAreaRootObject.transform)
 					{
-						Object.DestroyImmediate(componentsInChildren[i].get_gameObject());
+						UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
 					}
 				}
 			}
@@ -136,32 +175,34 @@ public class MissionFollowerSlot : MonoBehaviour
 		{
 			if (this.m_portraitRingImage != null)
 			{
-				this.m_portraitRingImage.get_gameObject().SetActive(false);
+				this.m_portraitRingImage.gameObject.SetActive(false);
 			}
 			if (this.m_heartPanel != null)
 			{
 				this.m_heartPanel.SetActive(false);
 			}
-			this.m_levelBorderImage.get_gameObject().SetActive(false);
-			this.m_portraitImage.get_gameObject().SetActive(false);
-			this.m_qualityColorImage.get_gameObject().SetActive(false);
-			this.m_levelBorderImage.set_color(Color.get_white());
-			this.m_levelText.get_gameObject().SetActive(false);
+			this.m_levelBorderImage.gameObject.SetActive(false);
+			this.m_levelBorderImage_TitleQuality.gameObject.SetActive(false);
+			this.m_portraitImage.gameObject.SetActive(false);
+			this.m_qualityColorImage.gameObject.SetActive(false);
+			this.m_qualityColorImage_TitleQuality.gameObject.SetActive(false);
+			this.m_levelBorderImage.color = Color.white;
+			this.m_levelText.gameObject.SetActive(false);
 			this.isOccupied = false;
-			this.m_portraitFrameImage.set_enabled(true);
+			this.m_portraitFrameImage.enabled = true;
 			if (this.currentGarrFollowerID != garrFollowerID)
 			{
 				AdventureMapPanel.instance.MissionFollowerSlotChanged(this.currentGarrFollowerID, false);
 			}
-			bool flag = this.currentGarrFollowerID != 0;
+			bool flag1 = this.currentGarrFollowerID != 0;
 			this.currentGarrFollowerID = 0;
-			if (flag && this.m_missionDetailView != null)
+			if (flag1 && this.m_missionDetailView != null)
 			{
 				this.m_missionDetailView.UpdateMissionStatus();
 			}
 			if (this.m_disableButtonWhenFollowerAssigned)
 			{
-				this.m_portraitFrameImage.GetComponent<Image>().set_enabled(true);
+				this.m_portraitFrameImage.GetComponent<Image>().enabled = true;
 			}
 			if (this.m_missionDetailView != null)
 			{
@@ -169,126 +210,150 @@ public class MissionFollowerSlot : MonoBehaviour
 			}
 			return;
 		}
-		this.m_portraitRingImage.get_gameObject().SetActive(true);
-		this.m_levelBorderImage.get_gameObject().SetActive(true);
-		GarrFollowerRec record = StaticDB.garrFollowerDB.GetRecord(garrFollowerID);
-		if (record == null)
+		this.m_portraitRingImage.gameObject.SetActive(true);
+		this.m_levelBorderImage.gameObject.SetActive(true);
+		GarrFollowerRec garrFollowerRec = StaticDB.garrFollowerDB.GetRecord(garrFollowerID);
+		if (garrFollowerRec == null)
 		{
 			return;
 		}
-		if (record.GarrFollowerTypeID != 4u)
+		if (garrFollowerRec.GarrFollowerTypeID != 4)
 		{
 			return;
 		}
-		MissionMechanic[] mechanics = base.get_gameObject().get_transform().get_parent().get_parent().get_parent().get_gameObject().GetComponentsInChildren<MissionMechanic>(true);
-		if (mechanics == null)
+		MissionMechanic[] missionMechanicArray = base.gameObject.transform.parent.parent.parent.gameObject.GetComponentsInChildren<MissionMechanic>(true);
+		if (missionMechanicArray == null)
 		{
 			return;
 		}
-		JamGarrisonFollower jamGarrisonFollower = PersistentFollowerData.followerDictionary.get_Item(garrFollowerID);
-		float num = 0f;
+		JamGarrisonFollower item = PersistentFollowerData.followerDictionary[garrFollowerID];
+		float single = 0f;
 		if (this.m_missionDetailView != null)
 		{
-			num = MissionDetailView.ComputeFollowerBias(jamGarrisonFollower, jamGarrisonFollower.FollowerLevel, (jamGarrisonFollower.ItemLevelWeapon + jamGarrisonFollower.ItemLevelArmor) / 2, this.m_missionDetailView.GetCurrentMissionID());
+			single = MissionDetailView.ComputeFollowerBias(item, item.FollowerLevel, (item.ItemLevelWeapon + item.ItemLevelArmor) / 2, this.m_missionDetailView.GetCurrentMissionID());
 		}
-		if (num == -1f)
+		if (single == -1f)
 		{
-			this.m_levelText.set_color(Color.get_red());
+			this.m_levelText.color = Color.red;
 		}
-		else if (num < 0f)
+		else if (single >= 0f)
 		{
-			this.m_levelText.set_color(new Color(0.9333f, 0.4392f, 0.2117f));
+			this.m_levelText.color = Color.white;
 		}
 		else
 		{
-			this.m_levelText.set_color(Color.get_white());
+			this.m_levelText.color = new Color(0.9333f, 0.4392f, 0.2117f);
 		}
-		if (this.m_abilityAreaRootObject != null && num > -1f)
+		if (this.m_abilityAreaRootObject != null && single > -1f)
 		{
-			for (int j = 0; j < jamGarrisonFollower.AbilityID.Length; j++)
+			for (int j = 0; j < (int)item.AbilityID.Length; j++)
 			{
-				GarrAbilityRec garrAbilityRec = StaticDB.garrAbilityDB.GetRecord(jamGarrisonFollower.AbilityID[j]);
-				if ((garrAbilityRec.Flags & 1u) == 0u)
+				GarrAbilityRec garrAbilityRec = StaticDB.garrAbilityDB.GetRecord(item.AbilityID[j]);
+				if ((garrAbilityRec.Flags & 1) == 0)
 				{
-					StaticDB.garrAbilityEffectDB.EnumRecordsByParentID(garrAbilityRec.ID, delegate(GarrAbilityEffectRec garrAbilityEffectRec)
-					{
-						if (garrAbilityEffectRec.GarrMechanicTypeID == 0u)
+					StaticDB.garrAbilityEffectDB.EnumRecordsByParentID(garrAbilityRec.ID, (GarrAbilityEffectRec garrAbilityEffectRec) => {
+						if (garrAbilityEffectRec.GarrMechanicTypeID == 0)
 						{
 							return true;
 						}
-						if (garrAbilityEffectRec.AbilityAction != 0u)
+						if (garrAbilityEffectRec.AbilityAction != 0)
 						{
 							return true;
 						}
-						GarrMechanicTypeRec record2 = StaticDB.garrMechanicTypeDB.GetRecord((int)garrAbilityEffectRec.GarrMechanicTypeID);
-						if (record2 == null)
+						GarrMechanicTypeRec record = StaticDB.garrMechanicTypeDB.GetRecord((int)garrAbilityEffectRec.GarrMechanicTypeID);
+						if (record == null)
 						{
 							return true;
 						}
-						bool flag3 = false;
-						for (int k = 0; k < mechanics.Length; k++)
+						bool flag = false;
+						int num = 0;
+						while (num < (int)missionMechanicArray.Length)
 						{
-							if (mechanics[k].m_missionMechanicTypeID == record2.ID)
+							if (missionMechanicArray[num].m_missionMechanicTypeID != record.ID)
 							{
-								flag3 = true;
+								num++;
+							}
+							else
+							{
+								flag = true;
 								break;
 							}
 						}
-						if (!flag3)
+						if (!flag)
 						{
 							return true;
 						}
-						GameObject gameObject = Object.Instantiate<GameObject>(this.m_missionMechanicCounterPrefab);
-						gameObject.get_transform().SetParent(this.m_abilityAreaRootObject.get_transform(), false);
+						GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_missionMechanicCounterPrefab);
+						gameObject.transform.SetParent(this.m_abilityAreaRootObject.transform, false);
 						MissionMechanicTypeCounter component = gameObject.GetComponent<MissionMechanicTypeCounter>();
-						component.usedIcon.get_gameObject().SetActive(false);
-						Sprite sprite2 = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, garrAbilityRec.IconFileDataID);
-						if (sprite2 != null)
+						component.usedIcon.gameObject.SetActive(false);
+						Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, garrAbilityRec.IconFileDataID);
+						if (sprite != null)
 						{
-							component.missionMechanicIcon.set_sprite(sprite2);
+							component.missionMechanicIcon.sprite = sprite;
 						}
-						component.countersMissionMechanicTypeID = record2.ID;
+						component.countersMissionMechanicTypeID = record.ID;
 						return false;
 					});
 				}
 			}
 		}
-		this.m_levelText.get_gameObject().SetActive(true);
-		if (jamGarrisonFollower.FollowerLevel < 110)
+		this.m_levelText.gameObject.SetActive(true);
+		if (item.FollowerLevel >= 110)
 		{
-			this.m_levelText.set_text(StaticDB.GetString("LEVEL", null) + " " + jamGarrisonFollower.FollowerLevel);
+			Text mLevelText = this.m_levelText;
+			string str = StaticDB.GetString("ILVL", null);
+			int itemLevelArmor = (item.ItemLevelArmor + item.ItemLevelWeapon) / 2;
+			mLevelText.text = GeneralHelpers.TextOrderString(str, itemLevelArmor.ToString());
 		}
 		else
 		{
-			this.m_levelText.set_text(StaticDB.GetString("ILVL", null) + " " + (jamGarrisonFollower.ItemLevelArmor + jamGarrisonFollower.ItemLevelWeapon) / 2);
+			Text text = this.m_levelText;
+			string str1 = StaticDB.GetString("LEVEL", null);
+			int followerLevel = item.FollowerLevel;
+			text.text = GeneralHelpers.TextOrderString(str1, followerLevel.ToString());
 		}
-		this.m_portraitImage.get_gameObject().SetActive(true);
-		Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.PortraitIcons, (GarrisonStatus.Faction() != PVP_FACTION.HORDE) ? record.AllianceIconFileDataID : record.HordeIconFileDataID);
-		if (sprite != null)
+		this.m_portraitImage.gameObject.SetActive(true);
+		Sprite sprite1 = GeneralHelpers.LoadIconAsset(AssetBundleType.PortraitIcons, (GarrisonStatus.Faction() != PVP_FACTION.HORDE ? garrFollowerRec.AllianceIconFileDataID : garrFollowerRec.HordeIconFileDataID));
+		if (sprite1 != null)
 		{
-			this.m_portraitImage.set_sprite(sprite);
+			this.m_portraitImage.sprite = sprite1;
 		}
-		Color qualityColor = GeneralHelpers.GetQualityColor(jamGarrisonFollower.Quality);
-		this.m_qualityColorImage.set_color(qualityColor);
-		this.m_levelBorderImage.set_color(qualityColor);
+		if (item.Quality != 6)
+		{
+			this.m_qualityColorImage_TitleQuality.gameObject.SetActive(false);
+			this.m_levelBorderImage_TitleQuality.gameObject.SetActive(false);
+			this.m_qualityColorImage.gameObject.SetActive(true);
+			this.m_levelBorderImage.gameObject.SetActive(true);
+			Color qualityColor = GeneralHelpers.GetQualityColor(item.Quality);
+			this.m_qualityColorImage.color = qualityColor;
+			this.m_levelBorderImage.color = qualityColor;
+		}
+		else
+		{
+			this.m_qualityColorImage_TitleQuality.gameObject.SetActive(true);
+			this.m_levelBorderImage_TitleQuality.gameObject.SetActive(true);
+			this.m_qualityColorImage.gameObject.SetActive(false);
+			this.m_levelBorderImage.gameObject.SetActive(false);
+		}
 		this.isOccupied = true;
-		bool flag2 = (jamGarrisonFollower.Flags & 8) != 0;
-		this.m_qualityColorImage.get_gameObject().SetActive(!flag2);
-		this.m_levelBorderImage.get_gameObject().SetActive(!flag2);
+		bool flags = (item.Flags & 8) != 0;
+		this.m_qualityColorImage.gameObject.SetActive(!flags);
+		this.m_levelBorderImage.gameObject.SetActive(!flags);
 		if (this.m_heartPanel != null)
 		{
-			this.m_heartPanel.SetActive(flag2);
-			if (flag2)
+			this.m_heartPanel.SetActive(flags);
+			if (flags)
 			{
-				this.m_garrFollowerRec = record;
-				this.m_follower = jamGarrisonFollower;
+				this.m_garrFollowerRec = garrFollowerRec;
+				this.m_follower = item;
 			}
 		}
-		this.m_portraitFrameImage.set_enabled(!flag2);
+		this.m_portraitFrameImage.enabled = !flags;
 		this.currentGarrFollowerID = garrFollowerID;
 		if (this.m_disableButtonWhenFollowerAssigned)
 		{
-			this.m_portraitFrameImage.GetComponent<Image>().set_enabled(false);
+			this.m_portraitFrameImage.GetComponent<Image>().enabled = false;
 		}
 		if (this.m_missionDetailView != null)
 		{
@@ -297,46 +362,15 @@ public class MissionFollowerSlot : MonoBehaviour
 		}
 	}
 
-	public void InitHeartPanel()
+	private void Start()
 	{
-		if (this.m_heartPanel == null || this.m_follower == null || this.m_garrFollowerRec == null)
+		if (this.m_missionDetailView != null)
 		{
-			return;
-		}
-		Image[] componentsInChildren = this.m_heartArea.GetComponentsInChildren<Image>(true);
-		Image[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
-		{
-			Image image = array[i];
-			if (image != null && image.get_gameObject() != this.m_heartArea)
-			{
-				Object.DestroyImmediate(image.get_gameObject());
-			}
-		}
-		int num = 1;
-		if (GeneralHelpers.MissionHasUncounteredDeadly(this.m_enemyPortraitsGroup))
-		{
-			num = this.m_follower.Durability;
-		}
-		for (int j = 0; j < this.m_follower.Durability - num; j++)
-		{
-			GameObject gameObject = Object.Instantiate<GameObject>(this.m_fullHeartPrefab);
-			gameObject.get_transform().SetParent(this.m_heartArea.get_transform(), false);
-		}
-		for (int k = 0; k < num; k++)
-		{
-			GameObject gameObject2 = Object.Instantiate<GameObject>(this.m_outlineHeartPrefab);
-			gameObject2.get_transform().SetParent(this.m_heartArea.get_transform(), false);
-		}
-		for (int l = 0; l < this.m_garrFollowerRec.Vitality - this.m_follower.Durability; l++)
-		{
-			GameObject gameObject3 = Object.Instantiate<GameObject>(this.m_emptyHeartPrefab);
-			gameObject3.get_transform().SetParent(this.m_heartArea.get_transform(), false);
+			this.m_missionDetailView.FollowerSlotsChangedAction += new Action(this.InitHeartPanel);
 		}
 	}
 
-	public void PlayUnslotSound()
+	private void Update()
 	{
-		Main.instance.m_UISound.Play_DefaultNavClick();
 	}
 }

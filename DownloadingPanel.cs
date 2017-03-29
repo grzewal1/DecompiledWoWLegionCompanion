@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,63 +10,88 @@ public class DownloadingPanel : MonoBehaviour
 
 	public Text m_downloadText;
 
+	public DownloadingPanel()
+	{
+	}
+
 	private void Start()
 	{
-		this.m_downloadText.set_font(GeneralHelpers.LoadFancyFont());
+		int num;
+		this.m_downloadText.font = GeneralHelpers.LoadFancyFont();
 		string locale = Main.instance.GetLocale();
-		string text = locale;
-		if (text != null)
+		if (locale != null)
 		{
 			if (DownloadingPanel.<>f__switch$map4 == null)
 			{
-				Dictionary<string, int> dictionary = new Dictionary<string, int>(10);
-				dictionary.Add("koKR", 0);
-				dictionary.Add("frFR", 1);
-				dictionary.Add("deDE", 2);
-				dictionary.Add("zhCN", 3);
-				dictionary.Add("zhTW", 4);
-				dictionary.Add("esES", 5);
-				dictionary.Add("esMX", 6);
-				dictionary.Add("ruRU", 7);
-				dictionary.Add("ptBR", 8);
-				dictionary.Add("itIT", 9);
-				DownloadingPanel.<>f__switch$map4 = dictionary;
+				Dictionary<string, int> strs = new Dictionary<string, int>(10)
+				{
+					{ "koKR", 0 },
+					{ "frFR", 1 },
+					{ "deDE", 2 },
+					{ "zhCN", 3 },
+					{ "zhTW", 4 },
+					{ "esES", 5 },
+					{ "esMX", 6 },
+					{ "ruRU", 7 },
+					{ "ptBR", 8 },
+					{ "itIT", 9 }
+				};
+				DownloadingPanel.<>f__switch$map4 = strs;
 			}
-			int num;
-			if (DownloadingPanel.<>f__switch$map4.TryGetValue(text, ref num))
+			if (DownloadingPanel.<>f__switch$map4.TryGetValue(locale, out num))
 			{
 				switch (num)
 				{
-				case 0:
-					this.m_downloadText.set_text("다운로드 중...");
-					break;
-				case 1:
-					this.m_downloadText.set_text("Téléchargement…");
-					break;
-				case 2:
-					this.m_downloadText.set_text("Lade herunter...");
-					break;
-				case 3:
-					this.m_downloadText.set_text("下载中……");
-					break;
-				case 4:
-					this.m_downloadText.set_text("下載中...");
-					break;
-				case 5:
-					this.m_downloadText.set_text("Descargando...");
-					break;
-				case 6:
-					this.m_downloadText.set_text("Descargando...");
-					break;
-				case 7:
-					this.m_downloadText.set_text("Загрузка...");
-					break;
-				case 8:
-					this.m_downloadText.set_text("Baixando...");
-					break;
-				case 9:
-					this.m_downloadText.set_text("Download...");
-					break;
+					case 0:
+					{
+						this.m_downloadText.text = "다운로드 중...";
+						break;
+					}
+					case 1:
+					{
+						this.m_downloadText.text = "Téléchargement…";
+						break;
+					}
+					case 2:
+					{
+						this.m_downloadText.text = "Lade herunter...";
+						break;
+					}
+					case 3:
+					{
+						this.m_downloadText.text = "下载中……";
+						break;
+					}
+					case 4:
+					{
+						this.m_downloadText.text = "下載中...";
+						break;
+					}
+					case 5:
+					{
+						this.m_downloadText.text = "Descargando...";
+						break;
+					}
+					case 6:
+					{
+						this.m_downloadText.text = "Descargando...";
+						break;
+					}
+					case 7:
+					{
+						this.m_downloadText.text = "Загрузка...";
+						break;
+					}
+					case 8:
+					{
+						this.m_downloadText.text = "Baixando...";
+						break;
+					}
+					case 9:
+					{
+						this.m_downloadText.text = "Download...";
+						break;
+					}
 				}
 			}
 		}
@@ -73,6 +99,6 @@ public class DownloadingPanel : MonoBehaviour
 
 	private void Update()
 	{
-		this.m_progressBarFillImage.set_fillAmount(AssetBundleManager.instance.GetDownloadProgress());
+		this.m_progressBarFillImage.fillAmount = AssetBundleManager.instance.GetDownloadProgress();
 	}
 }

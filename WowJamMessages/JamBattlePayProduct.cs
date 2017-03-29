@@ -1,59 +1,72 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamBattlePayProduct", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamBattlePayProduct", Version=28333852)]
 	public class JamBattlePayProduct
 	{
-		[FlexJamMember(Name = "currentPriceFixedPoint", Type = FlexJamType.UInt64), DataMember(Name = "currentPriceFixedPoint")]
+		[DataMember(Name="currentPriceFixedPoint")]
+		[FlexJamMember(Name="currentPriceFixedPoint", Type=FlexJamType.UInt64)]
 		public ulong CurrentPriceFixedPoint
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "flags", Type = FlexJamType.UInt32), DataMember(Name = "flags")]
-		public uint Flags
+		[DataMember(Name="deliverables")]
+		[FlexJamMember(ArrayDimensions=1, Name="deliverables", Type=FlexJamType.UInt32)]
+		public uint[] Deliverables
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Optional = true, Name = "displayInfo", Type = FlexJamType.Struct), DataMember(Name = "displayInfo")]
+		[DataMember(Name="displayInfo")]
+		[FlexJamMember(Optional=true, Name="displayInfo", Type=FlexJamType.Struct)]
 		public JamBattlepayDisplayInfo[] DisplayInfo
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "normalPriceFixedPoint", Type = FlexJamType.UInt64), DataMember(Name = "normalPriceFixedPoint")]
+		[DataMember(Name="flags")]
+		[FlexJamMember(Name="flags", Type=FlexJamType.UInt32)]
+		public uint Flags
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="normalPriceFixedPoint")]
+		[FlexJamMember(Name="normalPriceFixedPoint", Type=FlexJamType.UInt64)]
 		public ulong NormalPriceFixedPoint
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "productID", Type = FlexJamType.UInt32), DataMember(Name = "productID")]
+		[DataMember(Name="productID")]
+		[FlexJamMember(Name="productID", Type=FlexJamType.UInt32)]
 		public uint ProductID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "type", Type = FlexJamType.UInt8), DataMember(Name = "type")]
+		[DataMember(Name="type")]
+		[FlexJamMember(Name="type", Type=FlexJamType.UInt8)]
 		public byte Type
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(ArrayDimensions = 1, Name = "deliverables", Type = FlexJamType.UInt32), DataMember(Name = "deliverables")]
-		public uint[] Deliverables
+		public JamBattlePayProduct()
 		{
-			get;
-			set;
 		}
 	}
 }

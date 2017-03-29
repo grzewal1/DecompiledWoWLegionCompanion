@@ -8,17 +8,21 @@ public class UIAlphaSetter : MonoBehaviour
 
 	public CanvasGroup m_canvasGroup;
 
+	public UIAlphaSetter()
+	{
+	}
+
 	public void SetAlpha(float alpha)
 	{
 		if (this.m_image != null)
 		{
-			Color color = this.m_image.get_color();
-			color.a = alpha;
-			this.m_image.set_color(color);
+			Color mImage = this.m_image.color;
+			mImage.a = alpha;
+			this.m_image.color = mImage;
 		}
 		if (this.m_canvasGroup != null)
 		{
-			this.m_canvasGroup.set_alpha(alpha);
+			this.m_canvasGroup.alpha = alpha;
 		}
 	}
 
@@ -26,13 +30,13 @@ public class UIAlphaSetter : MonoBehaviour
 	{
 		if (this.m_image != null)
 		{
-			Color color = this.m_image.get_color();
-			color.a = 0f;
-			this.m_image.set_color(color);
+			Color mImage = this.m_image.color;
+			mImage.a = 0f;
+			this.m_image.color = mImage;
 		}
 		if (this.m_canvasGroup != null)
 		{
-			this.m_canvasGroup.set_alpha(0f);
+			this.m_canvasGroup.alpha = 0f;
 		}
 	}
 }

@@ -27,25 +27,8 @@ public class NextCompletedMissionButton : MonoBehaviour
 
 	private UiAnimMgr.UiAnimHandle m_glowLoopHandle;
 
-	private void OnEnable()
+	public NextCompletedMissionButton()
 	{
-		this.m_theActualButton.SetActive(false);
-		this.m_numReadyTroops = 0;
-		this.m_numReadyTroopsText.set_text(string.Empty);
-		this.m_numReadyTroopsTextBG.SetActive(false);
-		if (this.m_treasureChestHorde != null && this.m_treasureChestAlliance != null)
-		{
-			if (GarrisonStatus.Faction() == PVP_FACTION.HORDE)
-			{
-				this.m_treasureChestHorde.SetActive(true);
-				this.m_treasureChestAlliance.SetActive(false);
-			}
-			else
-			{
-				this.m_treasureChestHorde.SetActive(false);
-				this.m_treasureChestAlliance.SetActive(true);
-			}
-		}
 	}
 
 	private void ClearEffects()
@@ -53,10 +36,10 @@ public class NextCompletedMissionButton : MonoBehaviour
 		iTween.StopByName(this.m_theActualButton, "RecruitWobble");
 		iTween.StopByName(this.m_theActualButton, "RecruitWobbleL");
 		iTween.StopByName(this.m_theActualButton, "RecruitButtonSwing");
-		this.m_theActualButton.get_transform().set_localScale(Vector3.get_one());
-		this.m_theActualButton.get_transform().set_localRotation(Quaternion.get_identity());
+		this.m_theActualButton.transform.localScale = Vector3.one;
+		this.m_theActualButton.transform.localRotation = Quaternion.identity;
 		iTween.StopByName(this.m_numReadyTroopsTextBG, "RecruitNumSwing");
-		this.m_numReadyTroopsTextBG.get_transform().set_localRotation(Quaternion.get_identity());
+		this.m_numReadyTroopsTextBG.transform.localRotation = Quaternion.identity;
 		if (this.m_glowHandle != null)
 		{
 			UiAnimation anim = this.m_glowHandle.GetAnim();
@@ -67,10 +50,31 @@ public class NextCompletedMissionButton : MonoBehaviour
 		}
 		if (this.m_glowLoopHandle != null)
 		{
-			UiAnimation anim2 = this.m_glowLoopHandle.GetAnim();
-			if (anim2 != null)
+			UiAnimation uiAnimation = this.m_glowLoopHandle.GetAnim();
+			if (uiAnimation != null)
 			{
-				anim2.Stop(0.5f);
+				uiAnimation.Stop(0.5f);
+			}
+		}
+	}
+
+	private void OnEnable()
+	{
+		this.m_theActualButton.SetActive(false);
+		this.m_numReadyTroops = 0;
+		this.m_numReadyTroopsText.text = string.Empty;
+		this.m_numReadyTroopsTextBG.SetActive(false);
+		if (this.m_treasureChestHorde != null && this.m_treasureChestAlliance != null)
+		{
+			if (GarrisonStatus.Faction() != PVP_FACTION.HORDE)
+			{
+				this.m_treasureChestHorde.SetActive(false);
+				this.m_treasureChestAlliance.SetActive(true);
+			}
+			else
+			{
+				this.m_treasureChestHorde.SetActive(true);
+				this.m_treasureChestAlliance.SetActive(false);
 			}
 		}
 	}
@@ -88,60 +92,16 @@ public class NextCompletedMissionButton : MonoBehaviour
 			if (numCompletedMissions > this.m_numReadyTroops)
 			{
 				this.ClearEffects();
-				this.m_glowHandle = UiAnimMgr.instance.PlayAnim("MinimapPulseAnim", this.m_theActualButton.get_transform(), Vector3.get_zero(), 3f, 0f);
-				this.m_glowLoopHandle = UiAnimMgr.instance.PlayAnim("MinimapLoopPulseAnim", this.m_theActualButton.get_transform(), Vector3.get_zero(), 3f, 0f);
-				iTween.PunchScale(this.m_theActualButton, iTween.Hash(new object[]
-				{
-					"name",
-					"RecruitWobble",
-					"x",
-					this.amount,
-					"y",
-					this.amount,
-					"time",
-					this.duration,
-					"delay",
-					0.1f,
-					"looptype",
-					iTween.LoopType.none
-				}));
-				iTween.PunchScale(this.m_theActualButton, iTween.Hash(new object[]
-				{
-					"name",
-					"RecruitWobbleL",
-					"x",
-					this.amount,
-					"y",
-					this.amount,
-					"time",
-					this.duration,
-					"delay",
-					this.delay,
-					"looptype",
-					iTween.LoopType.loop
-				}));
-				iTween.PunchRotation(this.m_theActualButton, iTween.Hash(new object[]
-				{
-					"name",
-					"RecruitButtonSwing",
-					"z",
-					-30f,
-					"time",
-					2f
-				}));
-				iTween.PunchRotation(this.m_numReadyTroopsTextBG, iTween.Hash(new object[]
-				{
-					"name",
-					"RecruitNumSwing",
-					"z",
-					-50f,
-					"time",
-					3f
-				}));
+				this.m_glowHandle = UiAnimMgr.instance.PlayAnim("MinimapPulseAnim", this.m_theActualButton.transform, Vector3.zero, 3f, 0f);
+				this.m_glowLoopHandle = UiAnimMgr.instance.PlayAnim("MinimapLoopPulseAnim", this.m_theActualButton.transform, Vector3.zero, 3f, 0f);
+				iTween.PunchScale(this.m_theActualButton, iTween.Hash(new object[] { "name", "RecruitWobble", "x", this.amount, "y", this.amount, "time", this.duration, "delay", 0.1f, "looptype", iTween.LoopType.none }));
+				iTween.PunchScale(this.m_theActualButton, iTween.Hash(new object[] { "name", "RecruitWobbleL", "x", this.amount, "y", this.amount, "time", this.duration, "delay", this.delay, "looptype", iTween.LoopType.loop }));
+				iTween.PunchRotation(this.m_theActualButton, iTween.Hash(new object[] { "name", "RecruitButtonSwing", "z", -30f, "time", 2f }));
+				iTween.PunchRotation(this.m_numReadyTroopsTextBG, iTween.Hash(new object[] { "name", "RecruitNumSwing", "z", -50f, "time", 3f }));
 				Main.instance.m_UISound.Play_LootReady();
 			}
 			this.m_numReadyTroops = numCompletedMissions;
-			this.m_numReadyTroopsText.set_text(string.Empty + ((this.m_numReadyTroops <= 0) ? string.Empty : (string.Empty + this.m_numReadyTroops)));
+			this.m_numReadyTroopsText.text = string.Concat(string.Empty, (this.m_numReadyTroops <= 0 ? string.Empty : string.Concat(string.Empty, this.m_numReadyTroops)));
 			this.m_numReadyTroopsTextBG.SetActive(this.m_numReadyTroops > 0);
 		}
 	}
@@ -149,13 +109,12 @@ public class NextCompletedMissionButton : MonoBehaviour
 	public void ZoomToNextCompleteMission()
 	{
 		AdventureMapMissionSite[] componentsInChildren = AdventureMapPanel.instance.m_missionAndWordQuestArea.GetComponentsInChildren<AdventureMapMissionSite>(true);
-		AdventureMapMissionSite[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			AdventureMapMissionSite adventureMapMissionSite = array[i];
+			AdventureMapMissionSite adventureMapMissionSite = componentsInChildren[i];
 			if (!adventureMapMissionSite.m_isStackablePreview)
 			{
-				if (adventureMapMissionSite.m_completeMissionGroup.get_gameObject().get_activeSelf())
+				if (adventureMapMissionSite.ShouldShowCompletedMission())
 				{
 					adventureMapMissionSite.JustZoomToMission();
 					break;

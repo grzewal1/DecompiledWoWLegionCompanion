@@ -1,45 +1,56 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamBattlePayProductGroup", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamBattlePayProductGroup", Version=28333852)]
 	public class JamBattlePayProductGroup
 	{
-		[FlexJamMember(Name = "iconFileDataID", Type = FlexJamType.Int32), DataMember(Name = "iconFileDataID")]
-		public int IconFileDataID
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "name", Type = FlexJamType.String), DataMember(Name = "name")]
-		public string Name
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "displayType", Type = FlexJamType.UInt8), DataMember(Name = "displayType")]
+		[DataMember(Name="displayType")]
+		[FlexJamMember(Name="displayType", Type=FlexJamType.UInt8)]
 		public byte DisplayType
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "ordering", Type = FlexJamType.Int32), DataMember(Name = "ordering")]
+		[DataMember(Name="groupID")]
+		[FlexJamMember(Name="groupID", Type=FlexJamType.UInt32)]
+		public uint GroupID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="iconFileDataID")]
+		[FlexJamMember(Name="iconFileDataID", Type=FlexJamType.Int32)]
+		public int IconFileDataID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="name")]
+		[FlexJamMember(Name="name", Type=FlexJamType.String)]
+		public string Name
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="ordering")]
+		[FlexJamMember(Name="ordering", Type=FlexJamType.Int32)]
 		public int Ordering
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "groupID", Type = FlexJamType.UInt32), DataMember(Name = "groupID")]
-		public uint GroupID
+		public JamBattlePayProductGroup()
 		{
-			get;
-			set;
 		}
 	}
 }

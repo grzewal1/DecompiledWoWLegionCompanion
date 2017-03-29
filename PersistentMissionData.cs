@@ -15,8 +15,10 @@ public class PersistentMissionData
 		{
 			if (PersistentMissionData.s_instance == null)
 			{
-				PersistentMissionData.s_instance = new PersistentMissionData();
-				PersistentMissionData.s_instance.m_missionDictionary = new Hashtable();
+				PersistentMissionData.s_instance = new PersistentMissionData()
+				{
+					m_missionDictionary = new Hashtable()
+				};
 			}
 			return PersistentMissionData.s_instance;
 		}
@@ -30,18 +32,20 @@ public class PersistentMissionData
 		}
 	}
 
+	static PersistentMissionData()
+	{
+	}
+
+	public PersistentMissionData()
+	{
+	}
+
 	public static void AddMission(JamGarrisonMobileMission mission)
 	{
 		if (!PersistentMissionData.instance.m_missionDictionary.ContainsKey(mission.MissionRecID))
 		{
 			PersistentMissionData.instance.m_missionDictionary.Add(mission.MissionRecID, mission);
 		}
-	}
-
-	public static void UpdateMission(JamGarrisonMobileMission mission)
-	{
-		PersistentMissionData.instance.m_missionDictionary.Remove(mission.MissionRecID);
-		PersistentMissionData.AddMission(mission);
 	}
 
 	public static void ClearData()
@@ -52,25 +56,26 @@ public class PersistentMissionData
 	public static int GetNumCompletedMissions(bool skipSupportMissions = false)
 	{
 		int num = 0;
-		IEnumerator enumerator = PersistentMissionData.missionDictionary.get_Values().GetEnumerator();
+		IEnumerator enumerator = PersistentMissionData.missionDictionary.Values.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)enumerator.get_Current();
-				GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(jamGarrisonMobileMission.MissionRecID);
+				JamGarrisonMobileMission current = (JamGarrisonMobileMission)enumerator.Current;
+				GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(current.MissionRecID);
 				if (record != null)
 				{
-					if (record.GarrFollowerTypeID == 4u)
+					if (record.GarrFollowerTypeID == 4)
 					{
-						if (!skipSupportMissions || (record.Flags & 16u) == 0u)
+						if (!skipSupportMissions || (record.Flags & 16) == 0)
 						{
-							long num2 = GarrisonStatus.CurrentTime() - jamGarrisonMobileMission.StartTime;
-							long num3 = jamGarrisonMobileMission.MissionDuration - num2;
-							if ((jamGarrisonMobileMission.MissionState == 1 && num3 <= 0L) || jamGarrisonMobileMission.MissionState == 2 || jamGarrisonMobileMission.MissionState == 3)
+							long num1 = GarrisonStatus.CurrentTime() - current.StartTime;
+							long missionDuration = current.MissionDuration - num1;
+							if ((current.MissionState != 1 || missionDuration > (long)0) && current.MissionState != 2 && current.MissionState != 3)
 							{
-								num++;
+								continue;
 							}
+							num++;
 						}
 					}
 				}
@@ -79,11 +84,17 @@ public class PersistentMissionData
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable != null)
+			if (disposable == null)
 			{
-				disposable.Dispose();
 			}
+			disposable.Dispose();
 		}
 		return num;
+	}
+
+	public static void UpdateMission(JamGarrisonMobileMission mission)
+	{
+		PersistentMissionData.instance.m_missionDictionary.Remove(mission.MissionRecID);
+		PersistentMissionData.AddMission(mission);
 	}
 }

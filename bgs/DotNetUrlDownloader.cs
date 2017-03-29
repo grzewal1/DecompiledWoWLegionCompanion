@@ -8,6 +8,167 @@ namespace bgs
 {
 	public class DotNetUrlDownloader : IUrlDownloader
 	{
+		private List<DotNetUrlDownloader.DownloadResult> m_completedDownloads = new List<DotNetUrlDownloader.DownloadResult>();
+
+		public DotNetUrlDownloader()
+		{
+		}
+
+		public void Download(string url, UrlDownloadCompletedCallback cb)
+		{
+			this.Download(url, cb, new UrlDownloaderConfig());
+		}
+
+		public void Download(string url, UrlDownloadCompletedCallback cb, UrlDownloaderConfig config)
+		{
+			WebRequest webRequest = WebRequest.Create(url);
+			DotNetUrlDownloader.DownloadResult downloadResult = new DotNetUrlDownloader.DownloadResult()
+			{
+				callback = cb
+			};
+			DotNetUrlDownloader.DownloadState downloadState = new DotNetUrlDownloader.DownloadState()
+			{
+				downloader = this,
+				host = url,
+				downloadResult = downloadResult,
+				request = webRequest,
+				numRetriesLeft = config.numRetries,
+				timeoutMs = config.timeoutMs
+			};
+			DotNetUrlDownloader.Download(downloadState);
+		}
+
+		private static void Download(DotNetUrlDownloader.DownloadState state)
+		{
+			try
+			{
+				IAsyncResult asyncResult = state.request.BeginGetResponse(new AsyncCallback(DotNetUrlDownloader.ResponseCallback), state);
+				int num = state.timeoutMs;
+				if (num < 0)
+				{
+					num = -1;
+				}
+				state.timeoutWatchHandle = asyncResult.AsyncWaitHandle;
+				state.timeoutWaitHandle = ThreadPool.RegisterWaitForSingleObject(state.timeoutWatchHandle, new WaitOrTimerCallback(DotNetUrlDownloader.TimeoutCallback), state, num, true);
+			}
+			catch (Exception exception)
+			{
+				DotNetUrlDownloader.FinishDownload(state);
+			}
+		}
+
+		private static void FinishDownload(DotNetUrlDownloader.DownloadState state)
+		{
+			// 
+			// Current member / type: System.Void bgs.DotNetUrlDownloader::FinishDownload(bgs.DotNetUrlDownloader/DownloadState)
+			// File path: C:\Users\RenameME-4\Desktop\wow_app\wow_v1.2.0_com.blizzard.wowcompanion\assets\bin\Data\Managed\Assembly-CSharp.dll
+			// 
+			// Product version: 2017.1.116.2
+			// Exception in: System.Void FinishDownload(bgs.DotNetUrlDownloader/DownloadState)
+			// 
+			// La référence d'objet n'est pas définie à une instance d'un objet.
+			//    à ..() dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 81
+			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 24
+			//    à ..Visit(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 69
+			//    à ..(DecompilationContext ,  ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 19
+			//    à ..(MethodBody ,  , ILanguage ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\DecompilationPipeline.cs:ligne 88
+			//    à ..(MethodBody , ILanguage ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\DecompilationPipeline.cs:ligne 70
+			//    à Telerik.JustDecompiler.Decompiler.Extensions.( , ILanguage , MethodBody , DecompilationContext& ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\Extensions.cs:ligne 95
+			//    à Telerik.JustDecompiler.Decompiler.Extensions.(MethodBody , ILanguage , DecompilationContext& ,  ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\Extensions.cs:ligne 58
+			//    à ..(ILanguage , MethodDefinition ,  ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Decompiler\WriterContextServices\BaseWriterContextService.cs:ligne 117
+			// 
+			// mailto: JustDecompilePublicFeedback@telerik.com
+
+		}
+
+		public void Process()
+		{
+			List<DotNetUrlDownloader.DownloadResult> mCompletedDownloads = this.m_completedDownloads;
+			Monitor.Enter(mCompletedDownloads);
+			try
+			{
+				foreach (DotNetUrlDownloader.DownloadResult mCompletedDownload in this.m_completedDownloads)
+				{
+					mCompletedDownload.callback(mCompletedDownload.succeeded, mCompletedDownload.downloadData);
+				}
+				this.m_completedDownloads.Clear();
+			}
+			finally
+			{
+				Monitor.Exit(mCompletedDownloads);
+			}
+		}
+
+		private static void ReadCallback(IAsyncResult ar)
+		{
+			DotNetUrlDownloader.DownloadState asyncState = (DotNetUrlDownloader.DownloadState)ar.AsyncState;
+			bool flag = true;
+			try
+			{
+				Stream stream = asyncState.responseStream;
+				int num = stream.EndRead(ar);
+				if (num > 0)
+				{
+					flag = false;
+					Array.Copy(asyncState.readBuffer, 0, asyncState.downloadResult.downloadData, asyncState.readPos, num);
+					DotNetUrlDownloader.DownloadState downloadState = asyncState;
+					downloadState.readPos = downloadState.readPos + num;
+					stream.BeginRead(asyncState.readBuffer, 0, (int)asyncState.readBuffer.Length, new AsyncCallback(DotNetUrlDownloader.ReadCallback), asyncState);
+				}
+				else if (num == 0)
+				{
+					asyncState.downloadResult.succeeded = true;
+				}
+			}
+			catch (Exception exception)
+			{
+			}
+			if (flag)
+			{
+				DotNetUrlDownloader.FinishDownload(asyncState);
+			}
+		}
+
+		private static void ResponseCallback(IAsyncResult ar)
+		{
+			DotNetUrlDownloader.DownloadState asyncState = (DotNetUrlDownloader.DownloadState)ar.AsyncState;
+			try
+			{
+				WebResponse webResponse = asyncState.request.EndGetResponse(ar);
+				Stream responseStream = webResponse.GetResponseStream();
+				asyncState.responseStream = responseStream;
+				asyncState.downloadResult.downloadData = new byte[checked((IntPtr)webResponse.ContentLength)];
+				responseStream.BeginRead(asyncState.readBuffer, 0, (int)asyncState.readBuffer.Length, new AsyncCallback(DotNetUrlDownloader.ReadCallback), asyncState);
+			}
+			catch (Exception exception)
+			{
+				DotNetUrlDownloader.FinishDownload(asyncState);
+			}
+		}
+
+		private static void TimeoutCallback(object context, bool timedOut)
+		{
+			DotNetUrlDownloader.DownloadState downloadState = (DotNetUrlDownloader.DownloadState)context;
+			downloadState.UnregisterTimeout();
+			if (timedOut)
+			{
+				downloadState.request.Abort();
+			}
+		}
+
+		internal class DownloadResult
+		{
+			public UrlDownloadCompletedCallback callback;
+
+			public byte[] downloadData;
+
+			public bool succeeded;
+
+			public DownloadResult()
+			{
+			}
+		}
+
 		internal class DownloadState
 		{
 			private const int bufferSize = 1024;
@@ -41,155 +202,14 @@ namespace bgs
 
 			public bool UnregisterTimeout()
 			{
-				bool result = false;
+				bool flag = false;
 				if (this.timeoutWaitHandle != null && this.timeoutWatchHandle != null)
 				{
-					result = this.timeoutWaitHandle.Unregister(this.timeoutWatchHandle);
+					flag = this.timeoutWaitHandle.Unregister(this.timeoutWatchHandle);
 					this.timeoutWaitHandle = null;
 					this.timeoutWatchHandle = null;
 				}
-				return result;
-			}
-		}
-
-		internal class DownloadResult
-		{
-			public UrlDownloadCompletedCallback callback;
-
-			public byte[] downloadData;
-
-			public bool succeeded;
-		}
-
-		private List<DotNetUrlDownloader.DownloadResult> m_completedDownloads = new List<DotNetUrlDownloader.DownloadResult>();
-
-		public void Process()
-		{
-			List<DotNetUrlDownloader.DownloadResult> completedDownloads = this.m_completedDownloads;
-			lock (completedDownloads)
-			{
-				using (List<DotNetUrlDownloader.DownloadResult>.Enumerator enumerator = this.m_completedDownloads.GetEnumerator())
-				{
-					while (enumerator.MoveNext())
-					{
-						DotNetUrlDownloader.DownloadResult current = enumerator.get_Current();
-						current.callback(current.succeeded, current.downloadData);
-					}
-				}
-				this.m_completedDownloads.Clear();
-			}
-		}
-
-		public void Download(string url, UrlDownloadCompletedCallback cb)
-		{
-			UrlDownloaderConfig config = new UrlDownloaderConfig();
-			this.Download(url, cb, config);
-		}
-
-		public void Download(string url, UrlDownloadCompletedCallback cb, UrlDownloaderConfig config)
-		{
-			WebRequest request = WebRequest.Create(url);
-			DotNetUrlDownloader.DownloadResult downloadResult = new DotNetUrlDownloader.DownloadResult();
-			downloadResult.callback = cb;
-			DotNetUrlDownloader.Download(new DotNetUrlDownloader.DownloadState
-			{
-				downloader = this,
-				host = url,
-				downloadResult = downloadResult,
-				request = request,
-				numRetriesLeft = config.numRetries,
-				timeoutMs = config.timeoutMs
-			});
-		}
-
-		private static void Download(DotNetUrlDownloader.DownloadState state)
-		{
-			try
-			{
-				IAsyncResult asyncResult = state.request.BeginGetResponse(new AsyncCallback(DotNetUrlDownloader.ResponseCallback), state);
-				int num = state.timeoutMs;
-				if (num < 0)
-				{
-					num = -1;
-				}
-				state.timeoutWatchHandle = asyncResult.get_AsyncWaitHandle();
-				state.timeoutWaitHandle = ThreadPool.RegisterWaitForSingleObject(state.timeoutWatchHandle, new WaitOrTimerCallback(DotNetUrlDownloader.TimeoutCallback), state, num, true);
-			}
-			catch (Exception)
-			{
-				DotNetUrlDownloader.FinishDownload(state);
-			}
-		}
-
-		private static void ResponseCallback(IAsyncResult ar)
-		{
-			DotNetUrlDownloader.DownloadState downloadState = (DotNetUrlDownloader.DownloadState)ar.get_AsyncState();
-			try
-			{
-				WebRequest request = downloadState.request;
-				WebResponse webResponse = request.EndGetResponse(ar);
-				Stream responseStream = webResponse.GetResponseStream();
-				downloadState.responseStream = responseStream;
-				downloadState.downloadResult.downloadData = new byte[webResponse.get_ContentLength()];
-				responseStream.BeginRead(downloadState.readBuffer, 0, downloadState.readBuffer.Length, new AsyncCallback(DotNetUrlDownloader.ReadCallback), downloadState);
-			}
-			catch (Exception)
-			{
-				DotNetUrlDownloader.FinishDownload(downloadState);
-			}
-		}
-
-		private static void ReadCallback(IAsyncResult ar)
-		{
-			DotNetUrlDownloader.DownloadState downloadState = (DotNetUrlDownloader.DownloadState)ar.get_AsyncState();
-			bool flag = true;
-			try
-			{
-				Stream responseStream = downloadState.responseStream;
-				int num = responseStream.EndRead(ar);
-				if (num > 0)
-				{
-					flag = false;
-					Array.Copy(downloadState.readBuffer, 0, downloadState.downloadResult.downloadData, downloadState.readPos, num);
-					downloadState.readPos += num;
-					responseStream.BeginRead(downloadState.readBuffer, 0, downloadState.readBuffer.Length, new AsyncCallback(DotNetUrlDownloader.ReadCallback), downloadState);
-				}
-				else if (num == 0)
-				{
-					downloadState.downloadResult.succeeded = true;
-				}
-			}
-			catch (Exception)
-			{
-			}
-			if (flag)
-			{
-				DotNetUrlDownloader.FinishDownload(downloadState);
-			}
-		}
-
-		private static void TimeoutCallback(object context, bool timedOut)
-		{
-			DotNetUrlDownloader.DownloadState downloadState = (DotNetUrlDownloader.DownloadState)context;
-			downloadState.UnregisterTimeout();
-			if (timedOut)
-			{
-				downloadState.request.Abort();
-			}
-		}
-
-		private static void FinishDownload(DotNetUrlDownloader.DownloadState state)
-		{
-			if (!state.downloadResult.succeeded && state.numRetriesLeft > 0)
-			{
-				state.numRetriesLeft--;
-				DotNetUrlDownloader.Download(state);
-				return;
-			}
-			List<DotNetUrlDownloader.DownloadResult> completedDownloads = state.downloader.m_completedDownloads;
-			lock (completedDownloads)
-			{
-				state.downloader.m_completedDownloads.Add(state.downloadResult);
+				return flag;
 			}
 		}
 	}

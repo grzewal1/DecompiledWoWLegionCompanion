@@ -9,40 +9,6 @@ using WowStaticData;
 
 public class OrderHallFollowersPanel : MonoBehaviour
 {
-	private class FollowerComparer : IComparer<KeyValuePair<int, JamGarrisonFollower>>
-	{
-		public int Compare(KeyValuePair<int, JamGarrisonFollower> follower1, KeyValuePair<int, JamGarrisonFollower> follower2)
-		{
-			JamGarrisonFollower value = follower1.get_Value();
-			JamGarrisonFollower value2 = follower2.get_Value();
-			FollowerStatus followerStatus = GeneralHelpers.GetFollowerStatus(value);
-			FollowerStatus followerStatus2 = GeneralHelpers.GetFollowerStatus(value2);
-			bool flag = (value.Flags & 8) != 0;
-			bool flag2 = (value2.Flags & 8) != 0;
-			bool flag3 = !flag && followerStatus != FollowerStatus.inactive;
-			bool flag4 = !flag2 && followerStatus2 != FollowerStatus.inactive;
-			if (flag3 != flag4)
-			{
-				return (!flag3) ? 1 : -1;
-			}
-			if (followerStatus != followerStatus2)
-			{
-				return followerStatus - followerStatus2;
-			}
-			int num = (value.ItemLevelArmor + value.ItemLevelWeapon) / 2;
-			int num2 = (value2.ItemLevelArmor + value2.ItemLevelWeapon) / 2;
-			if (num2 != num)
-			{
-				return num2 - num;
-			}
-			if (value.Quality != value2.Quality)
-			{
-				return value2.Quality - value.Quality;
-			}
-			return 0;
-		}
-	}
-
 	public FollowerListItem m_followerDetailListItemPrefab;
 
 	public GameObject m_followerDetailListContent;
@@ -67,29 +33,160 @@ public class OrderHallFollowersPanel : MonoBehaviour
 
 	private FollowerListHeader m_inactiveHeader;
 
+	public OrderHallFollowersPanel()
+	{
+	}
+
 	private void Awake()
 	{
 		OrderHallFollowersPanel.instance = this;
 	}
 
-	private void Start()
+	public void FollowerDetailListItemSelected(int garrFollowerID)
 	{
-		this.InitFollowerList();
-		Main expr_0B = Main.instance;
-		expr_0B.GarrisonDataResetFinishedAction = (Action)Delegate.Combine(expr_0B.GarrisonDataResetFinishedAction, new Action(this.InitFollowerList));
-		Main expr_31 = Main.instance;
-		expr_31.FollowerDataChangedAction = (Action)Delegate.Combine(expr_31.FollowerDataChangedAction, new Action(this.InitFollowerList));
+		if (this.FollowerDetailListItemSelectedAction != null)
+		{
+			this.FollowerDetailListItemSelectedAction(garrFollowerID);
+		}
 	}
 
-	private void Update()
+	private void InitFollowerList()
 	{
-	}
-
-	private void SortFollowerListData()
-	{
-		this.m_sortedFollowerList = Enumerable.ToList<KeyValuePair<int, JamGarrisonFollower>>(PersistentFollowerData.followerDictionary);
-		OrderHallFollowersPanel.FollowerComparer followerComparer = new OrderHallFollowersPanel.FollowerComparer();
-		this.m_sortedFollowerList.Sort(followerComparer);
+		FollowerListItem[] componentsInChildren = this.m_followerDetailListContent.GetComponentsInChildren<FollowerListItem>(true);
+		FollowerListItem[] followerListItemArray = componentsInChildren;
+		for (int i = 0; i < (int)followerListItemArray.Length; i++)
+		{
+			FollowerListItem followerListItem = followerListItemArray[i];
+			if (PersistentFollowerData.followerDictionary.ContainsKey(followerListItem.m_followerID))
+			{
+				JamGarrisonFollower item = PersistentFollowerData.followerDictionary[followerListItem.m_followerID];
+				if ((item.Flags & 8) == 0 || item.Durability > 0)
+				{
+					followerListItem.SetFollower(item);
+				}
+				else
+				{
+					followerListItem.gameObject.SetActive(false);
+					followerListItem.transform.SetParent(Main.instance.transform);
+				}
+			}
+			else
+			{
+				followerListItem.gameObject.SetActive(false);
+				followerListItem.transform.SetParent(Main.instance.transform);
+			}
+		}
+		this.SortFollowerListData();
+		if (this.m_championsHeader == null)
+		{
+			this.m_championsHeader = UnityEngine.Object.Instantiate<FollowerListHeader>(this.m_followerListHeaderPrefab);
+		}
+		this.m_championsHeader.transform.SetParent(this.m_followerDetailListContent.transform, false);
+		this.m_championsHeader.m_title.font = GeneralHelpers.LoadStandardFont();
+		this.m_championsHeader.m_title.text = string.Concat(StaticDB.GetString("CHAMPIONS", null), ": ");
+		int numActiveChampions = GeneralHelpers.GetNumActiveChampions();
+		int maxActiveFollowers = GarrisonStatus.GetMaxActiveFollowers();
+		if (numActiveChampions > maxActiveFollowers)
+		{
+			this.m_championsHeader.m_count.text = string.Concat(new object[] { "<color=#ff0000ff>", numActiveChampions, "/", maxActiveFollowers, "</color>" });
+		}
+		else
+		{
+			this.m_championsHeader.m_count.text = string.Concat(new object[] { string.Empty, numActiveChampions, "/", maxActiveFollowers });
+		}
+		foreach (KeyValuePair<int, JamGarrisonFollower> mSortedFollowerList in this.m_sortedFollowerList)
+		{
+			bool flag = false;
+			FollowerListItem[] followerListItemArray1 = componentsInChildren;
+			int num = 0;
+			while (num < (int)followerListItemArray1.Length)
+			{
+				if (followerListItemArray1[num].m_followerID != mSortedFollowerList.Value.GarrFollowerID)
+				{
+					num++;
+				}
+				else
+				{
+					flag = true;
+					break;
+				}
+			}
+			if (!flag)
+			{
+				this.InsertFollowerIntoListView(mSortedFollowerList.Value, FollowerCategory.ActiveChampion);
+			}
+		}
+		int numTroops = GeneralHelpers.GetNumTroops();
+		if (this.m_troopsHeader == null)
+		{
+			this.m_troopsHeader = UnityEngine.Object.Instantiate<FollowerListHeader>(this.m_followerListHeaderPrefab);
+		}
+		this.m_troopsHeader.transform.SetParent(this.m_followerDetailListContent.transform, false);
+		this.m_troopsHeader.m_title.font = GeneralHelpers.LoadStandardFont();
+		this.m_troopsHeader.m_title.text = string.Concat(StaticDB.GetString("TROOPS", null), ": ");
+		this.m_troopsHeader.m_count.font = GeneralHelpers.LoadStandardFont();
+		this.m_troopsHeader.m_count.text = string.Concat(string.Empty, numTroops);
+		foreach (KeyValuePair<int, JamGarrisonFollower> keyValuePair in this.m_sortedFollowerList)
+		{
+			bool flag1 = false;
+			FollowerListItem[] followerListItemArray2 = componentsInChildren;
+			int num1 = 0;
+			while (num1 < (int)followerListItemArray2.Length)
+			{
+				if (followerListItemArray2[num1].m_followerID != keyValuePair.Value.GarrFollowerID)
+				{
+					num1++;
+				}
+				else
+				{
+					flag1 = true;
+					break;
+				}
+			}
+			if (!flag1)
+			{
+				this.InsertFollowerIntoListView(keyValuePair.Value, FollowerCategory.Troop);
+			}
+		}
+		int numInactiveChampions = GeneralHelpers.GetNumInactiveChampions();
+		if (this.m_inactiveHeader == null)
+		{
+			this.m_inactiveHeader = UnityEngine.Object.Instantiate<FollowerListHeader>(this.m_followerListHeaderPrefab);
+		}
+		this.m_inactiveHeader.transform.SetParent(this.m_followerDetailListContent.transform, false);
+		this.m_inactiveHeader.m_title.font = GeneralHelpers.LoadStandardFont();
+		this.m_inactiveHeader.m_title.text = string.Concat(StaticDB.GetString("INACTIVE", null), ": ");
+		this.m_inactiveHeader.m_count.font = GeneralHelpers.LoadStandardFont();
+		this.m_inactiveHeader.m_count.text = string.Concat(string.Empty, numInactiveChampions);
+		foreach (KeyValuePair<int, JamGarrisonFollower> mSortedFollowerList1 in this.m_sortedFollowerList)
+		{
+			bool flag2 = false;
+			FollowerListItem[] followerListItemArray3 = componentsInChildren;
+			int num2 = 0;
+			while (num2 < (int)followerListItemArray3.Length)
+			{
+				if (followerListItemArray3[num2].m_followerID != mSortedFollowerList1.Value.GarrFollowerID)
+				{
+					num2++;
+				}
+				else
+				{
+					flag2 = true;
+					break;
+				}
+			}
+			if (!flag2)
+			{
+				this.InsertFollowerIntoListView(mSortedFollowerList1.Value, FollowerCategory.InactiveChampion);
+			}
+		}
+		this.SyncVisibleListOrderToSortedFollowerList();
+		this.m_championsHeader.gameObject.SetActive(numActiveChampions > 0);
+		this.m_troopsHeader.gameObject.SetActive(numTroops > 0);
+		this.m_inactiveHeader.gameObject.SetActive(numInactiveChampions > 0);
+		this.m_championsHeader.transform.SetSiblingIndex(0);
+		this.m_troopsHeader.transform.SetSiblingIndex(numActiveChampions + 1);
+		this.m_inactiveHeader.transform.SetSiblingIndex(numActiveChampions + numTroops + 2);
 	}
 
 	private void InsertFollowerIntoListView(JamGarrisonFollower follower, FollowerCategory followerCategory)
@@ -99,256 +196,164 @@ public class OrderHallFollowersPanel : MonoBehaviour
 		{
 			return;
 		}
-		if (record.GarrFollowerTypeID != 4u)
+		if (record.GarrFollowerTypeID != 4)
 		{
 			return;
 		}
-		bool flag = (follower.Flags & 8) != 0;
-		bool flag2 = !flag;
+		bool flags = (follower.Flags & 8) != 0;
+		bool flag = !flags;
 		FollowerStatus followerStatus = GeneralHelpers.GetFollowerStatus(follower);
 		switch (followerCategory)
 		{
-		case FollowerCategory.ActiveChampion:
-			if (!flag2 || followerStatus == FollowerStatus.inactive)
+			case FollowerCategory.ActiveChampion:
+			{
+				if (!flag || followerStatus == FollowerStatus.inactive)
+				{
+					return;
+				}
+				break;
+			}
+			case FollowerCategory.InactiveChampion:
+			{
+				if (!flag || followerStatus != FollowerStatus.inactive)
+				{
+					return;
+				}
+				break;
+			}
+			case FollowerCategory.Troop:
+			{
+				if (!flags || follower.Durability <= 0)
+				{
+					return;
+				}
+				break;
+			}
+			default:
 			{
 				return;
 			}
-			break;
-		case FollowerCategory.InactiveChampion:
-			if (!flag2 || followerStatus != FollowerStatus.inactive)
-			{
-				return;
-			}
-			break;
-		case FollowerCategory.Troop:
-			if (!flag || follower.Durability <= 0)
-			{
-				return;
-			}
-			break;
-		default:
-			return;
 		}
-		FollowerListItem followerListItem = Object.Instantiate<FollowerListItem>(this.m_followerDetailListItemPrefab);
-		followerListItem.get_transform().SetParent(this.m_followerDetailListContent.get_transform(), false);
+		FollowerListItem followerListItem = UnityEngine.Object.Instantiate<FollowerListItem>(this.m_followerDetailListItemPrefab);
+		followerListItem.transform.SetParent(this.m_followerDetailListContent.transform, false);
 		followerListItem.SetFollower(follower);
+	}
+
+	public void ScrollListTo(float offsetY)
+	{
+		this.m_scrollListToOffset = offsetY;
+		this.m_listScrollRect.enabled = false;
+		iTween.StopByName(base.gameObject, "ScrollListTo");
+		GameObject gameObject = base.gameObject;
+		object[] objArray = new object[14];
+		objArray[0] = "name";
+		objArray[1] = "ScrollListTo";
+		objArray[2] = "from";
+		Vector3 mFollowerDetailListContent = this.m_followerDetailListContent.transform.localPosition;
+		objArray[3] = mFollowerDetailListContent.y;
+		objArray[4] = "to";
+		objArray[5] = offsetY;
+		objArray[6] = "time";
+		objArray[7] = 0.25f;
+		objArray[8] = "easetype";
+		objArray[9] = iTween.EaseType.easeOutCubic;
+		objArray[10] = "onupdate";
+		objArray[11] = "ScrollListTo_Update";
+		objArray[12] = "oncomplete";
+		objArray[13] = "ScrollListTo_Complete";
+		iTween.ValueTo(gameObject, iTween.Hash(objArray));
+	}
+
+	private void ScrollListTo_Complete()
+	{
+		Vector3 mFollowerDetailListContent = this.m_followerDetailListContent.transform.localPosition;
+		mFollowerDetailListContent.y = this.m_scrollListToOffset;
+		this.m_followerDetailListContent.transform.localPosition = mFollowerDetailListContent;
+		this.m_listScrollRect.enabled = true;
+	}
+
+	private void ScrollListTo_Update(float offsetY)
+	{
+		Vector3 mFollowerDetailListContent = this.m_followerDetailListContent.transform.localPosition;
+		mFollowerDetailListContent.y = offsetY;
+		this.m_followerDetailListContent.transform.localPosition = mFollowerDetailListContent;
+	}
+
+	private void SortFollowerListData()
+	{
+		this.m_sortedFollowerList = PersistentFollowerData.followerDictionary.ToList<KeyValuePair<int, JamGarrisonFollower>>();
+		OrderHallFollowersPanel.FollowerComparer followerComparer = new OrderHallFollowersPanel.FollowerComparer();
+		this.m_sortedFollowerList.Sort(followerComparer);
+	}
+
+	private void Start()
+	{
+		this.InitFollowerList();
+		Main.instance.GarrisonDataResetFinishedAction += new Action(this.InitFollowerList);
+		Main.instance.FollowerDataChangedAction += new Action(this.InitFollowerList);
 	}
 
 	private void SyncVisibleListOrderToSortedFollowerList()
 	{
 		FollowerListItem[] componentsInChildren = this.m_followerDetailListContent.GetComponentsInChildren<FollowerListItem>(true);
-		for (int i = 0; i < this.m_sortedFollowerList.get_Count(); i++)
+		for (int i = 0; i < this.m_sortedFollowerList.Count; i++)
 		{
-			FollowerListItem[] array = componentsInChildren;
-			for (int j = 0; j < array.Length; j++)
+			FollowerListItem[] followerListItemArray = componentsInChildren;
+			int num = 0;
+			while (num < (int)followerListItemArray.Length)
 			{
-				FollowerListItem followerListItem = array[j];
-				if (followerListItem.m_followerID == this.m_sortedFollowerList.get_Item(i).get_Value().GarrFollowerID)
+				FollowerListItem followerListItem = followerListItemArray[num];
+				if (followerListItem.m_followerID != this.m_sortedFollowerList[i].Value.GarrFollowerID)
 				{
-					followerListItem.get_transform().SetSiblingIndex(i);
+					num++;
+				}
+				else
+				{
+					followerListItem.transform.SetSiblingIndex(i);
 					break;
 				}
 			}
 		}
 	}
 
-	private void InitFollowerList()
+	private void Update()
 	{
-		FollowerListItem[] componentsInChildren = this.m_followerDetailListContent.GetComponentsInChildren<FollowerListItem>(true);
-		FollowerListItem[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
-		{
-			FollowerListItem followerListItem = array[i];
-			if (!PersistentFollowerData.followerDictionary.ContainsKey(followerListItem.m_followerID))
-			{
-				followerListItem.get_gameObject().SetActive(false);
-				followerListItem.get_transform().SetParent(Main.instance.get_transform());
-			}
-			else
-			{
-				JamGarrisonFollower jamGarrisonFollower = PersistentFollowerData.followerDictionary.get_Item(followerListItem.m_followerID);
-				bool flag = (jamGarrisonFollower.Flags & 8) != 0;
-				if (flag && jamGarrisonFollower.Durability <= 0)
-				{
-					followerListItem.get_gameObject().SetActive(false);
-					followerListItem.get_transform().SetParent(Main.instance.get_transform());
-				}
-				else
-				{
-					followerListItem.SetFollower(jamGarrisonFollower);
-				}
-			}
-		}
-		this.SortFollowerListData();
-		if (this.m_championsHeader == null)
-		{
-			this.m_championsHeader = Object.Instantiate<FollowerListHeader>(this.m_followerListHeaderPrefab);
-		}
-		this.m_championsHeader.get_transform().SetParent(this.m_followerDetailListContent.get_transform(), false);
-		this.m_championsHeader.m_title.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_championsHeader.m_title.set_text(StaticDB.GetString("CHAMPIONS", null) + ": ");
-		int numActiveChampions = GeneralHelpers.GetNumActiveChampions();
-		int maxActiveChampions = GeneralHelpers.GetMaxActiveChampions();
-		if (numActiveChampions <= maxActiveChampions)
-		{
-			this.m_championsHeader.m_count.set_text(string.Concat(new object[]
-			{
-				string.Empty,
-				numActiveChampions,
-				"/",
-				maxActiveChampions
-			}));
-		}
-		else
-		{
-			this.m_championsHeader.m_count.set_text(string.Concat(new object[]
-			{
-				"<color=#ff0000ff>",
-				numActiveChampions,
-				"/",
-				maxActiveChampions,
-				"</color>"
-			}));
-		}
-		using (List<KeyValuePair<int, JamGarrisonFollower>>.Enumerator enumerator = this.m_sortedFollowerList.GetEnumerator())
-		{
-			while (enumerator.MoveNext())
-			{
-				KeyValuePair<int, JamGarrisonFollower> current = enumerator.get_Current();
-				bool flag2 = false;
-				FollowerListItem[] array2 = componentsInChildren;
-				for (int j = 0; j < array2.Length; j++)
-				{
-					FollowerListItem followerListItem2 = array2[j];
-					if (followerListItem2.m_followerID == current.get_Value().GarrFollowerID)
-					{
-						flag2 = true;
-						break;
-					}
-				}
-				if (!flag2)
-				{
-					this.InsertFollowerIntoListView(current.get_Value(), FollowerCategory.ActiveChampion);
-				}
-			}
-		}
-		int numTroops = GeneralHelpers.GetNumTroops();
-		if (this.m_troopsHeader == null)
-		{
-			this.m_troopsHeader = Object.Instantiate<FollowerListHeader>(this.m_followerListHeaderPrefab);
-		}
-		this.m_troopsHeader.get_transform().SetParent(this.m_followerDetailListContent.get_transform(), false);
-		this.m_troopsHeader.m_title.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_troopsHeader.m_title.set_text(StaticDB.GetString("TROOPS", null) + ": ");
-		this.m_troopsHeader.m_count.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_troopsHeader.m_count.set_text(string.Empty + numTroops);
-		using (List<KeyValuePair<int, JamGarrisonFollower>>.Enumerator enumerator2 = this.m_sortedFollowerList.GetEnumerator())
-		{
-			while (enumerator2.MoveNext())
-			{
-				KeyValuePair<int, JamGarrisonFollower> current2 = enumerator2.get_Current();
-				bool flag3 = false;
-				FollowerListItem[] array3 = componentsInChildren;
-				for (int k = 0; k < array3.Length; k++)
-				{
-					FollowerListItem followerListItem3 = array3[k];
-					if (followerListItem3.m_followerID == current2.get_Value().GarrFollowerID)
-					{
-						flag3 = true;
-						break;
-					}
-				}
-				if (!flag3)
-				{
-					this.InsertFollowerIntoListView(current2.get_Value(), FollowerCategory.Troop);
-				}
-			}
-		}
-		int numInactiveChampions = GeneralHelpers.GetNumInactiveChampions();
-		if (this.m_inactiveHeader == null)
-		{
-			this.m_inactiveHeader = Object.Instantiate<FollowerListHeader>(this.m_followerListHeaderPrefab);
-		}
-		this.m_inactiveHeader.get_transform().SetParent(this.m_followerDetailListContent.get_transform(), false);
-		this.m_inactiveHeader.m_title.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_inactiveHeader.m_title.set_text(StaticDB.GetString("INACTIVE", null) + ": ");
-		this.m_inactiveHeader.m_count.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_inactiveHeader.m_count.set_text(string.Empty + numInactiveChampions);
-		using (List<KeyValuePair<int, JamGarrisonFollower>>.Enumerator enumerator3 = this.m_sortedFollowerList.GetEnumerator())
-		{
-			while (enumerator3.MoveNext())
-			{
-				KeyValuePair<int, JamGarrisonFollower> current3 = enumerator3.get_Current();
-				bool flag4 = false;
-				FollowerListItem[] array4 = componentsInChildren;
-				for (int l = 0; l < array4.Length; l++)
-				{
-					FollowerListItem followerListItem4 = array4[l];
-					if (followerListItem4.m_followerID == current3.get_Value().GarrFollowerID)
-					{
-						flag4 = true;
-						break;
-					}
-				}
-				if (!flag4)
-				{
-					this.InsertFollowerIntoListView(current3.get_Value(), FollowerCategory.InactiveChampion);
-				}
-			}
-		}
-		this.SyncVisibleListOrderToSortedFollowerList();
-		this.m_championsHeader.get_gameObject().SetActive(numActiveChampions > 0);
-		this.m_troopsHeader.get_gameObject().SetActive(numTroops > 0);
-		this.m_inactiveHeader.get_gameObject().SetActive(numInactiveChampions > 0);
-		this.m_championsHeader.get_transform().SetSiblingIndex(0);
-		this.m_troopsHeader.get_transform().SetSiblingIndex(numActiveChampions + 1);
-		this.m_inactiveHeader.get_transform().SetSiblingIndex(numActiveChampions + numTroops + 2);
 	}
 
-	private void ScrollListTo_Update(float offsetY)
+	private class FollowerComparer : IComparer<KeyValuePair<int, JamGarrisonFollower>>
 	{
-		Vector3 localPosition = this.m_followerDetailListContent.get_transform().get_localPosition();
-		localPosition.y = offsetY;
-		this.m_followerDetailListContent.get_transform().set_localPosition(localPosition);
-	}
-
-	private void ScrollListTo_Complete()
-	{
-		Vector3 localPosition = this.m_followerDetailListContent.get_transform().get_localPosition();
-		localPosition.y = this.m_scrollListToOffset;
-		this.m_followerDetailListContent.get_transform().set_localPosition(localPosition);
-		this.m_listScrollRect.set_enabled(true);
-	}
-
-	public void ScrollListTo(float offsetY)
-	{
-		this.m_scrollListToOffset = offsetY;
-		this.m_listScrollRect.set_enabled(false);
-		iTween.StopByName(base.get_gameObject(), "ScrollListTo");
-		iTween.ValueTo(base.get_gameObject(), iTween.Hash(new object[]
+		public FollowerComparer()
 		{
-			"name",
-			"ScrollListTo",
-			"from",
-			this.m_followerDetailListContent.get_transform().get_localPosition().y,
-			"to",
-			offsetY,
-			"time",
-			0.25f,
-			"easetype",
-			iTween.EaseType.easeOutCubic,
-			"onupdate",
-			"ScrollListTo_Update",
-			"oncomplete",
-			"ScrollListTo_Complete"
-		}));
-	}
+		}
 
-	public void FollowerDetailListItemSelected(int garrFollowerID)
-	{
-		if (this.FollowerDetailListItemSelectedAction != null)
+		public int Compare(KeyValuePair<int, JamGarrisonFollower> follower1, KeyValuePair<int, JamGarrisonFollower> follower2)
 		{
-			this.FollowerDetailListItemSelectedAction.Invoke(garrFollowerID);
+			JamGarrisonFollower value = follower1.Value;
+			JamGarrisonFollower jamGarrisonFollower = follower2.Value;
+			FollowerStatus followerStatus = GeneralHelpers.GetFollowerStatus(value);
+			FollowerStatus followerStatu = GeneralHelpers.GetFollowerStatus(jamGarrisonFollower);
+			bool flags = (value.Flags & 8) != 0;
+			bool flag = (jamGarrisonFollower.Flags & 8) != 0;
+			bool flag1 = (flags ? false : followerStatus != FollowerStatus.inactive);
+			if (flag1 != (flag ? false : followerStatu != FollowerStatus.inactive))
+			{
+				return (!flag1 ? 1 : -1);
+			}
+			if (followerStatus != followerStatu)
+			{
+				return (int)followerStatus - (int)followerStatu;
+			}
+			int itemLevelArmor = (value.ItemLevelArmor + value.ItemLevelWeapon) / 2;
+			int num = (jamGarrisonFollower.ItemLevelArmor + jamGarrisonFollower.ItemLevelWeapon) / 2;
+			if (num != itemLevelArmor)
+			{
+				return num - itemLevelArmor;
+			}
+			if (value.Quality == jamGarrisonFollower.Quality)
+			{
+				return 0;
+			}
+			return jamGarrisonFollower.Quality - value.Quality;
 		}
 	}
 }

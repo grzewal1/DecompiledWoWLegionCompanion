@@ -1,5 +1,6 @@
 using GarbageFreeStringBuilder;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,9 +30,13 @@ public class FollowerListItem : MonoBehaviour
 
 	public GameObject selectedImage;
 
-	public Image qualityBorder;
+	public Image m_portraitQualityRing;
 
-	public Image levelBorder;
+	public Image m_portraitQualityRing_TitleQuality;
+
+	public Image m_levelBorder;
+
+	public Image m_levelBorder_TitleQuality;
 
 	public Image darkeningImage;
 
@@ -111,87 +116,226 @@ public class FollowerListItem : MonoBehaviour
 
 	private static string m_combatAllyString;
 
+	static FollowerListItem()
+	{
+	}
+
+	public FollowerListItem()
+	{
+	}
+
+	private void AddToParty(bool forceReplaceFirstSlot = false)
+	{
+		if (this.m_availableForMission)
+		{
+			MissionFollowerSlotGroup componentInChildren = base.gameObject.transform.parent.parent.parent.parent.gameObject.GetComponentInChildren<MissionFollowerSlotGroup>();
+			if (componentInChildren != null && componentInChildren.gameObject.activeSelf)
+			{
+				this.m_inParty = componentInChildren.SetFollower(this.m_followerID, this.followerPortrait.overrideSprite, this.m_portraitQualityRing.color, forceReplaceFirstSlot);
+				if (!this.m_inParty)
+				{
+					Main.instance.m_UISound.Play_DefaultNavClick();
+					this.DeselectMe();
+				}
+				else if ((PersistentFollowerData.followerDictionary[this.m_followerID].Flags & 8) == 0)
+				{
+					Main.instance.m_UISound.Play_SlotChampion();
+				}
+				else
+				{
+					Main.instance.m_UISound.Play_SlotTroop();
+				}
+				this.SetAvailabilityStatus(PersistentFollowerData.followerDictionary[this.m_followerID]);
+			}
+		}
+	}
+
 	private void Awake()
 	{
-		if (PersistentFollowerData.followerDictionary.get_Count() == 0)
+		if (PersistentFollowerData.followerDictionary.Count == 0)
 		{
 			return;
 		}
-		if (AssetBundleManager.instance.IsInitialized())
+		if (!AssetBundleManager.instance.IsInitialized())
 		{
-			this.OnAssetBundleManagerInitialized();
+			AssetBundleManager.instance.InitializedAction += new Action(this.OnAssetBundleManagerInitialized);
 		}
 		else
 		{
-			AssetBundleManager expr_2F = AssetBundleManager.instance;
-			expr_2F.InitializedAction = (Action)Delegate.Combine(expr_2F.InitializedAction, new Action(this.OnAssetBundleManagerInitialized));
+			this.OnAssetBundleManagerInitialized();
 		}
-		this.followerIDText.set_font(GeneralHelpers.LoadStandardFont());
-		this.portraitErrorText.set_font(GeneralHelpers.LoadStandardFont());
-		this.nameText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_levelText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_statusText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_xpAmountText.set_font(GeneralHelpers.LoadStandardFont());
+		this.followerIDText.font = GeneralHelpers.LoadStandardFont();
+		this.portraitErrorText.font = GeneralHelpers.LoadStandardFont();
+		this.nameText.font = GeneralHelpers.LoadStandardFont();
+		this.m_levelText.font = GeneralHelpers.LoadStandardFont();
+		this.m_statusText.font = GeneralHelpers.LoadStandardFont();
+		this.m_xpAmountText.font = GeneralHelpers.LoadStandardFont();
 		if (this.m_useArmamentsButtonText != null)
 		{
-			this.m_useArmamentsButtonText.set_font(GeneralHelpers.LoadStandardFont());
+			this.m_useArmamentsButtonText.font = GeneralHelpers.LoadStandardFont();
 		}
 		this.m_missionTimeRemaining = new Duration(0, false);
 		this.m_statusTextSB = new StringBuilder(16);
 	}
 
-	private void OnEnable()
+	public void ContractArrowRotationComplete()
 	{
-		if (Main.instance == null)
+		this.m_expandArrow.transform.localEulerAngles = Vector3.zero;
+	}
+
+	public void ContractDetailViewComplete()
+	{
+		this.m_followerDetailViewLayoutElement.minHeight = 0f;
+		this.m_followerDetailViewCanvasGroup.alpha = 0f;
+		this.m_followerDetailView.SetFollower(0);
+	}
+
+	public void DeselectMe()
+	{
+		if (this.selectedImage != null)
 		{
-			return;
+			this.selectedImage.SetActive(false);
 		}
+	}
+
+	private void DetailFollowerListItem_ManageFollowerDetailViewSize(int garrFollowerID)
+	{
+		if ((garrFollowerID != this.m_followerID ? false : this.m_followerDetailViewLayoutElement.minHeight == 0f))
+		{
+			if (this.m_followerDetailView.GetCurrentFollower() != this.m_followerID)
+			{
+				this.m_followerDetailView.SetFollower(this.m_followerID);
+			}
+			iTween.StopByName(base.gameObject, "FollowerDetailExpand");
+			iTween.StopByName(base.gameObject, "FollowerDetailExpandArrow");
+			iTween.StopByName(base.gameObject, "FollowerDetailContract");
+			iTween.StopByName(base.gameObject, "FollowerDetailContractArrow");
+			this.SelectMe();
+			bool flag = false;
+			float mFollowerDetailViewLayoutElement = 0f;
+			FollowerListItem[] componentsInChildren = OrderHallFollowersPanel.instance.m_followerDetailListContent.GetComponentsInChildren<FollowerListItem>(true);
+			int num = 0;
+			while (num < (int)componentsInChildren.Length)
+			{
+				FollowerListItem followerListItem = componentsInChildren[num];
+				if (followerListItem == this)
+				{
+					break;
+				}
+				else if (followerListItem.m_followerDetailViewLayoutElement.minHeight <= 0f)
+				{
+					num++;
+				}
+				else
+				{
+					mFollowerDetailViewLayoutElement = followerListItem.m_followerDetailViewLayoutElement.minHeight;
+					flag = true;
+					break;
+				}
+			}
+			RectTransform component = this.m_followerDetailView.traitsAndAbilitiesRootObject.GetComponent<RectTransform>();
+			OrderHallFollowersPanel orderHallFollowersPanel = OrderHallFollowersPanel.instance;
+			Vector3 vector3 = base.transform.localPosition;
+			orderHallFollowersPanel.ScrollListTo(-vector3.y - (!flag ? 0f : mFollowerDetailViewLayoutElement) - 56f);
+			bool flag1 = true;
+			JamGarrisonFollower item = PersistentFollowerData.followerDictionary[this.m_followerID];
+			bool flags = (item.Flags & 8) != 0;
+			GarrFollowerRec record = StaticDB.garrFollowerDB.GetRecord(item.GarrFollowerID);
+			if (flags || item.FollowerLevel < MissionDetailView.GarrisonFollower_GetMaxFollowerLevel((int)record.GarrFollowerTypeID))
+			{
+				flag1 = false;
+			}
+			this.m_useArmamentsButton.SetActive(flag1);
+			GameObject gameObject = base.gameObject;
+			object[] mFollowerDetailViewExtraHeight = new object[] { "name", "FollowerDetailExpand", "from", this.m_followerDetailViewLayoutElement.minHeight, "to", null, null, null, null, null, null, null, null, null };
+			Rect rect = component.rect;
+			mFollowerDetailViewExtraHeight[5] = rect.height + (float)this.m_followerDetailViewExtraHeight;
+			mFollowerDetailViewExtraHeight[6] = "time";
+			mFollowerDetailViewExtraHeight[7] = 0.25f;
+			mFollowerDetailViewExtraHeight[8] = "easetype";
+			mFollowerDetailViewExtraHeight[9] = iTween.EaseType.easeOutCubic;
+			mFollowerDetailViewExtraHeight[10] = "onupdate";
+			mFollowerDetailViewExtraHeight[11] = "SetDetailViewHeight";
+			mFollowerDetailViewExtraHeight[12] = "oncomplete";
+			mFollowerDetailViewExtraHeight[13] = "ExpandDetailViewComplete";
+			iTween.ValueTo(gameObject, iTween.Hash(mFollowerDetailViewExtraHeight));
+			iTween.ValueTo(base.gameObject, iTween.Hash(new object[] { "name", "FollowerDetailExpandArrow", "from", 0, "to", -90f, "time", 0.25f, "easetype", iTween.EaseType.easeOutCubic, "onupdate", "SetExpandArrowRotation", "oncomplete", "ExpandArrowRotationComplete" }));
+			this.m_followerDetailViewCanvasGroup.alpha = 1f;
+		}
+		else if (this.m_followerDetailViewLayoutElement.minHeight > 0f)
+		{
+			iTween.StopByName(base.gameObject, "FollowerDetailExpand");
+			iTween.StopByName(base.gameObject, "FollowerDetailExpandArrow");
+			iTween.StopByName(base.gameObject, "FollowerDetailContract");
+			iTween.StopByName(base.gameObject, "FollowerDetailContractArrow");
+			this.DeselectMe();
+			iTween.ValueTo(base.gameObject, iTween.Hash(new object[] { "name", "FollowerDetailContract", "from", this.m_followerDetailViewLayoutElement.minHeight, "to", 0f, "time", 0.25f, "easetype", iTween.EaseType.easeOutCubic, "onupdate", "SetDetailViewHeight", "oncomplete", "ContractDetailViewComplete" }));
+			GameObject gameObject1 = base.gameObject;
+			object[] objArray = new object[14];
+			objArray[0] = "name";
+			objArray[1] = "FollowerDetailContractArrow";
+			objArray[2] = "from";
+			Vector3 mExpandArrow = this.m_expandArrow.transform.localEulerAngles;
+			objArray[3] = mExpandArrow.z;
+			objArray[4] = "to";
+			objArray[5] = 360f;
+			objArray[6] = "time";
+			objArray[7] = 0.25f;
+			objArray[8] = "easetype";
+			objArray[9] = iTween.EaseType.easeOutCubic;
+			objArray[10] = "onupdate";
+			objArray[11] = "SetExpandArrowRotation";
+			objArray[12] = "oncomplete";
+			objArray[13] = "ContractArrowRotationComplete";
+			iTween.ValueTo(gameObject1, iTween.Hash(objArray));
+		}
+	}
+
+	public void ExpandArrowRotationComplete()
+	{
+		this.m_expandArrow.transform.localEulerAngles = new Vector3(0f, 0f, -90f);
+	}
+
+	public void ExpandDetailViewComplete()
+	{
+		RectTransform component = this.m_followerDetailView.traitsAndAbilitiesRootObject.GetComponent<RectTransform>();
+		LayoutElement mFollowerDetailViewLayoutElement = this.m_followerDetailViewLayoutElement;
+		Rect rect = component.rect;
+		mFollowerDetailViewLayoutElement.minHeight = rect.height + (float)this.m_followerDetailViewExtraHeight;
+	}
+
+	private void FollowerDataChanged()
+	{
 		if (this.m_followerID > 0)
 		{
 			if (!PersistentFollowerData.followerDictionary.ContainsKey(this.m_followerID))
 			{
-				base.get_transform().SetParent(Main.instance.get_transform());
-				base.get_gameObject().SetActive(false);
-				return;
+				UnityEngine.Object.DestroyImmediate(base.gameObject);
 			}
-			this.SetAvailabilityStatus(PersistentFollowerData.followerDictionary.get_Item(this.m_followerID));
-		}
-		Main expr_74 = Main.instance;
-		expr_74.FollowerDataChangedAction = (Action)Delegate.Combine(expr_74.FollowerDataChangedAction, new Action(this.FollowerDataChanged));
-		Main expr_9A = Main.instance;
-		expr_9A.UseArmamentResultAction = (Action<int, JamGarrisonFollower, JamGarrisonFollower>)Delegate.Combine(expr_9A.UseArmamentResultAction, new Action<int, JamGarrisonFollower, JamGarrisonFollower>(this.HandleUseArmamentResult));
-		if (AdventureMapPanel.instance != null)
-		{
-			AdventureMapPanel expr_D0 = AdventureMapPanel.instance;
-			expr_D0.OnMissionFollowerSlotChanged = (Action<int, bool>)Delegate.Combine(expr_D0.OnMissionFollowerSlotChanged, new Action<int, bool>(this.OnMissionFollowerSlotChanged));
-			AdventureMapPanel expr_F6 = AdventureMapPanel.instance;
-			expr_F6.DeselectAllFollowerListItemsAction = (Action)Delegate.Combine(expr_F6.DeselectAllFollowerListItemsAction, new Action(this.DeselectMe));
-		}
-		if (this.m_followerDetailView != null && OrderHallFollowersPanel.instance != null)
-		{
-			OrderHallFollowersPanel expr_13D = OrderHallFollowersPanel.instance;
-			expr_13D.FollowerDetailListItemSelectedAction = (Action<int>)Delegate.Combine(expr_13D.FollowerDetailListItemSelectedAction, new Action<int>(this.DetailFollowerListItem_ManageFollowerDetailViewSize));
+			else
+			{
+				this.SetAvailabilityStatus(PersistentFollowerData.followerDictionary[this.m_followerID]);
+				if (this.m_followerDetailView != null)
+				{
+					this.m_followerDetailView.HandleFollowerDataChanged();
+				}
+			}
 		}
 	}
 
-	private void OnDisable()
+	private void HandleUseArmamentResult(int result, JamGarrisonFollower oldFollower, JamGarrisonFollower newFollower)
 	{
-		Main expr_05 = Main.instance;
-		expr_05.FollowerDataChangedAction = (Action)Delegate.Remove(expr_05.FollowerDataChangedAction, new Action(this.FollowerDataChanged));
-		Main expr_2B = Main.instance;
-		expr_2B.UseArmamentResultAction = (Action<int, JamGarrisonFollower, JamGarrisonFollower>)Delegate.Remove(expr_2B.UseArmamentResultAction, new Action<int, JamGarrisonFollower, JamGarrisonFollower>(this.HandleUseArmamentResult));
-		if (AdventureMapPanel.instance != null)
+		if (result != 0)
 		{
-			AdventureMapPanel expr_61 = AdventureMapPanel.instance;
-			expr_61.OnMissionFollowerSlotChanged = (Action<int, bool>)Delegate.Remove(expr_61.OnMissionFollowerSlotChanged, new Action<int, bool>(this.OnMissionFollowerSlotChanged));
-			AdventureMapPanel expr_87 = AdventureMapPanel.instance;
-			expr_87.DeselectAllFollowerListItemsAction = (Action)Delegate.Remove(expr_87.DeselectAllFollowerListItemsAction, new Action(this.DeselectMe));
+			return;
 		}
-		if (this.m_followerDetailView != null && OrderHallFollowersPanel.instance != null)
+		if (newFollower.GarrFollowerID != this.m_followerID)
 		{
-			OrderHallFollowersPanel expr_CE = OrderHallFollowersPanel.instance;
-			expr_CE.FollowerDetailListItemSelectedAction = (Action<int>)Delegate.Remove(expr_CE.FollowerDetailListItemSelectedAction, new Action<int>(this.DetailFollowerListItem_ManageFollowerDetailViewSize));
+			return;
 		}
+		this.SetAvailabilityStatus(newFollower);
+		UiAnimMgr.instance.PlayAnim("FlameGlowPulse", this.followerPortraitFrame.transform, Vector3.zero, 1.5f, 0f);
+		Main.instance.m_UISound.Play_UpgradeArmament();
 	}
 
 	public void OnAssetBundleManagerInitialized()
@@ -230,16 +374,217 @@ public class FollowerListItem : MonoBehaviour
 		}
 	}
 
+	private void OnDisable()
+	{
+		Main.instance.FollowerDataChangedAction -= new Action(this.FollowerDataChanged);
+		Main.instance.UseArmamentResultAction -= new Action<int, JamGarrisonFollower, JamGarrisonFollower>(this.HandleUseArmamentResult);
+		if (AdventureMapPanel.instance != null)
+		{
+			AdventureMapPanel.instance.OnMissionFollowerSlotChanged -= new Action<int, bool>(this.OnMissionFollowerSlotChanged);
+			AdventureMapPanel.instance.DeselectAllFollowerListItemsAction -= new Action(this.DeselectMe);
+		}
+		if (this.m_followerDetailView != null && OrderHallFollowersPanel.instance != null)
+		{
+			OrderHallFollowersPanel.instance.FollowerDetailListItemSelectedAction -= new Action<int>(this.DetailFollowerListItem_ManageFollowerDetailViewSize);
+		}
+	}
+
+	private void OnEnable()
+	{
+		if (Main.instance == null)
+		{
+			return;
+		}
+		if (this.m_followerID > 0)
+		{
+			if (!PersistentFollowerData.followerDictionary.ContainsKey(this.m_followerID))
+			{
+				base.transform.SetParent(Main.instance.transform);
+				base.gameObject.SetActive(false);
+				return;
+			}
+			this.SetAvailabilityStatus(PersistentFollowerData.followerDictionary[this.m_followerID]);
+		}
+		Main.instance.FollowerDataChangedAction += new Action(this.FollowerDataChanged);
+		Main.instance.UseArmamentResultAction += new Action<int, JamGarrisonFollower, JamGarrisonFollower>(this.HandleUseArmamentResult);
+		if (AdventureMapPanel.instance != null)
+		{
+			AdventureMapPanel.instance.OnMissionFollowerSlotChanged += new Action<int, bool>(this.OnMissionFollowerSlotChanged);
+			AdventureMapPanel.instance.DeselectAllFollowerListItemsAction += new Action(this.DeselectMe);
+		}
+		if (this.m_followerDetailView != null && OrderHallFollowersPanel.instance != null)
+		{
+			OrderHallFollowersPanel.instance.FollowerDetailListItemSelectedAction += new Action<int>(this.DetailFollowerListItem_ManageFollowerDetailViewSize);
+		}
+	}
+
+	private void OnMissionFollowerSlotChanged(int garrFollowerID, bool inParty)
+	{
+		if (this.m_followerID == garrFollowerID)
+		{
+			this.m_inParty = inParty;
+			this.FollowerDataChanged();
+		}
+	}
+
+	public void OnTapFollowerDetailListItem()
+	{
+		Main.instance.m_UISound.Play_ButtonBlackClick();
+		AllPopups.instance.SetCurrentFollowerDetailView(this.m_followerDetailView);
+		AllPopups.instance.HideChampionUpgradeDialogs();
+		OrderHallFollowersPanel.instance.FollowerDetailListItemSelected(this.m_followerID);
+	}
+
+	public void RemoveFromParty(int garrFollowerID)
+	{
+		if (this.m_followerID == garrFollowerID)
+		{
+			this.m_inParty = false;
+			this.SetAvailabilityStatus(PersistentFollowerData.followerDictionary[this.m_followerID]);
+		}
+	}
+
+	public void RemoveFromParty()
+	{
+		this.m_inParty = false;
+		this.SetAvailabilityStatus(PersistentFollowerData.followerDictionary[this.m_followerID]);
+	}
+
+	public void SelectAndAddToParty()
+	{
+		AdventureMapPanel.instance.DeselectAllFollowerListItems();
+		this.SelectMe();
+		this.AddToParty(false);
+	}
+
+	public void SelectAndInspect()
+	{
+		AdventureMapPanel.instance.DeselectAllFollowerListItems();
+		this.SelectMe();
+		AdventureMapPanel.instance.SetFollowerToInspect(this.m_followerID);
+	}
+
+	public void SelectAndReplaceExistingCombatAlly()
+	{
+		AdventureMapPanel.instance.DeselectAllFollowerListItems();
+		this.SelectMe();
+		this.AddToParty(true);
+	}
+
+	private void SelectMe()
+	{
+		if (this.selectedImage != null)
+		{
+			this.selectedImage.SetActive(true);
+		}
+	}
+
+	public void SetAvailabilityStatus(JamGarrisonFollower follower)
+	{
+		GarrMissionRec record;
+		this.m_isCombatAlly = false;
+		if (follower.CurrentMissionID != 0)
+		{
+			JamGarrisonMobileMission item = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary[follower.CurrentMissionID];
+			this.m_missionStartedTime = item.StartTime;
+			this.m_missionDurationInSeconds = item.MissionDuration;
+		}
+		this.m_itemLevel = (follower.ItemLevelWeapon + follower.ItemLevelArmor) / 2;
+		bool flags = (follower.Flags & 4) != 0;
+		bool flag = (follower.Flags & 2) != 0;
+		this.m_onMission = follower.CurrentMissionID != 0;
+		bool currentBuildingID = follower.CurrentBuildingID != 0;
+		bool flags1 = (follower.Flags & 8) != 0;
+		if (!this.m_onMission)
+		{
+			record = null;
+		}
+		else
+		{
+			record = StaticDB.garrMissionDB.GetRecord(follower.CurrentMissionID);
+		}
+		GarrMissionRec garrMissionRec = record;
+		if (garrMissionRec != null && (garrMissionRec.Flags & 16) != 0)
+		{
+			this.m_isCombatAlly = true;
+		}
+		this.darkeningImage.gameObject.SetActive(true);
+		this.darkeningImage.color = new Color(0f, 0f, 0.28f, 0.3f);
+		this.m_statusText.color = Color.white;
+		this.m_troopHeartContainer.SetActive(false);
+		if (flags)
+		{
+			this.m_statusText.color = Color.red;
+			if (follower.FollowerLevel != 110)
+			{
+				this.m_statusText.text = FollowerListItem.m_inactiveString;
+			}
+			else
+			{
+				this.m_statusText.text = string.Concat(new object[] { FollowerListItem.m_iLvlString, " ", this.m_itemLevel, " - ", FollowerListItem.m_inactiveString });
+			}
+			this.darkeningImage.color = new Color(0.28f, 0f, 0f, 0.196f);
+		}
+		else if (flag)
+		{
+			this.m_statusText.text = string.Concat(new object[] { FollowerListItem.m_iLvlString, " ", this.m_itemLevel, " - ", FollowerListItem.m_fatiguedString });
+		}
+		else if (this.m_isCombatAlly)
+		{
+			this.m_statusText.text = string.Concat(new object[] { FollowerListItem.m_iLvlString, " ", this.m_itemLevel, " - ", FollowerListItem.m_combatAllyString });
+		}
+		else if (this.m_onMission)
+		{
+			this.m_statusText.text = string.Concat(new object[] { FollowerListItem.m_iLvlString, " ", this.m_itemLevel, " - ", FollowerListItem.m_onMissionString });
+		}
+		else if (currentBuildingID)
+		{
+			this.m_statusText.text = string.Concat(new object[] { FollowerListItem.m_iLvlString, " ", this.m_itemLevel, " - ", FollowerListItem.m_inBuildingString });
+		}
+		else if (!this.m_inParty)
+		{
+			if (flags1 || follower.FollowerLevel != 110)
+			{
+				this.m_statusText.text = string.Empty;
+			}
+			else
+			{
+				this.m_statusText.text = string.Concat(FollowerListItem.m_iLvlString, " ", this.m_itemLevel);
+			}
+			this.darkeningImage.gameObject.SetActive(false);
+			this.m_troopHeartContainer.SetActive(true);
+		}
+		else
+		{
+			this.m_statusText.text = FollowerListItem.m_inPartyString;
+			this.darkeningImage.color = new Color(0.1f, 0.6f, 0.1f, 0.3f);
+		}
+		if (this.m_useArmamentsButtonText != null)
+		{
+			this.m_useArmamentsButtonText.text = string.Concat(FollowerListItem.m_iLvlString, " ", this.m_itemLevel);
+		}
+		this.m_availableForMission = (flags || flag || this.m_onMission ? 1 : (int)currentBuildingID) == 0;
+	}
+
+	public void SetDetailViewHeight(float value)
+	{
+		this.m_followerDetailViewLayoutElement.minHeight = value;
+	}
+
+	public void SetExpandArrowRotation(float zrot)
+	{
+		Vector3 mExpandArrow = this.m_expandArrow.transform.localEulerAngles;
+		mExpandArrow.z = zrot;
+		this.m_expandArrow.transform.localEulerAngles = mExpandArrow;
+	}
+
 	public void SetFollower(JamGarrisonFollower follower)
 	{
+		uint num;
+		bool flag;
+		bool flag1;
 		this.m_followerID = follower.GarrFollowerID;
-		this.followerIDText.set_text(string.Concat(new object[]
-		{
-			"ID:",
-			follower.GarrFollowerID,
-			" Q:",
-			follower.Quality
-		}));
+		this.followerIDText.text = string.Concat(new object[] { "ID:", follower.GarrFollowerID, " Q:", follower.Quality });
 		this.m_inParty = false;
 		this.SetAvailabilityStatus(follower);
 		GarrFollowerRec record = StaticDB.garrFollowerDB.GetRecord(follower.GarrFollowerID);
@@ -247,101 +592,121 @@ public class FollowerListItem : MonoBehaviour
 		{
 			return;
 		}
-		if (record.GarrFollowerTypeID != 4u)
+		if (record.GarrFollowerTypeID != 4)
 		{
 			return;
 		}
-		if (record != null)
+		if (follower.Quality == 6 && record.TitleName != null && record.TitleName.Length > 0)
 		{
-			CreatureRec record2 = StaticDB.creatureDB.GetRecord((GarrisonStatus.Faction() != PVP_FACTION.HORDE) ? record.AllianceCreatureID : record.HordeCreatureID);
-			this.nameText.set_text(record2.Name);
+			this.nameText.text = record.TitleName;
 		}
-		this.m_levelText.set_text(string.Empty + follower.FollowerLevel);
-		int num = (GarrisonStatus.Faction() != PVP_FACTION.HORDE) ? record.AllianceIconFileDataID : record.HordeIconFileDataID;
-		Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.PortraitIcons, num);
-		if (sprite != null)
+		else if (record != null)
 		{
-			this.followerPortrait.set_sprite(sprite);
-			this.portraitErrorText.get_gameObject().SetActive(false);
+			CreatureRec creatureRec = StaticDB.creatureDB.GetRecord((GarrisonStatus.Faction() != PVP_FACTION.HORDE ? record.AllianceCreatureID : record.HordeCreatureID));
+			this.nameText.text = creatureRec.Name;
+		}
+		this.m_levelText.text = string.Concat(string.Empty, follower.FollowerLevel);
+		int num1 = (GarrisonStatus.Faction() != PVP_FACTION.HORDE ? record.AllianceIconFileDataID : record.HordeIconFileDataID);
+		Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.PortraitIcons, num1);
+		if (sprite == null)
+		{
+			this.portraitErrorText.text = string.Concat(string.Empty, num1);
+			this.portraitErrorText.gameObject.SetActive(true);
 		}
 		else
 		{
-			this.portraitErrorText.set_text(string.Empty + num);
-			this.portraitErrorText.get_gameObject().SetActive(true);
+			this.followerPortrait.sprite = sprite;
+			this.portraitErrorText.gameObject.SetActive(false);
 		}
-		GarrClassSpecRec record3 = StaticDB.garrClassSpecDB.GetRecord((int)((GarrisonStatus.Faction() != PVP_FACTION.HORDE) ? record.AllianceGarrClassSpecID : record.HordeGarrClassSpecID));
-		Sprite atlasSprite = TextureAtlas.instance.GetAtlasSprite((int)record3.UiTextureAtlasMemberID);
+		GarrClassSpecRec garrClassSpecRec = StaticDB.garrClassSpecDB.GetRecord((GarrisonStatus.Faction() != PVP_FACTION.HORDE ? (int)record.AllianceGarrClassSpecID : (int)record.HordeGarrClassSpecID));
+		Sprite atlasSprite = TextureAtlas.instance.GetAtlasSprite((int)garrClassSpecRec.UiTextureAtlasMemberID);
 		if (atlasSprite != null)
 		{
-			this.m_classIcon.set_sprite(atlasSprite);
+			this.m_classIcon.sprite = atlasSprite;
 		}
 		Transform[] componentsInChildren = this.m_troopHeartContainer.GetComponentsInChildren<Transform>(true);
-		Transform[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			Transform transform = array[i];
-			if (transform != this.m_troopHeartContainer.get_transform())
+			Transform transforms = componentsInChildren[i];
+			if (transforms != this.m_troopHeartContainer.transform)
 			{
-				Object.DestroyImmediate(transform.get_gameObject());
+				UnityEngine.Object.DestroyImmediate(transforms.gameObject);
 			}
 		}
-		bool flag = (follower.Flags & 8) != 0;
-		if (flag)
+		if ((follower.Flags & 8) == 0)
 		{
-			this.qualityBorder.set_color(Color.get_white());
-			this.levelBorder.set_color(Color.get_white());
-			this.nameText.set_color(Color.get_white());
-			int j;
-			for (j = 0; j < follower.Durability; j++)
+			this.m_levelText.gameObject.SetActive(true);
+			if (follower.Quality != 6)
 			{
-				GameObject gameObject = Object.Instantiate<GameObject>(this.m_troopHeartPrefab);
-				gameObject.get_transform().SetParent(this.m_troopHeartContainer.get_transform(), false);
-			}
-			for (int k = j; k < record.Vitality; k++)
-			{
-				GameObject gameObject2 = Object.Instantiate<GameObject>(this.m_troopEmptyHeartPrefab);
-				gameObject2.get_transform().SetParent(this.m_troopHeartContainer.get_transform(), false);
-			}
-			this.qualityBorder.get_gameObject().SetActive(false);
-			this.levelBorder.get_gameObject().SetActive(false);
-			this.followerPortraitFrame.set_enabled(false);
-			this.m_progressBarObj.SetActive(false);
-		}
-		else
-		{
-			Color qualityColor = GeneralHelpers.GetQualityColor(follower.Quality);
-			this.qualityBorder.set_color(qualityColor);
-			this.levelBorder.set_color(qualityColor);
-			if (follower.Quality <= 1)
-			{
-				this.nameText.set_color(Color.get_white());
+				this.m_portraitQualityRing.gameObject.SetActive(true);
+				this.m_portraitQualityRing_TitleQuality.gameObject.SetActive(false);
+				this.m_levelBorder.gameObject.SetActive(true);
+				this.m_levelBorder_TitleQuality.gameObject.SetActive(false);
 			}
 			else
 			{
-				this.nameText.set_color(qualityColor);
+				this.m_portraitQualityRing.gameObject.SetActive(false);
+				this.m_portraitQualityRing_TitleQuality.gameObject.SetActive(true);
+				this.m_levelBorder.gameObject.SetActive(false);
+				this.m_levelBorder_TitleQuality.gameObject.SetActive(true);
 			}
-			uint num2;
-			bool flag2;
-			bool flag3;
-			GeneralHelpers.GetXpCapInfo(follower.FollowerLevel, follower.Quality, out num2, out flag2, out flag3);
-			if (flag3)
+			Color qualityColor = GeneralHelpers.GetQualityColor(follower.Quality);
+			this.m_portraitQualityRing.color = qualityColor;
+			this.m_levelBorder.color = qualityColor;
+			if (follower.Quality > 1)
+			{
+				this.nameText.color = qualityColor;
+			}
+			else
+			{
+				this.nameText.color = Color.white;
+			}
+			GeneralHelpers.GetXpCapInfo(follower.FollowerLevel, follower.Quality, out num, out flag, out flag1);
+			if (!flag1)
+			{
+				this.m_progressBarObj.SetActive(true);
+				float single = Mathf.Clamp01((float)follower.Xp / (float)((float)num));
+				this.m_progressBarFillImage.fillAmount = single;
+				this.m_xpAmountText.text = string.Concat(new object[] { string.Empty, follower.Xp, "/", num });
+			}
+			else
 			{
 				this.m_progressBarObj.SetActive(false);
 			}
-			else
-			{
-				this.m_progressBarObj.SetActive(true);
-				float fillAmount = Mathf.Clamp01((float)follower.Xp / num2);
-				this.m_progressBarFillImage.set_fillAmount(fillAmount);
-				this.m_xpAmountText.set_text(string.Concat(new object[]
-				{
-					string.Empty,
-					follower.Xp,
-					"/",
-					num2
-				}));
-			}
 		}
+		else
+		{
+			this.m_portraitQualityRing.color = Color.white;
+			this.m_levelBorder.color = Color.white;
+			this.nameText.color = Color.white;
+			int j = 0;
+			for (j = 0; j < follower.Durability; j++)
+			{
+				GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_troopHeartPrefab);
+				gameObject.transform.SetParent(this.m_troopHeartContainer.transform, false);
+			}
+			for (int k = j; k < record.Vitality; k++)
+			{
+				GameObject gameObject1 = UnityEngine.Object.Instantiate<GameObject>(this.m_troopEmptyHeartPrefab);
+				gameObject1.transform.SetParent(this.m_troopHeartContainer.transform, false);
+			}
+			this.m_portraitQualityRing.gameObject.SetActive(false);
+			this.m_portraitQualityRing_TitleQuality.gameObject.SetActive(false);
+			this.m_levelBorder.gameObject.SetActive(false);
+			this.m_levelBorder_TitleQuality.gameObject.SetActive(false);
+			this.followerPortraitFrame.enabled = false;
+			this.m_progressBarObj.SetActive(false);
+			this.m_levelText.gameObject.SetActive(false);
+		}
+	}
+
+	public void ShowArmamentDialog()
+	{
+		if (AllPopups.instance.GetCurrentFollowerDetailView() != this.m_followerDetailView)
+		{
+			return;
+		}
+		AllPopups.instance.ShowArmamentDialog(this.m_followerDetailView, true);
 	}
 
 	private void Update()
@@ -355,245 +720,21 @@ public class FollowerListItem : MonoBehaviour
 			return;
 		}
 		long num = GarrisonStatus.CurrentTime() - this.m_missionStartedTime;
-		long num2 = this.m_missionDurationInSeconds - num;
-		num2 = ((num2 <= 0L) ? 0L : num2);
-		if (num2 > 0L)
+		long mMissionDurationInSeconds = this.m_missionDurationInSeconds - num;
+		mMissionDurationInSeconds = (mMissionDurationInSeconds <= (long)0 ? (long)0 : mMissionDurationInSeconds);
+		if (mMissionDurationInSeconds <= (long)0)
 		{
-			this.m_missionTimeRemaining.FormatDurationString((int)num2, false);
-			this.m_statusTextSB.set_Length(0);
-			this.m_statusTextSB.ConcatFormat("{0} {1} - {2} - {3}", FollowerListItem.m_iLvlString, this.m_itemLevel, FollowerListItem.m_onMissionString, this.m_missionTimeRemaining.DurationString);
-			this.m_statusText.set_text(this.m_statusTextSB.ToString());
+			this.m_statusTextSB.Length = 0;
+			this.m_statusTextSB.ConcatFormat<string, int, string, string>("{0} {1} - {2} - {3}", FollowerListItem.m_iLvlString, this.m_itemLevel, FollowerListItem.m_onMissionString, FollowerListItem.m_missionCompleteString);
+			this.m_statusText.text = this.m_statusTextSB.ToString();
 		}
 		else
 		{
-			this.m_statusTextSB.set_Length(0);
-			this.m_statusTextSB.ConcatFormat("{0} {1} - {2} - {3}", FollowerListItem.m_iLvlString, this.m_itemLevel, FollowerListItem.m_onMissionString, FollowerListItem.m_missionCompleteString);
-			this.m_statusText.set_text(this.m_statusTextSB.ToString());
+			this.m_missionTimeRemaining.FormatDurationString((int)mMissionDurationInSeconds, false);
+			this.m_statusTextSB.Length = 0;
+			this.m_statusTextSB.ConcatFormat<string, int, string, string>("{0} {1} - {2} - {3}", FollowerListItem.m_iLvlString, this.m_itemLevel, FollowerListItem.m_onMissionString, this.m_missionTimeRemaining.DurationString);
+			this.m_statusText.text = this.m_statusTextSB.ToString();
 		}
-	}
-
-	private void SelectMe()
-	{
-		if (this.selectedImage != null)
-		{
-			this.selectedImage.SetActive(true);
-		}
-	}
-
-	public void DeselectMe()
-	{
-		if (this.selectedImage != null)
-		{
-			this.selectedImage.SetActive(false);
-		}
-	}
-
-	public void SelectAndReplaceExistingCombatAlly()
-	{
-		AdventureMapPanel.instance.DeselectAllFollowerListItems();
-		this.SelectMe();
-		this.AddToParty(true);
-	}
-
-	public void SelectAndInspect()
-	{
-		AdventureMapPanel.instance.DeselectAllFollowerListItems();
-		this.SelectMe();
-		AdventureMapPanel.instance.SetFollowerToInspect(this.m_followerID);
-	}
-
-	public void SelectAndAddToParty()
-	{
-		AdventureMapPanel.instance.DeselectAllFollowerListItems();
-		this.SelectMe();
-		this.AddToParty(false);
-	}
-
-	private void AddToParty(bool forceReplaceFirstSlot = false)
-	{
-		if (this.m_availableForMission)
-		{
-			MissionFollowerSlotGroup componentInChildren = base.get_gameObject().get_transform().get_parent().get_parent().get_parent().get_parent().get_gameObject().GetComponentInChildren<MissionFollowerSlotGroup>();
-			if (componentInChildren != null && componentInChildren.get_gameObject().get_activeSelf())
-			{
-				this.m_inParty = componentInChildren.SetFollower(this.m_followerID, this.followerPortrait.get_overrideSprite(), this.qualityBorder.get_color(), forceReplaceFirstSlot);
-				if (this.m_inParty)
-				{
-					JamGarrisonFollower jamGarrisonFollower = PersistentFollowerData.followerDictionary.get_Item(this.m_followerID);
-					bool flag = (jamGarrisonFollower.Flags & 8) != 0;
-					if (flag)
-					{
-						Main.instance.m_UISound.Play_SlotTroop();
-					}
-					else
-					{
-						Main.instance.m_UISound.Play_SlotChampion();
-					}
-				}
-				else
-				{
-					Main.instance.m_UISound.Play_DefaultNavClick();
-					this.DeselectMe();
-				}
-				this.SetAvailabilityStatus(PersistentFollowerData.followerDictionary.get_Item(this.m_followerID));
-			}
-		}
-	}
-
-	public void RemoveFromParty(int garrFollowerID)
-	{
-		if (this.m_followerID == garrFollowerID)
-		{
-			this.m_inParty = false;
-			this.SetAvailabilityStatus(PersistentFollowerData.followerDictionary.get_Item(this.m_followerID));
-		}
-	}
-
-	public void RemoveFromParty()
-	{
-		this.m_inParty = false;
-		this.SetAvailabilityStatus(PersistentFollowerData.followerDictionary.get_Item(this.m_followerID));
-	}
-
-	private void OnMissionFollowerSlotChanged(int garrFollowerID, bool inParty)
-	{
-		if (this.m_followerID == garrFollowerID)
-		{
-			this.m_inParty = inParty;
-			this.FollowerDataChanged();
-		}
-	}
-
-	private void FollowerDataChanged()
-	{
-		if (this.m_followerID > 0)
-		{
-			if (PersistentFollowerData.followerDictionary.ContainsKey(this.m_followerID))
-			{
-				this.SetAvailabilityStatus(PersistentFollowerData.followerDictionary.get_Item(this.m_followerID));
-				if (this.m_followerDetailView != null)
-				{
-					this.m_followerDetailView.HandleFollowerDataChanged();
-				}
-			}
-			else
-			{
-				Object.DestroyImmediate(base.get_gameObject());
-			}
-		}
-	}
-
-	public void SetAvailabilityStatus(JamGarrisonFollower follower)
-	{
-		this.m_isCombatAlly = false;
-		if (follower.CurrentMissionID != 0)
-		{
-			JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary.get_Item(follower.CurrentMissionID);
-			this.m_missionStartedTime = jamGarrisonMobileMission.StartTime;
-			this.m_missionDurationInSeconds = jamGarrisonMobileMission.MissionDuration;
-		}
-		this.m_itemLevel = (follower.ItemLevelWeapon + follower.ItemLevelArmor) / 2;
-		bool flag = (follower.Flags & 4) != 0;
-		bool flag2 = (follower.Flags & 2) != 0;
-		this.m_onMission = (follower.CurrentMissionID != 0);
-		bool flag3 = follower.CurrentBuildingID != 0;
-		bool flag4 = (follower.Flags & 8) != 0;
-		GarrMissionRec garrMissionRec = (!this.m_onMission) ? null : StaticDB.garrMissionDB.GetRecord(follower.CurrentMissionID);
-		if (garrMissionRec != null && (garrMissionRec.Flags & 16u) != 0u)
-		{
-			this.m_isCombatAlly = true;
-		}
-		this.darkeningImage.get_gameObject().SetActive(true);
-		this.darkeningImage.set_color(new Color(0f, 0f, 0.28f, 0.3f));
-		this.m_statusText.set_color(Color.get_white());
-		this.m_troopHeartContainer.SetActive(false);
-		if (flag)
-		{
-			this.m_statusText.set_color(Color.get_red());
-			if (follower.FollowerLevel == 110)
-			{
-				this.m_statusText.set_text(string.Concat(new object[]
-				{
-					FollowerListItem.m_iLvlString,
-					" ",
-					this.m_itemLevel,
-					" - ",
-					FollowerListItem.m_inactiveString
-				}));
-			}
-			else
-			{
-				this.m_statusText.set_text(FollowerListItem.m_inactiveString);
-			}
-			this.darkeningImage.set_color(new Color(0.28f, 0f, 0f, 0.196f));
-		}
-		else if (flag2)
-		{
-			this.m_statusText.set_text(string.Concat(new object[]
-			{
-				FollowerListItem.m_iLvlString,
-				" ",
-				this.m_itemLevel,
-				" - ",
-				FollowerListItem.m_fatiguedString
-			}));
-		}
-		else if (this.m_isCombatAlly)
-		{
-			this.m_statusText.set_text(string.Concat(new object[]
-			{
-				FollowerListItem.m_iLvlString,
-				" ",
-				this.m_itemLevel,
-				" - ",
-				FollowerListItem.m_combatAllyString
-			}));
-		}
-		else if (this.m_onMission)
-		{
-			this.m_statusText.set_text(string.Concat(new object[]
-			{
-				FollowerListItem.m_iLvlString,
-				" ",
-				this.m_itemLevel,
-				" - ",
-				FollowerListItem.m_onMissionString
-			}));
-		}
-		else if (flag3)
-		{
-			this.m_statusText.set_text(string.Concat(new object[]
-			{
-				FollowerListItem.m_iLvlString,
-				" ",
-				this.m_itemLevel,
-				" - ",
-				FollowerListItem.m_inBuildingString
-			}));
-		}
-		else if (this.m_inParty)
-		{
-			this.m_statusText.set_text(FollowerListItem.m_inPartyString);
-			this.darkeningImage.set_color(new Color(0.1f, 0.6f, 0.1f, 0.3f));
-		}
-		else
-		{
-			if (!flag4 && follower.FollowerLevel == 110)
-			{
-				this.m_statusText.set_text(FollowerListItem.m_iLvlString + " " + this.m_itemLevel);
-			}
-			else
-			{
-				this.m_statusText.set_text(string.Empty);
-			}
-			this.darkeningImage.get_gameObject().SetActive(false);
-			this.m_troopHeartContainer.SetActive(true);
-		}
-		if (this.m_useArmamentsButtonText != null)
-		{
-			this.m_useArmamentsButtonText.set_text(FollowerListItem.m_iLvlString + " " + this.m_itemLevel);
-		}
-		this.m_availableForMission = (!flag && !flag2 && !this.m_onMission && !flag3);
 	}
 
 	public void UpdateUsefulAbilitiesDisplay(int currentGarrMissionID)
@@ -603,248 +744,47 @@ public class FollowerListItem : MonoBehaviour
 			return;
 		}
 		AbilityDisplay[] componentsInChildren = this.usefulAbilitiesGroup.GetComponentsInChildren<AbilityDisplay>(true);
-		for (int i = 0; i < componentsInChildren.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			Object.DestroyImmediate(componentsInChildren[i].get_gameObject());
+			UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
 		}
-		List<int> list = new List<int>();
-		JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary.get_Item(currentGarrMissionID);
-		for (int j = 0; j < jamGarrisonMobileMission.Encounter.Length; j++)
+		List<int> nums = new List<int>();
+		JamGarrisonMobileMission item = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary[currentGarrMissionID];
+		for (int j = 0; j < (int)item.Encounter.Length; j++)
 		{
-			int num = (jamGarrisonMobileMission.Encounter[j].MechanicID.Length <= 0) ? 0 : jamGarrisonMobileMission.Encounter[j].MechanicID[0];
+			int num = ((int)item.Encounter[j].MechanicID.Length <= 0 ? 0 : item.Encounter[j].MechanicID[0]);
 			GarrMechanicRec record = StaticDB.garrMechanicDB.GetRecord(num);
-			if (record == null)
+			if (record != null)
 			{
-				Debug.LogWarning(string.Concat(new object[]
+				int abilityToCounterMechanicType = MissionMechanic.GetAbilityToCounterMechanicType((int)record.GarrMechanicTypeID);
+				if (!nums.Contains(abilityToCounterMechanicType))
 				{
-					"INVALID garrMechanic ID ",
-					num,
-					" in mission ",
-					jamGarrisonMobileMission.MissionRecID
-				}));
+					nums.Add(abilityToCounterMechanicType);
+				}
 			}
 			else
 			{
-				int abilityToCounterMechanicType = MissionMechanic.GetAbilityToCounterMechanicType((int)record.GarrMechanicTypeID);
-				if (!list.Contains(abilityToCounterMechanicType))
-				{
-					list.Add(abilityToCounterMechanicType);
-				}
+				Debug.LogWarning(string.Concat(new object[] { "INVALID garrMechanic ID ", num, " in mission ", item.MissionRecID }));
 			}
 		}
 		List<int> usefulBuffAbilitiesForFollower = MissionMechanic.GetUsefulBuffAbilitiesForFollower(this.m_followerID);
-		List<int> list2 = Enumerable.ToList<int>(Enumerable.Union<int>(list, usefulBuffAbilitiesForFollower));
-		JamGarrisonFollower jamGarrisonFollower = PersistentFollowerData.followerDictionary.get_Item(this.m_followerID);
-		int[] abilityID = jamGarrisonFollower.AbilityID;
-		for (int k = 0; k < abilityID.Length; k++)
+		List<int> list = nums.Union<int>(usefulBuffAbilitiesForFollower).ToList<int>();
+		int[] abilityID = PersistentFollowerData.followerDictionary[this.m_followerID].AbilityID;
+		for (int k = 0; k < (int)abilityID.Length; k++)
 		{
-			int num2 = abilityID[k];
-			using (List<int>.Enumerator enumerator = list2.GetEnumerator())
+			int num1 = abilityID[k];
+			foreach (int num2 in list)
 			{
-				while (enumerator.MoveNext())
+				if (num1 != num2)
 				{
-					int current = enumerator.get_Current();
-					if (num2 == current)
-					{
-						GameObject gameObject = Object.Instantiate<GameObject>(this.m_abilityDisplayPrefab);
-						gameObject.get_transform().SetParent(this.usefulAbilitiesGroup.get_transform(), false);
-						AbilityDisplay component = gameObject.GetComponent<AbilityDisplay>();
-						component.SetAbility(num2, true, false, null);
-						component.m_abilityNameText.get_gameObject().SetActive(false);
-					}
+					continue;
 				}
+				GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_abilityDisplayPrefab);
+				gameObject.transform.SetParent(this.usefulAbilitiesGroup.transform, false);
+				AbilityDisplay component = gameObject.GetComponent<AbilityDisplay>();
+				component.SetAbility(num1, true, false, null);
+				component.m_abilityNameText.gameObject.SetActive(false);
 			}
 		}
-	}
-
-	private void HandleUseArmamentResult(int result, JamGarrisonFollower oldFollower, JamGarrisonFollower newFollower)
-	{
-		if (result != 0)
-		{
-			return;
-		}
-		if (newFollower.GarrFollowerID != this.m_followerID)
-		{
-			return;
-		}
-		this.SetAvailabilityStatus(newFollower);
-		UiAnimMgr.instance.PlayAnim("FlameGlowPulse", this.followerPortraitFrame.get_transform(), Vector3.get_zero(), 1.5f, 0f);
-		Main.instance.m_UISound.Play_UpgradeArmament();
-	}
-
-	public void OnTapFollowerDetailListItem()
-	{
-		Main.instance.m_UISound.Play_ButtonBlackClick();
-		AllPopups.instance.SetCurrentFollowerDetailView(this.m_followerDetailView);
-		AllPopups.instance.HideChampionUpgradeDialogs();
-		OrderHallFollowersPanel.instance.FollowerDetailListItemSelected(this.m_followerID);
-	}
-
-	public void SetDetailViewHeight(float value)
-	{
-		this.m_followerDetailViewLayoutElement.set_minHeight(value);
-	}
-
-	public void ExpandDetailViewComplete()
-	{
-		RectTransform component = this.m_followerDetailView.traitsAndAbilitiesRootObject.GetComponent<RectTransform>();
-		this.m_followerDetailViewLayoutElement.set_minHeight(component.get_rect().get_height() + (float)this.m_followerDetailViewExtraHeight);
-	}
-
-	public void ContractDetailViewComplete()
-	{
-		this.m_followerDetailViewLayoutElement.set_minHeight(0f);
-		this.m_followerDetailViewCanvasGroup.set_alpha(0f);
-		this.m_followerDetailView.SetFollower(0);
-	}
-
-	public void SetExpandArrowRotation(float zrot)
-	{
-		Vector3 localEulerAngles = this.m_expandArrow.get_transform().get_localEulerAngles();
-		localEulerAngles.z = zrot;
-		this.m_expandArrow.get_transform().set_localEulerAngles(localEulerAngles);
-	}
-
-	public void ExpandArrowRotationComplete()
-	{
-		this.m_expandArrow.get_transform().set_localEulerAngles(new Vector3(0f, 0f, -90f));
-	}
-
-	public void ContractArrowRotationComplete()
-	{
-		this.m_expandArrow.get_transform().set_localEulerAngles(Vector3.get_zero());
-	}
-
-	private void DetailFollowerListItem_ManageFollowerDetailViewSize(int garrFollowerID)
-	{
-		bool flag = garrFollowerID == this.m_followerID && this.m_followerDetailViewLayoutElement.get_minHeight() == 0f;
-		if (flag)
-		{
-			if (this.m_followerDetailView.GetCurrentFollower() != this.m_followerID)
-			{
-				this.m_followerDetailView.SetFollower(this.m_followerID);
-			}
-			iTween.StopByName(base.get_gameObject(), "FollowerDetailExpand");
-			iTween.StopByName(base.get_gameObject(), "FollowerDetailExpandArrow");
-			iTween.StopByName(base.get_gameObject(), "FollowerDetailContract");
-			iTween.StopByName(base.get_gameObject(), "FollowerDetailContractArrow");
-			this.SelectMe();
-			bool flag2 = false;
-			float num = 0f;
-			FollowerListItem[] componentsInChildren = OrderHallFollowersPanel.instance.m_followerDetailListContent.GetComponentsInChildren<FollowerListItem>(true);
-			FollowerListItem[] array = componentsInChildren;
-			for (int i = 0; i < array.Length; i++)
-			{
-				FollowerListItem followerListItem = array[i];
-				if (followerListItem == this)
-				{
-					break;
-				}
-				if (followerListItem.m_followerDetailViewLayoutElement.get_minHeight() > 0f)
-				{
-					num = followerListItem.m_followerDetailViewLayoutElement.get_minHeight();
-					flag2 = true;
-					break;
-				}
-			}
-			RectTransform component = this.m_followerDetailView.traitsAndAbilitiesRootObject.GetComponent<RectTransform>();
-			OrderHallFollowersPanel.instance.ScrollListTo(-base.get_transform().get_localPosition().y - ((!flag2) ? 0f : num) - 56f);
-			bool active = true;
-			JamGarrisonFollower jamGarrisonFollower = PersistentFollowerData.followerDictionary.get_Item(this.m_followerID);
-			int num2 = (jamGarrisonFollower.ItemLevelWeapon + jamGarrisonFollower.ItemLevelArmor) / 2;
-			bool flag3 = (jamGarrisonFollower.Flags & 8) != 0;
-			GarrFollowerRec record = StaticDB.garrFollowerDB.GetRecord(jamGarrisonFollower.GarrFollowerID);
-			if (flag3 || jamGarrisonFollower.FollowerLevel < MissionDetailView.GarrisonFollower_GetMaxFollowerLevel((int)record.GarrFollowerTypeID))
-			{
-				active = false;
-			}
-			this.m_useArmamentsButton.SetActive(active);
-			iTween.ValueTo(base.get_gameObject(), iTween.Hash(new object[]
-			{
-				"name",
-				"FollowerDetailExpand",
-				"from",
-				this.m_followerDetailViewLayoutElement.get_minHeight(),
-				"to",
-				component.get_rect().get_height() + (float)this.m_followerDetailViewExtraHeight,
-				"time",
-				0.25f,
-				"easetype",
-				iTween.EaseType.easeOutCubic,
-				"onupdate",
-				"SetDetailViewHeight",
-				"oncomplete",
-				"ExpandDetailViewComplete"
-			}));
-			iTween.ValueTo(base.get_gameObject(), iTween.Hash(new object[]
-			{
-				"name",
-				"FollowerDetailExpandArrow",
-				"from",
-				0,
-				"to",
-				-90f,
-				"time",
-				0.25f,
-				"easetype",
-				iTween.EaseType.easeOutCubic,
-				"onupdate",
-				"SetExpandArrowRotation",
-				"oncomplete",
-				"ExpandArrowRotationComplete"
-			}));
-			this.m_followerDetailViewCanvasGroup.set_alpha(1f);
-		}
-		else if (this.m_followerDetailViewLayoutElement.get_minHeight() > 0f)
-		{
-			iTween.StopByName(base.get_gameObject(), "FollowerDetailExpand");
-			iTween.StopByName(base.get_gameObject(), "FollowerDetailExpandArrow");
-			iTween.StopByName(base.get_gameObject(), "FollowerDetailContract");
-			iTween.StopByName(base.get_gameObject(), "FollowerDetailContractArrow");
-			this.DeselectMe();
-			iTween.ValueTo(base.get_gameObject(), iTween.Hash(new object[]
-			{
-				"name",
-				"FollowerDetailContract",
-				"from",
-				this.m_followerDetailViewLayoutElement.get_minHeight(),
-				"to",
-				0f,
-				"time",
-				0.25f,
-				"easetype",
-				iTween.EaseType.easeOutCubic,
-				"onupdate",
-				"SetDetailViewHeight",
-				"oncomplete",
-				"ContractDetailViewComplete"
-			}));
-			iTween.ValueTo(base.get_gameObject(), iTween.Hash(new object[]
-			{
-				"name",
-				"FollowerDetailContractArrow",
-				"from",
-				this.m_expandArrow.get_transform().get_localEulerAngles().z,
-				"to",
-				360f,
-				"time",
-				0.25f,
-				"easetype",
-				iTween.EaseType.easeOutCubic,
-				"onupdate",
-				"SetExpandArrowRotation",
-				"oncomplete",
-				"ContractArrowRotationComplete"
-			}));
-		}
-	}
-
-	public void ShowArmamentDialog()
-	{
-		if (AllPopups.instance.GetCurrentFollowerDetailView() != this.m_followerDetailView)
-		{
-			return;
-		}
-		AllPopups.instance.ShowArmamentDialog(this.m_followerDetailView, true);
 	}
 }

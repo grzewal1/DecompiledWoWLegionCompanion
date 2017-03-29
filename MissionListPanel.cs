@@ -31,86 +31,13 @@ public class MissionListPanel : MonoBehaviour
 
 	private int m_currentCheatMissionID;
 
-	private void Start()
+	public MissionListPanel()
 	{
-		this.m_currentCheatMissionID = 0;
 	}
 
-	private void Update()
+	public void CancelCheatCompleteMission()
 	{
-		IEnumerator enumerator = PersistentMissionData.missionDictionary.get_Values().GetEnumerator();
-		try
-		{
-			while (enumerator.MoveNext())
-			{
-				JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)enumerator.get_Current();
-				bool flag = false;
-				GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(jamGarrisonMobileMission.MissionRecID);
-				if (record != null)
-				{
-					if (record.GarrFollowerTypeID == 4u)
-					{
-						if (jamGarrisonMobileMission.MissionState == 1)
-						{
-							long num = GarrisonStatus.CurrentTime() - jamGarrisonMobileMission.StartTime;
-							long num2 = jamGarrisonMobileMission.MissionDuration - num;
-							if (num2 <= 0L)
-							{
-								flag = true;
-							}
-						}
-						if (jamGarrisonMobileMission.MissionState == 2)
-						{
-							flag = true;
-						}
-						if (flag)
-						{
-						}
-					}
-				}
-			}
-		}
-		finally
-		{
-			IDisposable disposable = enumerator as IDisposable;
-			if (disposable != null)
-			{
-				disposable.Dispose();
-			}
-		}
-	}
-
-	public void ShowAvailableMissionList()
-	{
-		this.availableMissionListView.get_gameObject().SetActive(true);
-		this.inProgressMissionListView.get_gameObject().SetActive(false);
-		this.availableMissionsButtonHighlight.get_gameObject().SetActive(true);
-		this.inProgressMissionsButtonHighlight.get_gameObject().SetActive(false);
-	}
-
-	public void ShowInProgressMissionList()
-	{
-		this.availableMissionListView.get_gameObject().SetActive(false);
-		this.inProgressMissionListView.get_gameObject().SetActive(true);
-		this.availableMissionsButtonHighlight.get_gameObject().SetActive(false);
-		this.inProgressMissionsButtonHighlight.get_gameObject().SetActive(true);
-	}
-
-	public void OnUIRefresh()
-	{
-		this.availableMissionListView.OnUIRefresh();
-		this.inProgressMissionListView.OnUIRefresh();
-		MissionListItem[] componentsInChildren = this.availableMissionListContents.GetComponentsInChildren<MissionListItem>(true);
-		MissionListItem[] componentsInChildren2 = this.inProgressMissionListContents.GetComponentsInChildren<MissionListItem>(true);
-		this.availableMissionsButtonText.set_text("Available - " + componentsInChildren.Length);
-		this.inProgressMissionsButtonText.set_text("In Progress - " + componentsInChildren2.Length);
-	}
-
-	public void ShowCheatCompleteMission(int garrMissionID)
-	{
-		this.m_currentCheatMissionID = garrMissionID;
-		this.CompleteMissionCheatPopup.SetActive(true);
-		this.CompleteMissionCheatPopup.get_transform().SetAsLastSibling();
+		this.CompleteMissionCheatPopup.SetActive(false);
 	}
 
 	public void CheatCompleteMission()
@@ -123,17 +50,91 @@ public class MissionListPanel : MonoBehaviour
 		this.CompleteMissionCheatPopup.SetActive(false);
 	}
 
-	public void CancelCheatCompleteMission()
+	public void OnUIRefresh()
 	{
-		this.CompleteMissionCheatPopup.SetActive(false);
-	}
-
-	public void SetCharacterName(string name)
-	{
-		this.characterNameText.set_text(name);
+		this.availableMissionListView.OnUIRefresh();
+		this.inProgressMissionListView.OnUIRefresh();
+		MissionListItem[] componentsInChildren = this.availableMissionListContents.GetComponentsInChildren<MissionListItem>(true);
+		MissionListItem[] missionListItemArray = this.inProgressMissionListContents.GetComponentsInChildren<MissionListItem>(true);
+		this.availableMissionsButtonText.text = string.Concat("Available - ", (int)componentsInChildren.Length);
+		this.inProgressMissionsButtonText.text = string.Concat("In Progress - ", (int)missionListItemArray.Length);
 	}
 
 	public void SetCharacterLevelAndClass(int level, int charClassID)
 	{
+	}
+
+	public void SetCharacterName(string name)
+	{
+		this.characterNameText.text = name;
+	}
+
+	public void ShowAvailableMissionList()
+	{
+		this.availableMissionListView.gameObject.SetActive(true);
+		this.inProgressMissionListView.gameObject.SetActive(false);
+		this.availableMissionsButtonHighlight.gameObject.SetActive(true);
+		this.inProgressMissionsButtonHighlight.gameObject.SetActive(false);
+	}
+
+	public void ShowCheatCompleteMission(int garrMissionID)
+	{
+		this.m_currentCheatMissionID = garrMissionID;
+		this.CompleteMissionCheatPopup.SetActive(true);
+		this.CompleteMissionCheatPopup.transform.SetAsLastSibling();
+	}
+
+	public void ShowInProgressMissionList()
+	{
+		this.availableMissionListView.gameObject.SetActive(false);
+		this.inProgressMissionListView.gameObject.SetActive(true);
+		this.availableMissionsButtonHighlight.gameObject.SetActive(false);
+		this.inProgressMissionsButtonHighlight.gameObject.SetActive(true);
+	}
+
+	private void Start()
+	{
+		this.m_currentCheatMissionID = 0;
+	}
+
+	private void Update()
+	{
+		IEnumerator enumerator = PersistentMissionData.missionDictionary.Values.GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				JamGarrisonMobileMission current = (JamGarrisonMobileMission)enumerator.Current;
+				bool flag = false;
+				GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(current.MissionRecID);
+				if (record != null)
+				{
+					if (record.GarrFollowerTypeID == 4)
+					{
+						if (current.MissionState == 1)
+						{
+							long num = GarrisonStatus.CurrentTime() - current.StartTime;
+							if (current.MissionDuration - num <= (long)0)
+							{
+								flag = true;
+							}
+						}
+						if (current.MissionState == 2)
+						{
+							flag = true;
+						}
+						!flag;
+					}
+				}
+			}
+		}
+		finally
+		{
+			IDisposable disposable = enumerator as IDisposable;
+			if (disposable == null)
+			{
+			}
+			disposable.Dispose();
+		}
 	}
 }

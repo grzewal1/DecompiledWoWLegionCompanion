@@ -10,15 +10,19 @@ public class MissionMechanicTypeCounter : MonoBehaviour
 
 	public Image usedIcon;
 
+	public MissionMechanicTypeCounter()
+	{
+	}
+
+	private void OnDestroy()
+	{
+	}
+
 	private void Start()
 	{
 	}
 
 	private void Update()
-	{
-	}
-
-	private void OnDestroy()
 	{
 	}
 }

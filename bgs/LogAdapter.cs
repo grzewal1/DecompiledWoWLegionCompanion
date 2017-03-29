@@ -6,16 +6,20 @@ namespace bgs
 {
 	public class LogAdapter
 	{
-		private static LoggerInterface s_impl = new DefaultLogger();
+		private static LoggerInterface s_impl;
 
-		public static void SetLogger<T>(T outputter) where T : LoggerInterface, new()
+		static LogAdapter()
 		{
-			LogAdapter.s_impl = outputter;
+			LogAdapter.s_impl = new DefaultLogger();
 		}
 
-		public static void Log(LogLevel logLevel, string str)
+		public LogAdapter()
 		{
-			LogAdapter.s_impl.Log(logLevel, str);
+		}
+
+		public static void ClearLogEvents()
+		{
+			LogAdapter.s_impl.ClearLogEvents();
 		}
 
 		public static List<string> GetLogEvents()
@@ -23,9 +27,15 @@ namespace bgs
 			return LogAdapter.s_impl.GetLogEvents();
 		}
 
-		public static void ClearLogEvents()
+		public static void Log(LogLevel logLevel, string str)
 		{
-			LogAdapter.s_impl.ClearLogEvents();
+			LogAdapter.s_impl.Log(logLevel, str);
+		}
+
+		public static void SetLogger<T>(T outputter)
+		where T : LoggerInterface, new()
+		{
+			LogAdapter.s_impl = outputter;
 		}
 	}
 }

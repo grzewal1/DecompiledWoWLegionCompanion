@@ -7,6 +7,10 @@ public class DarkRoomCamera : MonoBehaviour
 
 	private int wtf;
 
+	public DarkRoomCamera()
+	{
+	}
+
 	private void Awake()
 	{
 		this.wtf = 0;
@@ -14,7 +18,11 @@ public class DarkRoomCamera : MonoBehaviour
 
 	private void OnPostRender()
 	{
-		if (++this.wtf <= 1)
+		DarkRoomCamera darkRoomCamera = this;
+		int num = darkRoomCamera.wtf + 1;
+		int num1 = num;
+		darkRoomCamera.wtf = num;
+		if (num1 <= 1)
 		{
 			return;
 		}

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -7,34 +8,6 @@ namespace bgs
 {
 	public class TimeUtils
 	{
-		public enum ElapsedTimeType
-		{
-			SECONDS = 0,
-			MINUTES = 1,
-			HOURS = 2,
-			YESTERDAY = 3,
-			DAYS = 4,
-			WEEKS = 5,
-			MONTH_AGO = 6
-		}
-
-		public class ElapsedStringSet
-		{
-			public string m_seconds;
-
-			public string m_minutes;
-
-			public string m_hours;
-
-			public string m_yesterday;
-
-			public string m_days;
-
-			public string m_weeks;
-
-			public string m_monthAgo;
-		}
-
 		public const int SEC_PER_MINUTE = 60;
 
 		public const int SEC_PER_HOUR = 3600;
@@ -51,33 +24,89 @@ namespace bgs
 
 		public const string DEFAULT_TIME_UNITS_STR = "sec";
 
-		public static readonly DateTime EPOCH_TIME = new DateTime(1970, 1, 1, 0, 0, 0, 1);
+		public readonly static DateTime EPOCH_TIME;
 
-		public static readonly TimeUtils.ElapsedStringSet SPLASHSCREEN_DATETIME_STRINGSET = new TimeUtils.ElapsedStringSet
+		public readonly static TimeUtils.ElapsedStringSet SPLASHSCREEN_DATETIME_STRINGSET;
+
+		static TimeUtils()
 		{
-			m_seconds = "GLOBAL_DATETIME_SPLASHSCREEN_SECONDS",
-			m_minutes = "GLOBAL_DATETIME_SPLASHSCREEN_MINUTES",
-			m_hours = "GLOBAL_DATETIME_SPLASHSCREEN_HOURS",
-			m_yesterday = "GLOBAL_DATETIME_SPLASHSCREEN_DAY",
-			m_days = "GLOBAL_DATETIME_SPLASHSCREEN_DAYS",
-			m_weeks = "GLOBAL_DATETIME_SPLASHSCREEN_WEEKS",
-			m_monthAgo = "GLOBAL_DATETIME_SPLASHSCREEN_MONTH"
-		};
+			TimeUtils.EPOCH_TIME = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+			TimeUtils.ElapsedStringSet elapsedStringSet = new TimeUtils.ElapsedStringSet()
+			{
+				m_seconds = "GLOBAL_DATETIME_SPLASHSCREEN_SECONDS",
+				m_minutes = "GLOBAL_DATETIME_SPLASHSCREEN_MINUTES",
+				m_hours = "GLOBAL_DATETIME_SPLASHSCREEN_HOURS",
+				m_yesterday = "GLOBAL_DATETIME_SPLASHSCREEN_DAY",
+				m_days = "GLOBAL_DATETIME_SPLASHSCREEN_DAYS",
+				m_weeks = "GLOBAL_DATETIME_SPLASHSCREEN_WEEKS",
+				m_monthAgo = "GLOBAL_DATETIME_SPLASHSCREEN_MONTH"
+			};
+			TimeUtils.SPLASHSCREEN_DATETIME_STRINGSET = elapsedStringSet;
+		}
+
+		public TimeUtils()
+		{
+		}
+
+		private static void AppendDevTimeUnitsString(string formatString, int msPerUnit, StringBuilder builder, ref long ms, ref int unitCount)
+		{
+			long num = ms / (long)msPerUnit;
+			if (num > (long)0)
+			{
+				if (unitCount > 0)
+				{
+					builder.Append(' ');
+				}
+				builder.AppendFormat(formatString, num);
+				unitCount = unitCount + 1;
+			}
+			ms = ms - num * (long)msPerUnit;
+		}
 
 		public static long BinaryStamp()
 		{
-			return DateTime.get_UtcNow().ToBinary();
+			return DateTime.UtcNow.ToBinary();
 		}
 
 		public static DateTime ConvertEpochMicrosecToDateTime(ulong microsec)
 		{
-			return TimeUtils.EPOCH_TIME.AddMilliseconds(microsec / 1000.0);
+			DateTime ePOCHTIME = TimeUtils.EPOCH_TIME;
+			return ePOCHTIME.AddMilliseconds((double)((float)microsec) / 1000);
 		}
 
-		public static TimeSpan GetElapsedTimeSinceEpoch(DateTime? endDateTime = null)
+		public static float ForceDevSecFromElapsedTimeString(string timeStr)
 		{
-			DateTime dateTime = (!endDateTime.get_HasValue()) ? DateTime.get_UtcNow() : endDateTime.get_Value();
-			return dateTime - TimeUtils.EPOCH_TIME;
+			float single;
+			TimeUtils.TryParseDevSecFromElapsedTimeString(timeStr, out single);
+			return single;
+		}
+
+		public static string GetDevElapsedTimeString(TimeSpan span)
+		{
+			return TimeUtils.GetDevElapsedTimeString((long)span.TotalMilliseconds);
+		}
+
+		public static string GetDevElapsedTimeString(long ms)
+		{
+			StringBuilder stringBuilder = new StringBuilder();
+			int num = 0;
+			if (ms >= (long)3600000)
+			{
+				TimeUtils.AppendDevTimeUnitsString("{0}h", 3600000, stringBuilder, ref ms, ref num);
+			}
+			if (ms >= (long)60000)
+			{
+				TimeUtils.AppendDevTimeUnitsString("{0}m", 60000, stringBuilder, ref ms, ref num);
+			}
+			if (ms >= (long)1000)
+			{
+				TimeUtils.AppendDevTimeUnitsString("{0}s", 1000, stringBuilder, ref ms, ref num);
+			}
+			if (num <= 1)
+			{
+				TimeUtils.AppendDevTimeUnitsString("{0}ms", 1, stringBuilder, ref ms, ref num);
+			}
+			return stringBuilder.ToString();
 		}
 
 		public static void GetElapsedTime(int seconds, out TimeUtils.ElapsedTimeType timeType, out int time)
@@ -107,152 +136,147 @@ namespace bgs
 				timeType = TimeUtils.ElapsedTimeType.YESTERDAY;
 				return;
 			}
-			int num2 = seconds / 604800;
-			if (num2 == 0)
+			int num1 = seconds / 604800;
+			if (num1 == 0)
 			{
 				timeType = TimeUtils.ElapsedTimeType.DAYS;
 				time = num;
 				return;
 			}
-			if (num2 < 4)
+			if (num1 >= 4)
 			{
-				timeType = TimeUtils.ElapsedTimeType.WEEKS;
-				time = num2;
+				timeType = TimeUtils.ElapsedTimeType.MONTH_AGO;
 				return;
 			}
-			timeType = TimeUtils.ElapsedTimeType.MONTH_AGO;
+			timeType = TimeUtils.ElapsedTimeType.WEEKS;
+			time = num1;
 		}
 
-		public static string GetDevElapsedTimeString(TimeSpan span)
+		public static TimeSpan GetElapsedTimeSinceEpoch(DateTime? endDateTime = null)
 		{
-			return TimeUtils.GetDevElapsedTimeString((long)span.get_TotalMilliseconds());
-		}
-
-		public static string GetDevElapsedTimeString(long ms)
-		{
-			StringBuilder stringBuilder = new StringBuilder();
-			int num = 0;
-			if (ms >= 3600000L)
-			{
-				TimeUtils.AppendDevTimeUnitsString("{0}h", 3600000, stringBuilder, ref ms, ref num);
-			}
-			if (ms >= 60000L)
-			{
-				TimeUtils.AppendDevTimeUnitsString("{0}m", 60000, stringBuilder, ref ms, ref num);
-			}
-			if (ms >= 1000L)
-			{
-				TimeUtils.AppendDevTimeUnitsString("{0}s", 1000, stringBuilder, ref ms, ref num);
-			}
-			if (num <= 1)
-			{
-				TimeUtils.AppendDevTimeUnitsString("{0}ms", 1, stringBuilder, ref ms, ref num);
-			}
-			return stringBuilder.ToString();
-		}
-
-		public static bool TryParseDevSecFromElapsedTimeString(string timeStr, out float sec)
-		{
-			sec = 0f;
-			MatchCollection matchCollection = Regex.Matches(timeStr, "(?<number>(?:[0-9]+,)*[0-9]+)\\s*(?<units>[a-zA-Z]+)");
-			if (matchCollection.get_Count() == 0)
-			{
-				return false;
-			}
-			Match match = matchCollection.get_Item(0);
-			if (!match.get_Groups().get_Item(0).get_Success())
-			{
-				return false;
-			}
-			Group group = match.get_Groups().get_Item("number");
-			Group group2 = match.get_Groups().get_Item("units");
-			if (!group.get_Success() || !group2.get_Success())
-			{
-				return false;
-			}
-			string value = group.get_Value();
-			string text = group2.get_Value();
-			if (!float.TryParse(value, ref sec))
-			{
-				return false;
-			}
-			text = TimeUtils.ParseTimeUnitsStr(text);
-			if (text == "min")
-			{
-				sec *= 60f;
-			}
-			else if (text == "hour")
-			{
-				sec *= 3600f;
-			}
-			return true;
-		}
-
-		public static float ForceDevSecFromElapsedTimeString(string timeStr)
-		{
-			float result;
-			TimeUtils.TryParseDevSecFromElapsedTimeString(timeStr, out result);
-			return result;
-		}
-
-		private static void AppendDevTimeUnitsString(string formatString, int msPerUnit, StringBuilder builder, ref long ms, ref int unitCount)
-		{
-			long num = ms / (long)msPerUnit;
-			if (num > 0L)
-			{
-				if (unitCount > 0)
-				{
-					builder.Append(' ');
-				}
-				builder.AppendFormat(formatString, num);
-				unitCount++;
-			}
-			ms -= num * (long)msPerUnit;
+			return (!endDateTime.HasValue ? DateTime.UtcNow : endDateTime.Value) - TimeUtils.EPOCH_TIME;
 		}
 
 		private static string ParseTimeUnitsStr(string unitsStr)
 		{
+			int num;
 			if (unitsStr == null)
 			{
 				return "sec";
 			}
 			unitsStr = unitsStr.ToLowerInvariant();
-			string text = unitsStr;
-			if (text != null)
+			string str = unitsStr;
+			if (str != null)
 			{
-				if (TimeUtils.<>f__switch$mapE == null)
+				if (TimeUtils.<>f__switch$map10 == null)
 				{
-					Dictionary<string, int> dictionary = new Dictionary<string, int>(13);
-					dictionary.Add("s", 0);
-					dictionary.Add("sec", 0);
-					dictionary.Add("secs", 0);
-					dictionary.Add("second", 0);
-					dictionary.Add("seconds", 0);
-					dictionary.Add("m", 1);
-					dictionary.Add("min", 1);
-					dictionary.Add("mins", 1);
-					dictionary.Add("minute", 1);
-					dictionary.Add("minutes", 1);
-					dictionary.Add("h", 2);
-					dictionary.Add("hour", 2);
-					dictionary.Add("hours", 2);
-					TimeUtils.<>f__switch$mapE = dictionary;
+					Dictionary<string, int> strs = new Dictionary<string, int>(13)
+					{
+						{ "s", 0 },
+						{ "sec", 0 },
+						{ "secs", 0 },
+						{ "second", 0 },
+						{ "seconds", 0 },
+						{ "m", 1 },
+						{ "min", 1 },
+						{ "mins", 1 },
+						{ "minute", 1 },
+						{ "minutes", 1 },
+						{ "h", 2 },
+						{ "hour", 2 },
+						{ "hours", 2 }
+					};
+					TimeUtils.<>f__switch$map10 = strs;
 				}
-				int num;
-				if (TimeUtils.<>f__switch$mapE.TryGetValue(text, ref num))
+				if (TimeUtils.<>f__switch$map10.TryGetValue(str, out num))
 				{
 					switch (num)
 					{
-					case 0:
-						return "sec";
-					case 1:
-						return "min";
-					case 2:
-						return "hour";
+						case 0:
+						{
+							return "sec";
+						}
+						case 1:
+						{
+							return "min";
+						}
+						case 2:
+						{
+							return "hour";
+						}
 					}
 				}
 			}
 			return "sec";
+		}
+
+		public static bool TryParseDevSecFromElapsedTimeString(string timeStr, out float sec)
+		{
+			sec = 0f;
+			MatchCollection matchCollections = Regex.Matches(timeStr, "(?<number>(?:[0-9]+,)*[0-9]+)\\s*(?<units>[a-zA-Z]+)");
+			if (matchCollections.Count == 0)
+			{
+				return false;
+			}
+			Match item = matchCollections[0];
+			if (!item.Groups[0].Success)
+			{
+				return false;
+			}
+			Group group = item.Groups["number"];
+			Group item1 = item.Groups["units"];
+			if (!group.Success || !item1.Success)
+			{
+				return false;
+			}
+			string value = group.Value;
+			string str = item1.Value;
+			if (!float.TryParse(value, out sec))
+			{
+				return false;
+			}
+			str = TimeUtils.ParseTimeUnitsStr(str);
+			if (str == "min")
+			{
+				sec = sec * 60f;
+			}
+			else if (str == "hour")
+			{
+				sec = sec * 3600f;
+			}
+			return true;
+		}
+
+		public class ElapsedStringSet
+		{
+			public string m_seconds;
+
+			public string m_minutes;
+
+			public string m_hours;
+
+			public string m_yesterday;
+
+			public string m_days;
+
+			public string m_weeks;
+
+			public string m_monthAgo;
+
+			public ElapsedStringSet()
+			{
+			}
+		}
+
+		public enum ElapsedTimeType
+		{
+			SECONDS,
+			MINUTES,
+			HOURS,
+			YESTERDAY,
+			DAYS,
+			WEEKS,
+			MONTH_AGO
 		}
 	}
 }

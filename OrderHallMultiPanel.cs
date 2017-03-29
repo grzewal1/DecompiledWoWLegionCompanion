@@ -72,176 +72,63 @@ public class OrderHallMultiPanel : MonoBehaviour
 
 	private bool m_actuallyDisablePanels;
 
-	private void Start()
+	public OrderHallMultiPanel()
 	{
-		if (this.m_titleText != null)
-		{
-			this.m_titleText.set_font(GeneralHelpers.LoadStandardFont());
-			this.m_titleText.set_text(StaticDB.GetString("CLASS_ORDER_HALL", null));
-		}
-		this.m_troopButtonText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_troopButtonText.set_text(StaticDB.GetString("RECRUIT", null));
-		this.m_followerButtonText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_followerButtonText.set_text(StaticDB.GetString("FOLLOWERS", null));
-		this.m_allyButtonText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_allyButtonText.set_text(StaticDB.GetString("MISSIONS", null));
-		this.m_talentButtonText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_talentButtonText.set_text(StaticDB.GetString("RESEARCH", null));
-		this.m_worldMapButtonText.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_worldMapButtonText.set_text(StaticDB.GetString("WORLD_MAP", null));
-		Text[] componentsInChildren = base.GetComponentsInChildren<Text>(true);
-		Text[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
-		{
-			Text text = array[i];
-			if (text.get_text() == "Abilities")
-			{
-				text.set_text(StaticDB.GetString("ABILITIES", null));
-			}
-			else if (text.get_text() == "Counters:")
-			{
-				text.set_text(StaticDB.GetString("COUNTERS", null) + ":");
-			}
-		}
-		this.m_defaultNavButton.SelectMe();
 	}
 
 	private void HideMainPanels()
 	{
-		if (this.m_actuallyDisablePanels)
-		{
-			this.m_missionListPanelCanvasGroup.set_alpha(1f);
-			this.m_missionListPanelCanvasGroup.set_interactable(true);
-			this.m_missionListPanelCanvasGroup.set_blocksRaycasts(true);
-			this.m_troopsPanelCanvasGroup.set_alpha(1f);
-			this.m_troopsPanelCanvasGroup.set_interactable(true);
-			this.m_troopsPanelCanvasGroup.set_blocksRaycasts(true);
-			this.m_adventureMapPanelCanvasGroup.set_alpha(1f);
-			this.m_adventureMapPanelCanvasGroup.set_interactable(true);
-			this.m_adventureMapPanelCanvasGroup.set_blocksRaycasts(true);
-			this.m_playerInfoDisplayCanvasGroup.set_alpha(1f);
-			this.m_playerInfoDisplayCanvasGroup.set_interactable(true);
-			this.m_playerInfoDisplayCanvasGroup.set_blocksRaycasts(true);
-			this.m_followersPanelCanvasGroup.set_alpha(1f);
-			this.m_followersPanelCanvasGroup.set_interactable(true);
-			this.m_followersPanelCanvasGroup.set_blocksRaycasts(true);
-			this.m_talentTreePanelCanvasGroup.set_alpha(1f);
-			this.m_talentTreePanelCanvasGroup.set_interactable(true);
-			this.m_talentTreePanelCanvasGroup.set_blocksRaycasts(true);
-			this.m_missionListPanelCanvasGroup.get_gameObject().SetActive(false);
-			this.m_troopsPanelCanvasGroup.get_gameObject().SetActive(false);
-			this.m_adventureMapPanelCanvasGroup.get_gameObject().SetActive(false);
-			this.m_followersPanelCanvasGroup.get_gameObject().SetActive(false);
-			this.m_talentTreePanelCanvasGroup.get_gameObject().SetActive(false);
-		}
-		else
+		if (!this.m_actuallyDisablePanels)
 		{
 			this.m_missionListPanelRTH.DisableTargetList();
 			this.m_troopsPanelRTH.DisableTargetList();
 			this.m_adventureMapPanelRTH.DisableTargetList();
 			this.m_followersPanelRTH.DisableTargetList();
 			this.m_talentTreePanelRTH.DisableTargetList();
-			this.m_missionListPanelCanvasGroup.set_alpha(0f);
-			this.m_missionListPanelCanvasGroup.set_interactable(false);
-			this.m_missionListPanelCanvasGroup.set_blocksRaycasts(false);
-			this.m_troopsPanelCanvasGroup.set_alpha(0f);
-			this.m_troopsPanelCanvasGroup.set_interactable(false);
-			this.m_troopsPanelCanvasGroup.set_blocksRaycasts(false);
-			this.m_adventureMapPanelCanvasGroup.set_alpha(0f);
-			this.m_adventureMapPanelCanvasGroup.set_interactable(false);
-			this.m_adventureMapPanelCanvasGroup.set_blocksRaycasts(false);
-			this.m_playerInfoDisplayCanvasGroup.set_alpha(0f);
-			this.m_playerInfoDisplayCanvasGroup.set_interactable(false);
-			this.m_playerInfoDisplayCanvasGroup.set_blocksRaycasts(false);
-			this.m_followersPanelCanvasGroup.set_alpha(0f);
-			this.m_followersPanelCanvasGroup.set_interactable(false);
-			this.m_followersPanelCanvasGroup.set_blocksRaycasts(false);
-			this.m_talentTreePanelCanvasGroup.set_alpha(0f);
-			this.m_talentTreePanelCanvasGroup.set_interactable(false);
-			this.m_talentTreePanelCanvasGroup.set_blocksRaycasts(false);
-		}
-	}
-
-	public void ShowMissionListPanel()
-	{
-		this.HideMainPanels();
-		if (this.m_actuallyDisablePanels)
-		{
-			this.m_missionListPanelCanvasGroup.get_gameObject().SetActive(true);
+			this.m_missionListPanelCanvasGroup.alpha = 0f;
+			this.m_missionListPanelCanvasGroup.interactable = false;
+			this.m_missionListPanelCanvasGroup.blocksRaycasts = false;
+			this.m_troopsPanelCanvasGroup.alpha = 0f;
+			this.m_troopsPanelCanvasGroup.interactable = false;
+			this.m_troopsPanelCanvasGroup.blocksRaycasts = false;
+			this.m_adventureMapPanelCanvasGroup.alpha = 0f;
+			this.m_adventureMapPanelCanvasGroup.interactable = false;
+			this.m_adventureMapPanelCanvasGroup.blocksRaycasts = false;
+			this.m_playerInfoDisplayCanvasGroup.alpha = 0f;
+			this.m_playerInfoDisplayCanvasGroup.interactable = false;
+			this.m_playerInfoDisplayCanvasGroup.blocksRaycasts = false;
+			this.m_followersPanelCanvasGroup.alpha = 0f;
+			this.m_followersPanelCanvasGroup.interactable = false;
+			this.m_followersPanelCanvasGroup.blocksRaycasts = false;
+			this.m_talentTreePanelCanvasGroup.alpha = 0f;
+			this.m_talentTreePanelCanvasGroup.interactable = false;
+			this.m_talentTreePanelCanvasGroup.blocksRaycasts = false;
 		}
 		else
 		{
-			this.m_missionListPanelRTH.EnableTargetList();
-			this.m_missionListPanelCanvasGroup.set_alpha(1f);
-			this.m_missionListPanelCanvasGroup.set_interactable(true);
-			this.m_missionListPanelCanvasGroup.set_blocksRaycasts(true);
-		}
-	}
-
-	public void ShowTroopsPanel()
-	{
-		this.HideMainPanels();
-		if (this.m_actuallyDisablePanels)
-		{
-			this.m_troopsPanelCanvasGroup.get_gameObject().SetActive(true);
-		}
-		else
-		{
-			this.m_troopsPanelRTH.EnableTargetList();
-			this.m_troopsPanelCanvasGroup.set_alpha(1f);
-			this.m_troopsPanelCanvasGroup.set_interactable(true);
-			this.m_troopsPanelCanvasGroup.set_blocksRaycasts(true);
-		}
-	}
-
-	public void ShowAdventureMapPanel()
-	{
-		this.HideMainPanels();
-		if (this.m_actuallyDisablePanels)
-		{
-			this.m_adventureMapPanelCanvasGroup.get_gameObject().SetActive(true);
-		}
-		else
-		{
-			this.m_adventureMapPanelRTH.EnableTargetList();
-			this.m_adventureMapPanelCanvasGroup.set_alpha(1f);
-			this.m_adventureMapPanelCanvasGroup.set_interactable(true);
-			this.m_adventureMapPanelCanvasGroup.set_blocksRaycasts(true);
-			this.m_playerInfoDisplayCanvasGroup.set_alpha(1f);
-			this.m_playerInfoDisplayCanvasGroup.set_interactable(true);
-			this.m_playerInfoDisplayCanvasGroup.set_blocksRaycasts(true);
-		}
-	}
-
-	public void ShowFollowersPanel()
-	{
-		this.HideMainPanels();
-		if (this.m_actuallyDisablePanels)
-		{
-			this.m_followersPanelCanvasGroup.get_gameObject().SetActive(true);
-		}
-		else
-		{
-			this.m_followersPanelRTH.EnableTargetList();
-			this.m_followersPanelCanvasGroup.set_alpha(1f);
-			this.m_followersPanelCanvasGroup.set_interactable(true);
-			this.m_followersPanelCanvasGroup.set_blocksRaycasts(true);
-		}
-	}
-
-	public void ShowTalentTreePanel()
-	{
-		this.HideMainPanels();
-		if (this.m_actuallyDisablePanels)
-		{
-			this.m_talentTreePanelCanvasGroup.get_gameObject().SetActive(true);
-		}
-		else
-		{
-			this.m_talentTreePanelRTH.EnableTargetList();
-			this.m_talentTreePanelCanvasGroup.set_alpha(1f);
-			this.m_talentTreePanelCanvasGroup.set_interactable(true);
-			this.m_talentTreePanelCanvasGroup.set_blocksRaycasts(true);
+			this.m_missionListPanelCanvasGroup.alpha = 1f;
+			this.m_missionListPanelCanvasGroup.interactable = true;
+			this.m_missionListPanelCanvasGroup.blocksRaycasts = true;
+			this.m_troopsPanelCanvasGroup.alpha = 1f;
+			this.m_troopsPanelCanvasGroup.interactable = true;
+			this.m_troopsPanelCanvasGroup.blocksRaycasts = true;
+			this.m_adventureMapPanelCanvasGroup.alpha = 1f;
+			this.m_adventureMapPanelCanvasGroup.interactable = true;
+			this.m_adventureMapPanelCanvasGroup.blocksRaycasts = true;
+			this.m_playerInfoDisplayCanvasGroup.alpha = 1f;
+			this.m_playerInfoDisplayCanvasGroup.interactable = true;
+			this.m_playerInfoDisplayCanvasGroup.blocksRaycasts = true;
+			this.m_followersPanelCanvasGroup.alpha = 1f;
+			this.m_followersPanelCanvasGroup.interactable = true;
+			this.m_followersPanelCanvasGroup.blocksRaycasts = true;
+			this.m_talentTreePanelCanvasGroup.alpha = 1f;
+			this.m_talentTreePanelCanvasGroup.interactable = true;
+			this.m_talentTreePanelCanvasGroup.blocksRaycasts = true;
+			this.m_missionListPanelCanvasGroup.gameObject.SetActive(false);
+			this.m_troopsPanelCanvasGroup.gameObject.SetActive(false);
+			this.m_adventureMapPanelCanvasGroup.gameObject.SetActive(false);
+			this.m_followersPanelCanvasGroup.gameObject.SetActive(false);
+			this.m_talentTreePanelCanvasGroup.gameObject.SetActive(false);
 		}
 	}
 
@@ -249,5 +136,126 @@ public class OrderHallMultiPanel : MonoBehaviour
 	{
 		this.ShowAdventureMapPanel();
 		this.m_navBarArea.SetActive(true);
+	}
+
+	public void SelectDefaultNavButton()
+	{
+		this.m_defaultNavButton.SelectMe();
+	}
+
+	public void ShowAdventureMapPanel()
+	{
+		this.HideMainPanels();
+		if (!this.m_actuallyDisablePanels)
+		{
+			this.m_adventureMapPanelRTH.EnableTargetList();
+			this.m_adventureMapPanelCanvasGroup.alpha = 1f;
+			this.m_adventureMapPanelCanvasGroup.interactable = true;
+			this.m_adventureMapPanelCanvasGroup.blocksRaycasts = true;
+			this.m_playerInfoDisplayCanvasGroup.alpha = 1f;
+			this.m_playerInfoDisplayCanvasGroup.interactable = true;
+			this.m_playerInfoDisplayCanvasGroup.blocksRaycasts = true;
+		}
+		else
+		{
+			this.m_adventureMapPanelCanvasGroup.gameObject.SetActive(true);
+		}
+	}
+
+	public void ShowFollowersPanel()
+	{
+		this.HideMainPanels();
+		if (!this.m_actuallyDisablePanels)
+		{
+			this.m_followersPanelRTH.EnableTargetList();
+			this.m_followersPanelCanvasGroup.alpha = 1f;
+			this.m_followersPanelCanvasGroup.interactable = true;
+			this.m_followersPanelCanvasGroup.blocksRaycasts = true;
+		}
+		else
+		{
+			this.m_followersPanelCanvasGroup.gameObject.SetActive(true);
+		}
+	}
+
+	public void ShowMissionListPanel()
+	{
+		this.HideMainPanels();
+		if (!this.m_actuallyDisablePanels)
+		{
+			this.m_missionListPanelRTH.EnableTargetList();
+			this.m_missionListPanelCanvasGroup.alpha = 1f;
+			this.m_missionListPanelCanvasGroup.interactable = true;
+			this.m_missionListPanelCanvasGroup.blocksRaycasts = true;
+		}
+		else
+		{
+			this.m_missionListPanelCanvasGroup.gameObject.SetActive(true);
+		}
+	}
+
+	public void ShowTalentTreePanel()
+	{
+		this.HideMainPanels();
+		if (!this.m_actuallyDisablePanels)
+		{
+			this.m_talentTreePanelRTH.EnableTargetList();
+			this.m_talentTreePanelCanvasGroup.alpha = 1f;
+			this.m_talentTreePanelCanvasGroup.interactable = true;
+			this.m_talentTreePanelCanvasGroup.blocksRaycasts = true;
+		}
+		else
+		{
+			this.m_talentTreePanelCanvasGroup.gameObject.SetActive(true);
+		}
+	}
+
+	public void ShowTroopsPanel()
+	{
+		this.HideMainPanels();
+		if (!this.m_actuallyDisablePanels)
+		{
+			this.m_troopsPanelRTH.EnableTargetList();
+			this.m_troopsPanelCanvasGroup.alpha = 1f;
+			this.m_troopsPanelCanvasGroup.interactable = true;
+			this.m_troopsPanelCanvasGroup.blocksRaycasts = true;
+		}
+		else
+		{
+			this.m_troopsPanelCanvasGroup.gameObject.SetActive(true);
+		}
+	}
+
+	private void Start()
+	{
+		if (this.m_titleText != null)
+		{
+			this.m_titleText.font = GeneralHelpers.LoadStandardFont();
+			this.m_titleText.text = StaticDB.GetString("CLASS_ORDER_HALL", null);
+		}
+		this.m_troopButtonText.font = GeneralHelpers.LoadStandardFont();
+		this.m_troopButtonText.text = StaticDB.GetString("RECRUIT", null);
+		this.m_followerButtonText.font = GeneralHelpers.LoadStandardFont();
+		this.m_followerButtonText.text = StaticDB.GetString("FOLLOWERS", null);
+		this.m_allyButtonText.font = GeneralHelpers.LoadStandardFont();
+		this.m_allyButtonText.text = StaticDB.GetString("MISSIONS", null);
+		this.m_talentButtonText.font = GeneralHelpers.LoadStandardFont();
+		this.m_talentButtonText.text = StaticDB.GetString("RESEARCH", null);
+		this.m_worldMapButtonText.font = GeneralHelpers.LoadStandardFont();
+		this.m_worldMapButtonText.text = StaticDB.GetString("WORLD_MAP", null);
+		Text[] componentsInChildren = base.GetComponentsInChildren<Text>(true);
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
+		{
+			Text str = componentsInChildren[i];
+			if (str.text == "Abilities")
+			{
+				str.text = StaticDB.GetString("ABILITIES", null);
+			}
+			else if (str.text == "Counters:")
+			{
+				str.text = string.Concat(StaticDB.GetString("COUNTERS", null), ":");
+			}
+		}
+		this.m_defaultNavButton.SelectMe();
 	}
 }

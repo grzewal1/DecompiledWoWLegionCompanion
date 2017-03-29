@@ -1,49 +1,57 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamPartyMemberPetState", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamPartyMemberPetState", Version=28333852)]
 	public class JamPartyMemberPetState
 	{
-		[FlexJamMember(Name = "guid", Type = FlexJamType.WowGuid), DataMember(Name = "guid")]
-		public string Guid
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "health", Type = FlexJamType.Int32), DataMember(Name = "health")]
-		public int Health
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "maxHealth", Type = FlexJamType.Int32), DataMember(Name = "maxHealth")]
-		public int MaxHealth
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "name", Type = FlexJamType.String), DataMember(Name = "name")]
-		public string Name
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(ArrayDimensions = 1, Name = "auras", Type = FlexJamType.Struct), DataMember(Name = "auras")]
+		[DataMember(Name="auras")]
+		[FlexJamMember(ArrayDimensions=1, Name="auras", Type=FlexJamType.Struct)]
 		public JamPartyMemberAuraState[] Auras
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "displayID", Type = FlexJamType.Int32), DataMember(Name = "displayID")]
+		[DataMember(Name="displayID")]
+		[FlexJamMember(Name="displayID", Type=FlexJamType.Int32)]
 		public int DisplayID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="guid")]
+		[FlexJamMember(Name="guid", Type=FlexJamType.WowGuid)]
+		public string Guid
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="health")]
+		[FlexJamMember(Name="health", Type=FlexJamType.Int32)]
+		public int Health
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="maxHealth")]
+		[FlexJamMember(Name="maxHealth", Type=FlexJamType.Int32)]
+		public int MaxHealth
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="name")]
+		[FlexJamMember(Name="name", Type=FlexJamType.String)]
+		public string Name
 		{
 			get;
 			set;

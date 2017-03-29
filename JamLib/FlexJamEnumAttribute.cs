@@ -1,16 +1,17 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace JamLib
 {
 	public class FlexJamEnumAttribute : Attribute
 	{
-		public string Name
+		public bool BitField
 		{
 			get;
 			set;
 		}
 
-		public bool BitField
+		public string Name
 		{
 			get;
 			set;
@@ -20,6 +21,10 @@ namespace JamLib
 		{
 			get;
 			set;
+		}
+
+		public FlexJamEnumAttribute()
+		{
 		}
 	}
 }

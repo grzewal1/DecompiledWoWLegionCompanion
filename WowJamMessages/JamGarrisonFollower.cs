@@ -1,105 +1,121 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "JamGarrisonFollower", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="JamGarrisonFollower", Version=28333852)]
 	public class JamGarrisonFollower
 	{
-		[FlexJamMember(Name = "customName", Type = FlexJamType.String), DataMember(Name = "customName")]
-		public string CustomName
+		[DataMember(Name="abilityID")]
+		[FlexJamMember(ArrayDimensions=1, Name="abilityID", Type=FlexJamType.Int32)]
+		public int[] AbilityID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "itemLevelWeapon", Type = FlexJamType.Int32), DataMember(Name = "itemLevelWeapon")]
-		public int ItemLevelWeapon
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "currentBuildingID", Type = FlexJamType.Int32), DataMember(Name = "currentBuildingID")]
+		[DataMember(Name="currentBuildingID")]
+		[FlexJamMember(Name="currentBuildingID", Type=FlexJamType.Int32)]
 		public int CurrentBuildingID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "zoneSupportSpellID", Type = FlexJamType.Int32), DataMember(Name = "zoneSupportSpellID")]
-		public int ZoneSupportSpellID
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "currentMissionID", Type = FlexJamType.Int32), DataMember(Name = "currentMissionID")]
+		[DataMember(Name="currentMissionID")]
+		[FlexJamMember(Name="currentMissionID", Type=FlexJamType.Int32)]
 		public int CurrentMissionID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "followerLevel", Type = FlexJamType.Int32), DataMember(Name = "followerLevel")]
-		public int FollowerLevel
+		[DataMember(Name="customName")]
+		[FlexJamMember(Name="customName", Type=FlexJamType.String)]
+		public string CustomName
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "flags", Type = FlexJamType.Int32), DataMember(Name = "flags")]
-		public int Flags
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "itemLevelArmor", Type = FlexJamType.Int32), DataMember(Name = "itemLevelArmor")]
-		public int ItemLevelArmor
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "xp", Type = FlexJamType.Int32), DataMember(Name = "xp")]
-		public int Xp
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "dbID", Type = FlexJamType.UInt64), DataMember(Name = "dbID")]
+		[DataMember(Name="dbID")]
+		[FlexJamMember(Name="dbID", Type=FlexJamType.UInt64)]
 		public ulong DbID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "garrFollowerID", Type = FlexJamType.Int32), DataMember(Name = "garrFollowerID")]
-		public int GarrFollowerID
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "quality", Type = FlexJamType.Int32), DataMember(Name = "quality")]
-		public int Quality
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "durability", Type = FlexJamType.Int32), DataMember(Name = "durability")]
+		[DataMember(Name="durability")]
+		[FlexJamMember(Name="durability", Type=FlexJamType.Int32)]
 		public int Durability
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(ArrayDimensions = 1, Name = "abilityID", Type = FlexJamType.Int32), DataMember(Name = "abilityID")]
-		public int[] AbilityID
+		[DataMember(Name="flags")]
+		[FlexJamMember(Name="flags", Type=FlexJamType.Int32)]
+		public int Flags
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="followerLevel")]
+		[FlexJamMember(Name="followerLevel", Type=FlexJamType.Int32)]
+		public int FollowerLevel
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="garrFollowerID")]
+		[FlexJamMember(Name="garrFollowerID", Type=FlexJamType.Int32)]
+		public int GarrFollowerID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="itemLevelArmor")]
+		[FlexJamMember(Name="itemLevelArmor", Type=FlexJamType.Int32)]
+		public int ItemLevelArmor
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="itemLevelWeapon")]
+		[FlexJamMember(Name="itemLevelWeapon", Type=FlexJamType.Int32)]
+		public int ItemLevelWeapon
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="quality")]
+		[FlexJamMember(Name="quality", Type=FlexJamType.Int32)]
+		public int Quality
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="xp")]
+		[FlexJamMember(Name="xp", Type=FlexJamType.Int32)]
+		public int Xp
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="zoneSupportSpellID")]
+		[FlexJamMember(Name="zoneSupportSpellID", Type=FlexJamType.Int32)]
+		public int ZoneSupportSpellID
 		{
 			get;
 			set;

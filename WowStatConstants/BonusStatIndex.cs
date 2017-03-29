@@ -4,6 +4,7 @@ namespace WowStatConstants
 {
 	public enum BonusStatIndex
 	{
+		BONUS_STAT_INVALID = -1,
 		MANA = 0,
 		HEALTH = 1,
 		ENDURANCE = 2,
@@ -79,7 +80,6 @@ namespace WowStatConstants
 		AGILITY_OR_STRENGTH = 72,
 		AGILITY_OR_INTELLECT = 73,
 		STRENGTH_OR_INTELLECT = 74,
-		BONUS_STAT_MAX = 75,
-		BONUS_STAT_INVALID = -1
+		BONUS_STAT_MAX = 75
 	}
 }

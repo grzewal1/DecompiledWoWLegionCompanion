@@ -8,7 +8,7 @@ namespace Newtonsoft.Json
 	{
 		private readonly TextWriter _writer;
 
-		private Base64Encoder _base64Encoder;
+		private Newtonsoft.Json.Utilities.Base64Encoder _base64Encoder;
 
 		private char _indentChar;
 
@@ -18,13 +18,13 @@ namespace Newtonsoft.Json
 
 		private bool _quoteName;
 
-		private Base64Encoder Base64Encoder
+		private Newtonsoft.Json.Utilities.Base64Encoder Base64Encoder
 		{
 			get
 			{
 				if (this._base64Encoder == null)
 				{
-					this._base64Encoder = new Base64Encoder(this._writer);
+					this._base64Encoder = new Newtonsoft.Json.Utilities.Base64Encoder(this._writer);
 				}
 				return this._base64Encoder;
 			}
@@ -46,22 +46,6 @@ namespace Newtonsoft.Json
 			}
 		}
 
-		public char QuoteChar
-		{
-			get
-			{
-				return this._quoteChar;
-			}
-			set
-			{
-				if (value != '"' && value != '\'')
-				{
-					throw new ArgumentException("Invalid JavaScript string quote character. Valid quote characters are ' and \".");
-				}
-				this._quoteChar = value;
-			}
-		}
-
 		public char IndentChar
 		{
 			get
@@ -71,6 +55,22 @@ namespace Newtonsoft.Json
 			set
 			{
 				this._indentChar = value;
+			}
+		}
+
+		public char QuoteChar
+		{
+			get
+			{
+				return this._quoteChar;
+			}
+			set
+			{
+				if (value != '\"' && value != '\'')
+				{
+					throw new ArgumentException("Invalid JavaScript string quote character. Valid quote characters are ' and \".");
+				}
+				this._quoteChar = value;
 			}
 		}
 
@@ -93,15 +93,10 @@ namespace Newtonsoft.Json
 				throw new ArgumentNullException("textWriter");
 			}
 			this._writer = textWriter;
-			this._quoteChar = '"';
+			this._quoteChar = '\"';
 			this._quoteName = true;
 			this._indentChar = ' ';
 			this._indentation = 2;
-		}
-
-		public override void Flush()
-		{
-			this._writer.Flush();
 		}
 
 		public override void Close()
@@ -113,10 +108,80 @@ namespace Newtonsoft.Json
 			}
 		}
 
-		public override void WriteStartObject()
+		public override void Flush()
 		{
-			base.WriteStartObject();
-			this._writer.Write("{");
+			this._writer.Flush();
+		}
+
+		public override void WriteComment(string text)
+		{
+			base.WriteComment(text);
+			this._writer.Write("/*");
+			this._writer.Write(text);
+			this._writer.Write("*/");
+		}
+
+		protected override void WriteEnd(JsonToken token)
+		{
+			switch (token)
+			{
+				case JsonToken.EndObject:
+				{
+					this._writer.Write("}");
+					break;
+				}
+				case JsonToken.EndArray:
+				{
+					this._writer.Write("]");
+					break;
+				}
+				case JsonToken.EndConstructor:
+				{
+					this._writer.Write(")");
+					break;
+				}
+				default:
+				{
+					throw new JsonWriterException(string.Concat("Invalid JsonToken: ", token));
+				}
+			}
+		}
+
+		protected override void WriteIndent()
+		{
+			if (base.Formatting == Newtonsoft.Json.Formatting.Indented)
+			{
+				this._writer.Write(Environment.NewLine);
+				int top = base.Top * this._indentation;
+				for (int i = 0; i < top; i++)
+				{
+					this._writer.Write(this._indentChar);
+				}
+			}
+		}
+
+		protected override void WriteIndentSpace()
+		{
+			this._writer.Write(' ');
+		}
+
+		public override void WriteNull()
+		{
+			base.WriteNull();
+			this.WriteValueInternal(JsonConvert.Null, JsonToken.Null);
+		}
+
+		public override void WritePropertyName(string name)
+		{
+			base.WritePropertyName(name);
+			JavaScriptUtils.WriteEscapedJavaScriptString(this._writer, name, this._quoteChar, this._quoteName);
+			this._writer.Write(':');
+		}
+
+		public override void WriteRaw(string json)
+		{
+			base.WriteRaw(json);
+			this._writer.Write(json);
 		}
 
 		public override void WriteStartArray()
@@ -133,63 +198,10 @@ namespace Newtonsoft.Json
 			this._writer.Write("(");
 		}
 
-		protected override void WriteEnd(JsonToken token)
+		public override void WriteStartObject()
 		{
-			switch (token)
-			{
-			case JsonToken.EndObject:
-				this._writer.Write("}");
-				break;
-			case JsonToken.EndArray:
-				this._writer.Write("]");
-				break;
-			case JsonToken.EndConstructor:
-				this._writer.Write(")");
-				break;
-			default:
-				throw new JsonWriterException("Invalid JsonToken: " + token);
-			}
-		}
-
-		public override void WritePropertyName(string name)
-		{
-			base.WritePropertyName(name);
-			JavaScriptUtils.WriteEscapedJavaScriptString(this._writer, name, this._quoteChar, this._quoteName);
-			this._writer.Write(':');
-		}
-
-		protected override void WriteIndent()
-		{
-			if (base.Formatting == Formatting.Indented)
-			{
-				this._writer.Write(Environment.get_NewLine());
-				int num = base.Top * this._indentation;
-				for (int i = 0; i < num; i++)
-				{
-					this._writer.Write(this._indentChar);
-				}
-			}
-		}
-
-		protected override void WriteValueDelimiter()
-		{
-			this._writer.Write(',');
-		}
-
-		protected override void WriteIndentSpace()
-		{
-			this._writer.Write(' ');
-		}
-
-		private void WriteValueInternal(string value, JsonToken token)
-		{
-			this._writer.Write(value);
-		}
-
-		public override void WriteNull()
-		{
-			base.WriteNull();
-			this.WriteValueInternal(JsonConvert.Null, JsonToken.Null);
+			base.WriteStartObject();
+			this._writer.Write("{");
 		}
 
 		public override void WriteUndefined()
@@ -198,22 +210,16 @@ namespace Newtonsoft.Json
 			this.WriteValueInternal(JsonConvert.Undefined, JsonToken.Undefined);
 		}
 
-		public override void WriteRaw(string json)
-		{
-			base.WriteRaw(json);
-			this._writer.Write(json);
-		}
-
 		public override void WriteValue(string value)
 		{
 			base.WriteValue(value);
-			if (value == null)
+			if (value != null)
 			{
-				this.WriteValueInternal(JsonConvert.Null, JsonToken.Null);
+				JavaScriptUtils.WriteEscapedJavaScriptString(this._writer, value, this._quoteChar, true);
 			}
 			else
 			{
-				JavaScriptUtils.WriteEscapedJavaScriptString(this._writer, value, this._quoteChar, true);
+				this.WriteValueInternal(JsonConvert.Null, JsonToken.Null);
 			}
 		}
 
@@ -307,7 +313,7 @@ namespace Newtonsoft.Json
 			if (value != null)
 			{
 				this._writer.Write(this._quoteChar);
-				this.Base64Encoder.Encode(value, 0, value.Length);
+				this.Base64Encoder.Encode(value, 0, (int)value.Length);
 				this.Base64Encoder.Flush();
 				this._writer.Write(this._quoteChar);
 			}
@@ -337,12 +343,14 @@ namespace Newtonsoft.Json
 			this.WriteValueInternal(JsonConvert.ToString(value), JsonToken.Date);
 		}
 
-		public override void WriteComment(string text)
+		protected override void WriteValueDelimiter()
 		{
-			base.WriteComment(text);
-			this._writer.Write("/*");
-			this._writer.Write(text);
-			this._writer.Write("*/");
+			this._writer.Write(',');
+		}
+
+		private void WriteValueInternal(string value, JsonToken token)
+		{
+			this._writer.Write(value);
 		}
 
 		public override void WriteWhitespace(string ws)

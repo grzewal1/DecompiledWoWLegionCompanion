@@ -1,126 +1,145 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "UnitDebugInfo", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="UnitDebugInfo", Version=28333852)]
 	public class UnitDebugInfo
 	{
-		[FlexJamMember(Name = "level", Type = FlexJamType.Int32), DataMember(Name = "level")]
-		public int Level
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(ArrayDimensions = 1, Name = "aiTriggerActionDebugInfo", Type = FlexJamType.Struct), DataMember(Name = "aiTriggerActionDebugInfo")]
+		[DataMember(Name="aiTriggerActionDebugInfo")]
+		[FlexJamMember(ArrayDimensions=1, Name="aiTriggerActionDebugInfo", Type=FlexJamType.Struct)]
 		public AITriggerActionDebugInfo[] AiTriggerActionDebugInfo
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(ArrayDimensions = 1, Name = "spellDebugInfo", Type = FlexJamType.Struct), DataMember(Name = "spellDebugInfo")]
-		public CreatureSpellDebugInfo[] SpellDebugInfo
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(ArrayDimensions = 1, Name = "effectiveStatValues", Type = FlexJamType.Int32), DataMember(Name = "effectiveStatValues")]
-		public int[] EffectiveStatValues
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "spawnRegionName", Type = FlexJamType.String), DataMember(Name = "spawnRegionName")]
-		public string SpawnRegionName
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "spawnGroupName", Type = FlexJamType.String), DataMember(Name = "spawnGroupName")]
-		public string SpawnGroupName
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "spawnRegionID", Type = FlexJamType.Int32), DataMember(Name = "spawnRegionID")]
-		public int SpawnRegionID
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "classID", Type = FlexJamType.Int32), DataMember(Name = "classID")]
-		public int ClassID
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(ArrayDimensions = 1, Name = "aiTriggerActionSetDebugInfo", Type = FlexJamType.Struct), DataMember(Name = "aiTriggerActionSetDebugInfo")]
+		[DataMember(Name="aiTriggerActionSetDebugInfo")]
+		[FlexJamMember(ArrayDimensions=1, Name="aiTriggerActionSetDebugInfo", Type=FlexJamType.Struct)]
 		public AITriggerActionSetDebugInfo[] AiTriggerActionSetDebugInfo
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "playerClassID", Type = FlexJamType.Int32), DataMember(Name = "playerClassID")]
-		public int PlayerClassID
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "percentSupportAction", Type = FlexJamType.Int32), DataMember(Name = "percentSupportAction")]
-		public int PercentSupportAction
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(Name = "spawnGroupID", Type = FlexJamType.Int32), DataMember(Name = "spawnGroupID")]
-		public int SpawnGroupID
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(ArrayDimensions = 1, Name = "spawnEventDebugInfo", Type = FlexJamType.Struct), DataMember(Name = "spawnEventDebugInfo")]
-		public SpawnEventDebugInfo[] SpawnEventDebugInfo
-		{
-			get;
-			set;
-		}
-
-		[FlexJamMember(ArrayDimensions = 1, Name = "auraDebugInfo", Type = FlexJamType.Struct), DataMember(Name = "auraDebugInfo")]
+		[DataMember(Name="auraDebugInfo")]
+		[FlexJamMember(ArrayDimensions=1, Name="auraDebugInfo", Type=FlexJamType.Struct)]
 		public UnitAuraDebugInfo[] AuraDebugInfo
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "creatureSpellDataID", Type = FlexJamType.Int32), DataMember(Name = "creatureSpellDataID")]
+		[DataMember(Name="classID")]
+		[FlexJamMember(Name="classID", Type=FlexJamType.Int32)]
+		public int ClassID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="creatureSpellDataID")]
+		[FlexJamMember(Name="creatureSpellDataID", Type=FlexJamType.Int32)]
 		public int CreatureSpellDataID
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(ArrayDimensions = 1, Name = "zoneFlags", Type = FlexJamType.UInt32), DataMember(Name = "zoneFlags")]
-		public uint[] ZoneFlags
+		[DataMember(Name="effectiveStatValues")]
+		[FlexJamMember(ArrayDimensions=1, Name="effectiveStatValues", Type=FlexJamType.Int32)]
+		public int[] EffectiveStatValues
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "percentRangedAttack", Type = FlexJamType.Int32), DataMember(Name = "percentRangedAttack")]
+		[DataMember(Name="level")]
+		[FlexJamMember(Name="level", Type=FlexJamType.Int32)]
+		public int Level
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="percentRangedAttack")]
+		[FlexJamMember(Name="percentRangedAttack", Type=FlexJamType.Int32)]
 		public int PercentRangedAttack
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="percentSupportAction")]
+		[FlexJamMember(Name="percentSupportAction", Type=FlexJamType.Int32)]
+		public int PercentSupportAction
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="playerClassID")]
+		[FlexJamMember(Name="playerClassID", Type=FlexJamType.Int32)]
+		public int PlayerClassID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="spawnEventDebugInfo")]
+		[FlexJamMember(ArrayDimensions=1, Name="spawnEventDebugInfo", Type=FlexJamType.Struct)]
+		public WowJamMessages.SpawnEventDebugInfo[] SpawnEventDebugInfo
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="spawnGroupID")]
+		[FlexJamMember(Name="spawnGroupID", Type=FlexJamType.Int32)]
+		public int SpawnGroupID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="spawnGroupName")]
+		[FlexJamMember(Name="spawnGroupName", Type=FlexJamType.String)]
+		public string SpawnGroupName
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="spawnRegionID")]
+		[FlexJamMember(Name="spawnRegionID", Type=FlexJamType.Int32)]
+		public int SpawnRegionID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="spawnRegionName")]
+		[FlexJamMember(Name="spawnRegionName", Type=FlexJamType.String)]
+		public string SpawnRegionName
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="spellDebugInfo")]
+		[FlexJamMember(ArrayDimensions=1, Name="spellDebugInfo", Type=FlexJamType.Struct)]
+		public CreatureSpellDebugInfo[] SpellDebugInfo
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="zoneFlags")]
+		[FlexJamMember(ArrayDimensions=1, Name="zoneFlags", Type=FlexJamType.UInt32)]
+		public uint[] ZoneFlags
 		{
 			get;
 			set;
@@ -128,15 +147,18 @@ namespace WowJamMessages
 
 		public UnitDebugInfo()
 		{
-			this.ZoneFlags = new uint[3];
-			this.EffectiveStatValues = new int[5];
-			this.CreatureSpellDataID = 0;
-			this.PercentSupportAction = 0;
-			this.PercentRangedAttack = 0;
-			this.SpawnGroupID = 0;
-			this.SpawnGroupName = string.Empty;
-			this.SpawnRegionID = 0;
-			this.SpawnRegionName = string.Empty;
+			unsafe
+			{
+				this.ZoneFlags = new uint[3];
+				this.EffectiveStatValues = new int[5];
+				this.CreatureSpellDataID = 0;
+				this.PercentSupportAction = 0;
+				this.PercentRangedAttack = 0;
+				this.SpawnGroupID = 0;
+				this.SpawnGroupName = string.Empty;
+				this.SpawnRegionID = 0;
+				this.SpawnRegionName = string.Empty;
+			}
 		}
 	}
 }

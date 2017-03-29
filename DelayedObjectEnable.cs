@@ -11,6 +11,10 @@ public class DelayedObjectEnable : MonoBehaviour
 
 	private bool m_enabled;
 
+	public DelayedObjectEnable()
+	{
+	}
+
 	public void Init(float delayTime, GameObject objectToEnable)
 	{
 		this.m_delayTime = delayTime;
@@ -23,11 +27,12 @@ public class DelayedObjectEnable : MonoBehaviour
 	{
 		if (this.m_enabled)
 		{
-			this.m_timeRemaining -= Time.get_deltaTime();
+			DelayedObjectEnable mTimeRemaining = this;
+			mTimeRemaining.m_timeRemaining = mTimeRemaining.m_timeRemaining - Time.deltaTime;
 			if (this.m_timeRemaining <= 0f)
 			{
 				this.m_objectToEnable.SetActive(true);
-				Object.DestroyImmediate(this);
+				UnityEngine.Object.DestroyImmediate(this);
 			}
 		}
 	}

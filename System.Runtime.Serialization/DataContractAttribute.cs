@@ -1,13 +1,20 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace System.Runtime.Serialization
 {
-	[AttributeUsage]
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum, Inherited=false, AllowMultiple=false)]
 	public sealed class DataContractAttribute : Attribute
 	{
 		private string name;
 
 		private string ns;
+
+		public bool IsReference
+		{
+			get;
+			set;
+		}
 
 		public string Name
 		{
@@ -33,10 +40,8 @@ namespace System.Runtime.Serialization
 			}
 		}
 
-		public bool IsReference
+		public DataContractAttribute()
 		{
-			get;
-			set;
 		}
 	}
 }

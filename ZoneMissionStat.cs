@@ -5,4 +5,8 @@ using UnityEngine.UI;
 public class ZoneMissionStat : MonoBehaviour
 {
 	public Text statText;
+
+	public ZoneMissionStat()
+	{
+	}
 }

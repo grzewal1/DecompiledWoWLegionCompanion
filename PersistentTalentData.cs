@@ -14,8 +14,10 @@ public class PersistentTalentData
 		{
 			if (PersistentTalentData.s_instance == null)
 			{
-				PersistentTalentData.s_instance = new PersistentTalentData();
-				PersistentTalentData.s_instance.m_talentDictionary = new Hashtable();
+				PersistentTalentData.s_instance = new PersistentTalentData()
+				{
+					m_talentDictionary = new Hashtable()
+				};
 			}
 			return PersistentTalentData.s_instance;
 		}
@@ -27,6 +29,14 @@ public class PersistentTalentData
 		{
 			return PersistentTalentData.instance.m_talentDictionary;
 		}
+	}
+
+	static PersistentTalentData()
+	{
+	}
+
+	public PersistentTalentData()
+	{
 	}
 
 	public static void AddOrUpdateTalent(JamGarrisonTalent talent)

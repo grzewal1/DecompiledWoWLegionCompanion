@@ -17,11 +17,14 @@ public class DeactivationConfirmationDialog : MonoBehaviour
 
 	private FollowerDetailView m_followerDetailView;
 
-	private void OnEnable()
+	public DeactivationConfirmationDialog()
 	{
-		Main.instance.m_UISound.Play_ShowGenericTooltip();
-		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
-		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
+	}
+
+	public void ConfirmDeactivate()
+	{
+		this.m_followerDetailView.DeactivateFollower();
+		base.gameObject.SetActive(false);
 	}
 
 	private void OnDisable()
@@ -30,29 +33,30 @@ public class DeactivationConfirmationDialog : MonoBehaviour
 		Main.instance.m_backButtonManager.PopBackAction();
 	}
 
-	private void Start()
+	private void OnEnable()
 	{
-		this.m_areYouSureLabel.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_reactivationCostLabel.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_cancelButtonLabel.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_okButtonLabel.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_reactivationCostText.set_font(GeneralHelpers.LoadStandardFont());
+		Main.instance.m_UISound.Play_ShowGenericTooltip();
+		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
+		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
 	}
 
 	public void Show(FollowerDetailView followerDetailView)
 	{
-		base.get_gameObject().SetActive(true);
+		base.gameObject.SetActive(true);
 		this.m_followerDetailView = followerDetailView;
-		this.m_areYouSureLabel.set_text(StaticDB.GetString("ARE_YOU_SURE", null));
-		this.m_reactivationCostLabel.set_text(StaticDB.GetString("CHAMPION_REACTIVATION_COST", null));
-		this.m_cancelButtonLabel.set_text(StaticDB.GetString("NO", null));
-		this.m_okButtonLabel.set_text(StaticDB.GetString("YES_DEACTIVATE", null));
-		this.m_reactivationCostText.set_text(string.Empty + GarrisonStatus.GetFollowerActivationGoldCost());
+		this.m_areYouSureLabel.text = StaticDB.GetString("ARE_YOU_SURE", null);
+		this.m_reactivationCostLabel.text = StaticDB.GetString("CHAMPION_REACTIVATION_COST", null);
+		this.m_cancelButtonLabel.text = StaticDB.GetString("NO", null);
+		this.m_okButtonLabel.text = StaticDB.GetString("YES_DEACTIVATE", null);
+		this.m_reactivationCostText.text = string.Concat(string.Empty, GarrisonStatus.GetFollowerActivationGoldCost());
 	}
 
-	public void ConfirmDeactivate()
+	private void Start()
 	{
-		this.m_followerDetailView.DeactivateFollower();
-		base.get_gameObject().SetActive(false);
+		this.m_areYouSureLabel.font = GeneralHelpers.LoadStandardFont();
+		this.m_reactivationCostLabel.font = GeneralHelpers.LoadStandardFont();
+		this.m_cancelButtonLabel.font = GeneralHelpers.LoadStandardFont();
+		this.m_okButtonLabel.font = GeneralHelpers.LoadStandardFont();
+		this.m_reactivationCostText.font = GeneralHelpers.LoadStandardFont();
 	}
 }

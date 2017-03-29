@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace JsonDotNet.Extras.CustomConverters
@@ -17,20 +18,13 @@ namespace JsonDotNet.Extras.CustomConverters
 			}
 		}
 
-		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+		public Matrix4x4Converter()
 		{
-			JToken jToken = JToken.FromObject(value);
-			if (jToken.Type != JTokenType.Object)
-			{
-				jToken.WriteTo(writer, new JsonConverter[0]);
-			}
-			else
-			{
-				JObject jObject = (JObject)jToken;
-				IList<string> content = Enumerable.ToList<string>(Enumerable.Select<JProperty, string>(Enumerable.Where<JProperty>(jObject.Properties(), (JProperty p) => p.Name != "inverse" && p.Name != "transpose"), (JProperty p) => p.Name));
-				jObject.AddFirst(new JProperty("Keys", new JArray(content)));
-				jObject.WriteTo(writer, new JsonConverter[0]);
-			}
+		}
+
+		public override bool CanConvert(Type objectType)
+		{
+			return objectType == typeof(Matrix4x4);
 		}
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
@@ -38,9 +32,23 @@ namespace JsonDotNet.Extras.CustomConverters
 			throw new NotImplementedException("Unnecessary because CanRead is false. The type will skip the converter.");
 		}
 
-		public override bool CanConvert(Type objectType)
+		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
-			return objectType == typeof(Matrix4x4);
+			JToken jTokens = JToken.FromObject(value);
+			if (jTokens.Type == JTokenType.Object)
+			{
+				JObject jObjects = (JObject)jTokens;
+				IList<string> list = (
+					from p in jObjects.Properties()
+					where (p.Name == "inverse" ? false : p.Name != "transpose")
+					select p.Name).ToList<string>();
+				jObjects.AddFirst(new JProperty("Keys", new JArray(list)));
+				jObjects.WriteTo(writer, new JsonConverter[0]);
+			}
+			else
+			{
+				jTokens.WriteTo(writer, new JsonConverter[0]);
+			}
 		}
 	}
 }

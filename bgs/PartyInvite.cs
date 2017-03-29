@@ -4,18 +4,11 @@ namespace bgs
 {
 	public class PartyInvite
 	{
-		[Flags]
-		public enum Flags
-		{
-			RESERVATION = 1,
-			REJOIN = 1
-		}
-
 		public ulong InviteId;
 
-		public PartyId PartyId;
+		public bgs.PartyId PartyId;
 
-		public PartyType PartyType;
+		public bgs.PartyType PartyType;
 
 		public string InviterName;
 
@@ -45,7 +38,7 @@ namespace bgs
 		{
 		}
 
-		public PartyInvite(ulong inviteId, PartyId partyId, PartyType type)
+		public PartyInvite(ulong inviteId, bgs.PartyId partyId, bgs.PartyType type)
 		{
 			this.InviteId = inviteId;
 			this.PartyId = partyId;
@@ -60,6 +53,13 @@ namespace bgs
 		public void SetFlags(uint flagsValue)
 		{
 			this.InviteFlags = (PartyInvite.Flags)flagsValue;
+		}
+
+		[Flags]
+		public enum Flags
+		{
+			REJOIN = 1,
+			RESERVATION = 1
 		}
 	}
 }

@@ -7,5 +7,9 @@ namespace bgs
 		public int timeoutMs = -1;
 
 		public int numRetries;
+
+		public UrlDownloaderConfig()
+		{
+		}
 	}
 }

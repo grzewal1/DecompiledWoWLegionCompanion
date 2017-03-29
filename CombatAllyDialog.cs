@@ -19,10 +19,79 @@ public class CombatAllyDialog : MonoBehaviour
 
 	public Text m_titleText;
 
-	public void Start()
+	public CombatAllyDialog()
 	{
-		this.m_combatAllyCost.set_font(GeneralHelpers.LoadStandardFont());
-		this.m_titleText.set_text(StaticDB.GetString("COMBAT_ALLY", null));
+	}
+
+	private void CreateCombatAllyItems(int combatAllyMissionID, int combatAllyMissionCost)
+	{
+		foreach (JamGarrisonFollower value in PersistentFollowerData.followerDictionary.Values)
+		{
+			FollowerStatus followerStatus = GeneralHelpers.GetFollowerStatus(value);
+			if (value.ZoneSupportSpellID <= 0 || followerStatus != FollowerStatus.available && followerStatus != FollowerStatus.onMission)
+			{
+				continue;
+			}
+			FollowerInventoryListItem followerInventoryListItem = UnityEngine.Object.Instantiate<FollowerInventoryListItem>(this.m_combatAllyChampionListItemPrefab);
+			followerInventoryListItem.transform.SetParent(this.m_combatAllyListContent.transform, false);
+			followerInventoryListItem.SetCombatAllyChampion(value, combatAllyMissionID, combatAllyMissionCost);
+		}
+	}
+
+	public void Init()
+	{
+		FollowerInventoryListItem[] componentsInChildren = this.m_combatAllyListContent.GetComponentsInChildren<FollowerInventoryListItem>(true);
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
+		{
+			UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
+		}
+		int missionCost = 0;
+		IEnumerator enumerator = PersistentMissionData.missionDictionary.Values.GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				JamGarrisonMobileMission current = (JamGarrisonMobileMission)enumerator.Current;
+				GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(current.MissionRecID);
+				if (record != null)
+				{
+					if ((record.Flags & 16) == 0)
+					{
+						continue;
+					}
+					this.CreateCombatAllyItems(current.MissionRecID, (int)record.MissionCost);
+					missionCost = (int)record.MissionCost;
+					break;
+				}
+			}
+		}
+		finally
+		{
+			IDisposable disposable = enumerator as IDisposable;
+			if (disposable == null)
+			{
+			}
+			disposable.Dispose();
+		}
+		if (missionCost > GarrisonStatus.Resources())
+		{
+			this.m_combatAllyCost.text = string.Concat(new object[] { StaticDB.GetString("COST2", "Cost:"), " <color=#ff0000ff>", missionCost, "</color>" });
+		}
+		else
+		{
+			this.m_combatAllyCost.text = string.Concat(new object[] { StaticDB.GetString("COST2", "Cost:"), " <color=#ffffffff>", missionCost, "</color>" });
+		}
+		Sprite sprite = GeneralHelpers.LoadCurrencyIcon(1220);
+		if (sprite != null)
+		{
+			this.m_combatAllyCostResourceIcon.sprite = sprite;
+		}
+	}
+
+	private void OnDisable()
+	{
+		Main.instance.m_canvasBlurManager.RemoveBlurRef_MainCanvas();
+		Main.instance.m_backButtonManager.PopBackAction();
 	}
 
 	public void OnEnable()
@@ -32,90 +101,9 @@ public class CombatAllyDialog : MonoBehaviour
 		Main.instance.m_backButtonManager.PushBackAction(BackAction.hideAllPopups, null);
 	}
 
-	private void OnDisable()
+	public void Start()
 	{
-		Main.instance.m_canvasBlurManager.RemoveBlurRef_MainCanvas();
-		Main.instance.m_backButtonManager.PopBackAction();
-	}
-
-	private void CreateCombatAllyItems(int combatAllyMissionID, int combatAllyMissionCost)
-	{
-		using (Dictionary<int, JamGarrisonFollower>.ValueCollection.Enumerator enumerator = PersistentFollowerData.followerDictionary.get_Values().GetEnumerator())
-		{
-			while (enumerator.MoveNext())
-			{
-				JamGarrisonFollower current = enumerator.get_Current();
-				FollowerStatus followerStatus = GeneralHelpers.GetFollowerStatus(current);
-				if (current.ZoneSupportSpellID > 0 && (followerStatus == FollowerStatus.available || followerStatus == FollowerStatus.onMission))
-				{
-					FollowerInventoryListItem followerInventoryListItem = Object.Instantiate<FollowerInventoryListItem>(this.m_combatAllyChampionListItemPrefab);
-					followerInventoryListItem.get_transform().SetParent(this.m_combatAllyListContent.get_transform(), false);
-					followerInventoryListItem.SetCombatAllyChampion(current, combatAllyMissionID, combatAllyMissionCost);
-				}
-			}
-		}
-	}
-
-	public void Init()
-	{
-		FollowerInventoryListItem[] componentsInChildren = this.m_combatAllyListContent.GetComponentsInChildren<FollowerInventoryListItem>(true);
-		FollowerInventoryListItem[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
-		{
-			FollowerInventoryListItem followerInventoryListItem = array[i];
-			Object.DestroyImmediate(followerInventoryListItem.get_gameObject());
-		}
-		int num = 0;
-		IEnumerator enumerator = PersistentMissionData.missionDictionary.get_Values().GetEnumerator();
-		try
-		{
-			while (enumerator.MoveNext())
-			{
-				JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)enumerator.get_Current();
-				GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(jamGarrisonMobileMission.MissionRecID);
-				if (record != null)
-				{
-					if ((record.Flags & 16u) != 0u)
-					{
-						this.CreateCombatAllyItems(jamGarrisonMobileMission.MissionRecID, (int)record.MissionCost);
-						num = (int)record.MissionCost;
-						break;
-					}
-				}
-			}
-		}
-		finally
-		{
-			IDisposable disposable = enumerator as IDisposable;
-			if (disposable != null)
-			{
-				disposable.Dispose();
-			}
-		}
-		if (num <= GarrisonStatus.Resources())
-		{
-			this.m_combatAllyCost.set_text(string.Concat(new object[]
-			{
-				StaticDB.GetString("COST2", "Cost:"),
-				" <color=#ffffffff>",
-				num,
-				"</color>"
-			}));
-		}
-		else
-		{
-			this.m_combatAllyCost.set_text(string.Concat(new object[]
-			{
-				StaticDB.GetString("COST2", "Cost:"),
-				" <color=#ff0000ff>",
-				num,
-				"</color>"
-			}));
-		}
-		Sprite sprite = GeneralHelpers.LoadCurrencyIcon(1220);
-		if (sprite != null)
-		{
-			this.m_combatAllyCostResourceIcon.set_sprite(sprite);
-		}
+		this.m_combatAllyCost.font = GeneralHelpers.LoadStandardFont();
+		this.m_titleText.text = StaticDB.GetString("COMBAT_ALLY", null);
 	}
 }

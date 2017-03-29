@@ -8,50 +8,52 @@ public class ChatPopup : MonoBehaviour
 
 	public InputField textToSend;
 
-	private void Start()
+	public ChatPopup()
 	{
-		TouchScreenKeyboard.set_hideInput(true);
-	}
-
-	private void Update()
-	{
-		if (TouchScreenKeyboard.get_visible())
-		{
-			Vector3 vector;
-			RectTransformUtility.ScreenPointToWorldPointInRectangle(this.textToSend.get_gameObject().GetComponent<RectTransform>(), TouchScreenKeyboard.get_area().get_max(), null, ref vector);
-			base.get_transform().set_position(new Vector3(base.get_transform().get_position().x, vector.y, base.get_transform().get_position().z));
-		}
-		else
-		{
-			base.get_transform().set_localPosition(Vector3.get_zero());
-		}
-		TouchScreenKeyboard.set_hideInput(true);
-	}
-
-	public void OnSendText()
-	{
-		if (this.textToSend.get_text().get_Length() == 0)
-		{
-			return;
-		}
-		Main.instance.SendGuildChat(this.textToSend.get_text());
-		this.textToSend.set_text(string.Empty);
-		this.textToSend.Select();
-		this.textToSend.ActivateInputField();
 	}
 
 	public void OnReceiveText(string sender, string text)
 	{
-		Text expr_06 = this.conversationText;
-		string text2 = expr_06.get_text();
-		expr_06.set_text(string.Concat(new string[]
+		Text text1 = this.conversationText;
+		string str = text1.text;
+		text1.text = string.Concat(new string[] { str, "[", sender, "]: ", text, "\n" });
+	}
+
+	public void OnSendText()
+	{
+		if (this.textToSend.text.Length == 0)
 		{
-			text2,
-			"[",
-			sender,
-			"]: ",
-			text,
-			"\n"
-		}));
+			return;
+		}
+		Main.instance.SendGuildChat(this.textToSend.text);
+		this.textToSend.text = string.Empty;
+		this.textToSend.Select();
+		this.textToSend.ActivateInputField();
+	}
+
+	private void Start()
+	{
+		TouchScreenKeyboard.hideInput = true;
+	}
+
+	private void Update()
+	{
+		Vector3 vector3;
+		if (!TouchScreenKeyboard.visible)
+		{
+			base.transform.localPosition = Vector3.zero;
+		}
+		else
+		{
+			RectTransform component = this.textToSend.gameObject.GetComponent<RectTransform>();
+			Rect rect = TouchScreenKeyboard.area;
+			RectTransformUtility.ScreenPointToWorldPointInRectangle(component, rect.max, null, out vector3);
+			Transform transforms = base.transform;
+			float single = base.transform.position.x;
+			float single1 = vector3.y;
+			Vector3 vector31 = base.transform.position;
+			transforms.position = new Vector3(single, single1, vector31.z);
+		}
+		TouchScreenKeyboard.hideInput = true;
 	}
 }

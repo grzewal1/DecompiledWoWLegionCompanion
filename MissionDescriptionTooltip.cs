@@ -11,9 +11,8 @@ public class MissionDescriptionTooltip : MonoBehaviour
 
 	public Text m_missionDescription;
 
-	public void OnEnable()
+	public MissionDescriptionTooltip()
 	{
-		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
 	}
 
 	private void OnDisable()
@@ -21,16 +20,21 @@ public class MissionDescriptionTooltip : MonoBehaviour
 		Main.instance.m_canvasBlurManager.RemoveBlurRef_MainCanvas();
 	}
 
+	public void OnEnable()
+	{
+		Main.instance.m_canvasBlurManager.AddBlurRef_MainCanvas();
+	}
+
 	public void SetMission(int garrMissionID)
 	{
 		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(garrMissionID);
 		if (record == null)
 		{
-			this.m_missionName.set_text(string.Empty);
-			this.m_missionDescription.set_text(string.Empty);
+			this.m_missionName.text = string.Empty;
+			this.m_missionDescription.text = string.Empty;
 			return;
 		}
-		this.m_missionName.set_text(record.Name);
-		this.m_missionDescription.set_text(record.Description);
+		this.m_missionName.text = record.Name;
+		this.m_missionDescription.text = record.Description;
 	}
 }

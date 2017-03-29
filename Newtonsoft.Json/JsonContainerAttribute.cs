@@ -1,25 +1,20 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Newtonsoft.Json
 {
-	[AttributeUsage]
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple=false)]
 	public abstract class JsonContainerAttribute : Attribute
 	{
 		internal bool? _isReference;
 
-		public string Id
-		{
-			get;
-			set;
-		}
-
-		public string Title
-		{
-			get;
-			set;
-		}
-
 		public string Description
+		{
+			get;
+			set;
+		}
+
+		public string Id
 		{
 			get;
 			set;
@@ -29,13 +24,19 @@ namespace Newtonsoft.Json
 		{
 			get
 			{
-				bool? isReference = this._isReference;
-				return isReference.get_HasValue() && isReference.get_Value();
+				bool? nullable = this._isReference;
+				return (!nullable.HasValue ? false : nullable.Value);
 			}
 			set
 			{
 				this._isReference = new bool?(value);
 			}
+		}
+
+		public string Title
+		{
+			get;
+			set;
 		}
 
 		protected JsonContainerAttribute()

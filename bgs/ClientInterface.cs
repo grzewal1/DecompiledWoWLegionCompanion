@@ -4,28 +4,28 @@ namespace bgs
 {
 	public interface ClientInterface
 	{
-		string GetVersion();
-
-		bool IsVersionInt();
-
-		string GetUserAgent();
+		string GetAuroraVersionName();
 
 		string GetBasePersistentDataPath();
 
-		string GetTemporaryCachePath();
-
 		bool GetDisableConnectionMetering();
 
-		constants.MobileEnv GetMobileEnvironment();
-
-		string GetAuroraVersionName();
-
 		string GetLocaleName();
+
+		constants.MobileEnv GetMobileEnvironment();
 
 		string GetPlatformName();
 
 		constants.RuntimeEnvironment GetRuntimeEnvironment();
 
+		string GetTemporaryCachePath();
+
 		IUrlDownloader GetUrlDownloader();
+
+		string GetUserAgent();
+
+		string GetVersion();
+
+		bool IsVersionInt();
 	}
 }

@@ -14,16 +14,20 @@ public class SliderCustomHelper : MonoBehaviour
 
 	private Slider m_slider;
 
-	private void Start()
+	public SliderCustomHelper()
 	{
-		Slider component = base.GetComponent<Slider>();
-		this.m_minText.set_text(string.Empty + component.get_minValue());
-		this.m_maxText.set_text(string.Empty + component.get_maxValue());
-		this.OnValueChanged(component.get_value());
 	}
 
 	public void OnValueChanged(float val)
 	{
-		this.m_titleText.set_text(string.Format("{0} ({1:F2})", this.m_baseTitleString, val));
+		this.m_titleText.text = string.Format("{0} ({1:F2})", this.m_baseTitleString, val);
+	}
+
+	private void Start()
+	{
+		Slider component = base.GetComponent<Slider>();
+		this.m_minText.text = string.Concat(string.Empty, component.minValue);
+		this.m_maxText.text = string.Concat(string.Empty, component.maxValue);
+		this.OnValueChanged(component.@value);
 	}
 }

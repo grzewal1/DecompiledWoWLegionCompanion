@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 public class KeyValue
 {
@@ -22,6 +23,6 @@ public class KeyValue
 
 	public override string ToString()
 	{
-		return string.Format("[KeyValue: {0}, {1}, {2} bytes]", this.Key.Field, this.Key.WireType, this.Value.Length);
+		return string.Format("[KeyValue: {0}, {1}, {2} bytes]", this.Key.Field, this.Key.WireType, (int)this.Value.Length);
 	}
 }

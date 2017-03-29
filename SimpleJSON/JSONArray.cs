@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace SimpleJSON
 {
@@ -10,25 +13,42 @@ namespace SimpleJSON
 	{
 		private List<JSONNode> m_List = new List<JSONNode>();
 
+		public override IEnumerable<JSONNode> Childs
+		{
+			get
+			{
+				JSONArray.<>c__IteratorF variable = null;
+				return variable;
+			}
+		}
+
+		public override int Count
+		{
+			get
+			{
+				return this.m_List.Count;
+			}
+		}
+
 		public override JSONNode this[int aIndex]
 		{
 			get
 			{
-				if (aIndex < 0 || aIndex >= this.m_List.get_Count())
+				if (aIndex < 0 || aIndex >= this.m_List.Count)
 				{
 					return new JSONLazyCreator(this);
 				}
-				return this.m_List.get_Item(aIndex);
+				return this.m_List[aIndex];
 			}
 			set
 			{
-				if (aIndex < 0 || aIndex >= this.m_List.get_Count())
+				if (aIndex < 0 || aIndex >= this.m_List.Count)
 				{
 					this.m_List.Add(value);
 				}
 				else
 				{
-					this.m_List.set_Item(aIndex, value);
+					this.m_List[aIndex] = value;
 				}
 			}
 		}
@@ -45,32 +65,8 @@ namespace SimpleJSON
 			}
 		}
 
-		public override int Count
+		public JSONArray()
 		{
-			get
-			{
-				return this.m_List.get_Count();
-			}
-		}
-
-		public override IEnumerable<JSONNode> Childs
-		{
-			get
-			{
-				List<JSONNode>.Enumerator enumerator = this.m_List.GetEnumerator();
-				try
-				{
-					while (enumerator.MoveNext())
-					{
-						JSONNode current = enumerator.get_Current();
-						yield return current;
-					}
-				}
-				finally
-				{
-				}
-				yield break;
-			}
 		}
 
 		public override void Add(string aKey, JSONNode aItem)
@@ -78,15 +74,22 @@ namespace SimpleJSON
 			this.m_List.Add(aItem);
 		}
 
+		[DebuggerHidden]
+		public IEnumerator GetEnumerator()
+		{
+			JSONArray.<GetEnumerator>c__Iterator10 variable = null;
+			return variable;
+		}
+
 		public override JSONNode Remove(int aIndex)
 		{
-			if (aIndex < 0 || aIndex >= this.m_List.get_Count())
+			if (aIndex < 0 || aIndex >= this.m_List.Count)
 			{
 				return null;
 			}
-			JSONNode result = this.m_List.get_Item(aIndex);
+			JSONNode item = this.m_List[aIndex];
 			this.m_List.RemoveAt(aIndex);
-			return result;
+			return item;
 		}
 
 		public override JSONNode Remove(JSONNode aNode)
@@ -95,71 +98,45 @@ namespace SimpleJSON
 			return aNode;
 		}
 
-		[DebuggerHidden]
-		public IEnumerator GetEnumerator()
+		public override void Serialize(BinaryWriter aWriter)
 		{
-			List<JSONNode>.Enumerator enumerator = this.m_List.GetEnumerator();
-			try
+			aWriter.Write((byte)1);
+			aWriter.Write(this.m_List.Count);
+			for (int i = 0; i < this.m_List.Count; i++)
 			{
-				while (enumerator.MoveNext())
-				{
-					JSONNode current = enumerator.get_Current();
-					yield return current;
-				}
+				this.m_List[i].Serialize(aWriter);
 			}
-			finally
-			{
-			}
-			yield break;
 		}
 
 		public override string ToString()
 		{
-			string text = "[ ";
-			using (List<JSONNode>.Enumerator enumerator = this.m_List.GetEnumerator())
+			string str = "[ ";
+			foreach (JSONNode mList in this.m_List)
 			{
-				while (enumerator.MoveNext())
+				if (str.Length > 2)
 				{
-					JSONNode current = enumerator.get_Current();
-					if (text.get_Length() > 2)
-					{
-						text += ", ";
-					}
-					text += current.ToString();
+					str = string.Concat(str, ", ");
 				}
+				str = string.Concat(str, mList.ToString());
 			}
-			text += " ]";
-			return text;
+			str = string.Concat(str, " ]");
+			return str;
 		}
 
 		public override string ToString(string aPrefix)
 		{
-			string text = "[ ";
-			using (List<JSONNode>.Enumerator enumerator = this.m_List.GetEnumerator())
+			string str = "[ ";
+			foreach (JSONNode mList in this.m_List)
 			{
-				while (enumerator.MoveNext())
+				if (str.Length > 3)
 				{
-					JSONNode current = enumerator.get_Current();
-					if (text.get_Length() > 3)
-					{
-						text += ", ";
-					}
-					text = text + "\n" + aPrefix + "   ";
-					text += current.ToString(aPrefix + "   ");
+					str = string.Concat(str, ", ");
 				}
+				str = string.Concat(str, "\n", aPrefix, "   ");
+				str = string.Concat(str, mList.ToString(string.Concat(aPrefix, "   ")));
 			}
-			text = text + "\n" + aPrefix + "]";
-			return text;
-		}
-
-		public override void Serialize(BinaryWriter aWriter)
-		{
-			aWriter.Write(1);
-			aWriter.Write(this.m_List.get_Count());
-			for (int i = 0; i < this.m_List.get_Count(); i++)
-			{
-				this.m_List.get_Item(i).Serialize(aWriter);
-			}
+			str = string.Concat(str, "\n", aPrefix, "]");
+			return str;
 		}
 	}
 }

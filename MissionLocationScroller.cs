@@ -9,6 +9,10 @@ public class MissionLocationScroller : MonoBehaviour
 
 	private RectTransform m_myRT;
 
+	public MissionLocationScroller()
+	{
+	}
+
 	private void Awake()
 	{
 		this.m_myRT = base.GetComponent<RectTransform>();
@@ -16,14 +20,16 @@ public class MissionLocationScroller : MonoBehaviour
 
 	private void Update()
 	{
-		Vector2 anchoredPosition = this.m_myRT.get_anchoredPosition();
-		anchoredPosition.x += this.scrollSpeed * Time.get_deltaTime();
-		this.m_myRT.set_anchoredPosition(anchoredPosition);
-		if (this.m_myRT.get_anchoredPosition().x <= -this.imageWidth * 0.5f * this.m_myRT.get_localScale().x)
+		Vector2 mMyRT = this.m_myRT.anchoredPosition;
+		mMyRT.x = mMyRT.x + this.scrollSpeed * Time.deltaTime;
+		this.m_myRT.anchoredPosition = mMyRT;
+		float single = this.m_myRT.anchoredPosition.x;
+		Vector3 vector3 = this.m_myRT.localScale;
+		if (single <= -this.imageWidth * 0.5f * vector3.x)
 		{
-			anchoredPosition = this.m_myRT.get_anchoredPosition();
-			anchoredPosition.x = 0f;
-			this.m_myRT.set_anchoredPosition(anchoredPosition);
+			mMyRT = this.m_myRT.anchoredPosition;
+			mMyRT.x = 0f;
+			this.m_myRT.anchoredPosition = mMyRT;
 		}
 	}
 }

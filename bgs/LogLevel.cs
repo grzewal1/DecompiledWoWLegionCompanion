@@ -6,16 +6,16 @@ namespace bgs
 	public enum LogLevel
 	{
 		[Description("None")]
-		None = 0,
+		None,
 		[Description("Debug")]
-		Debug = 1,
+		Debug,
 		[Description("Info")]
-		Info = 2,
+		Info,
 		[Description("Warning")]
-		Warning = 3,
+		Warning,
 		[Description("Error")]
-		Error = 4,
+		Error,
 		[Description("Fatal")]
-		Fatal = 5
+		Fatal
 	}
 }

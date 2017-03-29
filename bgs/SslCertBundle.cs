@@ -10,14 +10,6 @@ namespace bgs
 
 		private byte[] certBundleBytes;
 
-		public bool IsUsingCertBundle
-		{
-			get
-			{
-				return this.isUsingCertBundle;
-			}
-		}
-
 		public byte[] CertBundleBytes
 		{
 			get
@@ -27,7 +19,15 @@ namespace bgs
 			set
 			{
 				this.certBundleBytes = value;
-				this.isUsingCertBundle = (this.certBundleBytes != null);
+				this.isUsingCertBundle = this.certBundleBytes != null;
+			}
+		}
+
+		public bool IsUsingCertBundle
+		{
+			get
+			{
+				return this.isUsingCertBundle;
 			}
 		}
 

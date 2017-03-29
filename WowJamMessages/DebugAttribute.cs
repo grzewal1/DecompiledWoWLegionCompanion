@@ -1,31 +1,40 @@
 using JamLib;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace WowJamMessages
 {
-	[FlexJamStruct(Name = "DebugAttribute", Version = 28333852u), DataContract]
+	[DataContract]
+	[FlexJamStruct(Name="DebugAttribute", Version=28333852)]
 	public class DebugAttribute
 	{
-		[FlexJamMember(Name = "key", Type = FlexJamType.String), DataMember(Name = "key")]
+		[DataMember(Name="key")]
+		[FlexJamMember(Name="key", Type=FlexJamType.String)]
 		public string Key
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "value", Type = FlexJamType.Struct), DataMember(Name = "value")]
+		[DataMember(Name="param")]
+		[FlexJamMember(Name="param", Type=FlexJamType.Int32)]
+		public int Param
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="value")]
+		[FlexJamMember(Name="value", Type=FlexJamType.Struct)]
 		public AttributeValue Value
 		{
 			get;
 			set;
 		}
 
-		[FlexJamMember(Name = "param", Type = FlexJamType.Int32), DataMember(Name = "param")]
-		public int Param
+		public DebugAttribute()
 		{
-			get;
-			set;
 		}
 	}
 }

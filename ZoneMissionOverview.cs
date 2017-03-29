@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using WowJamMessages.MobileClientJSON;
 
 public class ZoneMissionOverview : MonoBehaviour
 {
@@ -26,53 +27,92 @@ public class ZoneMissionOverview : MonoBehaviour
 
 	public Text zoneNameText;
 
+	public int m_invasionPOIID;
+
+	public GameObject m_invasionZoneNameArea;
+
+	public Text m_invasionZoneNameText;
+
 	private static PinchZoomContentManager m_pinchZoomManager;
+
+	public ZoneMissionOverview()
+	{
+	}
+
+	private void HandleInvasionPOIChanged()
+	{
+		JamMobileAreaPOI currentInvasionPOI = LegionfallData.GetCurrentInvasionPOI();
+		if (currentInvasionPOI == null || currentInvasionPOI.AreaPoiID != this.m_invasionPOIID)
+		{
+			this.m_invasionZoneNameArea.SetActive(false);
+			this.m_zoneNameArea.SetActive(this.zoneNameTag.Length > 0);
+		}
+		else
+		{
+			this.m_invasionZoneNameArea.SetActive(true);
+			this.m_zoneNameArea.SetActive(false);
+		}
+	}
+
+	private void OnDisable()
+	{
+		ZoneMissionOverview.m_pinchZoomManager.ZoomFactorChanged -= new Action<bool>(this.OnZoomChanged);
+		Main.instance.InvasionPOIChangedAction -= new Action(this.HandleInvasionPOIChanged);
+	}
 
 	private void OnEnable()
 	{
 		if (ZoneMissionOverview.m_pinchZoomManager == null)
 		{
-			ZoneMissionOverview.m_pinchZoomManager = base.get_gameObject().GetComponentInParent<PinchZoomContentManager>();
+			ZoneMissionOverview.m_pinchZoomManager = base.gameObject.GetComponentInParent<PinchZoomContentManager>();
 		}
-		PinchZoomContentManager expr_25 = ZoneMissionOverview.m_pinchZoomManager;
-		expr_25.ZoomFactorChanged = (Action)Delegate.Combine(expr_25.ZoomFactorChanged, new Action(this.OnZoomChanged));
+		ZoneMissionOverview.m_pinchZoomManager.ZoomFactorChanged += new Action<bool>(this.OnZoomChanged);
+		Main.instance.InvasionPOIChangedAction += new Action(this.HandleInvasionPOIChanged);
 	}
 
-	private void OnDisable()
+	private void OnZoomChanged(bool force)
 	{
-		PinchZoomContentManager expr_05 = ZoneMissionOverview.m_pinchZoomManager;
-		expr_05.ZoomFactorChanged = (Action)Delegate.Remove(expr_05.ZoomFactorChanged, new Action(this.OnZoomChanged));
+		CanvasGroup component = base.gameObject.GetComponent<CanvasGroup>();
+		MapInfo componentInParent = base.gameObject.GetComponentInParent<MapInfo>();
+		component.alpha = (componentInParent.m_maxZoomFactor - ZoneMissionOverview.m_pinchZoomManager.m_zoomFactor) / (componentInParent.m_maxZoomFactor - 1f);
+		if (component.alpha >= 0.99f)
+		{
+			component.interactable = true;
+		}
+		else
+		{
+			component.interactable = false;
+		}
 	}
 
 	private void Start()
 	{
-		if (this.zoneNameTag.get_Length() > 0)
+		if (this.zoneNameTag.Length <= 0)
 		{
-			this.zoneNameText.set_text(StaticDB.GetString(this.zoneNameTag, null));
+			this.m_invasionZoneNameArea.SetActive(false);
+			this.m_zoneNameArea.SetActive(false);
+			this.m_statsArea.SetActive(false);
 		}
 		else
 		{
-			this.m_zoneNameArea.SetActive(false);
-			this.m_statsArea.SetActive(false);
+			this.m_zoneNameArea.SetActive(this.zoneNameTag.Length > 0);
+			this.zoneNameText.text = StaticDB.GetString(this.zoneNameTag, null);
+			this.m_invasionZoneNameText.text = StaticDB.GetString(this.zoneNameTag, null);
+			this.HandleInvasionPOIChanged();
 		}
 	}
 
 	private void Update()
 	{
-	}
-
-	private void OnZoomChanged()
-	{
-		CanvasGroup component = base.get_gameObject().GetComponent<CanvasGroup>();
-		MapInfo componentInParent = base.get_gameObject().GetComponentInParent<MapInfo>();
-		component.set_alpha((componentInParent.m_maxZoomFactor - ZoneMissionOverview.m_pinchZoomManager.m_zoomFactor) / (componentInParent.m_maxZoomFactor - 1f));
-		if (component.get_alpha() < 0.99f)
+		if (this.m_invasionZoneNameArea.activeSelf)
 		{
-			component.set_interactable(false);
-		}
-		else
-		{
-			component.set_interactable(true);
+			long currentInvasionExpirationTime = LegionfallData.GetCurrentInvasionExpirationTime() - GarrisonStatus.CurrentTime();
+			currentInvasionExpirationTime = (currentInvasionExpirationTime <= (long)0 ? (long)0 : currentInvasionExpirationTime);
+			if (currentInvasionExpirationTime <= (long)0)
+			{
+				this.m_invasionZoneNameArea.SetActive(false);
+				this.m_zoneNameArea.SetActive(this.zoneNameTag.Length > 0);
+			}
 		}
 	}
 }

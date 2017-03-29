@@ -6,16 +6,20 @@ public class FollowerMissionButtonView : MonoBehaviour
 {
 	public Text followerMissionToggleButtonText;
 
-	private void Start()
-	{
-	}
-
-	private void Update()
+	public FollowerMissionButtonView()
 	{
 	}
 
 	public void ShowMissionList()
 	{
 		Main.instance.allPanels.ShowAdventureMap();
+	}
+
+	private void Start()
+	{
+	}
+
+	private void Update()
+	{
 	}
 }

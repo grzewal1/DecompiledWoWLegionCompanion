@@ -11,54 +11,52 @@ public class CombatAllyMissionPanel : MonoBehaviour
 
 	public SliderPanel m_sliderPanel;
 
+	public CombatAllyMissionPanel()
+	{
+	}
+
+	public void Hide()
+	{
+		this.m_sliderPanel.HideSliderPanel();
+	}
+
 	public void Show()
 	{
-		int num = 0;
+		int missionRecID = 0;
 		CombatAllyMissionState combatAllyMissionState = CombatAllyMissionState.notAvailable;
-		IEnumerator enumerator = PersistentMissionData.missionDictionary.get_Values().GetEnumerator();
+		IEnumerator enumerator = PersistentMissionData.missionDictionary.Values.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				JamGarrisonMobileMission jamGarrisonMobileMission = (JamGarrisonMobileMission)enumerator.get_Current();
-				GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(jamGarrisonMobileMission.MissionRecID);
+				JamGarrisonMobileMission current = (JamGarrisonMobileMission)enumerator.Current;
+				GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(current.MissionRecID);
 				if (record != null)
 				{
-					if ((record.Flags & 16u) != 0u)
+					if ((record.Flags & 16) == 0)
 					{
-						num = jamGarrisonMobileMission.MissionRecID;
-						if (jamGarrisonMobileMission.MissionState == 1)
-						{
-							combatAllyMissionState = CombatAllyMissionState.inProgress;
-						}
-						else
-						{
-							combatAllyMissionState = CombatAllyMissionState.available;
-						}
-						break;
+						continue;
 					}
+					missionRecID = current.MissionRecID;
+					combatAllyMissionState = (current.MissionState != 1 ? CombatAllyMissionState.available : CombatAllyMissionState.inProgress);
+					break;
 				}
 			}
 		}
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable != null)
+			if (disposable == null)
 			{
-				disposable.Dispose();
 			}
+			disposable.Dispose();
 		}
-		if (num > 0)
+		if (missionRecID > 0)
 		{
-			this.m_missionDetailView.HandleMissionSelected(num);
+			this.m_missionDetailView.HandleMissionSelected(missionRecID);
 		}
 		this.m_missionDetailView.SetCombatAllyMissionState(combatAllyMissionState);
 		this.m_sliderPanel.MaximizeSliderPanel();
-	}
-
-	public void Hide()
-	{
-		this.m_sliderPanel.HideSliderPanel();
 	}
 
 	private void Update()

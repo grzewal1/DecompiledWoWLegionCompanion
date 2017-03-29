@@ -8,19 +8,6 @@ public class PersistentArmamentData
 
 	private Hashtable m_armamentDictionary;
 
-	private static PersistentArmamentData instance
-	{
-		get
-		{
-			if (PersistentArmamentData.s_instance == null)
-			{
-				PersistentArmamentData.s_instance = new PersistentArmamentData();
-				PersistentArmamentData.s_instance.m_armamentDictionary = new Hashtable();
-			}
-			return PersistentArmamentData.s_instance;
-		}
-	}
-
 	public static Hashtable armamentDictionary
 	{
 		get
@@ -29,7 +16,30 @@ public class PersistentArmamentData
 		}
 	}
 
-	public static void AddOrUpdateArmament(MobileFollowerArmament armament)
+	private static PersistentArmamentData instance
+	{
+		get
+		{
+			if (PersistentArmamentData.s_instance == null)
+			{
+				PersistentArmamentData.s_instance = new PersistentArmamentData()
+				{
+					m_armamentDictionary = new Hashtable()
+				};
+			}
+			return PersistentArmamentData.s_instance;
+		}
+	}
+
+	static PersistentArmamentData()
+	{
+	}
+
+	public PersistentArmamentData()
+	{
+	}
+
+	public static void AddOrUpdateArmament(MobileFollowerArmamentExt armament)
 	{
 		if (PersistentArmamentData.instance.m_armamentDictionary.ContainsKey(armament.ItemID))
 		{

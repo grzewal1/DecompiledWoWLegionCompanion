@@ -8,6 +8,14 @@ namespace bnet.protocol
 	{
 		private List<uint> _Ordinal = new List<uint>();
 
+		public bool IsInitialized
+		{
+			get
+			{
+				return true;
+			}
+		}
+
 		public List<uint> Ordinal
 		{
 			get
@@ -20,6 +28,14 @@ namespace bnet.protocol
 			}
 		}
 
+		public int OrdinalCount
+		{
+			get
+			{
+				return this._Ordinal.Count;
+			}
+		}
+
 		public List<uint> OrdinalList
 		{
 			get
@@ -28,147 +44,8 @@ namespace bnet.protocol
 			}
 		}
 
-		public int OrdinalCount
+		public Path()
 		{
-			get
-			{
-				return this._Ordinal.get_Count();
-			}
-		}
-
-		public bool IsInitialized
-		{
-			get
-			{
-				return true;
-			}
-		}
-
-		public void Deserialize(Stream stream)
-		{
-			Path.Deserialize(stream, this);
-		}
-
-		public static Path Deserialize(Stream stream, Path instance)
-		{
-			return Path.Deserialize(stream, instance, -1L);
-		}
-
-		public static Path DeserializeLengthDelimited(Stream stream)
-		{
-			Path path = new Path();
-			Path.DeserializeLengthDelimited(stream, path);
-			return path;
-		}
-
-		public static Path DeserializeLengthDelimited(Stream stream, Path instance)
-		{
-			long num = (long)((ulong)ProtocolParser.ReadUInt32(stream));
-			num += stream.get_Position();
-			return Path.Deserialize(stream, instance, num);
-		}
-
-		public static Path Deserialize(Stream stream, Path instance, long limit)
-		{
-			if (instance.Ordinal == null)
-			{
-				instance.Ordinal = new List<uint>();
-			}
-			while (limit < 0L || stream.get_Position() < limit)
-			{
-				int num = stream.ReadByte();
-				if (num == -1)
-				{
-					if (limit >= 0L)
-					{
-						throw new EndOfStreamException();
-					}
-					return instance;
-				}
-				else
-				{
-					int num2 = num;
-					if (num2 != 10)
-					{
-						Key key = ProtocolParser.ReadKey((byte)num, stream);
-						uint field = key.Field;
-						if (field == 0u)
-						{
-							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-						}
-						ProtocolParser.SkipKey(stream, key);
-					}
-					else
-					{
-						long num3 = (long)((ulong)ProtocolParser.ReadUInt32(stream));
-						num3 += stream.get_Position();
-						while (stream.get_Position() < num3)
-						{
-							instance.Ordinal.Add(ProtocolParser.ReadUInt32(stream));
-						}
-						if (stream.get_Position() != num3)
-						{
-							throw new ProtocolBufferException("Read too many bytes in packed data");
-						}
-					}
-				}
-			}
-			if (stream.get_Position() == limit)
-			{
-				return instance;
-			}
-			throw new ProtocolBufferException("Read past max limit");
-		}
-
-		public void Serialize(Stream stream)
-		{
-			Path.Serialize(stream, this);
-		}
-
-		public static void Serialize(Stream stream, Path instance)
-		{
-			if (instance.Ordinal.get_Count() > 0)
-			{
-				stream.WriteByte(10);
-				uint num = 0u;
-				using (List<uint>.Enumerator enumerator = instance.Ordinal.GetEnumerator())
-				{
-					while (enumerator.MoveNext())
-					{
-						uint current = enumerator.get_Current();
-						num += ProtocolParser.SizeOfUInt32(current);
-					}
-				}
-				ProtocolParser.WriteUInt32(stream, num);
-				using (List<uint>.Enumerator enumerator2 = instance.Ordinal.GetEnumerator())
-				{
-					while (enumerator2.MoveNext())
-					{
-						uint current2 = enumerator2.get_Current();
-						ProtocolParser.WriteUInt32(stream, current2);
-					}
-				}
-			}
-		}
-
-		public uint GetSerializedSize()
-		{
-			uint num = 0u;
-			if (this.Ordinal.get_Count() > 0)
-			{
-				num += 1u;
-				uint num2 = num;
-				using (List<uint>.Enumerator enumerator = this.Ordinal.GetEnumerator())
-				{
-					while (enumerator.MoveNext())
-					{
-						uint current = enumerator.get_Current();
-						num += ProtocolParser.SizeOfUInt32(current);
-					}
-				}
-				num += ProtocolParser.SizeOfUInt32(num - num2);
-			}
-			return num;
 		}
 
 		public void AddOrdinal(uint val)
@@ -181,39 +58,98 @@ namespace bnet.protocol
 			this._Ordinal.Clear();
 		}
 
-		public void SetOrdinal(List<uint> val)
+		public void Deserialize(Stream stream)
 		{
-			this.Ordinal = val;
+			bnet.protocol.Path.Deserialize(stream, this);
 		}
 
-		public override int GetHashCode()
+		public static bnet.protocol.Path Deserialize(Stream stream, bnet.protocol.Path instance)
 		{
-			int num = base.GetType().GetHashCode();
-			using (List<uint>.Enumerator enumerator = this.Ordinal.GetEnumerator())
+			return bnet.protocol.Path.Deserialize(stream, instance, (long)-1);
+		}
+
+		public static bnet.protocol.Path Deserialize(Stream stream, bnet.protocol.Path instance, long limit)
+		{
+			if (instance.Ordinal == null)
 			{
-				while (enumerator.MoveNext())
+				instance.Ordinal = new List<uint>();
+			}
+			while (true)
+			{
+				if (limit < (long)0 || stream.Position < limit)
 				{
-					uint current = enumerator.get_Current();
-					num ^= current.GetHashCode();
+					int num = stream.ReadByte();
+					if (num == -1)
+					{
+						if (limit >= (long)0)
+						{
+							throw new EndOfStreamException();
+						}
+						break;
+					}
+					else if (num == 10)
+					{
+						long position = (long)ProtocolParser.ReadUInt32(stream);
+						position = position + stream.Position;
+						while (stream.Position < position)
+						{
+							instance.Ordinal.Add(ProtocolParser.ReadUInt32(stream));
+						}
+						if (stream.Position != position)
+						{
+							throw new ProtocolBufferException("Read too many bytes in packed data");
+						}
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
+					}
+				}
+				else
+				{
+					if (stream.Position != limit)
+					{
+						throw new ProtocolBufferException("Read past max limit");
+					}
+					break;
 				}
 			}
-			return num;
+			return instance;
+		}
+
+		public static bnet.protocol.Path DeserializeLengthDelimited(Stream stream)
+		{
+			bnet.protocol.Path path = new bnet.protocol.Path();
+			bnet.protocol.Path.DeserializeLengthDelimited(stream, path);
+			return path;
+		}
+
+		public static bnet.protocol.Path DeserializeLengthDelimited(Stream stream, bnet.protocol.Path instance)
+		{
+			long position = (long)ProtocolParser.ReadUInt32(stream);
+			position = position + stream.Position;
+			return bnet.protocol.Path.Deserialize(stream, instance, position);
 		}
 
 		public override bool Equals(object obj)
 		{
-			Path path = obj as Path;
+			bnet.protocol.Path path = obj as bnet.protocol.Path;
 			if (path == null)
 			{
 				return false;
 			}
-			if (this.Ordinal.get_Count() != path.Ordinal.get_Count())
+			if (this.Ordinal.Count != path.Ordinal.Count)
 			{
 				return false;
 			}
-			for (int i = 0; i < this.Ordinal.get_Count(); i++)
+			for (int i = 0; i < this.Ordinal.Count; i++)
 			{
-				if (!this.Ordinal.get_Item(i).Equals(path.Ordinal.get_Item(i)))
+				if (!this.Ordinal[i].Equals(path.Ordinal[i]))
 				{
 					return false;
 				}
@@ -221,9 +157,63 @@ namespace bnet.protocol
 			return true;
 		}
 
-		public static Path ParseFrom(byte[] bs)
+		public override int GetHashCode()
 		{
-			return ProtobufUtil.ParseFrom<Path>(bs, 0, -1);
+			int hashCode = this.GetType().GetHashCode();
+			foreach (uint ordinal in this.Ordinal)
+			{
+				hashCode = hashCode ^ ordinal.GetHashCode();
+			}
+			return hashCode;
+		}
+
+		public uint GetSerializedSize()
+		{
+			uint num = 0;
+			if (this.Ordinal.Count > 0)
+			{
+				num++;
+				uint num1 = num;
+				foreach (uint ordinal in this.Ordinal)
+				{
+					num = num + ProtocolParser.SizeOfUInt32(ordinal);
+				}
+				num = num + ProtocolParser.SizeOfUInt32(num - num1);
+			}
+			return num;
+		}
+
+		public static bnet.protocol.Path ParseFrom(byte[] bs)
+		{
+			return ProtobufUtil.ParseFrom<bnet.protocol.Path>(bs, 0, -1);
+		}
+
+		public void Serialize(Stream stream)
+		{
+			bnet.protocol.Path.Serialize(stream, this);
+		}
+
+		public static void Serialize(Stream stream, bnet.protocol.Path instance)
+		{
+			if (instance.Ordinal.Count > 0)
+			{
+				stream.WriteByte(10);
+				uint num = 0;
+				foreach (uint ordinal in instance.Ordinal)
+				{
+					num = num + ProtocolParser.SizeOfUInt32(ordinal);
+				}
+				ProtocolParser.WriteUInt32(stream, num);
+				foreach (uint ordinal1 in instance.Ordinal)
+				{
+					ProtocolParser.WriteUInt32(stream, ordinal1);
+				}
+			}
+		}
+
+		public void SetOrdinal(List<uint> val)
+		{
+			this.Ordinal = val;
 		}
 	}
 }

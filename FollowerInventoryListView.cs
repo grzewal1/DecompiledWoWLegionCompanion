@@ -15,20 +15,8 @@ public class FollowerInventoryListView : MonoBehaviour
 
 	private int m_abilityToReplace;
 
-	private void OnEnable()
+	public FollowerInventoryListView()
 	{
-		Main expr_05 = Main.instance;
-		expr_05.ArmamentInventoryChangedAction = (Action)Delegate.Combine(expr_05.ArmamentInventoryChangedAction, new Action(this.HandleInventoryChanged));
-		Main expr_2B = Main.instance;
-		expr_2B.EquipmentInventoryChangedAction = (Action)Delegate.Combine(expr_2B.EquipmentInventoryChangedAction, new Action(this.HandleInventoryChanged));
-	}
-
-	private void OnDisable()
-	{
-		Main expr_05 = Main.instance;
-		expr_05.ArmamentInventoryChangedAction = (Action)Delegate.Remove(expr_05.ArmamentInventoryChangedAction, new Action(this.HandleInventoryChanged));
-		Main expr_2B = Main.instance;
-		expr_2B.EquipmentInventoryChangedAction = (Action)Delegate.Remove(expr_2B.EquipmentInventoryChangedAction, new Action(this.HandleInventoryChanged));
 	}
 
 	private void HandleInventoryChanged()
@@ -44,83 +32,87 @@ public class FollowerInventoryListView : MonoBehaviour
 		this.m_followerDetailView = followerDetailView;
 		this.m_abilityToReplace = abilityToReplace;
 		FollowerInventoryListItem[] componentsInChildren = this.m_equipmentInventoryContent.GetComponentsInChildren<FollowerInventoryListItem>(true);
-		FollowerInventoryListItem[] array = componentsInChildren;
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			FollowerInventoryListItem followerInventoryListItem = array[i];
-			Object.DestroyImmediate(followerInventoryListItem.get_gameObject());
+			UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
 		}
 		int num = 0;
-		IEnumerator enumerator = PersistentEquipmentData.equipmentDictionary.get_Values().GetEnumerator();
+		IEnumerator enumerator = PersistentEquipmentData.equipmentDictionary.Values.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				MobileFollowerEquipment item = (MobileFollowerEquipment)enumerator.get_Current();
+				MobileFollowerEquipment current = (MobileFollowerEquipment)enumerator.Current;
 				if (num == 0)
 				{
-					GameObject gameObject = Object.Instantiate<GameObject>(this.m_headerPrefab);
-					gameObject.get_transform().SetParent(this.m_equipmentInventoryContent.get_transform(), false);
-					FollowerInventoryListItem component = gameObject.GetComponent<FollowerInventoryListItem>();
-					component.SetHeaderText("Equipment");
+					GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_headerPrefab);
+					gameObject.transform.SetParent(this.m_equipmentInventoryContent.transform, false);
+					gameObject.GetComponent<FollowerInventoryListItem>().SetHeaderText("Equipment");
 				}
-				GameObject gameObject2 = Object.Instantiate<GameObject>(this.m_followerInventoryListItemPrefab);
-				gameObject2.get_transform().SetParent(this.m_equipmentInventoryContent.get_transform(), false);
-				FollowerInventoryListItem component2 = gameObject2.GetComponent<FollowerInventoryListItem>();
-				component2.SetEquipment(item, followerDetailView, abilityToReplace);
+				GameObject gameObject1 = UnityEngine.Object.Instantiate<GameObject>(this.m_followerInventoryListItemPrefab);
+				gameObject1.transform.SetParent(this.m_equipmentInventoryContent.transform, false);
+				gameObject1.GetComponent<FollowerInventoryListItem>().SetEquipment(current, followerDetailView, abilityToReplace);
 				num++;
 			}
 		}
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable != null)
+			if (disposable == null)
 			{
-				disposable.Dispose();
 			}
+			disposable.Dispose();
 		}
 		if (num == 0)
 		{
-			GameObject gameObject3 = Object.Instantiate<GameObject>(this.m_headerPrefab);
-			gameObject3.get_transform().SetParent(this.m_equipmentInventoryContent.get_transform(), false);
-			FollowerInventoryListItem component3 = gameObject3.GetComponent<FollowerInventoryListItem>();
-			component3.SetHeaderText(StaticDB.GetString("NO_EQUIPMENT", null));
+			GameObject gameObject2 = UnityEngine.Object.Instantiate<GameObject>(this.m_headerPrefab);
+			gameObject2.transform.SetParent(this.m_equipmentInventoryContent.transform, false);
+			gameObject2.GetComponent<FollowerInventoryListItem>().SetHeaderText(StaticDB.GetString("NO_EQUIPMENT", null));
 		}
-		int num2 = 0;
-		IEnumerator enumerator2 = PersistentArmamentData.armamentDictionary.get_Values().GetEnumerator();
+		int num1 = 0;
+		IEnumerator enumerator1 = PersistentArmamentData.armamentDictionary.Values.GetEnumerator();
 		try
 		{
-			while (enumerator2.MoveNext())
+			while (enumerator1.MoveNext())
 			{
-				MobileFollowerArmament item2 = (MobileFollowerArmament)enumerator2.get_Current();
-				if (num2 == 0)
+				MobileFollowerArmamentExt mobileFollowerArmamentExt = (MobileFollowerArmamentExt)enumerator1.Current;
+				if (num1 == 0)
 				{
-					GameObject gameObject4 = Object.Instantiate<GameObject>(this.m_headerPrefab);
-					gameObject4.get_transform().SetParent(this.m_equipmentInventoryContent.get_transform(), false);
-					FollowerInventoryListItem component4 = gameObject4.GetComponent<FollowerInventoryListItem>();
-					component4.SetHeaderText("Armaments");
+					GameObject gameObject3 = UnityEngine.Object.Instantiate<GameObject>(this.m_headerPrefab);
+					gameObject3.transform.SetParent(this.m_equipmentInventoryContent.transform, false);
+					gameObject3.GetComponent<FollowerInventoryListItem>().SetHeaderText("Armaments");
 				}
-				GameObject gameObject5 = Object.Instantiate<GameObject>(this.m_followerInventoryListItemPrefab);
-				gameObject5.get_transform().SetParent(this.m_equipmentInventoryContent.get_transform(), false);
-				FollowerInventoryListItem component5 = gameObject5.GetComponent<FollowerInventoryListItem>();
-				component5.SetArmament(item2, followerDetailView);
-				num2++;
+				GameObject gameObject4 = UnityEngine.Object.Instantiate<GameObject>(this.m_followerInventoryListItemPrefab);
+				gameObject4.transform.SetParent(this.m_equipmentInventoryContent.transform, false);
+				gameObject4.GetComponent<FollowerInventoryListItem>().SetArmament(mobileFollowerArmamentExt, followerDetailView);
+				num1++;
 			}
 		}
 		finally
 		{
-			IDisposable disposable2 = enumerator2 as IDisposable;
-			if (disposable2 != null)
+			IDisposable disposable1 = enumerator1 as IDisposable;
+			if (disposable1 == null)
 			{
-				disposable2.Dispose();
 			}
+			disposable1.Dispose();
 		}
 		if (num == 0)
 		{
-			GameObject gameObject6 = Object.Instantiate<GameObject>(this.m_headerPrefab);
-			gameObject6.get_transform().SetParent(this.m_equipmentInventoryContent.get_transform(), false);
-			FollowerInventoryListItem component6 = gameObject6.GetComponent<FollowerInventoryListItem>();
-			component6.SetHeaderText(StaticDB.GetString("NO_ARMAMENTS", null));
+			GameObject gameObject5 = UnityEngine.Object.Instantiate<GameObject>(this.m_headerPrefab);
+			gameObject5.transform.SetParent(this.m_equipmentInventoryContent.transform, false);
+			gameObject5.GetComponent<FollowerInventoryListItem>().SetHeaderText(StaticDB.GetString("NO_ARMAMENTS", null));
 		}
+	}
+
+	private void OnDisable()
+	{
+		Main.instance.ArmamentInventoryChangedAction -= new Action(this.HandleInventoryChanged);
+		Main.instance.EquipmentInventoryChangedAction -= new Action(this.HandleInventoryChanged);
+	}
+
+	private void OnEnable()
+	{
+		Main.instance.ArmamentInventoryChangedAction += new Action(this.HandleInventoryChanged);
+		Main.instance.EquipmentInventoryChangedAction += new Action(this.HandleInventoryChanged);
 	}
 }
