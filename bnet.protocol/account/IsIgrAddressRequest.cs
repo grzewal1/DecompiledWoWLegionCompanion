@@ -121,7 +121,7 @@ namespace bnet.protocol.account
 		public static IsIgrAddressRequest DeserializeLengthDelimited(Stream stream, IsIgrAddressRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return IsIgrAddressRequest.Deserialize(stream, instance, position);
 		}
 
@@ -148,11 +148,11 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasClientAddress)
 			{
-				hashCode = hashCode ^ this.ClientAddress.GetHashCode();
+				hashCode ^= this.ClientAddress.GetHashCode();
 			}
 			if (this.HasRegion)
 			{
-				hashCode = hashCode ^ this.Region.GetHashCode();
+				hashCode ^= this.Region.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -169,7 +169,7 @@ namespace bnet.protocol.account
 			if (this.HasRegion)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Region);
+				num += ProtocolParser.SizeOfUInt32(this.Region);
 			}
 			return num;
 		}

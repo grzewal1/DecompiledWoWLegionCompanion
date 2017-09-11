@@ -173,7 +173,7 @@ namespace bnet.protocol.account
 		public static GameAccountNotification DeserializeLengthDelimited(Stream stream, GameAccountNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameAccountNotification.Deserialize(stream, instance, position);
 		}
 
@@ -211,15 +211,15 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			foreach (GameAccountList regionDeltum in this.RegionDelta)
 			{
-				hashCode = hashCode ^ regionDeltum.GetHashCode();
+				hashCode ^= regionDeltum.GetHashCode();
 			}
 			if (this.HasSubscriberId)
 			{
-				hashCode = hashCode ^ this.SubscriberId.GetHashCode();
+				hashCode ^= this.SubscriberId.GetHashCode();
 			}
 			if (this.HasAccountTags)
 			{
-				hashCode = hashCode ^ this.AccountTags.GetHashCode();
+				hashCode ^= this.AccountTags.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -239,7 +239,7 @@ namespace bnet.protocol.account
 			if (this.HasSubscriberId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.SubscriberId);
+				num += ProtocolParser.SizeOfUInt64(this.SubscriberId);
 			}
 			if (this.HasAccountTags)
 			{

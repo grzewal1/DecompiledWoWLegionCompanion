@@ -256,7 +256,7 @@ namespace bnet.protocol
 		public static Header DeserializeLengthDelimited(Stream stream, Header instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return Header.Deserialize(stream, instance, position);
 		}
 
@@ -312,31 +312,31 @@ namespace bnet.protocol
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.ServiceId.GetHashCode();
+			hashCode ^= this.ServiceId.GetHashCode();
 			if (this.HasMethodId)
 			{
-				hashCode = hashCode ^ this.MethodId.GetHashCode();
+				hashCode ^= this.MethodId.GetHashCode();
 			}
-			hashCode = hashCode ^ this.Token.GetHashCode();
+			hashCode ^= this.Token.GetHashCode();
 			if (this.HasObjectId)
 			{
-				hashCode = hashCode ^ this.ObjectId.GetHashCode();
+				hashCode ^= this.ObjectId.GetHashCode();
 			}
 			if (this.HasSize)
 			{
-				hashCode = hashCode ^ this.Size.GetHashCode();
+				hashCode ^= this.Size.GetHashCode();
 			}
 			if (this.HasStatus)
 			{
-				hashCode = hashCode ^ this.Status.GetHashCode();
+				hashCode ^= this.Status.GetHashCode();
 			}
 			foreach (ErrorInfo error in this.Error)
 			{
-				hashCode = hashCode ^ error.GetHashCode();
+				hashCode ^= error.GetHashCode();
 			}
 			if (this.HasTimeout)
 			{
-				hashCode = hashCode ^ this.Timeout.GetHashCode();
+				hashCode ^= this.Timeout.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -344,27 +344,27 @@ namespace bnet.protocol
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + ProtocolParser.SizeOfUInt32(this.ServiceId);
+			num += ProtocolParser.SizeOfUInt32(this.ServiceId);
 			if (this.HasMethodId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.MethodId);
+				num += ProtocolParser.SizeOfUInt32(this.MethodId);
 			}
-			num = num + ProtocolParser.SizeOfUInt32(this.Token);
+			num += ProtocolParser.SizeOfUInt32(this.Token);
 			if (this.HasObjectId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.ObjectId);
+				num += ProtocolParser.SizeOfUInt64(this.ObjectId);
 			}
 			if (this.HasSize)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Size);
+				num += ProtocolParser.SizeOfUInt32(this.Size);
 			}
 			if (this.HasStatus)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Status);
+				num += ProtocolParser.SizeOfUInt32(this.Status);
 			}
 			if (this.Error.Count > 0)
 			{
@@ -378,9 +378,9 @@ namespace bnet.protocol
 			if (this.HasTimeout)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.Timeout);
+				num += ProtocolParser.SizeOfUInt64(this.Timeout);
 			}
-			num = num + 2;
+			num += 2;
 			return num;
 		}
 

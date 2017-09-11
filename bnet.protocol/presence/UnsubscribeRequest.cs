@@ -122,7 +122,7 @@ namespace bnet.protocol.presence
 		public static UnsubscribeRequest DeserializeLengthDelimited(Stream stream, UnsubscribeRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return UnsubscribeRequest.Deserialize(stream, instance, position);
 		}
 
@@ -149,9 +149,9 @@ namespace bnet.protocol.presence
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentId)
 			{
-				hashCode = hashCode ^ this.AgentId.GetHashCode();
+				hashCode ^= this.AgentId.GetHashCode();
 			}
-			hashCode = hashCode ^ this.EntityId.GetHashCode();
+			hashCode ^= this.EntityId.GetHashCode();
 			return hashCode;
 		}
 

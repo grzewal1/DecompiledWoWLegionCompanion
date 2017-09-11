@@ -90,7 +90,7 @@ namespace bnet.protocol.notification
 		public static FindClientRequest DeserializeLengthDelimited(Stream stream, FindClientRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return FindClientRequest.Deserialize(stream, instance, position);
 		}
 

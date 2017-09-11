@@ -198,7 +198,7 @@ namespace bnet.protocol.chat
 		public static ChannelState DeserializeLengthDelimited(Stream stream, ChannelState instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ChannelState.Deserialize(stream, instance, position);
 		}
 
@@ -237,23 +237,23 @@ namespace bnet.protocol.chat
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasIdentity)
 			{
-				hashCode = hashCode ^ this.Identity.GetHashCode();
+				hashCode ^= this.Identity.GetHashCode();
 			}
 			if (this.HasProgram)
 			{
-				hashCode = hashCode ^ this.Program.GetHashCode();
+				hashCode ^= this.Program.GetHashCode();
 			}
 			if (this.HasLocale)
 			{
-				hashCode = hashCode ^ this.Locale.GetHashCode();
+				hashCode ^= this.Locale.GetHashCode();
 			}
 			if (this.HasPublic)
 			{
-				hashCode = hashCode ^ this.Public.GetHashCode();
+				hashCode ^= this.Public.GetHashCode();
 			}
 			if (this.HasBucketIndex)
 			{
-				hashCode = hashCode ^ this.BucketIndex.GetHashCode();
+				hashCode ^= this.BucketIndex.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -270,12 +270,12 @@ namespace bnet.protocol.chat
 			if (this.HasProgram)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasLocale)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasPublic)
 			{
@@ -285,7 +285,7 @@ namespace bnet.protocol.chat
 			if (this.HasBucketIndex)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.BucketIndex);
+				num += ProtocolParser.SizeOfUInt32(this.BucketIndex);
 			}
 			return num;
 		}

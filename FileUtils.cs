@@ -128,7 +128,7 @@ public class FileUtils
 			FileAttributes fileAttribute = (!setWritable ? attributes | FileAttributes.ReadOnly : attributes & (FileAttributes.Archive | FileAttributes.Compressed | FileAttributes.Device | FileAttributes.Directory | FileAttributes.Encrypted | FileAttributes.Hidden | FileAttributes.Normal | FileAttributes.NotContentIndexed | FileAttributes.Offline | FileAttributes.ReparsePoint | FileAttributes.SparseFile | FileAttributes.System | FileAttributes.Temporary));
 			if (setWritable && Environment.OSVersion.Platform == PlatformID.MacOSX)
 			{
-				fileAttribute = fileAttribute | FileAttributes.Normal;
+				fileAttribute |= FileAttributes.Normal;
 			}
 			if (fileAttribute != attributes)
 			{

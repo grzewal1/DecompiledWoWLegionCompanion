@@ -163,7 +163,7 @@ namespace bnet.protocol.account
 		public static GameStatus DeserializeLengthDelimited(Stream stream, GameStatus instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameStatus.Deserialize(stream, instance, position);
 		}
 
@@ -198,19 +198,19 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasIsSuspended)
 			{
-				hashCode = hashCode ^ this.IsSuspended.GetHashCode();
+				hashCode ^= this.IsSuspended.GetHashCode();
 			}
 			if (this.HasIsBanned)
 			{
-				hashCode = hashCode ^ this.IsBanned.GetHashCode();
+				hashCode ^= this.IsBanned.GetHashCode();
 			}
 			if (this.HasSuspensionExpires)
 			{
-				hashCode = hashCode ^ this.SuspensionExpires.GetHashCode();
+				hashCode ^= this.SuspensionExpires.GetHashCode();
 			}
 			if (this.HasProgram)
 			{
-				hashCode = hashCode ^ this.Program.GetHashCode();
+				hashCode ^= this.Program.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -231,12 +231,12 @@ namespace bnet.protocol.account
 			if (this.HasSuspensionExpires)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.SuspensionExpires);
+				num += ProtocolParser.SizeOfUInt64(this.SuspensionExpires);
 			}
 			if (this.HasProgram)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			return num;
 		}

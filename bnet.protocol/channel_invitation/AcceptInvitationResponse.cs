@@ -85,7 +85,7 @@ namespace bnet.protocol.channel_invitation
 		public static AcceptInvitationResponse DeserializeLengthDelimited(Stream stream, AcceptInvitationResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AcceptInvitationResponse.Deserialize(stream, instance, position);
 		}
 

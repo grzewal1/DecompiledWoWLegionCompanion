@@ -171,7 +171,7 @@ public class OrderHallNavButton : MonoBehaviour
 				int numReadyShipments = PersistentShipmentData.GetNumReadyShipments();
 				if (ArtifactKnowledgeData.s_artifactKnowledgeInfo != null && ArtifactKnowledgeData.s_artifactKnowledgeInfo.CurrentLevel < ArtifactKnowledgeData.s_artifactKnowledgeInfo.MaxLevel)
 				{
-					numReadyShipments = numReadyShipments + ArtifactKnowledgeData.s_artifactKnowledgeInfo.ItemsInBags;
+					numReadyShipments += ArtifactKnowledgeData.s_artifactKnowledgeInfo.ItemsInBags;
 				}
 				if (numReadyShipments == 0 && this.m_notificationBadgeRoot.activeSelf)
 				{

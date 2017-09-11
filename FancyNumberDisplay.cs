@@ -103,8 +103,7 @@ public class FancyNumberDisplay : MonoBehaviour
 	{
 		if (this.m_initialized && !this.m_instant && !this.m_startedTimer)
 		{
-			FancyNumberDisplay mTimeRemainingUntilStartTimer = this;
-			mTimeRemainingUntilStartTimer.m_timeRemainingUntilStartTimer = mTimeRemainingUntilStartTimer.m_timeRemainingUntilStartTimer - Time.deltaTime;
+			this.m_timeRemainingUntilStartTimer -= Time.deltaTime;
 			if (this.m_timeRemainingUntilStartTimer <= 0f)
 			{
 				if (this.TimerStartedAction != null)

@@ -123,7 +123,7 @@ namespace bnet.protocol.account
 		public static AccountBlobList DeserializeLengthDelimited(Stream stream, AccountBlobList instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AccountBlobList.Deserialize(stream, instance, position);
 		}
 
@@ -153,7 +153,7 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			foreach (AccountBlob blob in this.Blob)
 			{
-				hashCode = hashCode ^ blob.GetHashCode();
+				hashCode ^= blob.GetHashCode();
 			}
 			return hashCode;
 		}

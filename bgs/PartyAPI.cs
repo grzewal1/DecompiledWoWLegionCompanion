@@ -722,7 +722,7 @@ namespace bgs
 		public void PartyInvitationDelta(bnet.protocol.EntityId partyId, Invitation invite, uint? removeReason)
 		{
 			string partyType = this.GetPartyType(partyId);
-			PartyListenerEvent uintData = new PartyListenerEvent()
+			PartyListenerEvent value = new PartyListenerEvent()
 			{
 				Type = (!removeReason.HasValue ? PartyListenerEventType.PARTY_INVITE_SENT : PartyListenerEventType.PARTY_INVITE_REMOVED),
 				PartyId = PartyId.FromProtocol(partyId),
@@ -734,25 +734,25 @@ namespace bgs
 			};
 			if (!removeReason.HasValue)
 			{
-				uintData.UintData = 0;
+				value.UintData = 0;
 				if (invite.HasChannelInvitation)
 				{
 					ChannelInvitation channelInvitation = invite.ChannelInvitation;
 					if (channelInvitation.HasReserved && channelInvitation.Reserved)
 					{
-						uintData.UintData = uintData.UintData | 1;
+						value.UintData |= 1;
 					}
 					if (channelInvitation.HasRejoin && channelInvitation.Rejoin)
 					{
-						uintData.UintData = uintData.UintData | 1;
+						value.UintData |= 1;
 					}
 				}
 			}
 			else
 			{
-				uintData.UintData = removeReason.Value;
+				value.UintData = removeReason.Value;
 			}
-			this.m_partyListenerEvents.Add(uintData);
+			this.m_partyListenerEvents.Add(value);
 		}
 
 		public void PartyJoined(ChannelAPI.ChannelReferenceObject channelRefObject, AddNotification notification)
@@ -975,7 +975,7 @@ namespace bgs
 			{
 				this.m_battleNet.Channel.AcceptInvitation(notification.Invitation.Id, channelInvitation.ChannelDescription.ChannelId, ChannelAPI.ChannelType.PARTY_CHANNEL, null);
 			}
-			PartyListenerEvent uintData = new PartyListenerEvent()
+			PartyListenerEvent partyListenerEvent = new PartyListenerEvent()
 			{
 				Type = PartyListenerEventType.RECEIVED_INVITE_ADDED,
 				PartyId = PartyId.FromProtocol(channelInvitation.ChannelDescription.ChannelId),
@@ -988,13 +988,13 @@ namespace bgs
 			};
 			if (channelInvitation.HasReserved && channelInvitation.Reserved)
 			{
-				uintData.UintData = uintData.UintData | 1;
+				partyListenerEvent.UintData |= 1;
 			}
 			if (channelInvitation.HasRejoin && channelInvitation.Rejoin)
 			{
-				uintData.UintData = uintData.UintData | 1;
+				partyListenerEvent.UintData |= 1;
 			}
-			this.m_partyListenerEvents.Add(uintData);
+			this.m_partyListenerEvents.Add(partyListenerEvent);
 		}
 
 		public void ReceivedInvitationRemoved(string szPartyType, InvitationRemovedNotification notification, ChannelInvitation channelInvitation)

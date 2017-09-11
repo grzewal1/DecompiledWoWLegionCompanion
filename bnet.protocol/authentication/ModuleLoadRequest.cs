@@ -118,7 +118,7 @@ namespace bnet.protocol.authentication
 		public static ModuleLoadRequest DeserializeLengthDelimited(Stream stream, ModuleLoadRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ModuleLoadRequest.Deserialize(stream, instance, position);
 		}
 
@@ -143,10 +143,10 @@ namespace bnet.protocol.authentication
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.ModuleHandle.GetHashCode();
+			hashCode ^= this.ModuleHandle.GetHashCode();
 			if (this.HasMessage)
 			{
-				hashCode = hashCode ^ this.Message.GetHashCode();
+				hashCode ^= this.Message.GetHashCode();
 			}
 			return hashCode;
 		}

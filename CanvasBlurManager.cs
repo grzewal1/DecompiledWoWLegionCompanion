@@ -18,15 +18,13 @@ public class CanvasBlurManager : MonoBehaviour
 
 	public void AddBlurRef_Level2Canvas()
 	{
-		CanvasBlurManager mBlurRefCountLevel2Canvas = this;
-		mBlurRefCountLevel2Canvas.m_blurRefCount_Level2Canvas = mBlurRefCountLevel2Canvas.m_blurRefCount_Level2Canvas + 1;
+		this.m_blurRefCount_Level2Canvas++;
 		this.UpdateBlurEffect();
 	}
 
 	public void AddBlurRef_MainCanvas()
 	{
-		CanvasBlurManager mBlurRefCountMainCanvas = this;
-		mBlurRefCountMainCanvas.m_blurRefCount_MainCanvas = mBlurRefCountMainCanvas.m_blurRefCount_MainCanvas + 1;
+		this.m_blurRefCount_MainCanvas++;
 		this.UpdateBlurEffect();
 	}
 
@@ -37,15 +35,13 @@ public class CanvasBlurManager : MonoBehaviour
 
 	public void RemoveBlurRef_Level2Canvas()
 	{
-		CanvasBlurManager mBlurRefCountLevel2Canvas = this;
-		mBlurRefCountLevel2Canvas.m_blurRefCount_Level2Canvas = mBlurRefCountLevel2Canvas.m_blurRefCount_Level2Canvas - 1;
+		this.m_blurRefCount_Level2Canvas--;
 		this.UpdateBlurEffect();
 	}
 
 	public void RemoveBlurRef_MainCanvas()
 	{
-		CanvasBlurManager mBlurRefCountMainCanvas = this;
-		mBlurRefCountMainCanvas.m_blurRefCount_MainCanvas = mBlurRefCountMainCanvas.m_blurRefCount_MainCanvas - 1;
+		this.m_blurRefCount_MainCanvas--;
 		this.UpdateBlurEffect();
 	}
 

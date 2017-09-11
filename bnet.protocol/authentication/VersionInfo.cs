@@ -163,7 +163,7 @@ namespace bnet.protocol.authentication
 		public static VersionInfo DeserializeLengthDelimited(Stream stream, VersionInfo instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return VersionInfo.Deserialize(stream, instance, position);
 		}
 
@@ -198,19 +198,19 @@ namespace bnet.protocol.authentication
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasNumber)
 			{
-				hashCode = hashCode ^ this.Number.GetHashCode();
+				hashCode ^= this.Number.GetHashCode();
 			}
 			if (this.HasPatch)
 			{
-				hashCode = hashCode ^ this.Patch.GetHashCode();
+				hashCode ^= this.Patch.GetHashCode();
 			}
 			if (this.HasIsOptional)
 			{
-				hashCode = hashCode ^ this.IsOptional.GetHashCode();
+				hashCode ^= this.IsOptional.GetHashCode();
 			}
 			if (this.HasKickTime)
 			{
-				hashCode = hashCode ^ this.KickTime.GetHashCode();
+				hashCode ^= this.KickTime.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -221,7 +221,7 @@ namespace bnet.protocol.authentication
 			if (this.HasNumber)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Number);
+				num += ProtocolParser.SizeOfUInt32(this.Number);
 			}
 			if (this.HasPatch)
 			{
@@ -237,7 +237,7 @@ namespace bnet.protocol.authentication
 			if (this.HasKickTime)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.KickTime);
+				num += ProtocolParser.SizeOfUInt64(this.KickTime);
 			}
 			return num;
 		}

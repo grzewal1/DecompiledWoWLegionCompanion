@@ -173,7 +173,7 @@ public class TroopsListItem : MonoBehaviour
 				StaticDB.garrAbilityEffectDB.EnumRecordsByParentID((int)garrTalentRec.GarrAbilityID, (GarrAbilityEffectRec effectRec) => {
 					if (effectRec.AbilityAction == 34 && (ulong)effectRec.ActionRecordID == (long)garrClassSpecID)
 					{
-						followerClassLimit = followerClassLimit + (int)effectRec.ActionValueFlat;
+						followerClassLimit += (int)effectRec.ActionValueFlat;
 					}
 					return true;
 				});
@@ -854,6 +854,10 @@ public class TroopsListItem : MonoBehaviour
 
 	private void UpdateTroopSlots()
 	{
+		if (this.m_followerRec == null || this.m_charShipmentRec == null)
+		{
+			return;
+		}
 		int maxTroops = this.GetMaxTroops((GarrisonStatus.Faction() != PVP_FACTION.HORDE ? (int)this.m_followerRec.AllianceGarrClassSpecID : (int)this.m_followerRec.HordeGarrClassSpecID));
 		TroopSlot[] componentsInChildren = this.m_troopSlotsRootObject.GetComponentsInChildren<TroopSlot>(true);
 		if ((int)componentsInChildren.Length < maxTroops)

@@ -96,7 +96,7 @@ namespace bnet.protocol.authentication
 		public static GenerateSSOTokenRequest DeserializeLengthDelimited(Stream stream, GenerateSSOTokenRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GenerateSSOTokenRequest.Deserialize(stream, instance, position);
 		}
 
@@ -119,7 +119,7 @@ namespace bnet.protocol.authentication
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasProgram)
 			{
-				hashCode = hashCode ^ this.Program.GetHashCode();
+				hashCode ^= this.Program.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -130,7 +130,7 @@ namespace bnet.protocol.authentication
 			if (this.HasProgram)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			return num;
 		}

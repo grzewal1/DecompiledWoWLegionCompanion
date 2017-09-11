@@ -329,7 +329,7 @@ namespace bgs
 			{
 				string str = hex.Substring(num, 2);
 				outBytes[num1] = Convert.ToByte(str, 16);
-				num = num + 2;
+				num += 2;
 				num1++;
 			}
 			return SslSocket.HexStrToBytesError.OK;
@@ -404,7 +404,7 @@ namespace bgs
 					SslPolicyErrors sslPolicyError = (flag1 || flag2 ? SslPolicyErrors.RemoteCertificateNotAvailable | SslPolicyErrors.RemoteCertificateChainErrors : SslPolicyErrors.None);
 					if ((sslPolicyErrors & SslPolicyErrors.RemoteCertificateNameMismatch) != SslPolicyErrors.None && mSslSocket.m_connection.MatchSslCertName(commonNamesFromCertSubject))
 					{
-						sslPolicyError = sslPolicyError | SslPolicyErrors.RemoteCertificateNameMismatch;
+						sslPolicyError |= SslPolicyErrors.RemoteCertificateNameMismatch;
 					}
 					if ((sslPolicyErrors & ~sslPolicyError) != SslPolicyErrors.None)
 					{

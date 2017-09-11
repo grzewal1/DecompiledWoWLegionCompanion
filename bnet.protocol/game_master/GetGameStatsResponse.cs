@@ -123,7 +123,7 @@ namespace bnet.protocol.game_master
 		public static GetGameStatsResponse DeserializeLengthDelimited(Stream stream, GetGameStatsResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetGameStatsResponse.Deserialize(stream, instance, position);
 		}
 
@@ -153,7 +153,7 @@ namespace bnet.protocol.game_master
 			int hashCode = this.GetType().GetHashCode();
 			foreach (GameStatsBucket statsBucket in this.StatsBucket)
 			{
-				hashCode = hashCode ^ statsBucket.GetHashCode();
+				hashCode ^= statsBucket.GetHashCode();
 			}
 			return hashCode;
 		}

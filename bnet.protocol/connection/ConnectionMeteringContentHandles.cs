@@ -124,7 +124,7 @@ namespace bnet.protocol.connection
 		public static ConnectionMeteringContentHandles DeserializeLengthDelimited(Stream stream, ConnectionMeteringContentHandles instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ConnectionMeteringContentHandles.Deserialize(stream, instance, position);
 		}
 
@@ -154,7 +154,7 @@ namespace bnet.protocol.connection
 			int hashCode = this.GetType().GetHashCode();
 			foreach (bnet.protocol.ContentHandle contentHandle in this.ContentHandle)
 			{
-				hashCode = hashCode ^ contentHandle.GetHashCode();
+				hashCode ^= contentHandle.GetHashCode();
 			}
 			return hashCode;
 		}

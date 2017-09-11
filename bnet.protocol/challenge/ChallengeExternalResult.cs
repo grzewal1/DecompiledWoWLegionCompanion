@@ -122,7 +122,7 @@ namespace bnet.protocol.challenge
 		public static ChallengeExternalResult DeserializeLengthDelimited(Stream stream, ChallengeExternalResult instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ChallengeExternalResult.Deserialize(stream, instance, position);
 		}
 
@@ -149,11 +149,11 @@ namespace bnet.protocol.challenge
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasRequestToken)
 			{
-				hashCode = hashCode ^ this.RequestToken.GetHashCode();
+				hashCode ^= this.RequestToken.GetHashCode();
 			}
 			if (this.HasPassed)
 			{
-				hashCode = hashCode ^ this.Passed.GetHashCode();
+				hashCode ^= this.Passed.GetHashCode();
 			}
 			return hashCode;
 		}

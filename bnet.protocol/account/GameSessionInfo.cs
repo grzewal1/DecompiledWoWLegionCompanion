@@ -190,7 +190,7 @@ namespace bnet.protocol.account
 		public static GameSessionInfo DeserializeLengthDelimited(Stream stream, GameSessionInfo instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameSessionInfo.Deserialize(stream, instance, position);
 		}
 
@@ -229,23 +229,23 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasStartTime)
 			{
-				hashCode = hashCode ^ this.StartTime.GetHashCode();
+				hashCode ^= this.StartTime.GetHashCode();
 			}
 			if (this.HasLocation)
 			{
-				hashCode = hashCode ^ this.Location.GetHashCode();
+				hashCode ^= this.Location.GetHashCode();
 			}
 			if (this.HasHasBenefactor)
 			{
-				hashCode = hashCode ^ this.HasBenefactor.GetHashCode();
+				hashCode ^= this.HasBenefactor.GetHashCode();
 			}
 			if (this.HasIsUsingIgr)
 			{
-				hashCode = hashCode ^ this.IsUsingIgr.GetHashCode();
+				hashCode ^= this.IsUsingIgr.GetHashCode();
 			}
 			if (this.HasParentalControlsActive)
 			{
-				hashCode = hashCode ^ this.ParentalControlsActive.GetHashCode();
+				hashCode ^= this.ParentalControlsActive.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -256,7 +256,7 @@ namespace bnet.protocol.account
 			if (this.HasStartTime)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.StartTime);
+				num += ProtocolParser.SizeOfUInt32(this.StartTime);
 			}
 			if (this.HasLocation)
 			{

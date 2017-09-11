@@ -149,7 +149,7 @@ namespace bnet.protocol.channel_invitation
 		public static ChannelInvitationParams DeserializeLengthDelimited(Stream stream, ChannelInvitationParams instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ChannelInvitationParams.Deserialize(stream, instance, position);
 		}
 
@@ -182,16 +182,16 @@ namespace bnet.protocol.channel_invitation
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.ChannelId.GetHashCode();
+			hashCode ^= this.ChannelId.GetHashCode();
 			if (this.HasReserved)
 			{
-				hashCode = hashCode ^ this.Reserved.GetHashCode();
+				hashCode ^= this.Reserved.GetHashCode();
 			}
 			if (this.HasRejoin)
 			{
-				hashCode = hashCode ^ this.Rejoin.GetHashCode();
+				hashCode ^= this.Rejoin.GetHashCode();
 			}
-			hashCode = hashCode ^ this.ServiceType.GetHashCode();
+			hashCode ^= this.ServiceType.GetHashCode();
 			return hashCode;
 		}
 
@@ -210,8 +210,8 @@ namespace bnet.protocol.channel_invitation
 				num++;
 				num++;
 			}
-			num = num + ProtocolParser.SizeOfUInt32(this.ServiceType);
-			num = num + 2;
+			num += ProtocolParser.SizeOfUInt32(this.ServiceType);
+			num += 2;
 			return num;
 		}
 

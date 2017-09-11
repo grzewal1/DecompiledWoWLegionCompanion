@@ -188,7 +188,7 @@ namespace bnet.protocol.account
 		public static GetGameAccountStateRequest DeserializeLengthDelimited(Stream stream, GetGameAccountStateRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetGameAccountStateRequest.Deserialize(stream, instance, position);
 		}
 
@@ -223,19 +223,19 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAccountId)
 			{
-				hashCode = hashCode ^ this.AccountId.GetHashCode();
+				hashCode ^= this.AccountId.GetHashCode();
 			}
 			if (this.HasGameAccountId)
 			{
-				hashCode = hashCode ^ this.GameAccountId.GetHashCode();
+				hashCode ^= this.GameAccountId.GetHashCode();
 			}
 			if (this.HasOptions)
 			{
-				hashCode = hashCode ^ this.Options.GetHashCode();
+				hashCode ^= this.Options.GetHashCode();
 			}
 			if (this.HasTags)
 			{
-				hashCode = hashCode ^ this.Tags.GetHashCode();
+				hashCode ^= this.Tags.GetHashCode();
 			}
 			return hashCode;
 		}

@@ -111,7 +111,7 @@ namespace bnet.protocol.connection
 		public static DisconnectNotification DeserializeLengthDelimited(Stream stream, DisconnectNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return DisconnectNotification.Deserialize(stream, instance, position);
 		}
 
@@ -136,10 +136,10 @@ namespace bnet.protocol.connection
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.ErrorCode.GetHashCode();
+			hashCode ^= this.ErrorCode.GetHashCode();
 			if (this.HasReason)
 			{
-				hashCode = hashCode ^ this.Reason.GetHashCode();
+				hashCode ^= this.Reason.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -147,7 +147,7 @@ namespace bnet.protocol.connection
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + ProtocolParser.SizeOfUInt32(this.ErrorCode);
+			num += ProtocolParser.SizeOfUInt32(this.ErrorCode);
 			if (this.HasReason)
 			{
 				num++;

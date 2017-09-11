@@ -19,8 +19,8 @@ namespace bgs
 			byte[] bytes = Encoding.ASCII.GetBytes(str);
 			for (int i = 0; i < (int)bytes.Length; i++)
 			{
-				num = num ^ bytes[i];
-				num = num * 16777619;
+				num ^= bytes[i];
+				num *= 16777619;
 			}
 			return num;
 		}

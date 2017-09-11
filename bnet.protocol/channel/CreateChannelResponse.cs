@@ -115,7 +115,7 @@ namespace bnet.protocol.channel
 		public static CreateChannelResponse DeserializeLengthDelimited(Stream stream, CreateChannelResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return CreateChannelResponse.Deserialize(stream, instance, position);
 		}
 
@@ -140,10 +140,10 @@ namespace bnet.protocol.channel
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.ObjectId.GetHashCode();
+			hashCode ^= this.ObjectId.GetHashCode();
 			if (this.HasChannelId)
 			{
-				hashCode = hashCode ^ this.ChannelId.GetHashCode();
+				hashCode ^= this.ChannelId.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -151,7 +151,7 @@ namespace bnet.protocol.channel
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + ProtocolParser.SizeOfUInt64(this.ObjectId);
+			num += ProtocolParser.SizeOfUInt64(this.ObjectId);
 			if (this.HasChannelId)
 			{
 				num++;

@@ -141,7 +141,7 @@ namespace bnet.protocol.account
 		public static GameTimeRemainingInfo DeserializeLengthDelimited(Stream stream, GameTimeRemainingInfo instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameTimeRemainingInfo.Deserialize(stream, instance, position);
 		}
 
@@ -172,15 +172,15 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasMinutesRemaining)
 			{
-				hashCode = hashCode ^ this.MinutesRemaining.GetHashCode();
+				hashCode ^= this.MinutesRemaining.GetHashCode();
 			}
 			if (this.HasParentalDailyMinutesRemaining)
 			{
-				hashCode = hashCode ^ this.ParentalDailyMinutesRemaining.GetHashCode();
+				hashCode ^= this.ParentalDailyMinutesRemaining.GetHashCode();
 			}
 			if (this.HasParentalWeeklyMinutesRemaining)
 			{
-				hashCode = hashCode ^ this.ParentalWeeklyMinutesRemaining.GetHashCode();
+				hashCode ^= this.ParentalWeeklyMinutesRemaining.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -191,17 +191,17 @@ namespace bnet.protocol.account
 			if (this.HasMinutesRemaining)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.MinutesRemaining);
+				num += ProtocolParser.SizeOfUInt32(this.MinutesRemaining);
 			}
 			if (this.HasParentalDailyMinutesRemaining)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.ParentalDailyMinutesRemaining);
+				num += ProtocolParser.SizeOfUInt32(this.ParentalDailyMinutesRemaining);
 			}
 			if (this.HasParentalWeeklyMinutesRemaining)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.ParentalWeeklyMinutesRemaining);
+				num += ProtocolParser.SizeOfUInt32(this.ParentalWeeklyMinutesRemaining);
 			}
 			return num;
 		}

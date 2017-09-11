@@ -311,7 +311,7 @@ namespace bnet.protocol.account
 		public static GetAccountResponse DeserializeLengthDelimited(Stream stream, GetAccountResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetAccountResponse.Deserialize(stream, instance, position);
 		}
 
@@ -372,31 +372,31 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasBlob)
 			{
-				hashCode = hashCode ^ this.Blob.GetHashCode();
+				hashCode ^= this.Blob.GetHashCode();
 			}
 			if (this.HasId)
 			{
-				hashCode = hashCode ^ this.Id.GetHashCode();
+				hashCode ^= this.Id.GetHashCode();
 			}
 			foreach (string email in this.Email)
 			{
-				hashCode = hashCode ^ email.GetHashCode();
+				hashCode ^= email.GetHashCode();
 			}
 			if (this.HasBattleTag)
 			{
-				hashCode = hashCode ^ this.BattleTag.GetHashCode();
+				hashCode ^= this.BattleTag.GetHashCode();
 			}
 			if (this.HasFullName)
 			{
-				hashCode = hashCode ^ this.FullName.GetHashCode();
+				hashCode ^= this.FullName.GetHashCode();
 			}
 			foreach (GameAccountLink link in this.Links)
 			{
-				hashCode = hashCode ^ link.GetHashCode();
+				hashCode ^= link.GetHashCode();
 			}
 			if (this.HasParentalControlInfo)
 			{
-				hashCode = hashCode ^ this.ParentalControlInfo.GetHashCode();
+				hashCode ^= this.ParentalControlInfo.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -441,14 +441,14 @@ namespace bnet.protocol.account
 			{
 				foreach (GameAccountLink link in this.Links)
 				{
-					num = num + 2;
+					num += 2;
 					uint serializedSize2 = link.GetSerializedSize();
 					num = num + serializedSize2 + ProtocolParser.SizeOfUInt32(serializedSize2);
 				}
 			}
 			if (this.HasParentalControlInfo)
 			{
-				num = num + 2;
+				num += 2;
 				uint num2 = this.ParentalControlInfo.GetSerializedSize();
 				num = num + num2 + ProtocolParser.SizeOfUInt32(num2);
 			}

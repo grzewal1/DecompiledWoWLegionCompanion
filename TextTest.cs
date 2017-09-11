@@ -70,8 +70,7 @@ public class TextTest : MonoBehaviour
 	{
 		if (!this._complete && (DateTime.Now - this._refTime).TotalSeconds >= 3)
 		{
-			TextTest textTest = this;
-			textTest._testNum = textTest._testNum + 1;
+			this._testNum++;
 			this.RunNextTest();
 			this._refTime = DateTime.Now;
 		}

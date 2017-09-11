@@ -88,10 +88,11 @@ namespace Newtonsoft.Json.Utilities
 				int num2 = (str1[i] - 48) % ' ';
 				if (num2 > 9)
 				{
-					num2 = num2 - 7;
+					num2 -= 7;
 				}
-				numArray[num1] = (byte)(numArray[num1] | (byte)(num2 << (num & 31)));
-				num = num ^ 4;
+				ref byte numPointer = ref numArray[num1];
+				numPointer = (byte)(numPointer | (byte)(num2 << (num & 31)));
+				num ^= 4;
 				if (num != 0)
 				{
 					num1++;

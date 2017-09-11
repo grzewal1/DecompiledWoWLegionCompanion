@@ -265,7 +265,7 @@ namespace bnet.protocol.channel
 		public static CreateChannelRequest DeserializeLengthDelimited(Stream stream, CreateChannelRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return CreateChannelRequest.Deserialize(stream, instance, position);
 		}
 
@@ -312,31 +312,31 @@ namespace bnet.protocol.channel
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentIdentity)
 			{
-				hashCode = hashCode ^ this.AgentIdentity.GetHashCode();
+				hashCode ^= this.AgentIdentity.GetHashCode();
 			}
 			if (this.HasMemberState)
 			{
-				hashCode = hashCode ^ this.MemberState.GetHashCode();
+				hashCode ^= this.MemberState.GetHashCode();
 			}
 			if (this.HasChannelState)
 			{
-				hashCode = hashCode ^ this.ChannelState.GetHashCode();
+				hashCode ^= this.ChannelState.GetHashCode();
 			}
 			if (this.HasChannelId)
 			{
-				hashCode = hashCode ^ this.ChannelId.GetHashCode();
+				hashCode ^= this.ChannelId.GetHashCode();
 			}
 			if (this.HasObjectId)
 			{
-				hashCode = hashCode ^ this.ObjectId.GetHashCode();
+				hashCode ^= this.ObjectId.GetHashCode();
 			}
 			if (this.HasLocalAgent)
 			{
-				hashCode = hashCode ^ this.LocalAgent.GetHashCode();
+				hashCode ^= this.LocalAgent.GetHashCode();
 			}
 			if (this.HasLocalMemberState)
 			{
-				hashCode = hashCode ^ this.LocalMemberState.GetHashCode();
+				hashCode ^= this.LocalMemberState.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -371,7 +371,7 @@ namespace bnet.protocol.channel
 			if (this.HasObjectId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.ObjectId);
+				num += ProtocolParser.SizeOfUInt64(this.ObjectId);
 			}
 			if (this.HasLocalAgent)
 			{

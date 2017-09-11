@@ -74,7 +74,7 @@ namespace bnet.protocol.game_master
 		public static UnregisterServerRequest DeserializeLengthDelimited(Stream stream, UnregisterServerRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return UnregisterServerRequest.Deserialize(stream, instance, position);
 		}
 

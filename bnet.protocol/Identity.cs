@@ -131,7 +131,7 @@ namespace bnet.protocol
 		public static Identity DeserializeLengthDelimited(Stream stream, Identity instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return Identity.Deserialize(stream, instance, position);
 		}
 
@@ -158,11 +158,11 @@ namespace bnet.protocol
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAccountId)
 			{
-				hashCode = hashCode ^ this.AccountId.GetHashCode();
+				hashCode ^= this.AccountId.GetHashCode();
 			}
 			if (this.HasGameAccountId)
 			{
-				hashCode = hashCode ^ this.GameAccountId.GetHashCode();
+				hashCode ^= this.GameAccountId.GetHashCode();
 			}
 			return hashCode;
 		}

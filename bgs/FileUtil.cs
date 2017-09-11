@@ -46,11 +46,11 @@ namespace bgs
 				byte[] numArray1 = new byte[(int)array.Length + FileUtil.BNET_COMPRESSED_HEADER_SIZE];
 				int length = 0;
 				Array.Copy(FileUtil.BNET_COMPRESSED_MAGIC_BYTES, 0, numArray1, length, (int)FileUtil.BNET_COMPRESSED_MAGIC_BYTES.Length);
-				length = length + (int)FileUtil.BNET_COMPRESSED_MAGIC_BYTES.Length;
+				length += (int)FileUtil.BNET_COMPRESSED_MAGIC_BYTES.Length;
 				Array.Copy(FileUtil.BNET_COMPRESSED_VERSION_BYTES, 0, numArray1, length, (int)FileUtil.BNET_COMPRESSED_VERSION_BYTES.Length);
-				length = length + (int)FileUtil.BNET_COMPRESSED_VERSION_BYTES.Length;
+				length += (int)FileUtil.BNET_COMPRESSED_VERSION_BYTES.Length;
 				Array.Copy(bytes, 0, numArray1, length, (int)bytes.Length);
-				length = length + (int)bytes.Length;
+				length += (int)bytes.Length;
 				Array.Copy(array, 0, numArray1, length, (int)array.Length);
 				return numArray1;
 			}
@@ -80,8 +80,8 @@ namespace bgs
 					{
 						break;
 					}
-					num = num + num1;
-					length = length - num1;
+					num += num1;
+					length -= num1;
 				}
 				if (num != decompressedLength)
 				{

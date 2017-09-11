@@ -123,7 +123,7 @@ namespace bnet.protocol.channel_invitation
 		public static ListChannelCountResponse DeserializeLengthDelimited(Stream stream, ListChannelCountResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ListChannelCountResponse.Deserialize(stream, instance, position);
 		}
 
@@ -153,7 +153,7 @@ namespace bnet.protocol.channel_invitation
 			int hashCode = this.GetType().GetHashCode();
 			foreach (bnet.protocol.channel_invitation.ChannelCount channel in this.Channel)
 			{
-				hashCode = hashCode ^ channel.GetHashCode();
+				hashCode ^= channel.GetHashCode();
 			}
 			return hashCode;
 		}

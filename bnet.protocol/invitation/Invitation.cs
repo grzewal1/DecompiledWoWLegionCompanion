@@ -313,7 +313,7 @@ namespace bnet.protocol.invitation
 		public static Invitation DeserializeLengthDelimited(Stream stream, Invitation instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return Invitation.Deserialize(stream, instance, position);
 		}
 
@@ -370,36 +370,36 @@ namespace bnet.protocol.invitation
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Id.GetHashCode();
-			hashCode = hashCode ^ this.InviterIdentity.GetHashCode();
-			hashCode = hashCode ^ this.InviteeIdentity.GetHashCode();
+			hashCode ^= this.Id.GetHashCode();
+			hashCode ^= this.InviterIdentity.GetHashCode();
+			hashCode ^= this.InviteeIdentity.GetHashCode();
 			if (this.HasInviterName)
 			{
-				hashCode = hashCode ^ this.InviterName.GetHashCode();
+				hashCode ^= this.InviterName.GetHashCode();
 			}
 			if (this.HasInviteeName)
 			{
-				hashCode = hashCode ^ this.InviteeName.GetHashCode();
+				hashCode ^= this.InviteeName.GetHashCode();
 			}
 			if (this.HasInvitationMessage)
 			{
-				hashCode = hashCode ^ this.InvitationMessage.GetHashCode();
+				hashCode ^= this.InvitationMessage.GetHashCode();
 			}
 			if (this.HasCreationTime)
 			{
-				hashCode = hashCode ^ this.CreationTime.GetHashCode();
+				hashCode ^= this.CreationTime.GetHashCode();
 			}
 			if (this.HasExpirationTime)
 			{
-				hashCode = hashCode ^ this.ExpirationTime.GetHashCode();
+				hashCode ^= this.ExpirationTime.GetHashCode();
 			}
 			if (this.HasChannelInvitation)
 			{
-				hashCode = hashCode ^ this.ChannelInvitation.GetHashCode();
+				hashCode ^= this.ChannelInvitation.GetHashCode();
 			}
 			if (this.HasFriendInvite)
 			{
-				hashCode = hashCode ^ this.FriendInvite.GetHashCode();
+				hashCode ^= this.FriendInvite.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -407,7 +407,7 @@ namespace bnet.protocol.invitation
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + 8;
+			num += 8;
 			uint serializedSize = this.InviterIdentity.GetSerializedSize();
 			num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
 			uint serializedSize1 = this.InviteeIdentity.GetSerializedSize();
@@ -433,26 +433,26 @@ namespace bnet.protocol.invitation
 			if (this.HasCreationTime)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.CreationTime);
+				num += ProtocolParser.SizeOfUInt64(this.CreationTime);
 			}
 			if (this.HasExpirationTime)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.ExpirationTime);
+				num += ProtocolParser.SizeOfUInt64(this.ExpirationTime);
 			}
 			if (this.HasChannelInvitation)
 			{
-				num = num + 2;
+				num += 2;
 				uint serializedSize2 = this.ChannelInvitation.GetSerializedSize();
 				num = num + serializedSize2 + ProtocolParser.SizeOfUInt32(serializedSize2);
 			}
 			if (this.HasFriendInvite)
 			{
-				num = num + 2;
+				num += 2;
 				uint num2 = this.FriendInvite.GetSerializedSize();
 				num = num + num2 + ProtocolParser.SizeOfUInt32(num2);
 			}
-			num = num + 3;
+			num += 3;
 			return num;
 		}
 

@@ -100,7 +100,7 @@ namespace bnet.protocol
 		public static EntityId DeserializeLengthDelimited(Stream stream, EntityId instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return EntityId.Deserialize(stream, instance, position);
 		}
 
@@ -125,7 +125,7 @@ namespace bnet.protocol
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.High.GetHashCode();
+			hashCode ^= this.High.GetHashCode();
 			return hashCode ^ this.Low.GetHashCode();
 		}
 

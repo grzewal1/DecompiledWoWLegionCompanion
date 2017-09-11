@@ -263,7 +263,7 @@ namespace bnet.protocol.notification
 		public static Notification DeserializeLengthDelimited(Stream stream, Notification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return Notification.Deserialize(stream, instance, position);
 		}
 
@@ -317,25 +317,25 @@ namespace bnet.protocol.notification
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasSenderId)
 			{
-				hashCode = hashCode ^ this.SenderId.GetHashCode();
+				hashCode ^= this.SenderId.GetHashCode();
 			}
-			hashCode = hashCode ^ this.TargetId.GetHashCode();
-			hashCode = hashCode ^ this.Type.GetHashCode();
+			hashCode ^= this.TargetId.GetHashCode();
+			hashCode ^= this.Type.GetHashCode();
 			foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)
 			{
-				hashCode = hashCode ^ attribute.GetHashCode();
+				hashCode ^= attribute.GetHashCode();
 			}
 			if (this.HasSenderAccountId)
 			{
-				hashCode = hashCode ^ this.SenderAccountId.GetHashCode();
+				hashCode ^= this.SenderAccountId.GetHashCode();
 			}
 			if (this.HasTargetAccountId)
 			{
-				hashCode = hashCode ^ this.TargetAccountId.GetHashCode();
+				hashCode ^= this.TargetAccountId.GetHashCode();
 			}
 			if (this.HasSenderBattleTag)
 			{
-				hashCode = hashCode ^ this.SenderBattleTag.GetHashCode();
+				hashCode ^= this.SenderBattleTag.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -380,7 +380,7 @@ namespace bnet.protocol.notification
 				uint byteCount1 = (uint)Encoding.UTF8.GetByteCount(this.SenderBattleTag);
 				num = num + ProtocolParser.SizeOfUInt32(byteCount1) + byteCount1;
 			}
-			num = num + 2;
+			num += 2;
 			return num;
 		}
 

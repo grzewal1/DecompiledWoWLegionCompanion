@@ -253,8 +253,8 @@ public class AdventureMapPanel : MonoBehaviour
 		float mapposY = (float)record.Mappos_y * -single;
 		float single1 = -272.5694f;
 		float single2 = 1318.388f;
-		mapposX = mapposX + single1;
-		mapposY = mapposY + single2;
+		mapposX += single1;
+		mapposY += single2;
 		float mWorldMapLowDetail = this.m_worldMapLowDetail.sprite.textureRect.width;
 		float mWorldMapLowDetail1 = this.m_worldMapLowDetail.sprite.textureRect.height;
 		Vector2 vector3 = new Vector3(mapposX / mWorldMapLowDetail, mapposY / mWorldMapLowDetail1);
@@ -656,8 +656,7 @@ public class AdventureMapPanel : MonoBehaviour
 		this.m_currentVisibleZone = null;
 		if (this.m_currentMapMission > 0)
 		{
-			AdventureMapPanel mSecondsMissionHasBeenSelected = this;
-			mSecondsMissionHasBeenSelected.m_secondsMissionHasBeenSelected = mSecondsMissionHasBeenSelected.m_secondsMissionHasBeenSelected + Time.deltaTime;
+			this.m_secondsMissionHasBeenSelected += Time.deltaTime;
 		}
 		if (this.m_invasionNotification.gameObject.activeSelf)
 		{
@@ -669,6 +668,7 @@ public class AdventureMapPanel : MonoBehaviour
 				RectTransform mMapViewRT = this.m_mapViewRT;
 				Vector2 vector2 = this.m_mapViewRT.sizeDelta;
 				mMapViewRT.sizeDelta = new Vector2(vector2.x, 820f);
+				Main.instance.RequestWorldQuests();
 			}
 			else
 			{
@@ -946,8 +946,8 @@ public class AdventureMapPanel : MonoBehaviour
 				float startLocationX = (float)current.StartLocationX * single;
 				float single1 = 1036.88037f;
 				float single2 = 597.2115f;
-				startLocationY = startLocationY + single1;
-				startLocationX = startLocationX + single2;
+				startLocationY += single1;
+				startLocationX += single2;
 				float mWorldMapLowDetail = this.m_worldMapLowDetail.sprite.textureRect.width;
 				float mWorldMapLowDetail1 = this.m_worldMapLowDetail.sprite.textureRect.height;
 				Vector2 vector3 = new Vector3(startLocationY / mWorldMapLowDetail, startLocationX / mWorldMapLowDetail1);

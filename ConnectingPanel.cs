@@ -72,8 +72,7 @@ public class ConnectingPanel : MonoBehaviour
 		}
 		if (this.m_isFadingIn && this.m_fadeInTimeElapsed < this.m_fadeInDuration)
 		{
-			ConnectingPanel mFadeInTimeElapsed = this;
-			mFadeInTimeElapsed.m_fadeInTimeElapsed = mFadeInTimeElapsed.m_fadeInTimeElapsed + Time.deltaTime;
+			this.m_fadeInTimeElapsed += Time.deltaTime;
 			float single = Mathf.Clamp(this.m_fadeInTimeElapsed / this.m_fadeInDuration, 0f, 1f);
 			CanvasGroup[] mFadeCanvasGroups = this.m_fadeCanvasGroups;
 			for (int i = 0; i < (int)mFadeCanvasGroups.Length; i++)
@@ -83,8 +82,7 @@ public class ConnectingPanel : MonoBehaviour
 		}
 		if (this.m_isFadingOut && this.m_fadeOutTimeElapsed < this.m_fadeOutDuration)
 		{
-			ConnectingPanel mFadeOutTimeElapsed = this;
-			mFadeOutTimeElapsed.m_fadeOutTimeElapsed = mFadeOutTimeElapsed.m_fadeOutTimeElapsed + Time.deltaTime;
+			this.m_fadeOutTimeElapsed += Time.deltaTime;
 			float single1 = 1f - Mathf.Clamp(this.m_fadeOutTimeElapsed / this.m_fadeOutDuration, 0f, 1f);
 			CanvasGroup[] canvasGroupArray = this.m_fadeCanvasGroups;
 			for (int j = 0; j < (int)canvasGroupArray.Length; j++)

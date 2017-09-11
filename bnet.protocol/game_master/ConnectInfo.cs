@@ -189,7 +189,7 @@ namespace bnet.protocol.game_master
 		public static ConnectInfo DeserializeLengthDelimited(Stream stream, ConnectInfo instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ConnectInfo.Deserialize(stream, instance, position);
 		}
 
@@ -233,16 +233,16 @@ namespace bnet.protocol.game_master
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.MemberId.GetHashCode();
-			hashCode = hashCode ^ this.Host.GetHashCode();
-			hashCode = hashCode ^ this.Port.GetHashCode();
+			hashCode ^= this.MemberId.GetHashCode();
+			hashCode ^= this.Host.GetHashCode();
+			hashCode ^= this.Port.GetHashCode();
 			if (this.HasToken)
 			{
-				hashCode = hashCode ^ this.Token.GetHashCode();
+				hashCode ^= this.Token.GetHashCode();
 			}
 			foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)
 			{
-				hashCode = hashCode ^ attribute.GetHashCode();
+				hashCode ^= attribute.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -254,7 +254,7 @@ namespace bnet.protocol.game_master
 			num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
 			uint byteCount = (uint)Encoding.UTF8.GetByteCount(this.Host);
 			num = num + ProtocolParser.SizeOfUInt32(byteCount) + byteCount;
-			num = num + ProtocolParser.SizeOfUInt64((ulong)this.Port);
+			num += ProtocolParser.SizeOfUInt64((ulong)this.Port);
 			if (this.HasToken)
 			{
 				num++;
@@ -269,7 +269,7 @@ namespace bnet.protocol.game_master
 					num = num + serializedSize1 + ProtocolParser.SizeOfUInt32(serializedSize1);
 				}
 			}
-			num = num + 3;
+			num += 3;
 			return num;
 		}
 

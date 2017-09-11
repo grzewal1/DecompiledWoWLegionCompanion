@@ -134,7 +134,7 @@ namespace bnet.protocol.channel_invitation
 		public static HasRoomForInvitationRequest DeserializeLengthDelimited(Stream stream, HasRoomForInvitationRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return HasRoomForInvitationRequest.Deserialize(stream, instance, position);
 		}
 
@@ -163,14 +163,14 @@ namespace bnet.protocol.channel_invitation
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.ServiceType.GetHashCode();
+			hashCode ^= this.ServiceType.GetHashCode();
 			if (this.HasProgram)
 			{
-				hashCode = hashCode ^ this.Program.GetHashCode();
+				hashCode ^= this.Program.GetHashCode();
 			}
 			if (this.HasChannelType)
 			{
-				hashCode = hashCode ^ this.ChannelType.GetHashCode();
+				hashCode ^= this.ChannelType.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -178,11 +178,11 @@ namespace bnet.protocol.channel_invitation
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + ProtocolParser.SizeOfUInt32(this.ServiceType);
+			num += ProtocolParser.SizeOfUInt32(this.ServiceType);
 			if (this.HasProgram)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasChannelType)
 			{

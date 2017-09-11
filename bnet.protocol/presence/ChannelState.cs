@@ -178,7 +178,7 @@ namespace bnet.protocol.presence
 		public static ChannelState DeserializeLengthDelimited(Stream stream, ChannelState instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ChannelState.Deserialize(stream, instance, position);
 		}
 
@@ -216,15 +216,15 @@ namespace bnet.protocol.presence
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasEntityId)
 			{
-				hashCode = hashCode ^ this.EntityId.GetHashCode();
+				hashCode ^= this.EntityId.GetHashCode();
 			}
 			foreach (bnet.protocol.presence.FieldOperation fieldOperation in this.FieldOperation)
 			{
-				hashCode = hashCode ^ fieldOperation.GetHashCode();
+				hashCode ^= fieldOperation.GetHashCode();
 			}
 			if (this.HasHealing)
 			{
-				hashCode = hashCode ^ this.Healing.GetHashCode();
+				hashCode ^= this.Healing.GetHashCode();
 			}
 			return hashCode;
 		}

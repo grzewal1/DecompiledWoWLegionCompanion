@@ -74,7 +74,7 @@ namespace bnet.protocol
 		public static NORESPONSE DeserializeLengthDelimited(Stream stream, NORESPONSE instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return NORESPONSE.Deserialize(stream, instance, position);
 		}
 

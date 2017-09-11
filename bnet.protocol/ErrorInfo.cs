@@ -126,7 +126,7 @@ namespace bnet.protocol
 		public static ErrorInfo DeserializeLengthDelimited(Stream stream, ErrorInfo instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ErrorInfo.Deserialize(stream, instance, position);
 		}
 
@@ -159,9 +159,9 @@ namespace bnet.protocol
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.ObjectAddress.GetHashCode();
-			hashCode = hashCode ^ this.Status.GetHashCode();
-			hashCode = hashCode ^ this.ServiceHash.GetHashCode();
+			hashCode ^= this.ObjectAddress.GetHashCode();
+			hashCode ^= this.Status.GetHashCode();
+			hashCode ^= this.ServiceHash.GetHashCode();
 			return hashCode ^ this.MethodId.GetHashCode();
 		}
 
@@ -170,9 +170,9 @@ namespace bnet.protocol
 			uint num = 0;
 			uint serializedSize = this.ObjectAddress.GetSerializedSize();
 			num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
-			num = num + ProtocolParser.SizeOfUInt32(this.Status);
-			num = num + ProtocolParser.SizeOfUInt32(this.ServiceHash);
-			num = num + ProtocolParser.SizeOfUInt32(this.MethodId);
+			num += ProtocolParser.SizeOfUInt32(this.Status);
+			num += ProtocolParser.SizeOfUInt32(this.ServiceHash);
+			num += ProtocolParser.SizeOfUInt32(this.MethodId);
 			return num + 4;
 		}
 

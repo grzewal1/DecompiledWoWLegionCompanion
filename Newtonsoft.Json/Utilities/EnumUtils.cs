@@ -94,8 +94,7 @@ namespace Newtonsoft.Json.Utilities
 				{
 					while (enumerator1.MoveNext())
 					{
-						TEnumType current = (TEnumType)enumerator1.Current;
-						num = num | current.ToUInt64(CultureInfo.InvariantCulture);
+						num |= ((TEnumType)enumerator1.Current).ToUInt64(CultureInfo.InvariantCulture);
 					}
 				}
 				finally

@@ -223,7 +223,7 @@ namespace bnet.protocol.channel_invitation
 		public static SuggestInvitationRequest DeserializeLengthDelimited(Stream stream, SuggestInvitationRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return SuggestInvitationRequest.Deserialize(stream, instance, position);
 		}
 
@@ -266,21 +266,21 @@ namespace bnet.protocol.channel_invitation
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentId)
 			{
-				hashCode = hashCode ^ this.AgentId.GetHashCode();
+				hashCode ^= this.AgentId.GetHashCode();
 			}
-			hashCode = hashCode ^ this.ChannelId.GetHashCode();
-			hashCode = hashCode ^ this.TargetId.GetHashCode();
+			hashCode ^= this.ChannelId.GetHashCode();
+			hashCode ^= this.TargetId.GetHashCode();
 			if (this.HasApprovalId)
 			{
-				hashCode = hashCode ^ this.ApprovalId.GetHashCode();
+				hashCode ^= this.ApprovalId.GetHashCode();
 			}
 			if (this.HasAgentIdentity)
 			{
-				hashCode = hashCode ^ this.AgentIdentity.GetHashCode();
+				hashCode ^= this.AgentIdentity.GetHashCode();
 			}
 			if (this.HasAgentInfo)
 			{
-				hashCode = hashCode ^ this.AgentInfo.GetHashCode();
+				hashCode ^= this.AgentInfo.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -316,7 +316,7 @@ namespace bnet.protocol.channel_invitation
 				uint serializedSize3 = this.AgentInfo.GetSerializedSize();
 				num = num + serializedSize3 + ProtocolParser.SizeOfUInt32(serializedSize3);
 			}
-			num = num + 2;
+			num += 2;
 			return num;
 		}
 

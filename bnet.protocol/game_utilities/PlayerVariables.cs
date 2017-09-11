@@ -169,7 +169,7 @@ namespace bnet.protocol.game_utilities
 		public static PlayerVariables DeserializeLengthDelimited(Stream stream, PlayerVariables instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return PlayerVariables.Deserialize(stream, instance, position);
 		}
 
@@ -205,14 +205,14 @@ namespace bnet.protocol.game_utilities
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Identity.GetHashCode();
+			hashCode ^= this.Identity.GetHashCode();
 			if (this.HasRating)
 			{
-				hashCode = hashCode ^ this.Rating.GetHashCode();
+				hashCode ^= this.Rating.GetHashCode();
 			}
 			foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)
 			{
-				hashCode = hashCode ^ attribute.GetHashCode();
+				hashCode ^= attribute.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -225,7 +225,7 @@ namespace bnet.protocol.game_utilities
 			if (this.HasRating)
 			{
 				num++;
-				num = num + 8;
+				num += 8;
 			}
 			if (this.Attribute.Count > 0)
 			{

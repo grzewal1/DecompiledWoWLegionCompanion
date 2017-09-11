@@ -154,7 +154,7 @@ public class ExceptionCatcher : MonoBehaviour
 	[DebuggerHidden]
 	private IEnumerator SendExceptionReport(string message, string stackTrace, string hash)
 	{
-		ExceptionCatcher.<SendExceptionReport>c__IteratorC variable = null;
+		ExceptionCatcher.<SendExceptionReport>c__IteratorA variable = null;
 		return variable;
 	}
 

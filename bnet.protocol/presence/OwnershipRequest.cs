@@ -119,7 +119,7 @@ namespace bnet.protocol.presence
 		public static OwnershipRequest DeserializeLengthDelimited(Stream stream, OwnershipRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return OwnershipRequest.Deserialize(stream, instance, position);
 		}
 
@@ -144,10 +144,10 @@ namespace bnet.protocol.presence
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.EntityId.GetHashCode();
+			hashCode ^= this.EntityId.GetHashCode();
 			if (this.HasReleaseOwnership)
 			{
-				hashCode = hashCode ^ this.ReleaseOwnership.GetHashCode();
+				hashCode ^= this.ReleaseOwnership.GetHashCode();
 			}
 			return hashCode;
 		}

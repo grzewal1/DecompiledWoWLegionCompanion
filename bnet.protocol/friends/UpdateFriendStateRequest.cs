@@ -196,7 +196,7 @@ namespace bnet.protocol.friends
 		public static UpdateFriendStateRequest DeserializeLengthDelimited(Stream stream, UpdateFriendStateRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return UpdateFriendStateRequest.Deserialize(stream, instance, position);
 		}
 
@@ -238,16 +238,16 @@ namespace bnet.protocol.friends
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentId)
 			{
-				hashCode = hashCode ^ this.AgentId.GetHashCode();
+				hashCode ^= this.AgentId.GetHashCode();
 			}
-			hashCode = hashCode ^ this.TargetId.GetHashCode();
+			hashCode ^= this.TargetId.GetHashCode();
 			foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)
 			{
-				hashCode = hashCode ^ attribute.GetHashCode();
+				hashCode ^= attribute.GetHashCode();
 			}
 			if (this.HasAttributesEpoch)
 			{
-				hashCode = hashCode ^ this.AttributesEpoch.GetHashCode();
+				hashCode ^= this.AttributesEpoch.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -275,7 +275,7 @@ namespace bnet.protocol.friends
 			if (this.HasAttributesEpoch)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.AttributesEpoch);
+				num += ProtocolParser.SizeOfUInt64(this.AttributesEpoch);
 			}
 			num++;
 			return num;

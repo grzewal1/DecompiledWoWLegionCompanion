@@ -131,7 +131,7 @@ namespace bnet.protocol.account
 		public static GameAccountSessionNotification DeserializeLengthDelimited(Stream stream, GameAccountSessionNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameAccountSessionNotification.Deserialize(stream, instance, position);
 		}
 
@@ -158,11 +158,11 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasGameAccount)
 			{
-				hashCode = hashCode ^ this.GameAccount.GetHashCode();
+				hashCode ^= this.GameAccount.GetHashCode();
 			}
 			if (this.HasSessionInfo)
 			{
-				hashCode = hashCode ^ this.SessionInfo.GetHashCode();
+				hashCode ^= this.SessionInfo.GetHashCode();
 			}
 			return hashCode;
 		}

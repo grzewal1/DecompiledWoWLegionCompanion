@@ -122,7 +122,7 @@ namespace bnet.protocol.channel
 		public static UpdateChannelStateNotification DeserializeLengthDelimited(Stream stream, UpdateChannelStateNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return UpdateChannelStateNotification.Deserialize(stream, instance, position);
 		}
 
@@ -149,9 +149,9 @@ namespace bnet.protocol.channel
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentId)
 			{
-				hashCode = hashCode ^ this.AgentId.GetHashCode();
+				hashCode ^= this.AgentId.GetHashCode();
 			}
-			hashCode = hashCode ^ this.StateChange.GetHashCode();
+			hashCode ^= this.StateChange.GetHashCode();
 			return hashCode;
 		}
 

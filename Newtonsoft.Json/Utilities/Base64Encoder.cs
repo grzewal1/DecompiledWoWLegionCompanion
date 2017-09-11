@@ -64,7 +64,7 @@ namespace Newtonsoft.Json.Utilities
 			this._leftOverBytesCount = count % 3;
 			if (this._leftOverBytesCount > 0)
 			{
-				count = count - this._leftOverBytesCount;
+				count -= this._leftOverBytesCount;
 				if (this._leftOverBytes == null)
 				{
 					this._leftOverBytes = new byte[3];
@@ -84,7 +84,7 @@ namespace Newtonsoft.Json.Utilities
 				}
 				int base64CharArray1 = Convert.ToBase64CharArray(buffer, index, num4, this._charsLine, 0);
 				this.WriteChars(this._charsLine, 0, base64CharArray1);
-				index = index + num4;
+				index += num4;
 			}
 		}
 

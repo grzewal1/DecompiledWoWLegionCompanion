@@ -100,7 +100,7 @@ namespace bnet.protocol.account
 		public static ForwardCacheExpireRequest DeserializeLengthDelimited(Stream stream, ForwardCacheExpireRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ForwardCacheExpireRequest.Deserialize(stream, instance, position);
 		}
 
@@ -123,7 +123,7 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasEntityId)
 			{
-				hashCode = hashCode ^ this.EntityId.GetHashCode();
+				hashCode ^= this.EntityId.GetHashCode();
 			}
 			return hashCode;
 		}

@@ -86,7 +86,7 @@ namespace bnet.protocol.account
 		public static AccountId DeserializeLengthDelimited(Stream stream, AccountId instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AccountId.Deserialize(stream, instance, position);
 		}
 

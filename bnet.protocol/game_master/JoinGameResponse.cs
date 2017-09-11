@@ -171,7 +171,7 @@ namespace bnet.protocol.game_master
 		public static JoinGameResponse DeserializeLengthDelimited(Stream stream, JoinGameResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return JoinGameResponse.Deserialize(stream, instance, position);
 		}
 
@@ -209,15 +209,15 @@ namespace bnet.protocol.game_master
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasRequestId)
 			{
-				hashCode = hashCode ^ this.RequestId.GetHashCode();
+				hashCode ^= this.RequestId.GetHashCode();
 			}
 			if (this.HasQueued)
 			{
-				hashCode = hashCode ^ this.Queued.GetHashCode();
+				hashCode ^= this.Queued.GetHashCode();
 			}
 			foreach (bnet.protocol.game_master.ConnectInfo connectInfo in this.ConnectInfo)
 			{
-				hashCode = hashCode ^ connectInfo.GetHashCode();
+				hashCode ^= connectInfo.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -228,7 +228,7 @@ namespace bnet.protocol.game_master
 			if (this.HasRequestId)
 			{
 				num++;
-				num = num + 8;
+				num += 8;
 			}
 			if (this.HasQueued)
 			{

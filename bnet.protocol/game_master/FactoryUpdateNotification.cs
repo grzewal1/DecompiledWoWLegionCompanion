@@ -128,7 +128,7 @@ namespace bnet.protocol.game_master
 		public static FactoryUpdateNotification DeserializeLengthDelimited(Stream stream, FactoryUpdateNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return FactoryUpdateNotification.Deserialize(stream, instance, position);
 		}
 
@@ -157,11 +157,11 @@ namespace bnet.protocol.game_master
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Op.GetHashCode();
-			hashCode = hashCode ^ this.Description.GetHashCode();
+			hashCode ^= this.Op.GetHashCode();
+			hashCode ^= this.Description.GetHashCode();
 			if (this.HasProgramId)
 			{
-				hashCode = hashCode ^ this.ProgramId.GetHashCode();
+				hashCode ^= this.ProgramId.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -169,15 +169,15 @@ namespace bnet.protocol.game_master
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + ProtocolParser.SizeOfUInt64((ulong)this.Op);
+			num += ProtocolParser.SizeOfUInt64((ulong)this.Op);
 			uint serializedSize = this.Description.GetSerializedSize();
 			num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
 			if (this.HasProgramId)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
-			num = num + 2;
+			num += 2;
 			return num;
 		}
 

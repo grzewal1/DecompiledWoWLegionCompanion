@@ -119,8 +119,7 @@ namespace bgs
 					this.table[length] = next + 1;
 				}
 				this.valueSlots[next] = value;
-				Map<TKey, TValue> map2 = this;
-				map2.generation = map2.generation + 1;
+				this.generation++;
 			}
 		}
 
@@ -198,8 +197,7 @@ namespace bgs
 			this.table[length] = i + 1;
 			this.keySlots[i] = key;
 			this.valueSlots[i] = value;
-			Map<TKey, TValue> map2 = this;
-			map2.generation = map2.generation + 1;
+			this.generation++;
 		}
 
 		public void Clear()
@@ -215,8 +213,7 @@ namespace bgs
 			Array.Clear(this.linkSlots, 0, (int)this.linkSlots.Length);
 			this.emptySlot = -1;
 			this.touchedSlots = 0;
-			Map<TKey, TValue> map = this;
-			map.generation = map.generation + 1;
+			this.generation++;
 		}
 
 		public bool ContainsKey(TKey key)
@@ -417,8 +414,7 @@ namespace bgs
 			{
 				return false;
 			}
-			Map<TKey, TValue> map = this;
-			map.count = map.count - 1;
+			this.count--;
 			if (num != -1)
 			{
 				this.linkSlots[num].Next = this.linkSlots[next].Next;
@@ -432,8 +428,7 @@ namespace bgs
 			this.linkSlots[next].HashCode = 0;
 			this.keySlots[next] = default(TKey);
 			this.valueSlots[next] = default(TValue);
-			Map<TKey, TValue> map1 = this;
-			map1.generation = map1.generation + 1;
+			this.generation++;
 			return true;
 		}
 

@@ -67,7 +67,7 @@ namespace bgs
 				}
 				else if (item.Name.StartsWith("fragment_"))
 				{
-					length = length + (int)item.Value.BlobValue.Length;
+					length += (int)item.Value.BlobValue.Length;
 					strs.Add(item.Name, i);
 				}
 			}
@@ -85,7 +85,7 @@ namespace bgs
 				{
 					byte[] blobValue = notification.Attribute[enumerator.Current.Value].Value.BlobValue;
 					Array.Copy(blobValue, 0, bnetNotification.BlobMessage, num, (int)blobValue.Length);
-					num = num + (int)blobValue.Length;
+					num += (int)blobValue.Length;
 				}
 			}
 			if (bnetNotification.MessageSize == length)

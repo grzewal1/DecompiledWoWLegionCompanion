@@ -95,7 +95,7 @@ namespace bnet.protocol.authentication
 		public static VerifyWebCredentialsRequest DeserializeLengthDelimited(Stream stream, VerifyWebCredentialsRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return VerifyWebCredentialsRequest.Deserialize(stream, instance, position);
 		}
 
@@ -118,7 +118,7 @@ namespace bnet.protocol.authentication
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasWebCredentials)
 			{
-				hashCode = hashCode ^ this.WebCredentials.GetHashCode();
+				hashCode ^= this.WebCredentials.GetHashCode();
 			}
 			return hashCode;
 		}

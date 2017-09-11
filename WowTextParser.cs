@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using WowStaticData;
 
 public class WowTextParser
@@ -51,8 +50,7 @@ public class WowTextParser
 		};
 		this.m_currentValue = string.Empty;
 		this.m_tokens.Add(parseToken);
-		WowTextParser mBracketLevel = this;
-		mBracketLevel.m_bracketLevel = mBracketLevel.m_bracketLevel - 1;
+		this.m_bracketLevel--;
 		if (this.m_bracketLevel < 0)
 		{
 			throw new Exception(string.Concat("AddCloseBracketToken(): Mismatched brackets in string ", this.m_input));
@@ -123,8 +121,7 @@ public class WowTextParser
 		};
 		this.m_currentValue = string.Empty;
 		this.m_tokens.Add(parseToken);
-		WowTextParser mBracketLevel = this;
-		mBracketLevel.m_bracketLevel = mBracketLevel.m_bracketLevel + 1;
+		this.m_bracketLevel++;
 	}
 
 	private void AddPlusToken()
@@ -165,15 +162,13 @@ public class WowTextParser
 
 	private bool ConsumeCharacter()
 	{
-		WowTextParser mReadIndex = this;
-		mReadIndex.m_readIndex = mReadIndex.m_readIndex + 1;
+		this.m_readIndex++;
 		return this.m_readIndex < this.m_input.Length;
 	}
 
 	private bool ConsumeCharacters(int length)
 	{
-		WowTextParser mReadIndex = this;
-		mReadIndex.m_readIndex = mReadIndex.m_readIndex + length;
+		this.m_readIndex += length;
 		if (this.m_readIndex > this.m_input.Length)
 		{
 			this.m_readIndex = this.m_input.Length;
@@ -496,20 +491,54 @@ public class WowTextParser
 
 	private string ParseForArtifactXP(string input, int spellID)
 	{
-		string value = Regex.Match(input, "\\d+").Value;
-		if (value == string.Empty)
+		string str;
+		int num = 0;
+		while (!this.CharacterIsNumeric(input[num]) && num < input.Length)
+		{
+			num++;
+		}
+		if (num >= input.Length)
 		{
 			return input;
 		}
-		int num = int.Parse(value);
-		int num1 = GeneralHelpers.ApplyArtifactXPMultiplier(num, GarrisonStatus.ArtifactXpMultiplier);
-		if (num1 <= 1000000)
+		string empty = string.Empty;
+		string empty1 = string.Empty;
+		while (num < input.Length && (this.CharacterIsNumeric(input[num]) || input[num] == ','))
 		{
-			return input.Replace(value, num1.ToString());
+			if (input[num] != ',')
+			{
+				empty = string.Concat(empty, input[num]);
+			}
+			empty1 = string.Concat(empty1, input[num]);
+			num++;
 		}
-		double num2 = (double)((float)num1) / 1000000;
-		string str = string.Format("{0:F1} {1}", num2, StaticDB.GetString("MILLION", "million"));
-		return input.Replace(value, str);
+		if (empty == string.Empty)
+		{
+			return input;
+		}
+		int num1 = 0;
+		try
+		{
+			num1 = int.Parse(empty);
+			int num2 = GeneralHelpers.ApplyArtifactXPMultiplier(num1, GarrisonStatus.ArtifactXpMultiplier);
+			if (num2 > 1000000)
+			{
+				double num3 = (double)((float)num2) / 1000000;
+				string str1 = string.Format("{0:F1} {1}", num3, StaticDB.GetString("MILLION", "million"));
+				return input.Replace(empty1, str1);
+			}
+			if (num2 <= 999)
+			{
+				return input.Replace(empty1, num2.ToString());
+			}
+			string str2 = string.Format("{0},{1:D3}", num2 / 1000, num2 % 1000);
+			return input.Replace(empty1, str2);
+		}
+		catch (Exception exception)
+		{
+			str = input;
+		}
+		return str;
 	}
 
 	private void ParseInlineIcon()

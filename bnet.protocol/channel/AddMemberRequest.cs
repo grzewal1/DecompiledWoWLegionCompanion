@@ -174,7 +174,7 @@ namespace bnet.protocol.channel
 		public static AddMemberRequest DeserializeLengthDelimited(Stream stream, AddMemberRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AddMemberRequest.Deserialize(stream, instance, position);
 		}
 
@@ -213,14 +213,14 @@ namespace bnet.protocol.channel
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentId)
 			{
-				hashCode = hashCode ^ this.AgentId.GetHashCode();
+				hashCode ^= this.AgentId.GetHashCode();
 			}
-			hashCode = hashCode ^ this.MemberIdentity.GetHashCode();
-			hashCode = hashCode ^ this.MemberState.GetHashCode();
-			hashCode = hashCode ^ this.ObjectId.GetHashCode();
+			hashCode ^= this.MemberIdentity.GetHashCode();
+			hashCode ^= this.MemberState.GetHashCode();
+			hashCode ^= this.ObjectId.GetHashCode();
 			if (this.HasSubscribe)
 			{
-				hashCode = hashCode ^ this.Subscribe.GetHashCode();
+				hashCode ^= this.Subscribe.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -238,13 +238,13 @@ namespace bnet.protocol.channel
 			num = num + serializedSize1 + ProtocolParser.SizeOfUInt32(serializedSize1);
 			uint num1 = this.MemberState.GetSerializedSize();
 			num = num + num1 + ProtocolParser.SizeOfUInt32(num1);
-			num = num + ProtocolParser.SizeOfUInt64(this.ObjectId);
+			num += ProtocolParser.SizeOfUInt64(this.ObjectId);
 			if (this.HasSubscribe)
 			{
 				num++;
 				num++;
 			}
-			num = num + 3;
+			num += 3;
 			return num;
 		}
 

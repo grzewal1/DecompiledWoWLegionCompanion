@@ -100,7 +100,7 @@ namespace SimpleJSON
 		{
 			get
 			{
-				JSONNode.<>c__IteratorD variable = null;
+				JSONNode.<>c__IteratorB variable = null;
 				return variable;
 			}
 		}
@@ -117,7 +117,7 @@ namespace SimpleJSON
 		{
 			get
 			{
-				JSONNode.<>c__IteratorE variable = null;
+				JSONNode.<>c__IteratorC variable = null;
 				return variable;
 			}
 		}
@@ -399,7 +399,7 @@ namespace SimpleJSON
 							}
 							case '\"':
 							{
-								flag = flag ^ 1;
+								flag ^= 1;
 								break;
 							}
 							default:
@@ -461,7 +461,7 @@ namespace SimpleJSON
 												{
 													string str1 = aJSON.Substring(num + 1, 4);
 													empty = string.Concat(empty, (char)int.Parse(str1, NumberStyles.AllowHexSpecifier));
-													num = num + 4;
+													num += 4;
 													break;
 												}
 												default:

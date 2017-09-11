@@ -41,8 +41,7 @@ namespace Newtonsoft.Json.Serialization
 			BidirectionalDictionary<string, object> mappings = this.GetMappings(context);
 			if (!mappings.TryGetBySecond(value, out str))
 			{
-				DefaultReferenceResolver defaultReferenceResolver = this;
-				defaultReferenceResolver._referenceCount = defaultReferenceResolver._referenceCount + 1;
+				this._referenceCount++;
 				str = this._referenceCount.ToString(CultureInfo.InvariantCulture);
 				mappings.Add(str, value);
 			}

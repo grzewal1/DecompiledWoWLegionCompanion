@@ -427,8 +427,7 @@ public class MissionRewardDisplay : MonoBehaviour
 		{
 			return;
 		}
-		MissionRewardDisplay missionRewardDisplay = this;
-		missionRewardDisplay.timeRemainingUntilLootEffect = missionRewardDisplay.timeRemainingUntilLootEffect - Time.deltaTime;
+		this.timeRemainingUntilLootEffect -= Time.deltaTime;
 		if (this.timeRemainingUntilLootEffect <= 0f)
 		{
 			if (this.m_enableLootEffect_success)

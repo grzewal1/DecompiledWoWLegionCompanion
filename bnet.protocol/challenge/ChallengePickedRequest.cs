@@ -143,7 +143,7 @@ namespace bnet.protocol.challenge
 		public static ChallengePickedRequest DeserializeLengthDelimited(Stream stream, ChallengePickedRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ChallengePickedRequest.Deserialize(stream, instance, position);
 		}
 
@@ -172,14 +172,14 @@ namespace bnet.protocol.challenge
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Challenge.GetHashCode();
+			hashCode ^= this.Challenge.GetHashCode();
 			if (this.HasId)
 			{
-				hashCode = hashCode ^ this.Id.GetHashCode();
+				hashCode ^= this.Id.GetHashCode();
 			}
 			if (this.HasNewChallengeProtocol)
 			{
-				hashCode = hashCode ^ this.NewChallengeProtocol.GetHashCode();
+				hashCode ^= this.NewChallengeProtocol.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -187,11 +187,11 @@ namespace bnet.protocol.challenge
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + 4;
+			num += 4;
 			if (this.HasId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Id);
+				num += ProtocolParser.SizeOfUInt32(this.Id);
 			}
 			if (this.HasNewChallengeProtocol)
 			{

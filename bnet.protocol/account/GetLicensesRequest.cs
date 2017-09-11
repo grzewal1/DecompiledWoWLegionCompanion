@@ -227,7 +227,7 @@ namespace bnet.protocol.account
 		public static GetLicensesRequest DeserializeLengthDelimited(Stream stream, GetLicensesRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetLicensesRequest.Deserialize(stream, instance, position);
 		}
 
@@ -270,27 +270,27 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasTargetId)
 			{
-				hashCode = hashCode ^ this.TargetId.GetHashCode();
+				hashCode ^= this.TargetId.GetHashCode();
 			}
 			if (this.HasGetAccountLicenses)
 			{
-				hashCode = hashCode ^ this.GetAccountLicenses.GetHashCode();
+				hashCode ^= this.GetAccountLicenses.GetHashCode();
 			}
 			if (this.HasGetGameAccountLicenses)
 			{
-				hashCode = hashCode ^ this.GetGameAccountLicenses.GetHashCode();
+				hashCode ^= this.GetGameAccountLicenses.GetHashCode();
 			}
 			if (this.HasGetDynamicAccountLicenses)
 			{
-				hashCode = hashCode ^ this.GetDynamicAccountLicenses.GetHashCode();
+				hashCode ^= this.GetDynamicAccountLicenses.GetHashCode();
 			}
 			if (this.HasProgramId)
 			{
-				hashCode = hashCode ^ this.ProgramId.GetHashCode();
+				hashCode ^= this.ProgramId.GetHashCode();
 			}
 			if (this.HasExcludeUnknownProgram)
 			{
-				hashCode = hashCode ^ this.ExcludeUnknownProgram.GetHashCode();
+				hashCode ^= this.ExcludeUnknownProgram.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -322,7 +322,7 @@ namespace bnet.protocol.account
 			if (this.HasProgramId)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasExcludeUnknownProgram)
 			{

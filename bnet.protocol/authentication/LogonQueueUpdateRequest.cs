@@ -109,7 +109,7 @@ namespace bnet.protocol.authentication
 		public static LogonQueueUpdateRequest DeserializeLengthDelimited(Stream stream, LogonQueueUpdateRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return LogonQueueUpdateRequest.Deserialize(stream, instance, position);
 		}
 
@@ -138,16 +138,16 @@ namespace bnet.protocol.authentication
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Position.GetHashCode();
-			hashCode = hashCode ^ this.EstimatedTime.GetHashCode();
+			hashCode ^= this.Position.GetHashCode();
+			hashCode ^= this.EstimatedTime.GetHashCode();
 			return hashCode ^ this.EtaDeviationInSec.GetHashCode();
 		}
 
 		public uint GetSerializedSize()
 		{
 			uint num = 0 + ProtocolParser.SizeOfUInt32(this.Position);
-			num = num + ProtocolParser.SizeOfUInt64(this.EstimatedTime);
-			num = num + ProtocolParser.SizeOfUInt64(this.EtaDeviationInSec);
+			num += ProtocolParser.SizeOfUInt64(this.EstimatedTime);
+			num += ProtocolParser.SizeOfUInt64(this.EtaDeviationInSec);
 			return num + 3;
 		}
 

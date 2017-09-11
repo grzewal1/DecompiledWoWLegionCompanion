@@ -161,7 +161,7 @@ namespace bnet.protocol.channel_invitation
 		public static RevokeInvitationRequest DeserializeLengthDelimited(Stream stream, RevokeInvitationRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return RevokeInvitationRequest.Deserialize(stream, instance, position);
 		}
 
@@ -196,14 +196,14 @@ namespace bnet.protocol.channel_invitation
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentId)
 			{
-				hashCode = hashCode ^ this.AgentId.GetHashCode();
+				hashCode ^= this.AgentId.GetHashCode();
 			}
 			if (this.HasTargetId)
 			{
-				hashCode = hashCode ^ this.TargetId.GetHashCode();
+				hashCode ^= this.TargetId.GetHashCode();
 			}
-			hashCode = hashCode ^ this.InvitationId.GetHashCode();
-			hashCode = hashCode ^ this.ChannelId.GetHashCode();
+			hashCode ^= this.InvitationId.GetHashCode();
+			hashCode ^= this.ChannelId.GetHashCode();
 			return hashCode;
 		}
 
@@ -222,10 +222,10 @@ namespace bnet.protocol.channel_invitation
 				uint serializedSize1 = this.TargetId.GetSerializedSize();
 				num = num + serializedSize1 + ProtocolParser.SizeOfUInt32(serializedSize1);
 			}
-			num = num + 8;
+			num += 8;
 			uint num1 = this.ChannelId.GetSerializedSize();
 			num = num + num1 + ProtocolParser.SizeOfUInt32(num1);
-			num = num + 2;
+			num += 2;
 			return num;
 		}
 

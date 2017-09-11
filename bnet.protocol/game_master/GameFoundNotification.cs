@@ -189,7 +189,7 @@ namespace bnet.protocol.game_master
 		public static GameFoundNotification DeserializeLengthDelimited(Stream stream, GameFoundNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameFoundNotification.Deserialize(stream, instance, position);
 		}
 
@@ -229,18 +229,18 @@ namespace bnet.protocol.game_master
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.RequestId.GetHashCode();
+			hashCode ^= this.RequestId.GetHashCode();
 			if (this.HasErrorCode)
 			{
-				hashCode = hashCode ^ this.ErrorCode.GetHashCode();
+				hashCode ^= this.ErrorCode.GetHashCode();
 			}
 			if (this.HasGameHandle)
 			{
-				hashCode = hashCode ^ this.GameHandle.GetHashCode();
+				hashCode ^= this.GameHandle.GetHashCode();
 			}
 			foreach (bnet.protocol.game_master.ConnectInfo connectInfo in this.ConnectInfo)
 			{
-				hashCode = hashCode ^ connectInfo.GetHashCode();
+				hashCode ^= connectInfo.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -248,11 +248,11 @@ namespace bnet.protocol.game_master
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + 8;
+			num += 8;
 			if (this.HasErrorCode)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.ErrorCode);
+				num += ProtocolParser.SizeOfUInt32(this.ErrorCode);
 			}
 			if (this.HasGameHandle)
 			{

@@ -35,7 +35,7 @@ public class WorldQuestTooltip : MonoBehaviour
 	public BountySite m_bountyLogoPrefab;
 
 	[Header("Misc")]
-	public RewardInfoPopup m_rewardInfo;
+	public RewardInfoPopup[] m_rewardInfo;
 
 	public Text m_rewardsLabel;
 
@@ -49,41 +49,77 @@ public class WorldQuestTooltip : MonoBehaviour
 	{
 	}
 
+	private void EnableAdditionalRewardDisplays(int highestActiveIndex)
+	{
+		this.m_rewardInfo[1].gameObject.SetActive(highestActiveIndex >= 1);
+		this.m_rewardInfo[2].gameObject.SetActive(highestActiveIndex >= 2);
+	}
+
 	private void InitRewardInfoDisplay(MobileWorldQuest worldQuest)
 	{
+		int num = 0;
+		this.m_rewardInfo[0].gameObject.SetActive(true);
+		this.m_rewardInfo[1].gameObject.SetActive(false);
+		this.m_rewardInfo[2].gameObject.SetActive(false);
 		if (worldQuest.Item != null && worldQuest.Item.Count<MobileWorldQuestReward>() > 0)
 		{
 			MobileWorldQuestReward[] item = worldQuest.Item;
-			int num = 0;
-			if (num < (int)item.Length)
+			for (int i = 0; i < (int)item.Length; i++)
 			{
-				MobileWorldQuestReward mobileWorldQuestReward = item[num];
+				MobileWorldQuestReward mobileWorldQuestReward = item[i];
 				Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, mobileWorldQuestReward.FileDataID);
-				this.m_rewardInfo.SetReward(MissionRewardDisplay.RewardType.item, mobileWorldQuestReward.RecordID, mobileWorldQuestReward.Quantity, sprite, mobileWorldQuestReward.ItemContext);
+				this.m_rewardInfo[num].SetReward(MissionRewardDisplay.RewardType.item, mobileWorldQuestReward.RecordID, mobileWorldQuestReward.Quantity, sprite, mobileWorldQuestReward.ItemContext);
+				int num1 = num;
+				num = num1 + 1;
+				this.EnableAdditionalRewardDisplays(num1);
+				if (num >= 3)
+				{
+					return;
+				}
 			}
 		}
 		else if (worldQuest.Currency.Count<MobileWorldQuestReward>() > 0)
 		{
 			MobileWorldQuestReward[] currency = worldQuest.Currency;
-			int num1 = 0;
-			if (num1 < (int)currency.Length)
+			for (int j = 0; j < (int)currency.Length; j++)
 			{
-				MobileWorldQuestReward mobileWorldQuestReward1 = currency[num1];
+				MobileWorldQuestReward mobileWorldQuestReward1 = currency[j];
 				Sprite sprite1 = GeneralHelpers.LoadCurrencyIcon(mobileWorldQuestReward1.RecordID);
 				CurrencyTypesRec record = StaticDB.currencyTypesDB.GetRecord(mobileWorldQuestReward1.RecordID);
 				int quantity = mobileWorldQuestReward1.Quantity / ((record.Flags & 8) == 0 ? 1 : 100);
-				this.m_rewardInfo.SetCurrency(mobileWorldQuestReward1.RecordID, quantity, sprite1);
+				this.m_rewardInfo[num].SetCurrency(mobileWorldQuestReward1.RecordID, quantity, sprite1);
+				int num2 = num;
+				num = num2 + 1;
+				this.EnableAdditionalRewardDisplays(num2);
+				if (num >= 3)
+				{
+					return;
+				}
 			}
 		}
 		else if (worldQuest.Money > 0)
 		{
 			Sprite sprite2 = Resources.Load<Sprite>("MiscIcons/INV_Misc_Coin_01");
-			this.m_rewardInfo.SetGold(worldQuest.Money / 10000, sprite2);
+			this.m_rewardInfo[num].SetGold(worldQuest.Money / 10000, sprite2);
+			int num3 = num;
+			num = num3 + 1;
+			this.EnableAdditionalRewardDisplays(num3);
+			if (num >= 3)
+			{
+				return;
+			}
 		}
 		else if (worldQuest.Experience > 0)
 		{
 			Sprite localizedFollowerXpIcon = GeneralHelpers.GetLocalizedFollowerXpIcon();
-			this.m_rewardInfo.SetFollowerXP(worldQuest.Experience, localizedFollowerXpIcon);
+			this.m_rewardInfo[num].SetFollowerXP(worldQuest.Experience, localizedFollowerXpIcon);
+			int num4 = num;
+			num = num4 + 1;
+			this.EnableAdditionalRewardDisplays(num4);
+			if (num >= 3)
+			{
+				return;
+			}
 		}
 	}
 

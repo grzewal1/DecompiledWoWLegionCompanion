@@ -140,8 +140,7 @@ public class LegionfallBuildingPanel : MonoBehaviour
 			return;
 		}
 		this.m_lootItemID = itemID;
-		LegionfallBuildingPanel mLootItemQuantity = this;
-		mLootItemQuantity.m_lootItemQuantity = mLootItemQuantity.m_lootItemQuantity + itemQuantity;
+		this.m_lootItemQuantity += itemQuantity;
 	}
 
 	private void HandleMakeContributionRequestInitiated()
@@ -425,8 +424,7 @@ public class LegionfallBuildingPanel : MonoBehaviour
 	{
 		if (this.m_lootDisplayPending && this.m_contributeButton.interactable)
 		{
-			LegionfallBuildingPanel mDelayBeforeShowingLoot = this;
-			mDelayBeforeShowingLoot.m_delayBeforeShowingLoot = mDelayBeforeShowingLoot.m_delayBeforeShowingLoot - Time.deltaTime;
+			this.m_delayBeforeShowingLoot -= Time.deltaTime;
 			if (this.m_delayBeforeShowingLoot > 0f)
 			{
 				return;
@@ -451,8 +449,7 @@ public class LegionfallBuildingPanel : MonoBehaviour
 				this.m_gotLootItemName.text = string.Concat(record.Display, (this.m_lootItemQuantity != 1 ? string.Concat(" (", this.m_lootItemQuantity, "x)") : string.Empty));
 			}
 			this.m_rewardDisplay.InitReward(MissionRewardDisplay.RewardType.item, this.m_lootItemID, 1, 0, 0);
-			LegionfallBuildingPanel mLootDisplayTimeRemaining = this;
-			mLootDisplayTimeRemaining.m_lootDisplayTimeRemaining = mLootDisplayTimeRemaining.m_lootDisplayTimeRemaining - Time.deltaTime;
+			this.m_lootDisplayTimeRemaining -= Time.deltaTime;
 		}
 		else if (this.m_lootDisplayTimeRemaining <= 0f && this.m_lootDisplayPending)
 		{

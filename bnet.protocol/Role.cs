@@ -253,7 +253,7 @@ namespace bnet.protocol
 						else if (num1 == 34)
 						{
 							long position = (long)ProtocolParser.ReadUInt32(stream);
-							position = position + stream.Position;
+							position += stream.Position;
 							while (stream.Position < position)
 							{
 								instance.AssignableRole.Add(ProtocolParser.ReadUInt32(stream));
@@ -320,7 +320,7 @@ namespace bnet.protocol
 		public static Role DeserializeLengthDelimited(Stream stream, Role instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return Role.Deserialize(stream, instance, position);
 		}
 
@@ -390,31 +390,31 @@ namespace bnet.protocol
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Id.GetHashCode();
-			hashCode = hashCode ^ this.Name.GetHashCode();
+			hashCode ^= this.Id.GetHashCode();
+			hashCode ^= this.Name.GetHashCode();
 			foreach (string privilege in this.Privilege)
 			{
-				hashCode = hashCode ^ privilege.GetHashCode();
+				hashCode ^= privilege.GetHashCode();
 			}
 			foreach (uint assignableRole in this.AssignableRole)
 			{
-				hashCode = hashCode ^ assignableRole.GetHashCode();
+				hashCode ^= assignableRole.GetHashCode();
 			}
 			if (this.HasRequired)
 			{
-				hashCode = hashCode ^ this.Required.GetHashCode();
+				hashCode ^= this.Required.GetHashCode();
 			}
 			if (this.HasUnique)
 			{
-				hashCode = hashCode ^ this.Unique.GetHashCode();
+				hashCode ^= this.Unique.GetHashCode();
 			}
 			if (this.HasRelegationRole)
 			{
-				hashCode = hashCode ^ this.RelegationRole.GetHashCode();
+				hashCode ^= this.RelegationRole.GetHashCode();
 			}
 			foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)
 			{
-				hashCode = hashCode ^ attribute.GetHashCode();
+				hashCode ^= attribute.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -422,7 +422,7 @@ namespace bnet.protocol
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + ProtocolParser.SizeOfUInt32(this.Id);
+			num += ProtocolParser.SizeOfUInt32(this.Id);
 			uint byteCount = (uint)Encoding.UTF8.GetByteCount(this.Name);
 			num = num + ProtocolParser.SizeOfUInt32(byteCount) + byteCount;
 			if (this.Privilege.Count > 0)
@@ -440,9 +440,9 @@ namespace bnet.protocol
 				uint num1 = num;
 				foreach (uint assignableRole in this.AssignableRole)
 				{
-					num = num + ProtocolParser.SizeOfUInt32(assignableRole);
+					num += ProtocolParser.SizeOfUInt32(assignableRole);
 				}
-				num = num + ProtocolParser.SizeOfUInt32(num - num1);
+				num += ProtocolParser.SizeOfUInt32(num - num1);
 			}
 			if (this.HasRequired)
 			{
@@ -457,7 +457,7 @@ namespace bnet.protocol
 			if (this.HasRelegationRole)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.RelegationRole);
+				num += ProtocolParser.SizeOfUInt32(this.RelegationRole);
 			}
 			if (this.Attribute.Count > 0)
 			{
@@ -468,7 +468,7 @@ namespace bnet.protocol
 					num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
 				}
 			}
-			num = num + 2;
+			num += 2;
 			return num;
 		}
 
@@ -506,7 +506,7 @@ namespace bnet.protocol
 				uint num = 0;
 				foreach (uint assignableRole in instance.AssignableRole)
 				{
-					num = num + ProtocolParser.SizeOfUInt32(assignableRole);
+					num += ProtocolParser.SizeOfUInt32(assignableRole);
 				}
 				ProtocolParser.WriteUInt32(stream, num);
 				foreach (uint assignableRole1 in instance.AssignableRole)

@@ -90,7 +90,7 @@ namespace bnet.protocol.channel_invitation
 		public static SuggestionAddedNotification DeserializeLengthDelimited(Stream stream, SuggestionAddedNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return SuggestionAddedNotification.Deserialize(stream, instance, position);
 		}
 

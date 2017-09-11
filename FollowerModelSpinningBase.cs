@@ -29,7 +29,7 @@ public class FollowerModelSpinningBase : MonoBehaviour
 		float single = 0f;
 		single = (Input.touchCount <= 0 ? Input.mousePosition.x : Input.GetTouch(0).position.x);
 		float single1 = (this.initialTouchX - single) / (float)Screen.width;
-		single1 = single1 * 2f;
+		single1 *= 2f;
 		base.transform.localRotation = Quaternion.identity;
 		base.transform.Rotate(0f, this.inititalYRotation + single1 * 360f, 0f, Space.Self);
 	}

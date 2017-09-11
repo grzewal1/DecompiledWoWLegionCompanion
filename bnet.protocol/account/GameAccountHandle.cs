@@ -120,7 +120,7 @@ namespace bnet.protocol.account
 		public static GameAccountHandle DeserializeLengthDelimited(Stream stream, GameAccountHandle instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameAccountHandle.Deserialize(stream, instance, position);
 		}
 
@@ -149,15 +149,15 @@ namespace bnet.protocol.account
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Id.GetHashCode();
-			hashCode = hashCode ^ this.Program.GetHashCode();
+			hashCode ^= this.Id.GetHashCode();
+			hashCode ^= this.Program.GetHashCode();
 			return hashCode ^ this.Region.GetHashCode();
 		}
 
 		public uint GetSerializedSize()
 		{
 			uint num = 0 + 4 + 4;
-			num = num + ProtocolParser.SizeOfUInt32(this.Region);
+			num += ProtocolParser.SizeOfUInt32(this.Region);
 			return num + 3;
 		}
 

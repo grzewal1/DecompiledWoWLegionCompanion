@@ -362,7 +362,7 @@ namespace bnet.protocol.game_master
 		public static GameStatsBucket DeserializeLengthDelimited(Stream stream, GameStatsBucket instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameStatsBucket.Deserialize(stream, instance, position);
 		}
 
@@ -429,51 +429,51 @@ namespace bnet.protocol.game_master
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasBucketMin)
 			{
-				hashCode = hashCode ^ this.BucketMin.GetHashCode();
+				hashCode ^= this.BucketMin.GetHashCode();
 			}
 			if (this.HasBucketMax)
 			{
-				hashCode = hashCode ^ this.BucketMax.GetHashCode();
+				hashCode ^= this.BucketMax.GetHashCode();
 			}
 			if (this.HasWaitMilliseconds)
 			{
-				hashCode = hashCode ^ this.WaitMilliseconds.GetHashCode();
+				hashCode ^= this.WaitMilliseconds.GetHashCode();
 			}
 			if (this.HasGamesPerHour)
 			{
-				hashCode = hashCode ^ this.GamesPerHour.GetHashCode();
+				hashCode ^= this.GamesPerHour.GetHashCode();
 			}
 			if (this.HasActiveGames)
 			{
-				hashCode = hashCode ^ this.ActiveGames.GetHashCode();
+				hashCode ^= this.ActiveGames.GetHashCode();
 			}
 			if (this.HasActivePlayers)
 			{
-				hashCode = hashCode ^ this.ActivePlayers.GetHashCode();
+				hashCode ^= this.ActivePlayers.GetHashCode();
 			}
 			if (this.HasFormingGames)
 			{
-				hashCode = hashCode ^ this.FormingGames.GetHashCode();
+				hashCode ^= this.FormingGames.GetHashCode();
 			}
 			if (this.HasWaitingPlayers)
 			{
-				hashCode = hashCode ^ this.WaitingPlayers.GetHashCode();
+				hashCode ^= this.WaitingPlayers.GetHashCode();
 			}
 			if (this.HasOpenJoinableGames)
 			{
-				hashCode = hashCode ^ this.OpenJoinableGames.GetHashCode();
+				hashCode ^= this.OpenJoinableGames.GetHashCode();
 			}
 			if (this.HasPlayersInOpenJoinableGames)
 			{
-				hashCode = hashCode ^ this.PlayersInOpenJoinableGames.GetHashCode();
+				hashCode ^= this.PlayersInOpenJoinableGames.GetHashCode();
 			}
 			if (this.HasOpenGamesTotal)
 			{
-				hashCode = hashCode ^ this.OpenGamesTotal.GetHashCode();
+				hashCode ^= this.OpenGamesTotal.GetHashCode();
 			}
 			if (this.HasPlayersInOpenGamesTotal)
 			{
-				hashCode = hashCode ^ this.PlayersInOpenGamesTotal.GetHashCode();
+				hashCode ^= this.PlayersInOpenGamesTotal.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -484,62 +484,62 @@ namespace bnet.protocol.game_master
 			if (this.HasBucketMin)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasBucketMax)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasWaitMilliseconds)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.WaitMilliseconds);
+				num += ProtocolParser.SizeOfUInt32(this.WaitMilliseconds);
 			}
 			if (this.HasGamesPerHour)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.GamesPerHour);
+				num += ProtocolParser.SizeOfUInt32(this.GamesPerHour);
 			}
 			if (this.HasActiveGames)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.ActiveGames);
+				num += ProtocolParser.SizeOfUInt32(this.ActiveGames);
 			}
 			if (this.HasActivePlayers)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.ActivePlayers);
+				num += ProtocolParser.SizeOfUInt32(this.ActivePlayers);
 			}
 			if (this.HasFormingGames)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.FormingGames);
+				num += ProtocolParser.SizeOfUInt32(this.FormingGames);
 			}
 			if (this.HasWaitingPlayers)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.WaitingPlayers);
+				num += ProtocolParser.SizeOfUInt32(this.WaitingPlayers);
 			}
 			if (this.HasOpenJoinableGames)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.OpenJoinableGames);
+				num += ProtocolParser.SizeOfUInt32(this.OpenJoinableGames);
 			}
 			if (this.HasPlayersInOpenJoinableGames)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.PlayersInOpenJoinableGames);
+				num += ProtocolParser.SizeOfUInt32(this.PlayersInOpenJoinableGames);
 			}
 			if (this.HasOpenGamesTotal)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.OpenGamesTotal);
+				num += ProtocolParser.SizeOfUInt32(this.OpenGamesTotal);
 			}
 			if (this.HasPlayersInOpenGamesTotal)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.PlayersInOpenGamesTotal);
+				num += ProtocolParser.SizeOfUInt32(this.PlayersInOpenGamesTotal);
 			}
 			return num;
 		}

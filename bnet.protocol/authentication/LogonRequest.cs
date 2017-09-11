@@ -355,7 +355,7 @@ namespace bnet.protocol.authentication
 		public static LogonRequest DeserializeLengthDelimited(Stream stream, LogonRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return LogonRequest.Deserialize(stream, instance, position);
 		}
 
@@ -426,55 +426,55 @@ namespace bnet.protocol.authentication
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasProgram)
 			{
-				hashCode = hashCode ^ this.Program.GetHashCode();
+				hashCode ^= this.Program.GetHashCode();
 			}
 			if (this.HasPlatform)
 			{
-				hashCode = hashCode ^ this.Platform.GetHashCode();
+				hashCode ^= this.Platform.GetHashCode();
 			}
 			if (this.HasLocale)
 			{
-				hashCode = hashCode ^ this.Locale.GetHashCode();
+				hashCode ^= this.Locale.GetHashCode();
 			}
 			if (this.HasEmail)
 			{
-				hashCode = hashCode ^ this.Email.GetHashCode();
+				hashCode ^= this.Email.GetHashCode();
 			}
 			if (this.HasVersion)
 			{
-				hashCode = hashCode ^ this.Version.GetHashCode();
+				hashCode ^= this.Version.GetHashCode();
 			}
 			if (this.HasApplicationVersion)
 			{
-				hashCode = hashCode ^ this.ApplicationVersion.GetHashCode();
+				hashCode ^= this.ApplicationVersion.GetHashCode();
 			}
 			if (this.HasPublicComputer)
 			{
-				hashCode = hashCode ^ this.PublicComputer.GetHashCode();
+				hashCode ^= this.PublicComputer.GetHashCode();
 			}
 			if (this.HasSsoId)
 			{
-				hashCode = hashCode ^ this.SsoId.GetHashCode();
+				hashCode ^= this.SsoId.GetHashCode();
 			}
 			if (this.HasDisconnectOnCookieFail)
 			{
-				hashCode = hashCode ^ this.DisconnectOnCookieFail.GetHashCode();
+				hashCode ^= this.DisconnectOnCookieFail.GetHashCode();
 			}
 			if (this.HasAllowLogonQueueNotifications)
 			{
-				hashCode = hashCode ^ this.AllowLogonQueueNotifications.GetHashCode();
+				hashCode ^= this.AllowLogonQueueNotifications.GetHashCode();
 			}
 			if (this.HasWebClientVerification)
 			{
-				hashCode = hashCode ^ this.WebClientVerification.GetHashCode();
+				hashCode ^= this.WebClientVerification.GetHashCode();
 			}
 			if (this.HasCachedWebCredentials)
 			{
-				hashCode = hashCode ^ this.CachedWebCredentials.GetHashCode();
+				hashCode ^= this.CachedWebCredentials.GetHashCode();
 			}
 			if (this.HasUserAgent)
 			{
-				hashCode = hashCode ^ this.UserAgent.GetHashCode();
+				hashCode ^= this.UserAgent.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -515,7 +515,7 @@ namespace bnet.protocol.authentication
 			if (this.HasApplicationVersion)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64((ulong)this.ApplicationVersion);
+				num += ProtocolParser.SizeOfUInt64((ulong)this.ApplicationVersion);
 			}
 			if (this.HasPublicComputer)
 			{

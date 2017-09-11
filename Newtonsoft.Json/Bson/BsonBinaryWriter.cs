@@ -71,8 +71,8 @@ namespace Newtonsoft.Json.Bson
 						{
 							BsonProperty current = enumerator.Current;
 							int num1 = 1 + this.CalculateSize(current.Name);
-							num1 = num1 + this.CalculateSize(current.Value);
-							num = num + num1;
+							num1 += this.CalculateSize(current.Value);
+							num += num1;
 						}
 					}
 					finally
@@ -98,8 +98,8 @@ namespace Newtonsoft.Json.Bson
 						{
 							BsonToken bsonToken = enumerator1.Current;
 							num2++;
-							num2 = num2 + this.CalculateSize(MathUtils.IntLength(num3));
-							num2 = num2 + this.CalculateSize(bsonToken);
+							num2 += this.CalculateSize(MathUtils.IntLength(num3));
+							num2 += this.CalculateSize(bsonToken);
 							num3++;
 						}
 					}
@@ -142,7 +142,7 @@ namespace Newtonsoft.Json.Bson
 				{
 					BsonRegex bsonRegex = (BsonRegex)t;
 					int num4 = 0 + this.CalculateSize(bsonRegex.Pattern);
-					num4 = num4 + this.CalculateSize(bsonRegex.Options);
+					num4 += this.CalculateSize(bsonRegex.Options);
 					bsonRegex.CalculatedSize = num4;
 					return bsonRegex.CalculatedSize;
 				}
@@ -205,12 +205,12 @@ namespace Newtonsoft.Json.Bson
 				if (byteCount > 256)
 				{
 					int num1 = 0;
-					for (int i = s.Length; i > 0; i = i - num)
+					for (int i = s.Length; i > 0; i -= num)
 					{
 						num = (i <= this._maxChars ? i : this._maxChars);
 						int bytes = BsonBinaryWriter.Encoding.GetBytes(s, num1, num, this._largeByteBuffer, 0);
 						this._writer.Write(this._largeByteBuffer, 0, bytes);
-						num1 = num1 + num;
+						num1 += num;
 					}
 				}
 				else

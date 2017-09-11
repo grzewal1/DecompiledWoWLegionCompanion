@@ -274,7 +274,7 @@ namespace bnet.protocol.attribute
 		public static bnet.protocol.attribute.Variant DeserializeLengthDelimited(Stream stream, bnet.protocol.attribute.Variant instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return bnet.protocol.attribute.Variant.Deserialize(stream, instance, position);
 		}
 
@@ -329,39 +329,39 @@ namespace bnet.protocol.attribute
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasBoolValue)
 			{
-				hashCode = hashCode ^ this.BoolValue.GetHashCode();
+				hashCode ^= this.BoolValue.GetHashCode();
 			}
 			if (this.HasIntValue)
 			{
-				hashCode = hashCode ^ this.IntValue.GetHashCode();
+				hashCode ^= this.IntValue.GetHashCode();
 			}
 			if (this.HasFloatValue)
 			{
-				hashCode = hashCode ^ this.FloatValue.GetHashCode();
+				hashCode ^= this.FloatValue.GetHashCode();
 			}
 			if (this.HasStringValue)
 			{
-				hashCode = hashCode ^ this.StringValue.GetHashCode();
+				hashCode ^= this.StringValue.GetHashCode();
 			}
 			if (this.HasBlobValue)
 			{
-				hashCode = hashCode ^ this.BlobValue.GetHashCode();
+				hashCode ^= this.BlobValue.GetHashCode();
 			}
 			if (this.HasMessageValue)
 			{
-				hashCode = hashCode ^ this.MessageValue.GetHashCode();
+				hashCode ^= this.MessageValue.GetHashCode();
 			}
 			if (this.HasFourccValue)
 			{
-				hashCode = hashCode ^ this.FourccValue.GetHashCode();
+				hashCode ^= this.FourccValue.GetHashCode();
 			}
 			if (this.HasUintValue)
 			{
-				hashCode = hashCode ^ this.UintValue.GetHashCode();
+				hashCode ^= this.UintValue.GetHashCode();
 			}
 			if (this.HasEntityidValue)
 			{
-				hashCode = hashCode ^ this.EntityidValue.GetHashCode();
+				hashCode ^= this.EntityidValue.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -377,12 +377,12 @@ namespace bnet.protocol.attribute
 			if (this.HasIntValue)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64((ulong)this.IntValue);
+				num += ProtocolParser.SizeOfUInt64((ulong)this.IntValue);
 			}
 			if (this.HasFloatValue)
 			{
 				num++;
-				num = num + 8;
+				num += 8;
 			}
 			if (this.HasStringValue)
 			{
@@ -409,7 +409,7 @@ namespace bnet.protocol.attribute
 			if (this.HasUintValue)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.UintValue);
+				num += ProtocolParser.SizeOfUInt64(this.UintValue);
 			}
 			if (this.HasEntityidValue)
 			{

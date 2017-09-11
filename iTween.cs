@@ -669,7 +669,7 @@ public class iTween : MonoBehaviour
 		else
 		{
 			item = (float)args["time"];
-			item = item * iTween.Defaults.updateTimePercentage;
+			item *= iTween.Defaults.updateTimePercentage;
 		}
 		if (!args.Contains("audiosource"))
 		{
@@ -1141,7 +1141,7 @@ public class iTween : MonoBehaviour
 		else
 		{
 			item = (float)args["time"];
-			item = item * iTween.Defaults.updateTimePercentage;
+			item *= iTween.Defaults.updateTimePercentage;
 		}
 		if (target.GetComponent<GUITexture>())
 		{
@@ -1630,34 +1630,34 @@ public class iTween : MonoBehaviour
 
 	private float easeInBack(float start, float end, float value)
 	{
-		end = end - start;
-		value = value / 1f;
+		end -= start;
+		value /= 1f;
 		float single = 1.70158f;
 		return end * value * value * ((single + 1f) * value - single) + start;
 	}
 
 	private float easeInBounce(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		float single = 1f;
 		return end - this.easeOutBounce(0f, end, single - value) + start;
 	}
 
 	private float easeInCirc(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		return -end * (Mathf.Sqrt(1f - value * value) - 1f) + start;
 	}
 
 	private float easeInCubic(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		return end * value * value * value + start;
 	}
 
 	private float easeInElastic(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		float single = 1f;
 		float single1 = single * 0.3f;
 		float single2 = 0f;
@@ -1688,28 +1688,28 @@ public class iTween : MonoBehaviour
 
 	private float easeInExpo(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		return end * Mathf.Pow(2f, 10f * (value - 1f)) + start;
 	}
 
 	private float easeInOutBack(float start, float end, float value)
 	{
 		float single = 1.70158f;
-		end = end - start;
-		value = value / 0.5f;
+		end -= start;
+		value /= 0.5f;
 		if (value < 1f)
 		{
-			single = single * 1.525f;
+			single *= 1.525f;
 			return end * 0.5f * (value * value * ((single + 1f) * value - single)) + start;
 		}
-		value = value - 2f;
-		single = single * 1.525f;
+		value -= 2f;
+		single *= 1.525f;
 		return end * 0.5f * (value * value * ((single + 1f) * value + single) + 2f) + start;
 	}
 
 	private float easeInOutBounce(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		float single = 1f;
 		if (value < single * 0.5f)
 		{
@@ -1720,31 +1720,31 @@ public class iTween : MonoBehaviour
 
 	private float easeInOutCirc(float start, float end, float value)
 	{
-		value = value / 0.5f;
-		end = end - start;
+		value /= 0.5f;
+		end -= start;
 		if (value < 1f)
 		{
 			return -end * 0.5f * (Mathf.Sqrt(1f - value * value) - 1f) + start;
 		}
-		value = value - 2f;
+		value -= 2f;
 		return end * 0.5f * (Mathf.Sqrt(1f - value * value) + 1f) + start;
 	}
 
 	private float easeInOutCubic(float start, float end, float value)
 	{
-		value = value / 0.5f;
-		end = end - start;
+		value /= 0.5f;
+		end -= start;
 		if (value < 1f)
 		{
 			return end * 0.5f * value * value * value + start;
 		}
-		value = value - 2f;
+		value -= 2f;
 		return end * 0.5f * (value * value * value + 2f) + start;
 	}
 
 	private float easeInOutElastic(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		float single = 1f;
 		float single1 = single * 0.3f;
 		float single2 = 0f;
@@ -1781,129 +1781,129 @@ public class iTween : MonoBehaviour
 
 	private float easeInOutExpo(float start, float end, float value)
 	{
-		value = value / 0.5f;
-		end = end - start;
+		value /= 0.5f;
+		end -= start;
 		if (value < 1f)
 		{
 			return end * 0.5f * Mathf.Pow(2f, 10f * (value - 1f)) + start;
 		}
-		value = value - 1f;
+		value -= 1f;
 		return end * 0.5f * (-Mathf.Pow(2f, -10f * value) + 2f) + start;
 	}
 
 	private float easeInOutQuad(float start, float end, float value)
 	{
-		value = value / 0.5f;
-		end = end - start;
+		value /= 0.5f;
+		end -= start;
 		if (value < 1f)
 		{
 			return end * 0.5f * value * value + start;
 		}
-		value = value - 1f;
+		value -= 1f;
 		return -end * 0.5f * (value * (value - 2f) - 1f) + start;
 	}
 
 	private float easeInOutQuart(float start, float end, float value)
 	{
-		value = value / 0.5f;
-		end = end - start;
+		value /= 0.5f;
+		end -= start;
 		if (value < 1f)
 		{
 			return end * 0.5f * value * value * value * value + start;
 		}
-		value = value - 2f;
+		value -= 2f;
 		return -end * 0.5f * (value * value * value * value - 2f) + start;
 	}
 
 	private float easeInOutQuint(float start, float end, float value)
 	{
-		value = value / 0.5f;
-		end = end - start;
+		value /= 0.5f;
+		end -= start;
 		if (value < 1f)
 		{
 			return end * 0.5f * value * value * value * value * value + start;
 		}
-		value = value - 2f;
+		value -= 2f;
 		return end * 0.5f * (value * value * value * value * value + 2f) + start;
 	}
 
 	private float easeInOutSine(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		return -end * 0.5f * (Mathf.Cos(3.14159274f * value) - 1f) + start;
 	}
 
 	private float easeInQuad(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		return end * value * value + start;
 	}
 
 	private float easeInQuart(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		return end * value * value * value * value + start;
 	}
 
 	private float easeInQuint(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		return end * value * value * value * value * value + start;
 	}
 
 	private float easeInSine(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		return -end * Mathf.Cos(value * 1.57079637f) + end + start;
 	}
 
 	private float easeOutBack(float start, float end, float value)
 	{
 		float single = 1.70158f;
-		end = end - start;
-		value = value - 1f;
+		end -= start;
+		value -= 1f;
 		return end * (value * value * ((single + 1f) * value + single) + 1f) + start;
 	}
 
 	private float easeOutBounce(float start, float end, float value)
 	{
-		value = value / 1f;
-		end = end - start;
+		value /= 1f;
+		end -= start;
 		if (value < 0.363636374f)
 		{
 			return end * (7.5625f * value * value) + start;
 		}
 		if (value < 0.727272749f)
 		{
-			value = value - 0.545454562f;
+			value -= 0.545454562f;
 			return end * (7.5625f * value * value + 0.75f) + start;
 		}
 		if ((double)value < 0.909090909090909)
 		{
-			value = value - 0.8181818f;
+			value -= 0.8181818f;
 			return end * (7.5625f * value * value + 0.9375f) + start;
 		}
-		value = value - 0.954545438f;
+		value -= 0.954545438f;
 		return end * (7.5625f * value * value + 0.984375f) + start;
 	}
 
 	private float easeOutCirc(float start, float end, float value)
 	{
-		value = value - 1f;
-		end = end - start;
+		value -= 1f;
+		end -= start;
 		return end * Mathf.Sqrt(1f - value * value) + start;
 	}
 
 	private float easeOutCubic(float start, float end, float value)
 	{
-		value = value - 1f;
-		end = end - start;
+		value -= 1f;
+		end -= start;
 		return end * (value * value * value + 1f) + start;
 	}
 
 	private float easeOutElastic(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		float single = 1f;
 		float single1 = single * 0.3f;
 		float single2 = 0f;
@@ -1932,33 +1932,33 @@ public class iTween : MonoBehaviour
 
 	private float easeOutExpo(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		return end * (-Mathf.Pow(2f, -10f * value) + 1f) + start;
 	}
 
 	private float easeOutQuad(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		return -end * value * (value - 2f) + start;
 	}
 
 	private float easeOutQuart(float start, float end, float value)
 	{
-		value = value - 1f;
-		end = end - start;
+		value -= 1f;
+		end -= start;
 		return -end * (value * value * value * value - 1f) + start;
 	}
 
 	private float easeOutQuint(float start, float end, float value)
 	{
-		value = value - 1f;
-		end = end - start;
+		value -= 1f;
+		end -= start;
 		return end * (value * value * value * value * value + 1f) + start;
 	}
 
 	private float easeOutSine(float start, float end, float value)
 	{
-		end = end - start;
+		end -= start;
 		return end * Mathf.Sin(value * 1.57079637f) + start;
 	}
 
@@ -2527,20 +2527,20 @@ public class iTween : MonoBehaviour
 		{
 			if (this.tweenArguments.Contains("x"))
 			{
-				this.vector3s[1].x = this.vector3s[1].x + (float)this.tweenArguments["x"];
+				this.vector3s[1].x += (float)this.tweenArguments["x"];
 			}
 			if (this.tweenArguments.Contains("y"))
 			{
-				this.vector3s[1].y = this.vector3s[1].y + (float)this.tweenArguments["y"];
+				this.vector3s[1].y += (float)this.tweenArguments["y"];
 			}
 			if (this.tweenArguments.Contains("z"))
 			{
-				this.vector3s[1].z = this.vector3s[1].z + (float)this.tweenArguments["z"];
+				this.vector3s[1].z += (float)this.tweenArguments["z"];
 			}
 		}
 		else
 		{
-			this.vector3s[1] = this.vector3s[1] + (Vector3)this.tweenArguments["amount"];
+			this.vector3s[1] += (Vector3)this.tweenArguments["amount"];
 		}
 		if (this.tweenArguments.Contains("speed"))
 		{
@@ -2563,20 +2563,23 @@ public class iTween : MonoBehaviour
 		{
 			if (this.tweenArguments.Contains("x"))
 			{
-				this.vector3s[1].x = this.vector3s[1].x + 360f * (float)this.tweenArguments["x"];
+				ref Vector3 item = ref this.vector3s[1];
+				item.x = item.x + 360f * (float)this.tweenArguments["x"];
 			}
 			if (this.tweenArguments.Contains("y"))
 			{
-				this.vector3s[1].y = this.vector3s[1].y + 360f * (float)this.tweenArguments["y"];
+				ref Vector3 vector3Pointer = ref this.vector3s[1];
+				vector3Pointer.y = vector3Pointer.y + 360f * (float)this.tweenArguments["y"];
 			}
 			if (this.tweenArguments.Contains("z"))
 			{
-				this.vector3s[1].z = this.vector3s[1].z + 360f * (float)this.tweenArguments["z"];
+				ref Vector3 item1 = ref this.vector3s[1];
+				item1.z = item1.z + 360f * (float)this.tweenArguments["z"];
 			}
 		}
 		else
 		{
-			this.vector3s[1] = this.vector3s[1] + Vector3.Scale((Vector3)this.tweenArguments["amount"], new Vector3(360f, 360f, 360f));
+			this.vector3s[1] += Vector3.Scale((Vector3)this.tweenArguments["amount"], new Vector3(360f, 360f, 360f));
 		}
 		if (this.tweenArguments.Contains("speed"))
 		{
@@ -2646,20 +2649,20 @@ public class iTween : MonoBehaviour
 		{
 			if (this.tweenArguments.Contains("x"))
 			{
-				this.vector3s[1].x = this.vector3s[1].x + (float)this.tweenArguments["x"];
+				this.vector3s[1].x += (float)this.tweenArguments["x"];
 			}
 			if (this.tweenArguments.Contains("y"))
 			{
-				this.vector3s[1].y = this.vector3s[1].y + (float)this.tweenArguments["y"];
+				this.vector3s[1].y += (float)this.tweenArguments["y"];
 			}
 			if (this.tweenArguments.Contains("z"))
 			{
-				this.vector3s[1].z = this.vector3s[1].z + (float)this.tweenArguments["z"];
+				this.vector3s[1].z += (float)this.tweenArguments["z"];
 			}
 		}
 		else
 		{
-			this.vector3s[1] = this.vector3s[1] + (Vector3)this.tweenArguments["amount"];
+			this.vector3s[1] += (Vector3)this.tweenArguments["amount"];
 		}
 		if (this.tweenArguments.Contains("speed"))
 		{
@@ -2679,15 +2682,15 @@ public class iTween : MonoBehaviour
 		{
 			if (this.tweenArguments.Contains("x"))
 			{
-				this.vector3s[1].x = this.vector3s[1].x * (float)this.tweenArguments["x"];
+				this.vector3s[1].x *= (float)this.tweenArguments["x"];
 			}
 			if (this.tweenArguments.Contains("y"))
 			{
-				this.vector3s[1].y = this.vector3s[1].y * (float)this.tweenArguments["y"];
+				this.vector3s[1].y *= (float)this.tweenArguments["y"];
 			}
 			if (this.tweenArguments.Contains("z"))
 			{
-				this.vector3s[1].z = this.vector3s[1].z * (float)this.tweenArguments["z"];
+				this.vector3s[1].z *= (float)this.tweenArguments["z"];
 			}
 		}
 		else
@@ -3413,7 +3416,7 @@ public class iTween : MonoBehaviour
 			UnityEngine.Debug.LogError("Tween Error: Hash requires an even number of arguments!");
 			return null;
 		}
-		for (int i = 0; i < (int)args.Length - 1; i = i + 2)
+		for (int i = 0; i < (int)args.Length - 1; i += 2)
 		{
 			hashtables.Add(args[i], args[i + 1]);
 		}
@@ -3571,7 +3574,7 @@ public class iTween : MonoBehaviour
 		if (args.Contains("looktime"))
 		{
 			item = (float)args["looktime"];
-			item = item * iTween.Defaults.updateTimePercentage;
+			item *= iTween.Defaults.updateTimePercentage;
 		}
 		else if (!args.Contains("time"))
 		{
@@ -3580,7 +3583,7 @@ public class iTween : MonoBehaviour
 		else
 		{
 			item = (float)args["time"] * 0.15f;
-			item = item * iTween.Defaults.updateTimePercentage;
+			item *= iTween.Defaults.updateTimePercentage;
 		}
 		vector3Array[0] = target.transform.eulerAngles;
 		if (!args.Contains("looktarget"))
@@ -3839,7 +3842,7 @@ public class iTween : MonoBehaviour
 		else
 		{
 			item = (float)args["time"];
-			item = item * iTween.Defaults.updateTimePercentage;
+			item *= iTween.Defaults.updateTimePercentage;
 		}
 		flag = (!args.Contains("islocal") ? iTween.Defaults.isLocal : (bool)args["islocal"]);
 		if (!flag)
@@ -3968,7 +3971,7 @@ public class iTween : MonoBehaviour
 		{
 			float single1 = (float)j / (float)length;
 			Vector3 vector31 = iTween.Interp(vector3Array1, single1);
-			single = single + Vector3.Distance(vector3, vector31);
+			single += Vector3.Distance(vector3, vector31);
 			vector3 = vector31;
 		}
 		return single;
@@ -3984,7 +3987,7 @@ public class iTween : MonoBehaviour
 		{
 			float single1 = (float)i / (float)length;
 			Vector3 vector31 = iTween.Interp(vector3Array, single1);
-			single = single + Vector3.Distance(vector3, vector31);
+			single += Vector3.Distance(vector3, vector31);
 			vector3 = vector31;
 		}
 		return single;
@@ -4592,7 +4595,7 @@ public class iTween : MonoBehaviour
 		else
 		{
 			item = (float)args["time"];
-			item = item * iTween.Defaults.updateTimePercentage;
+			item *= iTween.Defaults.updateTimePercentage;
 		}
 		flag = (!args.Contains("islocal") ? iTween.Defaults.isLocal : (bool)args["islocal"]);
 		if (!flag)
@@ -4747,7 +4750,7 @@ public class iTween : MonoBehaviour
 		else
 		{
 			item = (float)args["time"];
-			item = item * iTween.Defaults.updateTimePercentage;
+			item *= iTween.Defaults.updateTimePercentage;
 		}
 		Vector3 vector3 = target.transform.localScale;
 		Vector3 vector31 = vector3;
@@ -4849,7 +4852,7 @@ public class iTween : MonoBehaviour
 	[DebuggerHidden]
 	private IEnumerator Start()
 	{
-		iTween.<Start>c__Iterator15 variable = null;
+		iTween.<Start>c__Iterator13 variable = null;
 		return variable;
 	}
 
@@ -5044,7 +5047,7 @@ public class iTween : MonoBehaviour
 	[DebuggerHidden]
 	private IEnumerator TweenDelay()
 	{
-		iTween.<TweenDelay>c__Iterator13 variable = null;
+		iTween.<TweenDelay>c__Iterator11 variable = null;
 		return variable;
 	}
 
@@ -5070,7 +5073,7 @@ public class iTween : MonoBehaviour
 	[DebuggerHidden]
 	private IEnumerator TweenRestart()
 	{
-		iTween.<TweenRestart>c__Iterator14 variable = null;
+		iTween.<TweenRestart>c__Iterator12 variable = null;
 		return variable;
 	}
 
@@ -5130,13 +5133,12 @@ public class iTween : MonoBehaviour
 	{
 		if (!this.useRealTime)
 		{
-			iTween _iTween = this;
-			_iTween.runningTime = _iTween.runningTime + Time.deltaTime;
+			this.runningTime += Time.deltaTime;
 		}
 		else
 		{
-			iTween _iTween1 = this;
-			_iTween1.runningTime = _iTween1.runningTime + (Time.realtimeSinceStartup - this.lastRealTime);
+			iTween _iTween = this;
+			_iTween.runningTime = _iTween.runningTime + (Time.realtimeSinceStartup - this.lastRealTime);
 		}
 		if (!this.reverse)
 		{

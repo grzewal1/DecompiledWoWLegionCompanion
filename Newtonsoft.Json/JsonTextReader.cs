@@ -220,8 +220,7 @@ namespace Newtonsoft.Json
 			{
 				case 10:
 				{
-					JsonTextReader jsonTextReader = this;
-					jsonTextReader._currentLineNumber = jsonTextReader._currentLineNumber + 1;
+					this._currentLineNumber++;
 					this._currentLinePosition = 0;
 					break;
 				}
@@ -231,8 +230,7 @@ namespace Newtonsoft.Json
 					{
 						this._reader.Read();
 					}
-					JsonTextReader jsonTextReader1 = this;
-					jsonTextReader1._currentLineNumber = jsonTextReader1._currentLineNumber + 1;
+					this._currentLineNumber++;
 					this._currentLinePosition = 0;
 					break;
 				}
@@ -243,8 +241,7 @@ namespace Newtonsoft.Json
 						this._end = true;
 						return '\0';
 					}
-					JsonTextReader jsonTextReader2 = this;
-					jsonTextReader2._currentLinePosition = jsonTextReader2._currentLinePosition + 1;
+					this._currentLinePosition++;
 					break;
 				}
 			}

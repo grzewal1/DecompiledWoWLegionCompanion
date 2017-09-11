@@ -89,7 +89,7 @@ namespace bnet.protocol.channel
 		public static JoinNotification DeserializeLengthDelimited(Stream stream, JoinNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return JoinNotification.Deserialize(stream, instance, position);
 		}
 

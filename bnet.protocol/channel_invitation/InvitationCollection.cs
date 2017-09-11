@@ -191,7 +191,7 @@ namespace bnet.protocol.channel_invitation
 		public static InvitationCollection DeserializeLengthDelimited(Stream stream, InvitationCollection instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return InvitationCollection.Deserialize(stream, instance, position);
 		}
 
@@ -233,19 +233,19 @@ namespace bnet.protocol.channel_invitation
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasServiceType)
 			{
-				hashCode = hashCode ^ this.ServiceType.GetHashCode();
+				hashCode ^= this.ServiceType.GetHashCode();
 			}
 			if (this.HasMaxReceivedInvitations)
 			{
-				hashCode = hashCode ^ this.MaxReceivedInvitations.GetHashCode();
+				hashCode ^= this.MaxReceivedInvitations.GetHashCode();
 			}
 			if (this.HasObjectId)
 			{
-				hashCode = hashCode ^ this.ObjectId.GetHashCode();
+				hashCode ^= this.ObjectId.GetHashCode();
 			}
 			foreach (Invitation receivedInvitation in this.ReceivedInvitation)
 			{
-				hashCode = hashCode ^ receivedInvitation.GetHashCode();
+				hashCode ^= receivedInvitation.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -256,17 +256,17 @@ namespace bnet.protocol.channel_invitation
 			if (this.HasServiceType)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.ServiceType);
+				num += ProtocolParser.SizeOfUInt32(this.ServiceType);
 			}
 			if (this.HasMaxReceivedInvitations)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.MaxReceivedInvitations);
+				num += ProtocolParser.SizeOfUInt32(this.MaxReceivedInvitations);
 			}
 			if (this.HasObjectId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.ObjectId);
+				num += ProtocolParser.SizeOfUInt64(this.ObjectId);
 			}
 			if (this.ReceivedInvitation.Count > 0)
 			{

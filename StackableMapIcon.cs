@@ -23,8 +23,8 @@ public class StackableMapIcon : MonoBehaviour
 		float single = vector3Array[2].x - vector3Array[0].x;
 		float single1 = vector3Array[2].y - vector3Array[0].y;
 		float mZoomFactor = AdventureMapPanel.instance.m_pinchZoomContentManager.m_zoomFactor;
-		single = single * mZoomFactor;
-		single1 = single1 * mZoomFactor;
+		single *= mZoomFactor;
+		single1 *= mZoomFactor;
 		Rect rect = new Rect(vector3Array[0].x, vector3Array[0].y, single, single1);
 		return rect;
 	}

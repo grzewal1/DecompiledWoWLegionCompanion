@@ -18,7 +18,7 @@ namespace SimpleJSON
 		{
 			get
 			{
-				JSONClass.<>c__Iterator11 variable = null;
+				JSONClass.<>c__IteratorF variable = null;
 				return variable;
 			}
 		}
@@ -98,7 +98,7 @@ namespace SimpleJSON
 		[DebuggerHidden]
 		public IEnumerator GetEnumerator()
 		{
-			JSONClass.<GetEnumerator>c__Iterator12 variable = null;
+			JSONClass.<GetEnumerator>c__Iterator10 variable = null;
 			return variable;
 		}
 

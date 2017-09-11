@@ -107,7 +107,7 @@ namespace bnet.protocol.account
 		public static GameAccountLink DeserializeLengthDelimited(Stream stream, GameAccountLink instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameAccountLink.Deserialize(stream, instance, position);
 		}
 
@@ -132,7 +132,7 @@ namespace bnet.protocol.account
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.GameAccount.GetHashCode();
+			hashCode ^= this.GameAccount.GetHashCode();
 			return hashCode ^ this.Name.GetHashCode();
 		}
 

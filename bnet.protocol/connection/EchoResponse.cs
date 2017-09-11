@@ -121,7 +121,7 @@ namespace bnet.protocol.connection
 		public static EchoResponse DeserializeLengthDelimited(Stream stream, EchoResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return EchoResponse.Deserialize(stream, instance, position);
 		}
 
@@ -148,11 +148,11 @@ namespace bnet.protocol.connection
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasTime)
 			{
-				hashCode = hashCode ^ this.Time.GetHashCode();
+				hashCode ^= this.Time.GetHashCode();
 			}
 			if (this.HasPayload)
 			{
-				hashCode = hashCode ^ this.Payload.GetHashCode();
+				hashCode ^= this.Payload.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -163,7 +163,7 @@ namespace bnet.protocol.connection
 			if (this.HasTime)
 			{
 				num++;
-				num = num + 8;
+				num += 8;
 			}
 			if (this.HasPayload)
 			{

@@ -170,7 +170,7 @@ namespace bnet.protocol.channel
 		public static AddNotification DeserializeLengthDelimited(Stream stream, AddNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AddNotification.Deserialize(stream, instance, position);
 		}
 
@@ -208,13 +208,13 @@ namespace bnet.protocol.channel
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasSelf)
 			{
-				hashCode = hashCode ^ this.Self.GetHashCode();
+				hashCode ^= this.Self.GetHashCode();
 			}
 			foreach (bnet.protocol.channel.Member member in this.Member)
 			{
-				hashCode = hashCode ^ member.GetHashCode();
+				hashCode ^= member.GetHashCode();
 			}
-			hashCode = hashCode ^ this.ChannelState.GetHashCode();
+			hashCode ^= this.ChannelState.GetHashCode();
 			return hashCode;
 		}
 

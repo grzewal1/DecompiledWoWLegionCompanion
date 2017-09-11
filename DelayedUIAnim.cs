@@ -39,8 +39,7 @@ public class DelayedUIAnim : MonoBehaviour
 	{
 		if (this.m_enabled)
 		{
-			DelayedUIAnim mTimeRemaining = this;
-			mTimeRemaining.m_timeRemaining = mTimeRemaining.m_timeRemaining - Time.deltaTime;
+			this.m_timeRemaining -= Time.deltaTime;
 			if (this.m_timeRemaining <= 0f)
 			{
 				if (this.m_sfxName != null)

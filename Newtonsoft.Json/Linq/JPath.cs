@@ -98,8 +98,7 @@ namespace Newtonsoft.Json.Linq
 
 		private void ParseIndexer(char indexerOpenChar)
 		{
-			JPath jPath = this;
-			jPath._currentIndex = jPath._currentIndex + 1;
+			this._currentIndex++;
 			char chr = (indexerOpenChar != '[' ? ')' : ']');
 			int num = this._currentIndex;
 			int num1 = 0;
@@ -119,8 +118,7 @@ namespace Newtonsoft.Json.Linq
 				else
 				{
 					num1++;
-					JPath jPath1 = this;
-					jPath1._currentIndex = jPath1._currentIndex + 1;
+					this._currentIndex++;
 				}
 			}
 			if (!flag)
@@ -202,8 +200,7 @@ namespace Newtonsoft.Json.Linq
 						}
 					}
 				}
-				JPath jPath = this;
-				jPath._currentIndex = jPath._currentIndex + 1;
+				this._currentIndex++;
 			}
 			throw new Exception(string.Concat("Unexpected character while parsing path: ", chr));
 		}

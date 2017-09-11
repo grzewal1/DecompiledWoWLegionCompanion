@@ -617,6 +617,45 @@ public class GeneralHelpers : MonoBehaviour
 		return StaticDB.garrFollowerTypeDB.GetRecord(4).MaxItemLevel;
 	}
 
+	public static float GetMissionDurationTalentMultiplier()
+	{
+		float actionValueFlat = 1f;
+		IEnumerator enumerator = PersistentTalentData.talentDictionary.Values.GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				JamGarrisonTalent current = (JamGarrisonTalent)enumerator.Current;
+				if ((current.Flags & 1) != 0)
+				{
+					GarrTalentRec record = StaticDB.garrTalentDB.GetRecord(current.GarrTalentID);
+					if (record != null)
+					{
+						if (record.GarrAbilityID > 0)
+						{
+							StaticDB.garrAbilityEffectDB.EnumRecordsByParentID((int)record.GarrAbilityID, (GarrAbilityEffectRec garrAbilityEffectRec) => {
+								if (garrAbilityEffectRec.AbilityAction == 17)
+								{
+									actionValueFlat *= garrAbilityEffectRec.ActionValueFlat;
+								}
+								return true;
+							});
+						}
+					}
+				}
+			}
+		}
+		finally
+		{
+			IDisposable disposable = enumerator as IDisposable;
+			if (disposable == null)
+			{
+			}
+			disposable.Dispose();
+		}
+		return actionValueFlat;
+	}
+
 	private static int GetMobileAtlasMemberOverride(int iconFileDataID)
 	{
 		int num = 0;
@@ -875,7 +914,7 @@ public class GeneralHelpers : MonoBehaviour
 		while (inText.Substring(num).Length > length)
 		{
 			empty = string.Concat(empty, inText.Substring(num, length), " ");
-			num = num + length;
+			num += length;
 		}
 		empty = string.Concat(empty, inText.Substring(num));
 		return empty;

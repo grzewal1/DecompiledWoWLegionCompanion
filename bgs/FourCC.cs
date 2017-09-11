@@ -65,7 +65,7 @@ namespace bgs
 		public string GetString()
 		{
 			StringBuilder stringBuilder = new StringBuilder(4);
-			for (int i = 24; i >= 0; i = i - 8)
+			for (int i = 24; i >= 0; i -= 8)
 			{
 				char mValue = (char)(this.m_value >> (i & 31) & 255);
 				if (mValue != 0)

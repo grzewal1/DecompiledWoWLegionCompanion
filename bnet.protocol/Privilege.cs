@@ -100,7 +100,7 @@ namespace bnet.protocol
 		public static Privilege DeserializeLengthDelimited(Stream stream, Privilege instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return Privilege.Deserialize(stream, instance, position);
 		}
 
@@ -125,7 +125,7 @@ namespace bnet.protocol
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Name.GetHashCode();
+			hashCode ^= this.Name.GetHashCode();
 			return hashCode ^ this.Value.GetHashCode();
 		}
 
@@ -134,7 +134,7 @@ namespace bnet.protocol
 			uint num = 0;
 			uint byteCount = (uint)Encoding.UTF8.GetByteCount(this.Name);
 			num = num + ProtocolParser.SizeOfUInt32(byteCount) + byteCount;
-			num = num + ProtocolParser.SizeOfUInt32(this.Value);
+			num += ProtocolParser.SizeOfUInt32(this.Value);
 			return num + 2;
 		}
 

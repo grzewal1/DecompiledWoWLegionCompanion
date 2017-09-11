@@ -99,7 +99,7 @@ namespace bnet.protocol.account
 		public static GetCAISInfoResponse DeserializeLengthDelimited(Stream stream, GetCAISInfoResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetCAISInfoResponse.Deserialize(stream, instance, position);
 		}
 
@@ -122,7 +122,7 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasCaisInfo)
 			{
-				hashCode = hashCode ^ this.CaisInfo.GetHashCode();
+				hashCode ^= this.CaisInfo.GetHashCode();
 			}
 			return hashCode;
 		}

@@ -167,7 +167,7 @@ namespace bnet.protocol.game_master
 		public static JoinGameRequest DeserializeLengthDelimited(Stream stream, JoinGameRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return JoinGameRequest.Deserialize(stream, instance, position);
 		}
 
@@ -203,14 +203,14 @@ namespace bnet.protocol.game_master
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.GameHandle.GetHashCode();
+			hashCode ^= this.GameHandle.GetHashCode();
 			foreach (bnet.protocol.game_master.Player player in this.Player)
 			{
-				hashCode = hashCode ^ player.GetHashCode();
+				hashCode ^= player.GetHashCode();
 			}
 			if (this.HasAdvancedNotification)
 			{
-				hashCode = hashCode ^ this.AdvancedNotification.GetHashCode();
+				hashCode ^= this.AdvancedNotification.GetHashCode();
 			}
 			return hashCode;
 		}

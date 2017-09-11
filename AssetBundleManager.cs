@@ -138,7 +138,7 @@ public class AssetBundleManager : MonoBehaviour
 	[DebuggerHidden]
 	public IEnumerator FetchLatestVersion(string url)
 	{
-		AssetBundleManager.<FetchLatestVersion>c__IteratorB variable = null;
+		AssetBundleManager.<FetchLatestVersion>c__Iterator9 variable = null;
 		return variable;
 	}
 
@@ -334,13 +334,6 @@ public class AssetBundleManager : MonoBehaviour
 		return variable;
 	}
 
-	[DebuggerHidden]
-	private IEnumerator InternalInitAssetBundleManagerLocal()
-	{
-		AssetBundleManager.<InternalInitAssetBundleManagerLocal>c__Iterator8 variable = null;
-		return variable;
-	}
-
 	public bool IsDevAssetBundles()
 	{
 		return false;
@@ -354,14 +347,7 @@ public class AssetBundleManager : MonoBehaviour
 	[DebuggerHidden]
 	public IEnumerator LoadAssetBundle(string fileIdentifier, Action<AssetBundle> resultCallback)
 	{
-		AssetBundleManager.<LoadAssetBundle>c__Iterator9 variable = null;
-		return variable;
-	}
-
-	[DebuggerHidden]
-	public IEnumerator LoadAssetBundleLocal(string fileIdentifier, Action<AssetBundle> resultCallback)
-	{
-		AssetBundleManager.<LoadAssetBundleLocal>c__IteratorA variable = null;
+		AssetBundleManager.<LoadAssetBundle>c__Iterator8 variable = null;
 		return variable;
 	}
 

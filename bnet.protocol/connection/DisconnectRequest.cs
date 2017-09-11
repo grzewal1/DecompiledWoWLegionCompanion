@@ -85,7 +85,7 @@ namespace bnet.protocol.connection
 		public static DisconnectRequest DeserializeLengthDelimited(Stream stream, DisconnectRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return DisconnectRequest.Deserialize(stream, instance, position);
 		}
 

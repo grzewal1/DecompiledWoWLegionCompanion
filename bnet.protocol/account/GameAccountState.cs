@@ -159,7 +159,7 @@ namespace bnet.protocol.account
 		public static GameAccountState DeserializeLengthDelimited(Stream stream, GameAccountState instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameAccountState.Deserialize(stream, instance, position);
 		}
 
@@ -190,15 +190,15 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasGameLevelInfo)
 			{
-				hashCode = hashCode ^ this.GameLevelInfo.GetHashCode();
+				hashCode ^= this.GameLevelInfo.GetHashCode();
 			}
 			if (this.HasGameTimeInfo)
 			{
-				hashCode = hashCode ^ this.GameTimeInfo.GetHashCode();
+				hashCode ^= this.GameTimeInfo.GetHashCode();
 			}
 			if (this.HasGameStatus)
 			{
-				hashCode = hashCode ^ this.GameStatus.GetHashCode();
+				hashCode ^= this.GameStatus.GetHashCode();
 			}
 			return hashCode;
 		}

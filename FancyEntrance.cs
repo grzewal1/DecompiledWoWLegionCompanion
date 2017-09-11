@@ -93,8 +93,7 @@ public class FancyEntrance : MonoBehaviour
 		{
 			return;
 		}
-		FancyEntrance mEntranceDelayDuration = this;
-		mEntranceDelayDuration.m_entranceDelayDuration = mEntranceDelayDuration.m_entranceDelayDuration - Time.deltaTime;
+		this.m_entranceDelayDuration -= Time.deltaTime;
 		if (this.m_entranceDelayDuration > 0f)
 		{
 			return;
@@ -110,8 +109,7 @@ public class FancyEntrance : MonoBehaviour
 		}
 		if (this.m_fadeInTimeElapsed < this.m_fadeInTime)
 		{
-			FancyEntrance mFadeInTimeElapsed = this;
-			mFadeInTimeElapsed.m_fadeInTimeElapsed = mFadeInTimeElapsed.m_fadeInTimeElapsed + Time.deltaTime;
+			this.m_fadeInTimeElapsed += Time.deltaTime;
 			float single = Mathf.Clamp(this.m_fadeInTimeElapsed / this.m_fadeInTime, 0f, 1f);
 			this.m_fadeInCanvasGroup.alpha = single;
 		}

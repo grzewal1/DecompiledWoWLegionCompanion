@@ -95,7 +95,7 @@ namespace bnet.protocol.account
 		public static GetEBalanceRestrictionsRequest DeserializeLengthDelimited(Stream stream, GetEBalanceRestrictionsRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetEBalanceRestrictionsRequest.Deserialize(stream, instance, position);
 		}
 
@@ -118,7 +118,7 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasCurrencyHomeRegion)
 			{
-				hashCode = hashCode ^ this.CurrencyHomeRegion.GetHashCode();
+				hashCode ^= this.CurrencyHomeRegion.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -129,7 +129,7 @@ namespace bnet.protocol.account
 			if (this.HasCurrencyHomeRegion)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.CurrencyHomeRegion);
+				num += ProtocolParser.SizeOfUInt32(this.CurrencyHomeRegion);
 			}
 			return num;
 		}

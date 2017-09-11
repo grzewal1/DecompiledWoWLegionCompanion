@@ -155,7 +155,7 @@ namespace bnet.protocol.server_pool
 		public static ServerState DeserializeLengthDelimited(Stream stream, ServerState instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ServerState.Deserialize(stream, instance, position);
 		}
 
@@ -186,15 +186,15 @@ namespace bnet.protocol.server_pool
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasCurrentLoad)
 			{
-				hashCode = hashCode ^ this.CurrentLoad.GetHashCode();
+				hashCode ^= this.CurrentLoad.GetHashCode();
 			}
 			if (this.HasGameCount)
 			{
-				hashCode = hashCode ^ this.GameCount.GetHashCode();
+				hashCode ^= this.GameCount.GetHashCode();
 			}
 			if (this.HasPlayerCount)
 			{
-				hashCode = hashCode ^ this.PlayerCount.GetHashCode();
+				hashCode ^= this.PlayerCount.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -205,17 +205,17 @@ namespace bnet.protocol.server_pool
 			if (this.HasCurrentLoad)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasGameCount)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.GameCount);
+				num += ProtocolParser.SizeOfUInt32(this.GameCount);
 			}
 			if (this.HasPlayerCount)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.PlayerCount);
+				num += ProtocolParser.SizeOfUInt32(this.PlayerCount);
 			}
 			return num;
 		}

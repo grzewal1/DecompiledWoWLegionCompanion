@@ -123,7 +123,7 @@ namespace bnet.protocol.account
 		public static AccountServiceConfig DeserializeLengthDelimited(Stream stream, AccountServiceConfig instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AccountServiceConfig.Deserialize(stream, instance, position);
 		}
 
@@ -153,7 +153,7 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			foreach (AccountServiceRegion region in this.Region)
 			{
-				hashCode = hashCode ^ region.GetHashCode();
+				hashCode ^= region.GetHashCode();
 			}
 			return hashCode;
 		}

@@ -122,7 +122,7 @@ namespace bnet.protocol.game_utilities
 		public static GameAccountOfflineNotification DeserializeLengthDelimited(Stream stream, GameAccountOfflineNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameAccountOfflineNotification.Deserialize(stream, instance, position);
 		}
 
@@ -147,10 +147,10 @@ namespace bnet.protocol.game_utilities
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.GameAccountId.GetHashCode();
+			hashCode ^= this.GameAccountId.GetHashCode();
 			if (this.HasHost)
 			{
-				hashCode = hashCode ^ this.Host.GetHashCode();
+				hashCode ^= this.Host.GetHashCode();
 			}
 			return hashCode;
 		}

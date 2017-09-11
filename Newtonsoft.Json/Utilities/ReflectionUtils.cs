@@ -320,7 +320,7 @@ namespace Newtonsoft.Json.Utilities
 			BindingFlags bindingFlag = BindingFlags.Public;
 			if (nonPublic)
 			{
-				bindingFlag = bindingFlag | BindingFlags.NonPublic;
+				bindingFlag |= BindingFlags.NonPublic;
 			}
 			return t.GetConstructor(bindingFlag | BindingFlags.Instance, null, new Type[0], null);
 		}

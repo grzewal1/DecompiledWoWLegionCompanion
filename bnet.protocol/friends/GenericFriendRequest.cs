@@ -122,7 +122,7 @@ namespace bnet.protocol.friends
 		public static GenericFriendRequest DeserializeLengthDelimited(Stream stream, GenericFriendRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GenericFriendRequest.Deserialize(stream, instance, position);
 		}
 
@@ -149,9 +149,9 @@ namespace bnet.protocol.friends
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentId)
 			{
-				hashCode = hashCode ^ this.AgentId.GetHashCode();
+				hashCode ^= this.AgentId.GetHashCode();
 			}
-			hashCode = hashCode ^ this.TargetId.GetHashCode();
+			hashCode ^= this.TargetId.GetHashCode();
 			return hashCode;
 		}
 

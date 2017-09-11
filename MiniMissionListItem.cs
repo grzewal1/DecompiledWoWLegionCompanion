@@ -84,8 +84,7 @@ public class MiniMissionListItem : MonoBehaviour
 		{
 			return 0;
 		}
-		int missionDuration = record.MissionDuration;
-		float actionValueFlat = 0f;
+		float missionDuration = (float)record.MissionDuration;
 		JamGarrisonEncounter[] encounter = mission.Encounter;
 		for (int i = 0; i < (int)encounter.Length; i++)
 		{
@@ -99,15 +98,15 @@ public class MiniMissionListItem : MonoBehaviour
 					StaticDB.garrAbilityEffectDB.EnumRecordsByParentID(garrMechanicRec.GarrAbilityID, (GarrAbilityEffectRec garrAbilityEffectRec) => {
 						if (garrAbilityEffectRec.AbilityAction == 17)
 						{
-							actionValueFlat = actionValueFlat + (1f - garrAbilityEffectRec.ActionValueFlat);
+							missionDuration *= garrAbilityEffectRec.ActionValueFlat;
 						}
 						return true;
 					});
 				}
 			}
 		}
-		missionDuration = missionDuration - (int)((float)missionDuration * actionValueFlat);
-		return missionDuration;
+		missionDuration *= GeneralHelpers.GetMissionDurationTalentMultiplier();
+		return (int)missionDuration;
 	}
 
 	public void OnTap()

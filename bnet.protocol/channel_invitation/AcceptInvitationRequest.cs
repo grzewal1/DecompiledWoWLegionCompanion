@@ -229,7 +229,7 @@ namespace bnet.protocol.channel_invitation
 		public static AcceptInvitationRequest DeserializeLengthDelimited(Stream stream, AcceptInvitationRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AcceptInvitationRequest.Deserialize(stream, instance, position);
 		}
 
@@ -276,25 +276,25 @@ namespace bnet.protocol.channel_invitation
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentId)
 			{
-				hashCode = hashCode ^ this.AgentId.GetHashCode();
+				hashCode ^= this.AgentId.GetHashCode();
 			}
 			if (this.HasMemberState)
 			{
-				hashCode = hashCode ^ this.MemberState.GetHashCode();
+				hashCode ^= this.MemberState.GetHashCode();
 			}
-			hashCode = hashCode ^ this.InvitationId.GetHashCode();
-			hashCode = hashCode ^ this.ObjectId.GetHashCode();
+			hashCode ^= this.InvitationId.GetHashCode();
+			hashCode ^= this.ObjectId.GetHashCode();
 			if (this.HasChannelId)
 			{
-				hashCode = hashCode ^ this.ChannelId.GetHashCode();
+				hashCode ^= this.ChannelId.GetHashCode();
 			}
 			if (this.HasServiceType)
 			{
-				hashCode = hashCode ^ this.ServiceType.GetHashCode();
+				hashCode ^= this.ServiceType.GetHashCode();
 			}
 			if (this.HasLocalSubscriber)
 			{
-				hashCode = hashCode ^ this.LocalSubscriber.GetHashCode();
+				hashCode ^= this.LocalSubscriber.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -314,8 +314,8 @@ namespace bnet.protocol.channel_invitation
 				uint serializedSize1 = this.MemberState.GetSerializedSize();
 				num = num + serializedSize1 + ProtocolParser.SizeOfUInt32(serializedSize1);
 			}
-			num = num + 8;
-			num = num + ProtocolParser.SizeOfUInt64(this.ObjectId);
+			num += 8;
+			num += ProtocolParser.SizeOfUInt64(this.ObjectId);
 			if (this.HasChannelId)
 			{
 				num++;
@@ -325,14 +325,14 @@ namespace bnet.protocol.channel_invitation
 			if (this.HasServiceType)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.ServiceType);
+				num += ProtocolParser.SizeOfUInt32(this.ServiceType);
 			}
 			if (this.HasLocalSubscriber)
 			{
 				num++;
 				num++;
 			}
-			num = num + 2;
+			num += 2;
 			return num;
 		}
 

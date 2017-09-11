@@ -168,14 +168,14 @@ namespace bgs
 				}
 				else
 				{
-					num1 = num1 - 48;
+					num1 -= 48;
 				}
 				if (num1 >= radix)
 				{
 					throw new ArgumentOutOfRangeException("digits");
 				}
 				bigInteger1 = bigInteger1 + (bigInteger * num1);
-				bigInteger = bigInteger * radix;
+				bigInteger *= radix;
 			}
 			if (digits[0] == '-')
 			{
@@ -212,7 +212,7 @@ namespace bgs
 				this.m_digits[num3] = (uint)((array[num2 - 3] << 24) + (array[num2 - 2] << 16) + (array[num2 - 1] << 8) + array[num2]);
 				DigitsArray mDigits = this.m_digits;
 				mDigits.DataUsed = mDigits.DataUsed + 1;
-				num2 = num2 - 4;
+				num2 -= 4;
 				num3++;
 			}
 			uint num4 = 0;
@@ -220,7 +220,7 @@ namespace bgs
 			{
 				uint num5 = array[offset + num1 - i];
 				num5 = num5 << ((i - 1) * 8 & 31);
-				num4 = num4 | num5;
+				num4 |= num5;
 			}
 			this.m_digits[this.m_digits.DataUsed] = num4;
 			this.m_digits.ResetDataUsed();
@@ -309,7 +309,7 @@ namespace bgs
 			}
 			uint num = rightSide.m_digits[rightSide.m_digits.DataUsed - 1];
 			int num1 = 0;
-			for (uint i = DigitsArray.HiBitSet; i != 0 && (num & i) == 0; i = i >> 1)
+			for (uint i = DigitsArray.HiBitSet; i != 0 && (num & i) == 0; i >>= 1)
 			{
 				num1++;
 			}
@@ -317,7 +317,7 @@ namespace bgs
 			uint[] numArray = new uint[dataUsed];
 			leftSide.m_digits.CopyTo(numArray, 0, leftSide.m_digits.DataUsed);
 			DigitsArray.ShiftLeft(numArray, num1);
-			rightSide = rightSide << num1;
+			rightSide <<= num1;
 			ulong item1 = (ulong)rightSide.m_digits[rightSide.m_digits.DataUsed - 1];
 			if (rightSide.m_digits.DataUsed >= 2)
 			{
@@ -350,8 +350,8 @@ namespace bgs
 					{
 						break;
 					}
-					num5 = num5 - (long)1;
-					num6 = num6 + item1;
+					num5 -= (long)1;
+					num6 += item1;
 					if (num6 >= dataSizeBits)
 					{
 						break;
@@ -362,9 +362,9 @@ namespace bgs
 					digitsArray[dataUsed1 - j - 1] = numArray[num4 - j];
 				}
 				BigInteger bigInteger = new BigInteger(digitsArray);
-				for (k = rightSide * num5; k > bigInteger; k = k - rightSide)
+				for (k = rightSide * num5; k > bigInteger; k -= rightSide)
 				{
-					num5 = num5 - (long)1;
+					num5 -= (long)1;
 				}
 				k = bigInteger - k;
 				for (int l = 0; l < dataUsed1; l++)
@@ -709,7 +709,7 @@ namespace bgs
 						DigitsArray digitsArray1 = item;
 						int dataUsed = digitsArray.DataUsed - 1;
 						item[dataUsed] = digitsArray1[dataUsed] | hiBitSet;
-						hiBitSet = hiBitSet >> 1;
+						hiBitSet >>= 1;
 						num++;
 					}
 					else
@@ -775,14 +775,14 @@ namespace bgs
 		public static BigInteger PowMod(BigInteger b, BigInteger exp, BigInteger mod)
 		{
 			BigInteger bigInteger = new BigInteger((long)1);
-			b = b % mod;
+			b %= mod;
 			while (exp > 0)
 			{
 				if ((exp % 2).CompareTo(1) == 0)
 				{
 					bigInteger = (bigInteger * b) % mod;
 				}
-				exp = exp >> 1;
+				exp >>= 1;
 				b = (b * b) % mod;
 			}
 			return bigInteger;

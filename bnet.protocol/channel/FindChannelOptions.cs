@@ -263,7 +263,7 @@ namespace bnet.protocol.channel
 		public static FindChannelOptions DeserializeLengthDelimited(Stream stream, FindChannelOptions instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return FindChannelOptions.Deserialize(stream, instance, position);
 		}
 
@@ -314,32 +314,32 @@ namespace bnet.protocol.channel
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasStartIndex)
 			{
-				hashCode = hashCode ^ this.StartIndex.GetHashCode();
+				hashCode ^= this.StartIndex.GetHashCode();
 			}
 			if (this.HasMaxResults)
 			{
-				hashCode = hashCode ^ this.MaxResults.GetHashCode();
+				hashCode ^= this.MaxResults.GetHashCode();
 			}
 			if (this.HasName)
 			{
-				hashCode = hashCode ^ this.Name.GetHashCode();
+				hashCode ^= this.Name.GetHashCode();
 			}
 			if (this.HasProgram)
 			{
-				hashCode = hashCode ^ this.Program.GetHashCode();
+				hashCode ^= this.Program.GetHashCode();
 			}
 			if (this.HasLocale)
 			{
-				hashCode = hashCode ^ this.Locale.GetHashCode();
+				hashCode ^= this.Locale.GetHashCode();
 			}
 			if (this.HasCapacityFull)
 			{
-				hashCode = hashCode ^ this.CapacityFull.GetHashCode();
+				hashCode ^= this.CapacityFull.GetHashCode();
 			}
-			hashCode = hashCode ^ this.AttributeFilter.GetHashCode();
+			hashCode ^= this.AttributeFilter.GetHashCode();
 			if (this.HasChannelType)
 			{
-				hashCode = hashCode ^ this.ChannelType.GetHashCode();
+				hashCode ^= this.ChannelType.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -350,12 +350,12 @@ namespace bnet.protocol.channel
 			if (this.HasStartIndex)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.StartIndex);
+				num += ProtocolParser.SizeOfUInt32(this.StartIndex);
 			}
 			if (this.HasMaxResults)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.MaxResults);
+				num += ProtocolParser.SizeOfUInt32(this.MaxResults);
 			}
 			if (this.HasName)
 			{
@@ -366,17 +366,17 @@ namespace bnet.protocol.channel
 			if (this.HasProgram)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasLocale)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasCapacityFull)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.CapacityFull);
+				num += ProtocolParser.SizeOfUInt32(this.CapacityFull);
 			}
 			uint serializedSize = this.AttributeFilter.GetSerializedSize();
 			num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);

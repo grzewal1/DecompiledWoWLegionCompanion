@@ -74,7 +74,7 @@ namespace bnet.protocol.account
 		public static CredentialUpdateResponse DeserializeLengthDelimited(Stream stream, CredentialUpdateResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return CredentialUpdateResponse.Deserialize(stream, instance, position);
 		}
 

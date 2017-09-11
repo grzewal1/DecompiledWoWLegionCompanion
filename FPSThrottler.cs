@@ -42,8 +42,7 @@ public class FPSThrottler : MonoBehaviour
 			Application.targetFrameRate = this.m_normalFPS;
 			return;
 		}
-		FPSThrottler mTimeSinceLastTouch = this;
-		mTimeSinceLastTouch.m_timeSinceLastTouch = mTimeSinceLastTouch.m_timeSinceLastTouch + Time.deltaTime;
+		this.m_timeSinceLastTouch += Time.deltaTime;
 		if (this.m_timeSinceLastTouch > this.m_hybernateDelay)
 		{
 			Application.targetFrameRate = this.m_hybernateFPS;

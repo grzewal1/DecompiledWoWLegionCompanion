@@ -189,7 +189,7 @@ namespace bnet.protocol.game_master
 		public static ChangeGameRequest DeserializeLengthDelimited(Stream stream, ChangeGameRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ChangeGameRequest.Deserialize(stream, instance, position);
 		}
 
@@ -229,18 +229,18 @@ namespace bnet.protocol.game_master
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.GameHandle.GetHashCode();
+			hashCode ^= this.GameHandle.GetHashCode();
 			if (this.HasOpen)
 			{
-				hashCode = hashCode ^ this.Open.GetHashCode();
+				hashCode ^= this.Open.GetHashCode();
 			}
 			foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)
 			{
-				hashCode = hashCode ^ attribute.GetHashCode();
+				hashCode ^= attribute.GetHashCode();
 			}
 			if (this.HasReplace)
 			{
-				hashCode = hashCode ^ this.Replace.GetHashCode();
+				hashCode ^= this.Replace.GetHashCode();
 			}
 			return hashCode;
 		}

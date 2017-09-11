@@ -364,7 +364,7 @@ namespace bnet.protocol.account
 		public static GameAccountBlob DeserializeLengthDelimited(Stream stream, GameAccountBlob instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameAccountBlob.Deserialize(stream, instance, position);
 		}
 
@@ -440,48 +440,48 @@ namespace bnet.protocol.account
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.GameAccount.GetHashCode();
+			hashCode ^= this.GameAccount.GetHashCode();
 			if (this.HasName)
 			{
-				hashCode = hashCode ^ this.Name.GetHashCode();
+				hashCode ^= this.Name.GetHashCode();
 			}
 			if (this.HasRealmPermissions)
 			{
-				hashCode = hashCode ^ this.RealmPermissions.GetHashCode();
+				hashCode ^= this.RealmPermissions.GetHashCode();
 			}
-			hashCode = hashCode ^ this.Status.GetHashCode();
+			hashCode ^= this.Status.GetHashCode();
 			if (this.HasFlags)
 			{
-				hashCode = hashCode ^ this.Flags.GetHashCode();
+				hashCode ^= this.Flags.GetHashCode();
 			}
 			if (this.HasBillingFlags)
 			{
-				hashCode = hashCode ^ this.BillingFlags.GetHashCode();
+				hashCode ^= this.BillingFlags.GetHashCode();
 			}
-			hashCode = hashCode ^ this.CacheExpiration.GetHashCode();
+			hashCode ^= this.CacheExpiration.GetHashCode();
 			if (this.HasSubscriptionExpiration)
 			{
-				hashCode = hashCode ^ this.SubscriptionExpiration.GetHashCode();
+				hashCode ^= this.SubscriptionExpiration.GetHashCode();
 			}
 			if (this.HasUnitsRemaining)
 			{
-				hashCode = hashCode ^ this.UnitsRemaining.GetHashCode();
+				hashCode ^= this.UnitsRemaining.GetHashCode();
 			}
 			if (this.HasStatusExpiration)
 			{
-				hashCode = hashCode ^ this.StatusExpiration.GetHashCode();
+				hashCode ^= this.StatusExpiration.GetHashCode();
 			}
 			if (this.HasBoxLevel)
 			{
-				hashCode = hashCode ^ this.BoxLevel.GetHashCode();
+				hashCode ^= this.BoxLevel.GetHashCode();
 			}
 			if (this.HasBoxLevelExpiration)
 			{
-				hashCode = hashCode ^ this.BoxLevelExpiration.GetHashCode();
+				hashCode ^= this.BoxLevelExpiration.GetHashCode();
 			}
 			foreach (AccountLicense license in this.Licenses)
 			{
-				hashCode = hashCode ^ license.GetHashCode();
+				hashCode ^= license.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -500,55 +500,55 @@ namespace bnet.protocol.account
 			if (this.HasRealmPermissions)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.RealmPermissions);
+				num += ProtocolParser.SizeOfUInt32(this.RealmPermissions);
 			}
-			num = num + ProtocolParser.SizeOfUInt32(this.Status);
+			num += ProtocolParser.SizeOfUInt32(this.Status);
 			if (this.HasFlags)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.Flags);
+				num += ProtocolParser.SizeOfUInt64(this.Flags);
 			}
 			if (this.HasBillingFlags)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.BillingFlags);
+				num += ProtocolParser.SizeOfUInt32(this.BillingFlags);
 			}
-			num = num + ProtocolParser.SizeOfUInt64(this.CacheExpiration);
+			num += ProtocolParser.SizeOfUInt64(this.CacheExpiration);
 			if (this.HasSubscriptionExpiration)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.SubscriptionExpiration);
+				num += ProtocolParser.SizeOfUInt64(this.SubscriptionExpiration);
 			}
 			if (this.HasUnitsRemaining)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.UnitsRemaining);
+				num += ProtocolParser.SizeOfUInt32(this.UnitsRemaining);
 			}
 			if (this.HasStatusExpiration)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.StatusExpiration);
+				num += ProtocolParser.SizeOfUInt64(this.StatusExpiration);
 			}
 			if (this.HasBoxLevel)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.BoxLevel);
+				num += ProtocolParser.SizeOfUInt32(this.BoxLevel);
 			}
 			if (this.HasBoxLevelExpiration)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.BoxLevelExpiration);
+				num += ProtocolParser.SizeOfUInt64(this.BoxLevelExpiration);
 			}
 			if (this.Licenses.Count > 0)
 			{
 				foreach (AccountLicense license in this.Licenses)
 				{
-					num = num + 2;
+					num += 2;
 					uint serializedSize1 = license.GetSerializedSize();
 					num = num + serializedSize1 + ProtocolParser.SizeOfUInt32(serializedSize1);
 				}
 			}
-			num = num + 3;
+			num += 3;
 			return num;
 		}
 

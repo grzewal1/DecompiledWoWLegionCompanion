@@ -204,7 +204,7 @@ namespace bnet.protocol.invitation
 		public static InvitationParams DeserializeLengthDelimited(Stream stream, InvitationParams instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return InvitationParams.Deserialize(stream, instance, position);
 		}
 
@@ -239,19 +239,19 @@ namespace bnet.protocol.invitation
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasInvitationMessage)
 			{
-				hashCode = hashCode ^ this.InvitationMessage.GetHashCode();
+				hashCode ^= this.InvitationMessage.GetHashCode();
 			}
 			if (this.HasExpirationTime)
 			{
-				hashCode = hashCode ^ this.ExpirationTime.GetHashCode();
+				hashCode ^= this.ExpirationTime.GetHashCode();
 			}
 			if (this.HasChannelParams)
 			{
-				hashCode = hashCode ^ this.ChannelParams.GetHashCode();
+				hashCode ^= this.ChannelParams.GetHashCode();
 			}
 			if (this.HasFriendParams)
 			{
-				hashCode = hashCode ^ this.FriendParams.GetHashCode();
+				hashCode ^= this.FriendParams.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -268,17 +268,17 @@ namespace bnet.protocol.invitation
 			if (this.HasExpirationTime)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.ExpirationTime);
+				num += ProtocolParser.SizeOfUInt64(this.ExpirationTime);
 			}
 			if (this.HasChannelParams)
 			{
-				num = num + 2;
+				num += 2;
 				uint serializedSize = this.ChannelParams.GetSerializedSize();
 				num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
 			}
 			if (this.HasFriendParams)
 			{
-				num = num + 2;
+				num += 2;
 				uint serializedSize1 = this.FriendParams.GetSerializedSize();
 				num = num + serializedSize1 + ProtocolParser.SizeOfUInt32(serializedSize1);
 			}

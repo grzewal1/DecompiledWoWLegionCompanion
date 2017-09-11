@@ -99,7 +99,7 @@ namespace bnet.protocol.authentication
 		public static ServerStateChangeRequest DeserializeLengthDelimited(Stream stream, ServerStateChangeRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ServerStateChangeRequest.Deserialize(stream, instance, position);
 		}
 
@@ -124,14 +124,14 @@ namespace bnet.protocol.authentication
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.State.GetHashCode();
+			hashCode ^= this.State.GetHashCode();
 			return hashCode ^ this.EventTime.GetHashCode();
 		}
 
 		public uint GetSerializedSize()
 		{
 			uint num = 0 + ProtocolParser.SizeOfUInt32(this.State);
-			num = num + ProtocolParser.SizeOfUInt64(this.EventTime);
+			num += ProtocolParser.SizeOfUInt64(this.EventTime);
 			return num + 2;
 		}
 

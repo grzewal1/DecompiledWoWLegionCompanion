@@ -332,8 +332,7 @@ public class UiAnimMgr
 
 	private int GetNextID()
 	{
-		UiAnimMgr mIdIndex = this;
-		mIdIndex.m_idIndex = mIdIndex.m_idIndex + 1;
+		this.m_idIndex++;
 		return this.m_idIndex;
 	}
 
@@ -342,7 +341,7 @@ public class UiAnimMgr
 		int count = 0;
 		foreach (KeyValuePair<string, UiAnimMgr.AnimData> mAnimDatum in this.m_animData)
 		{
-			count = count + mAnimDatum.Value.m_activeObjects.Count;
+			count += mAnimDatum.Value.m_activeObjects.Count;
 		}
 		return count;
 	}
@@ -352,7 +351,7 @@ public class UiAnimMgr
 		int count = 0;
 		foreach (KeyValuePair<string, UiAnimMgr.AnimData> mAnimDatum in this.m_animData)
 		{
-			count = count + mAnimDatum.Value.m_availableObjects.Count;
+			count += mAnimDatum.Value.m_availableObjects.Count;
 		}
 		return count;
 	}

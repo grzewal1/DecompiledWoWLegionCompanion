@@ -99,7 +99,7 @@ namespace bnet.protocol.invitation
 		public static SendInvitationResponse DeserializeLengthDelimited(Stream stream, SendInvitationResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return SendInvitationResponse.Deserialize(stream, instance, position);
 		}
 
@@ -122,7 +122,7 @@ namespace bnet.protocol.invitation
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasInvitation)
 			{
-				hashCode = hashCode ^ this.Invitation.GetHashCode();
+				hashCode ^= this.Invitation.GetHashCode();
 			}
 			return hashCode;
 		}

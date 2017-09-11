@@ -95,7 +95,7 @@ namespace bnet.protocol.game_master
 		public static SubscribeResponse DeserializeLengthDelimited(Stream stream, SubscribeResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return SubscribeResponse.Deserialize(stream, instance, position);
 		}
 
@@ -118,7 +118,7 @@ namespace bnet.protocol.game_master
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasSubscriptionId)
 			{
-				hashCode = hashCode ^ this.SubscriptionId.GetHashCode();
+				hashCode ^= this.SubscriptionId.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -129,7 +129,7 @@ namespace bnet.protocol.game_master
 			if (this.HasSubscriptionId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.SubscriptionId);
+				num += ProtocolParser.SizeOfUInt64(this.SubscriptionId);
 			}
 			return num;
 		}

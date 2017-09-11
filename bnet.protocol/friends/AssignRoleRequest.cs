@@ -174,7 +174,7 @@ namespace bnet.protocol.friends
 		public static AssignRoleRequest DeserializeLengthDelimited(Stream stream, AssignRoleRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AssignRoleRequest.Deserialize(stream, instance, position);
 		}
 
@@ -212,12 +212,12 @@ namespace bnet.protocol.friends
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentId)
 			{
-				hashCode = hashCode ^ this.AgentId.GetHashCode();
+				hashCode ^= this.AgentId.GetHashCode();
 			}
-			hashCode = hashCode ^ this.TargetId.GetHashCode();
+			hashCode ^= this.TargetId.GetHashCode();
 			foreach (int role in this.Role)
 			{
-				hashCode = hashCode ^ role.GetHashCode();
+				hashCode ^= role.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -238,7 +238,7 @@ namespace bnet.protocol.friends
 				foreach (int role in this.Role)
 				{
 					num++;
-					num = num + ProtocolParser.SizeOfUInt64((ulong)role);
+					num += ProtocolParser.SizeOfUInt64((ulong)role);
 				}
 			}
 			num++;

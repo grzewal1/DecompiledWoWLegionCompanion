@@ -223,7 +223,7 @@ namespace bnet.protocol.connection
 		public static ConnectResponse DeserializeLengthDelimited(Stream stream, ConnectResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ConnectResponse.Deserialize(stream, instance, position);
 		}
 
@@ -264,26 +264,26 @@ namespace bnet.protocol.connection
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.ServerId.GetHashCode();
+			hashCode ^= this.ServerId.GetHashCode();
 			if (this.HasClientId)
 			{
-				hashCode = hashCode ^ this.ClientId.GetHashCode();
+				hashCode ^= this.ClientId.GetHashCode();
 			}
 			if (this.HasBindResult)
 			{
-				hashCode = hashCode ^ this.BindResult.GetHashCode();
+				hashCode ^= this.BindResult.GetHashCode();
 			}
 			if (this.HasBindResponse)
 			{
-				hashCode = hashCode ^ this.BindResponse.GetHashCode();
+				hashCode ^= this.BindResponse.GetHashCode();
 			}
 			if (this.HasContentHandleArray)
 			{
-				hashCode = hashCode ^ this.ContentHandleArray.GetHashCode();
+				hashCode ^= this.ContentHandleArray.GetHashCode();
 			}
 			if (this.HasServerTime)
 			{
-				hashCode = hashCode ^ this.ServerTime.GetHashCode();
+				hashCode ^= this.ServerTime.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -302,7 +302,7 @@ namespace bnet.protocol.connection
 			if (this.HasBindResult)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.BindResult);
+				num += ProtocolParser.SizeOfUInt32(this.BindResult);
 			}
 			if (this.HasBindResponse)
 			{
@@ -319,7 +319,7 @@ namespace bnet.protocol.connection
 			if (this.HasServerTime)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.ServerTime);
+				num += ProtocolParser.SizeOfUInt64(this.ServerTime);
 			}
 			num++;
 			return num;

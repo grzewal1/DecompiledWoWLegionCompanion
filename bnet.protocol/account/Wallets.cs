@@ -123,7 +123,7 @@ namespace bnet.protocol.account
 		public static Wallets DeserializeLengthDelimited(Stream stream, Wallets instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return Wallets.Deserialize(stream, instance, position);
 		}
 
@@ -153,7 +153,7 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			foreach (Wallet wallets_ in this.Wallets_)
 			{
-				hashCode = hashCode ^ wallets_.GetHashCode();
+				hashCode ^= wallets_.GetHashCode();
 			}
 			return hashCode;
 		}

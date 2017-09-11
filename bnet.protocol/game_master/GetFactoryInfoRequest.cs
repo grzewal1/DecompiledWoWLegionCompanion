@@ -86,7 +86,7 @@ namespace bnet.protocol.game_master
 		public static GetFactoryInfoRequest DeserializeLengthDelimited(Stream stream, GetFactoryInfoRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetFactoryInfoRequest.Deserialize(stream, instance, position);
 		}
 

@@ -239,7 +239,7 @@ namespace bnet.protocol
 						else if (num1 == 42)
 						{
 							long position = (long)ProtocolParser.ReadUInt32(stream);
-							position = position + stream.Position;
+							position += stream.Position;
 							while (stream.Position < position)
 							{
 								instance.DefaultRole.Add(ProtocolParser.ReadUInt32(stream));
@@ -298,7 +298,7 @@ namespace bnet.protocol
 		public static RoleSet DeserializeLengthDelimited(Stream stream, RoleSet instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return RoleSet.Deserialize(stream, instance, position);
 		}
 
@@ -364,27 +364,27 @@ namespace bnet.protocol
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Program.GetHashCode();
-			hashCode = hashCode ^ this.Service.GetHashCode();
+			hashCode ^= this.Program.GetHashCode();
+			hashCode ^= this.Service.GetHashCode();
 			if (this.HasSubtype)
 			{
-				hashCode = hashCode ^ this.Subtype.GetHashCode();
+				hashCode ^= this.Subtype.GetHashCode();
 			}
 			foreach (bnet.protocol.Role role in this.Role)
 			{
-				hashCode = hashCode ^ role.GetHashCode();
+				hashCode ^= role.GetHashCode();
 			}
 			foreach (uint defaultRole in this.DefaultRole)
 			{
-				hashCode = hashCode ^ defaultRole.GetHashCode();
+				hashCode ^= defaultRole.GetHashCode();
 			}
 			if (this.HasMaxMembers)
 			{
-				hashCode = hashCode ^ this.MaxMembers.GetHashCode();
+				hashCode ^= this.MaxMembers.GetHashCode();
 			}
 			foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)
 			{
-				hashCode = hashCode ^ attribute.GetHashCode();
+				hashCode ^= attribute.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -417,14 +417,14 @@ namespace bnet.protocol
 				uint num2 = num;
 				foreach (uint defaultRole in this.DefaultRole)
 				{
-					num = num + ProtocolParser.SizeOfUInt32(defaultRole);
+					num += ProtocolParser.SizeOfUInt32(defaultRole);
 				}
-				num = num + ProtocolParser.SizeOfUInt32(num - num2);
+				num += ProtocolParser.SizeOfUInt32(num - num2);
 			}
 			if (this.HasMaxMembers)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64((ulong)this.MaxMembers);
+				num += ProtocolParser.SizeOfUInt64((ulong)this.MaxMembers);
 			}
 			if (this.Attribute.Count > 0)
 			{
@@ -435,7 +435,7 @@ namespace bnet.protocol
 					num = num + serializedSize1 + ProtocolParser.SizeOfUInt32(serializedSize1);
 				}
 			}
-			num = num + 2;
+			num += 2;
 			return num;
 		}
 
@@ -483,7 +483,7 @@ namespace bnet.protocol
 				uint num = 0;
 				foreach (uint defaultRole in instance.DefaultRole)
 				{
-					num = num + ProtocolParser.SizeOfUInt32(defaultRole);
+					num += ProtocolParser.SizeOfUInt32(defaultRole);
 				}
 				ProtocolParser.WriteUInt32(stream, num);
 				foreach (uint defaultRole1 in instance.DefaultRole)

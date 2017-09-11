@@ -120,7 +120,7 @@ namespace bnet.protocol.presence
 		public static RichPresence DeserializeLengthDelimited(Stream stream, RichPresence instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return RichPresence.Deserialize(stream, instance, position);
 		}
 
@@ -149,15 +149,15 @@ namespace bnet.protocol.presence
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.ProgramId.GetHashCode();
-			hashCode = hashCode ^ this.StreamId.GetHashCode();
+			hashCode ^= this.ProgramId.GetHashCode();
+			hashCode ^= this.StreamId.GetHashCode();
 			return hashCode ^ this.Index.GetHashCode();
 		}
 
 		public uint GetSerializedSize()
 		{
 			uint num = 0 + 4 + 4;
-			num = num + ProtocolParser.SizeOfUInt32(this.Index);
+			num += ProtocolParser.SizeOfUInt32(this.Index);
 			return num + 3;
 		}
 

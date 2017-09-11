@@ -242,8 +242,7 @@ public class MobileNetwork
 					}
 					else
 					{
-						MobileNetwork mMessageCount = this;
-						mMessageCount.m_messageCount = mMessageCount.m_messageCount + 1;
+						this.m_messageCount++;
 						this.OnMessageReceived(obj, this.m_messageCount);
 					}
 					BufferedStream bufferedStream = new BufferedStream(new MemoryStream());

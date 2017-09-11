@@ -56,8 +56,7 @@ namespace bgs
 				return '\0';
 			}
 			char mChars = this.m_chars[this.m_index];
-			Tokenizer mIndex = this;
-			mIndex.m_index = mIndex.m_index + 1;
+			this.m_index++;
 			return mChars;
 		}
 
@@ -104,13 +103,13 @@ namespace bgs
 					if (flag)
 					{
 						float single4 = single3 * (float)Math.Pow(0.1, (double)single2);
-						single1 = single1 + single4;
-						single2 = single2 + 1f;
+						single1 += single4;
+						single2 += 1f;
 					}
 					else
 					{
-						single1 = single1 * 10f;
-						single1 = single1 + single3;
+						single1 *= 10f;
+						single1 += single3;
 					}
 					this.NextChar();
 				}
@@ -201,8 +200,8 @@ namespace bgs
 					throw new Exception(string.Format("Found a non-numeric value while parsing an int: {0}", chr));
 				}
 				uint num1 = chr - 48;
-				num = num * 10;
-				num = num + num1;
+				num *= 10;
+				num += num1;
 				this.NextChar();
 			}
 			return num;
@@ -212,8 +211,7 @@ namespace bgs
 		{
 			if (this.m_index > 0)
 			{
-				Tokenizer mIndex = this;
-				mIndex.m_index = mIndex.m_index - 1;
+				this.m_index--;
 			}
 		}
 

@@ -224,7 +224,7 @@ namespace bnet.protocol.account
 		public static CacheExpireRequest DeserializeLengthDelimited(Stream stream, CacheExpireRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return CacheExpireRequest.Deserialize(stream, instance, position);
 		}
 
@@ -276,15 +276,15 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			foreach (AccountId account in this.Account)
 			{
-				hashCode = hashCode ^ account.GetHashCode();
+				hashCode ^= account.GetHashCode();
 			}
 			foreach (GameAccountHandle gameAccount in this.GameAccount)
 			{
-				hashCode = hashCode ^ gameAccount.GetHashCode();
+				hashCode ^= gameAccount.GetHashCode();
 			}
 			foreach (string email in this.Email)
 			{
-				hashCode = hashCode ^ email.GetHashCode();
+				hashCode ^= email.GetHashCode();
 			}
 			return hashCode;
 		}

@@ -100,7 +100,7 @@ namespace bnet.protocol.profanity
 		public static WordFilter DeserializeLengthDelimited(Stream stream, WordFilter instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return WordFilter.Deserialize(stream, instance, position);
 		}
 
@@ -125,7 +125,7 @@ namespace bnet.protocol.profanity
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Type.GetHashCode();
+			hashCode ^= this.Type.GetHashCode();
 			return hashCode ^ this.Regex.GetHashCode();
 		}
 

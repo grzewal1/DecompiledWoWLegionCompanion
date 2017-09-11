@@ -85,7 +85,7 @@ namespace bnet.protocol.authentication
 		public static MemModuleLoadResponse DeserializeLengthDelimited(Stream stream, MemModuleLoadResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return MemModuleLoadResponse.Deserialize(stream, instance, position);
 		}
 

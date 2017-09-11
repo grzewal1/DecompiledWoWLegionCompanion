@@ -146,7 +146,7 @@ namespace bnet.protocol.channel_invitation
 		public static IncrementChannelCountRequest DeserializeLengthDelimited(Stream stream, IncrementChannelCountRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return IncrementChannelCountRequest.Deserialize(stream, instance, position);
 		}
 
@@ -178,10 +178,10 @@ namespace bnet.protocol.channel_invitation
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.AgentId.GetHashCode();
+			hashCode ^= this.AgentId.GetHashCode();
 			foreach (ChannelCountDescription description in this.Descriptions)
 			{
-				hashCode = hashCode ^ description.GetHashCode();
+				hashCode ^= description.GetHashCode();
 			}
 			return hashCode;
 		}

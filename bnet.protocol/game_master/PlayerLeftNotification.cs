@@ -136,7 +136,7 @@ namespace bnet.protocol.game_master
 		public static PlayerLeftNotification DeserializeLengthDelimited(Stream stream, PlayerLeftNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return PlayerLeftNotification.Deserialize(stream, instance, position);
 		}
 
@@ -165,11 +165,11 @@ namespace bnet.protocol.game_master
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.GameHandle.GetHashCode();
-			hashCode = hashCode ^ this.MemberId.GetHashCode();
+			hashCode ^= this.GameHandle.GetHashCode();
+			hashCode ^= this.MemberId.GetHashCode();
 			if (this.HasReason)
 			{
-				hashCode = hashCode ^ this.Reason.GetHashCode();
+				hashCode ^= this.Reason.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -184,9 +184,9 @@ namespace bnet.protocol.game_master
 			if (this.HasReason)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Reason);
+				num += ProtocolParser.SizeOfUInt32(this.Reason);
 			}
-			num = num + 2;
+			num += 2;
 			return num;
 		}
 

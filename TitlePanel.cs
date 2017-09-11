@@ -91,6 +91,10 @@ public class TitlePanel : MonoBehaviour
 		else
 		{
 			lower = this.m_portalDropdown.options.ToArray()[this.m_portalDropdown.@value].text.ToLower();
+			if (lower.ToLower() == "ptr")
+			{
+				lower = "beta";
+			}
 		}
 		return lower;
 	}
@@ -217,10 +221,7 @@ public class TitlePanel : MonoBehaviour
 	{
 		DateTime today = DateTime.Today;
 		Debug.Log(string.Concat(new object[] { "Date: ", today.Month, "/", today.Day, "/", today.Year }));
-		if (today.Year > 2017 || today.Month > 3 || today.Day > 27)
-		{
-			this.m_showPTR = false;
-		}
+		this.m_showPTR = false;
 		if (Login.instance.IsDevRegionList())
 		{
 			this.m_regionOptions = new string[] { "WoW-Dev", "PTR", "ST-US", "ST-EU", "ST-KR", "ST-CN", "US", "EU", "CN", "KR" };

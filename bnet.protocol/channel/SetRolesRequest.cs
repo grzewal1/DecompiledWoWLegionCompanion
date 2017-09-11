@@ -158,7 +158,7 @@ namespace bnet.protocol.channel
 						else if (num1 == 18)
 						{
 							long position = (long)ProtocolParser.ReadUInt32(stream);
-							position = position + stream.Position;
+							position += stream.Position;
 							while (stream.Position < position)
 							{
 								instance.Role.Add(ProtocolParser.ReadUInt32(stream));
@@ -213,7 +213,7 @@ namespace bnet.protocol.channel
 		public static SetRolesRequest DeserializeLengthDelimited(Stream stream, SetRolesRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return SetRolesRequest.Deserialize(stream, instance, position);
 		}
 
@@ -258,15 +258,15 @@ namespace bnet.protocol.channel
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentId)
 			{
-				hashCode = hashCode ^ this.AgentId.GetHashCode();
+				hashCode ^= this.AgentId.GetHashCode();
 			}
 			foreach (uint role in this.Role)
 			{
-				hashCode = hashCode ^ role.GetHashCode();
+				hashCode ^= role.GetHashCode();
 			}
 			foreach (EntityId memberId in this.MemberId)
 			{
-				hashCode = hashCode ^ memberId.GetHashCode();
+				hashCode ^= memberId.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -286,9 +286,9 @@ namespace bnet.protocol.channel
 				uint num1 = num;
 				foreach (uint role in this.Role)
 				{
-					num = num + ProtocolParser.SizeOfUInt32(role);
+					num += ProtocolParser.SizeOfUInt32(role);
 				}
-				num = num + ProtocolParser.SizeOfUInt32(num - num1);
+				num += ProtocolParser.SizeOfUInt32(num - num1);
 			}
 			if (this.MemberId.Count > 0)
 			{
@@ -326,7 +326,7 @@ namespace bnet.protocol.channel
 				uint num = 0;
 				foreach (uint role in instance.Role)
 				{
-					num = num + ProtocolParser.SizeOfUInt32(role);
+					num += ProtocolParser.SizeOfUInt32(role);
 				}
 				ProtocolParser.WriteUInt32(stream, num);
 				foreach (uint role1 in instance.Role)

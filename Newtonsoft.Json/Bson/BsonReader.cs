@@ -186,8 +186,8 @@ namespace Newtonsoft.Json.Bson
 				{
 					throw new EndOfStreamException("Unable to read beyond the end of the stream.");
 				}
-				num = num + num3;
-				num3 = num3 + num1;
+				num += num3;
+				num3 += num1;
 				if (num3 == length)
 				{
 					int chars = Encoding.UTF8.GetChars(this._byteBuffer, 0, num3, this._charBuffer, 0);
@@ -238,8 +238,7 @@ namespace Newtonsoft.Json.Bson
 
 		private void MovePosition(int count)
 		{
-			BsonReader.ContainerContext position = this._currentContext;
-			position.Position = position.Position + count;
+			this._currentContext.Position += count;
 		}
 
 		private void PopContext()
@@ -609,7 +608,7 @@ namespace Newtonsoft.Json.Bson
 					this._byteBuffer[num5] = num4;
 				}
 				int num6 = num2 - num1;
-				num = num + num6;
+				num += num6;
 				if (num2 < 128 && stringBuilder == null)
 				{
 					int chars = Encoding.UTF8.GetChars(this._byteBuffer, 0, num6, this._charBuffer, 0);

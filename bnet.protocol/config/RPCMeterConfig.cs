@@ -214,7 +214,7 @@ namespace bnet.protocol.config
 		public static RPCMeterConfig DeserializeLengthDelimited(Stream stream, RPCMeterConfig instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return RPCMeterConfig.Deserialize(stream, instance, position);
 		}
 
@@ -260,23 +260,23 @@ namespace bnet.protocol.config
 			int hashCode = this.GetType().GetHashCode();
 			foreach (RPCMethodConfig method in this.Method)
 			{
-				hashCode = hashCode ^ method.GetHashCode();
+				hashCode ^= method.GetHashCode();
 			}
 			if (this.HasIncomePerSecond)
 			{
-				hashCode = hashCode ^ this.IncomePerSecond.GetHashCode();
+				hashCode ^= this.IncomePerSecond.GetHashCode();
 			}
 			if (this.HasInitialBalance)
 			{
-				hashCode = hashCode ^ this.InitialBalance.GetHashCode();
+				hashCode ^= this.InitialBalance.GetHashCode();
 			}
 			if (this.HasCapBalance)
 			{
-				hashCode = hashCode ^ this.CapBalance.GetHashCode();
+				hashCode ^= this.CapBalance.GetHashCode();
 			}
 			if (this.HasStartupPeriod)
 			{
-				hashCode = hashCode ^ this.StartupPeriod.GetHashCode();
+				hashCode ^= this.StartupPeriod.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -296,22 +296,22 @@ namespace bnet.protocol.config
 			if (this.HasIncomePerSecond)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.IncomePerSecond);
+				num += ProtocolParser.SizeOfUInt32(this.IncomePerSecond);
 			}
 			if (this.HasInitialBalance)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.InitialBalance);
+				num += ProtocolParser.SizeOfUInt32(this.InitialBalance);
 			}
 			if (this.HasCapBalance)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.CapBalance);
+				num += ProtocolParser.SizeOfUInt32(this.CapBalance);
 			}
 			if (this.HasStartupPeriod)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			return num;
 		}

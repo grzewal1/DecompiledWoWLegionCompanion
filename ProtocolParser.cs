@@ -34,7 +34,7 @@ public static class ProtocolParser
 		int num = 0;
 		int num1 = (int)ProtocolParser.ReadUInt32(stream);
 		byte[] numArray = new byte[num1];
-		for (int i = 0; i < num1; i = i + num)
+		for (int i = 0; i < num1; i += num)
 		{
 			num = stream.Read(numArray, i, num1 - i);
 			if (num == 0)
@@ -191,7 +191,7 @@ public static class ProtocolParser
 				numArray = new byte[8];
 				while (length < 8)
 				{
-					length = length + stream.Read(numArray, length, 8 - length);
+					length += stream.Read(numArray, length, 8 - length);
 				}
 				return numArray;
 			}
@@ -207,7 +207,7 @@ public static class ProtocolParser
 				}
 				while (length < (int)numArray.Length)
 				{
-					length = length + stream.Read(numArray, length, (int)numArray.Length - length);
+					length += stream.Read(numArray, length, (int)numArray.Length - length);
 				}
 				return numArray;
 			}
@@ -221,7 +221,7 @@ public static class ProtocolParser
 				numArray = new byte[4];
 				while (length < 4)
 				{
-					length = length + stream.Read(numArray, length, 4 - length);
+					length += stream.Read(numArray, length, 4 - length);
 				}
 				return numArray;
 			}
@@ -281,7 +281,7 @@ public static class ProtocolParser
 		uint num = 1;
 		while (true)
 		{
-			val = val >> 7;
+			val >>= 7;
 			if (val == 0)
 			{
 				break;
@@ -301,7 +301,7 @@ public static class ProtocolParser
 		uint num = 1;
 		while (true)
 		{
-			val = val >> 7;
+			val >>= 7;
 			if (val == 0)
 			{
 				break;
@@ -446,7 +446,7 @@ public static class ProtocolParser
 		while (true)
 		{
 			num = (byte)(val & 127);
-			val = val >> 7;
+			val >>= 7;
 			if (val == 0)
 			{
 				break;
@@ -463,7 +463,7 @@ public static class ProtocolParser
 		while (true)
 		{
 			num = (byte)(val & (long)127);
-			val = val >> 7;
+			val >>= 7;
 			if (val == 0)
 			{
 				break;

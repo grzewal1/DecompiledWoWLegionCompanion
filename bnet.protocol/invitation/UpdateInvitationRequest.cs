@@ -133,7 +133,7 @@ namespace bnet.protocol.invitation
 		public static UpdateInvitationRequest DeserializeLengthDelimited(Stream stream, UpdateInvitationRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return UpdateInvitationRequest.Deserialize(stream, instance, position);
 		}
 
@@ -164,10 +164,10 @@ namespace bnet.protocol.invitation
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentIdentity)
 			{
-				hashCode = hashCode ^ this.AgentIdentity.GetHashCode();
+				hashCode ^= this.AgentIdentity.GetHashCode();
 			}
-			hashCode = hashCode ^ this.InvitationId.GetHashCode();
-			hashCode = hashCode ^ this.Params.GetHashCode();
+			hashCode ^= this.InvitationId.GetHashCode();
+			hashCode ^= this.Params.GetHashCode();
 			return hashCode;
 		}
 
@@ -180,10 +180,10 @@ namespace bnet.protocol.invitation
 				uint serializedSize = this.AgentIdentity.GetSerializedSize();
 				num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
 			}
-			num = num + 8;
+			num += 8;
 			uint serializedSize1 = this.Params.GetSerializedSize();
 			num = num + serializedSize1 + ProtocolParser.SizeOfUInt32(serializedSize1);
-			num = num + 2;
+			num += 2;
 			return num;
 		}
 

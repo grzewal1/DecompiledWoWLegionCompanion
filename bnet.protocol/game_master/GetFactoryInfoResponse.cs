@@ -176,7 +176,7 @@ namespace bnet.protocol.game_master
 		public static GetFactoryInfoResponse DeserializeLengthDelimited(Stream stream, GetFactoryInfoResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetFactoryInfoResponse.Deserialize(stream, instance, position);
 		}
 
@@ -217,11 +217,11 @@ namespace bnet.protocol.game_master
 			int hashCode = this.GetType().GetHashCode();
 			foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)
 			{
-				hashCode = hashCode ^ attribute.GetHashCode();
+				hashCode ^= attribute.GetHashCode();
 			}
 			foreach (GameStatsBucket statsBucket in this.StatsBucket)
 			{
-				hashCode = hashCode ^ statsBucket.GetHashCode();
+				hashCode ^= statsBucket.GetHashCode();
 			}
 			return hashCode;
 		}

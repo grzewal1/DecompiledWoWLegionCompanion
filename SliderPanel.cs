@@ -131,7 +131,7 @@ public class SliderPanel : MonoBehaviour
 		}
 		Vector2 vector2 = new Vector2((float)this.m_missionPanelSliderFullWidth, (float)(this.m_missionPanelSliderFullHeight + this.m_startingVerticalOffset));
 		Vector2 component = base.GetComponent<RectTransform>().anchoredPosition;
-		component.y = component.y + (float)this.m_startingVerticalOffset;
+		component.y += (float)this.m_startingVerticalOffset;
 		GameObject gameObject = base.gameObject;
 		object[] objArray = new object[] { "name", "Slide Mission Details In (Bottom)", "from", component, "to", vector2, "easeType", "easeOutCubic", "time", null, null, null, null, null };
 		objArray[9] = (this.m_maximizeSeconds <= 0f ? 0.5f : this.m_maximizeSeconds);

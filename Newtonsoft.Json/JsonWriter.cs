@@ -318,15 +318,13 @@ namespace Newtonsoft.Json
 		private JTokenType Pop()
 		{
 			JTokenType jTokenType = this.Peek();
-			JsonWriter jsonWriter = this;
-			jsonWriter._top = jsonWriter._top - 1;
+			this._top--;
 			return jTokenType;
 		}
 
 		private void Push(JTokenType value)
 		{
-			JsonWriter jsonWriter = this;
-			jsonWriter._top = jsonWriter._top + 1;
+			this._top++;
 			if (this._stack.Count > this._top)
 			{
 				this._stack[this._top] = value;

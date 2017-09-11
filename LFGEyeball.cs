@@ -29,11 +29,11 @@ public class LFGEyeball : MonoBehaviour
 
 	private void Update()
 	{
-		LFGEyeball.m_secondsUntilNextFrame = LFGEyeball.m_secondsUntilNextFrame - Time.deltaTime;
+		LFGEyeball.m_secondsUntilNextFrame -= Time.deltaTime;
 		if (LFGEyeball.m_secondsUntilNextFrame < 0f)
 		{
-			LFGEyeball.m_secondsUntilNextFrame = LFGEyeball.m_secondsUntilNextFrame + this.m_secondsBetweenFrames;
-			LFGEyeball.frameIndex = LFGEyeball.frameIndex + 1;
+			LFGEyeball.m_secondsUntilNextFrame += this.m_secondsBetweenFrames;
+			LFGEyeball.frameIndex++;
 			if (LFGEyeball.frameIndex >= (int)this.m_eyeballSprites.Length)
 			{
 				LFGEyeball.frameIndex = 0;

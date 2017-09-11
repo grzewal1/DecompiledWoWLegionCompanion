@@ -74,7 +74,7 @@ namespace bnet.protocol.connection
 		public static EncryptRequest DeserializeLengthDelimited(Stream stream, EncryptRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return EncryptRequest.Deserialize(stream, instance, position);
 		}
 

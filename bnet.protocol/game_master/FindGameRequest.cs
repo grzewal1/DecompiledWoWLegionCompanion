@@ -241,7 +241,7 @@ namespace bnet.protocol.game_master
 		public static FindGameRequest DeserializeLengthDelimited(Stream stream, FindGameRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return FindGameRequest.Deserialize(stream, instance, position);
 		}
 
@@ -291,27 +291,27 @@ namespace bnet.protocol.game_master
 			int hashCode = this.GetType().GetHashCode();
 			foreach (bnet.protocol.game_master.Player player in this.Player)
 			{
-				hashCode = hashCode ^ player.GetHashCode();
+				hashCode ^= player.GetHashCode();
 			}
 			if (this.HasFactoryId)
 			{
-				hashCode = hashCode ^ this.FactoryId.GetHashCode();
+				hashCode ^= this.FactoryId.GetHashCode();
 			}
 			if (this.HasProperties)
 			{
-				hashCode = hashCode ^ this.Properties.GetHashCode();
+				hashCode ^= this.Properties.GetHashCode();
 			}
 			if (this.HasObjectId)
 			{
-				hashCode = hashCode ^ this.ObjectId.GetHashCode();
+				hashCode ^= this.ObjectId.GetHashCode();
 			}
 			if (this.HasRequestId)
 			{
-				hashCode = hashCode ^ this.RequestId.GetHashCode();
+				hashCode ^= this.RequestId.GetHashCode();
 			}
 			if (this.HasAdvancedNotification)
 			{
-				hashCode = hashCode ^ this.AdvancedNotification.GetHashCode();
+				hashCode ^= this.AdvancedNotification.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -331,7 +331,7 @@ namespace bnet.protocol.game_master
 			if (this.HasFactoryId)
 			{
 				num++;
-				num = num + 8;
+				num += 8;
 			}
 			if (this.HasProperties)
 			{
@@ -342,12 +342,12 @@ namespace bnet.protocol.game_master
 			if (this.HasObjectId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.ObjectId);
+				num += ProtocolParser.SizeOfUInt64(this.ObjectId);
 			}
 			if (this.HasRequestId)
 			{
 				num++;
-				num = num + 8;
+				num += 8;
 			}
 			if (this.HasAdvancedNotification)
 			{

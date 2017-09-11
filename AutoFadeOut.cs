@@ -32,8 +32,7 @@ public class AutoFadeOut : MonoBehaviour
 	{
 		if (this.m_enableFadeOut)
 		{
-			AutoFadeOut mElapsedFadeTime = this;
-			mElapsedFadeTime.m_elapsedFadeTime = mElapsedFadeTime.m_elapsedFadeTime + Time.deltaTime;
+			this.m_elapsedFadeTime += Time.deltaTime;
 			this.m_canvasGroupToFadeOut.alpha = 1f - Mathf.Clamp01(this.m_elapsedFadeTime / this.m_fadeOutTime);
 			if (this.m_canvasGroupToFadeOut.alpha < 0.99f)
 			{

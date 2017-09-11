@@ -502,7 +502,7 @@ namespace bnet.protocol.channel
 		public static bnet.protocol.channel.ChannelState DeserializeLengthDelimited(Stream stream, bnet.protocol.channel.ChannelState instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return bnet.protocol.channel.ChannelState.Deserialize(stream, instance, position);
 		}
 
@@ -595,63 +595,63 @@ namespace bnet.protocol.channel
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasMaxMembers)
 			{
-				hashCode = hashCode ^ this.MaxMembers.GetHashCode();
+				hashCode ^= this.MaxMembers.GetHashCode();
 			}
 			if (this.HasMinMembers)
 			{
-				hashCode = hashCode ^ this.MinMembers.GetHashCode();
+				hashCode ^= this.MinMembers.GetHashCode();
 			}
 			foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)
 			{
-				hashCode = hashCode ^ attribute.GetHashCode();
+				hashCode ^= attribute.GetHashCode();
 			}
 			foreach (bnet.protocol.invitation.Invitation invitation in this.Invitation)
 			{
-				hashCode = hashCode ^ invitation.GetHashCode();
+				hashCode ^= invitation.GetHashCode();
 			}
 			if (this.HasMaxInvitations)
 			{
-				hashCode = hashCode ^ this.MaxInvitations.GetHashCode();
+				hashCode ^= this.MaxInvitations.GetHashCode();
 			}
 			if (this.HasReason)
 			{
-				hashCode = hashCode ^ this.Reason.GetHashCode();
+				hashCode ^= this.Reason.GetHashCode();
 			}
 			if (this.HasPrivacyLevel)
 			{
-				hashCode = hashCode ^ this.PrivacyLevel.GetHashCode();
+				hashCode ^= this.PrivacyLevel.GetHashCode();
 			}
 			if (this.HasName)
 			{
-				hashCode = hashCode ^ this.Name.GetHashCode();
+				hashCode ^= this.Name.GetHashCode();
 			}
 			if (this.HasDelegateName)
 			{
-				hashCode = hashCode ^ this.DelegateName.GetHashCode();
+				hashCode ^= this.DelegateName.GetHashCode();
 			}
 			if (this.HasChannelType)
 			{
-				hashCode = hashCode ^ this.ChannelType.GetHashCode();
+				hashCode ^= this.ChannelType.GetHashCode();
 			}
 			if (this.HasProgram)
 			{
-				hashCode = hashCode ^ this.Program.GetHashCode();
+				hashCode ^= this.Program.GetHashCode();
 			}
 			if (this.HasAllowOfflineMembers)
 			{
-				hashCode = hashCode ^ this.AllowOfflineMembers.GetHashCode();
+				hashCode ^= this.AllowOfflineMembers.GetHashCode();
 			}
 			if (this.HasSubscribeToPresence)
 			{
-				hashCode = hashCode ^ this.SubscribeToPresence.GetHashCode();
+				hashCode ^= this.SubscribeToPresence.GetHashCode();
 			}
 			if (this.HasChat)
 			{
-				hashCode = hashCode ^ this.Chat.GetHashCode();
+				hashCode ^= this.Chat.GetHashCode();
 			}
 			if (this.HasPresence)
 			{
-				hashCode = hashCode ^ this.Presence.GetHashCode();
+				hashCode ^= this.Presence.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -662,12 +662,12 @@ namespace bnet.protocol.channel
 			if (this.HasMaxMembers)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.MaxMembers);
+				num += ProtocolParser.SizeOfUInt32(this.MaxMembers);
 			}
 			if (this.HasMinMembers)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.MinMembers);
+				num += ProtocolParser.SizeOfUInt32(this.MinMembers);
 			}
 			if (this.Attribute.Count > 0)
 			{
@@ -690,17 +690,17 @@ namespace bnet.protocol.channel
 			if (this.HasMaxInvitations)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.MaxInvitations);
+				num += ProtocolParser.SizeOfUInt32(this.MaxInvitations);
 			}
 			if (this.HasReason)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Reason);
+				num += ProtocolParser.SizeOfUInt32(this.Reason);
 			}
 			if (this.HasPrivacyLevel)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64((ulong)this.PrivacyLevel);
+				num += ProtocolParser.SizeOfUInt64((ulong)this.PrivacyLevel);
 			}
 			if (this.HasName)
 			{
@@ -723,7 +723,7 @@ namespace bnet.protocol.channel
 			if (this.HasProgram)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasAllowOfflineMembers)
 			{
@@ -737,13 +737,13 @@ namespace bnet.protocol.channel
 			}
 			if (this.HasChat)
 			{
-				num = num + 2;
+				num += 2;
 				uint serializedSize2 = this.Chat.GetSerializedSize();
 				num = num + serializedSize2 + ProtocolParser.SizeOfUInt32(serializedSize2);
 			}
 			if (this.HasPresence)
 			{
-				num = num + 2;
+				num += 2;
 				uint num2 = this.Presence.GetSerializedSize();
 				num = num + num2 + ProtocolParser.SizeOfUInt32(num2);
 			}

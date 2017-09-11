@@ -28,7 +28,7 @@ namespace GarbageFreeStringBuilder
 				uint uintVal = uint_val;
 				do
 				{
-					uintVal = uintVal / base_val;
+					uintVal /= base_val;
 					num++;
 				}
 				while (uintVal > 0);
@@ -38,7 +38,7 @@ namespace GarbageFreeStringBuilder
 				{
 					length--;
 					string_builder[length] = StringBuilderExtensions.ms_digits[uint_val % base_val];
-					uint_val = uint_val / base_val;
+					uint_val /= base_val;
 					num--;
 				}
 				return string_builder;
@@ -107,11 +107,11 @@ namespace GarbageFreeStringBuilder
 				float single = Math.Abs(float_val - (float)floatVal);
 				do
 				{
-					single = single * 10f;
+					single *= 10f;
 					decimal_places--;
 				}
 				while (decimal_places > 0);
-				single = single + 0.5f;
+				single += 0.5f;
 				string_builder.Concat((uint)single, 0, '0', 10);
 			}
 			else

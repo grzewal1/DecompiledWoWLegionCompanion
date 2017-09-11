@@ -131,7 +131,7 @@ namespace bnet.protocol.presence
 		public static FieldKey DeserializeLengthDelimited(Stream stream, FieldKey instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return FieldKey.Deserialize(stream, instance, position);
 		}
 
@@ -164,12 +164,12 @@ namespace bnet.protocol.presence
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Program.GetHashCode();
-			hashCode = hashCode ^ this.Group.GetHashCode();
-			hashCode = hashCode ^ this.Field.GetHashCode();
+			hashCode ^= this.Program.GetHashCode();
+			hashCode ^= this.Group.GetHashCode();
+			hashCode ^= this.Field.GetHashCode();
 			if (this.HasIndex)
 			{
-				hashCode = hashCode ^ this.Index.GetHashCode();
+				hashCode ^= this.Index.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -177,15 +177,15 @@ namespace bnet.protocol.presence
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + ProtocolParser.SizeOfUInt32(this.Program);
-			num = num + ProtocolParser.SizeOfUInt32(this.Group);
-			num = num + ProtocolParser.SizeOfUInt32(this.Field);
+			num += ProtocolParser.SizeOfUInt32(this.Program);
+			num += ProtocolParser.SizeOfUInt32(this.Group);
+			num += ProtocolParser.SizeOfUInt32(this.Field);
 			if (this.HasIndex)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.Index);
+				num += ProtocolParser.SizeOfUInt64(this.Index);
 			}
-			num = num + 3;
+			num += 3;
 			return num;
 		}
 

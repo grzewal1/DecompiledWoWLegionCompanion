@@ -219,7 +219,7 @@ namespace bnet.protocol.server_pool
 		public static ServerInfo DeserializeLengthDelimited(Stream stream, ServerInfo instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ServerInfo.Deserialize(stream, instance, position);
 		}
 
@@ -263,22 +263,22 @@ namespace bnet.protocol.server_pool
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Host.GetHashCode();
+			hashCode ^= this.Host.GetHashCode();
 			if (this.HasReplace)
 			{
-				hashCode = hashCode ^ this.Replace.GetHashCode();
+				hashCode ^= this.Replace.GetHashCode();
 			}
 			if (this.HasState)
 			{
-				hashCode = hashCode ^ this.State.GetHashCode();
+				hashCode ^= this.State.GetHashCode();
 			}
 			foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)
 			{
-				hashCode = hashCode ^ attribute.GetHashCode();
+				hashCode ^= attribute.GetHashCode();
 			}
 			if (this.HasProgramId)
 			{
-				hashCode = hashCode ^ this.ProgramId.GetHashCode();
+				hashCode ^= this.ProgramId.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -311,7 +311,7 @@ namespace bnet.protocol.server_pool
 			if (this.HasProgramId)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			num++;
 			return num;

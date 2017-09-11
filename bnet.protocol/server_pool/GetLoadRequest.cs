@@ -74,7 +74,7 @@ namespace bnet.protocol.server_pool
 		public static GetLoadRequest DeserializeLengthDelimited(Stream stream, GetLoadRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetLoadRequest.Deserialize(stream, instance, position);
 		}
 

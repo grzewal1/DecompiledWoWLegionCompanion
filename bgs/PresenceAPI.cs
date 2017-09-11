@@ -76,8 +76,7 @@ namespace bgs
 				base.ApiLog.LogWarning("Number of outstanding rich presence string fetches tracked incorrectly - decemented to negative");
 				return;
 			}
-			PresenceAPI mNumOutstandingRichPresenceStringFetches = this;
-			mNumOutstandingRichPresenceStringFetches.m_numOutstandingRichPresenceStringFetches = mNumOutstandingRichPresenceStringFetches.m_numOutstandingRichPresenceStringFetches - 1;
+			this.m_numOutstandingRichPresenceStringFetches--;
 			this.TryToResolveRichPresence();
 		}
 
@@ -85,18 +84,18 @@ namespace bgs
 		{
 			// 
 			// Current member / type: System.Void bgs.PresenceAPI::DownloadCompletedCallback(System.Byte[],System.Object)
-			// File path: C:\Users\RenameME-4\Desktop\wow_app\wow_v1.2.0_com.blizzard.wowcompanion\assets\bin\Data\Managed\Assembly-CSharp.dll
+			// File path: C:\jar_reverse\1.2.52\assets\bin\Data\Managed\Assembly-CSharp.dll
 			// 
-			// Product version: 2017.1.116.2
+			// Product version: 2017.2.706.0
 			// Exception in: System.Void DownloadCompletedCallback(System.Byte[],System.Object)
 			// 
 			// La référence d'objet n'est pas définie à une instance d'un objet.
-			//    à ..() dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 81
+			//    à ..() dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 93
 			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 24
 			//    à ..Visit(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 69
-			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 498
+			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 504
 			//    à ..Visit(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 120
-			//    à ..Visit(IEnumerable ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 374
+			//    à ..Visit(IEnumerable ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 380
 			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 24
 			//    à ..Visit(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 69
 			//    à ..(DecompilationContext ,  ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 19
@@ -273,8 +272,7 @@ namespace bgs
 						item.objectId = subscribeRequest.ObjectId;
 						this.m_battleNet.Channel.AddActiveChannel(subscribeRequest.ObjectId, new ChannelAPI.ChannelReferenceObject(mQueuedSubscription, ChannelAPI.ChannelType.PRESENCE_CHANNEL));
 						this.m_rpcConnection.QueueRequest(this.m_presenceService.Id, 1, subscribeRequest, new RPCContextDelegate(this.PresenceSubscribeCallback), 0);
-						PresenceAPI mPresenceSubscriptionBalance = this;
-						mPresenceSubscriptionBalance.m_presenceSubscriptionBalance = mPresenceSubscriptionBalance.m_presenceSubscriptionBalance - 1f;
+						this.m_presenceSubscriptionBalance -= 1f;
 						entityIds.Add(mQueuedSubscription);
 					}
 					else
@@ -291,8 +289,7 @@ namespace bgs
 
 		private void IncrementOutstandingRichPresenceStringFetches()
 		{
-			PresenceAPI mNumOutstandingRichPresenceStringFetches = this;
-			mNumOutstandingRichPresenceStringFetches.m_numOutstandingRichPresenceStringFetches = mNumOutstandingRichPresenceStringFetches.m_numOutstandingRichPresenceStringFetches + 1;
+			this.m_numOutstandingRichPresenceStringFetches++;
 		}
 
 		public override void Initialize()
@@ -373,8 +370,7 @@ namespace bgs
 		{
 			if (this.m_presenceSubscriptions.ContainsKey(entityId))
 			{
-				PresenceAPI.PresenceRefCountObject item = this.m_presenceSubscriptions[entityId];
-				item.refCount = item.refCount - 1;
+				this.m_presenceSubscriptions[entityId].refCount--;
 				if (this.m_presenceSubscriptions[entityId].refCount <= 0)
 				{
 					if (this.m_queuedSubscriptions.Contains(entityId))

@@ -162,7 +162,7 @@ namespace bnet.protocol.channel
 						else if (num1 == 26)
 						{
 							long position = (long)ProtocolParser.ReadUInt32(stream);
-							position = position + stream.Position;
+							position += stream.Position;
 							while (stream.Position < position)
 							{
 								instance.RemovedRole.Add(ProtocolParser.ReadUInt32(stream));
@@ -213,7 +213,7 @@ namespace bnet.protocol.channel
 		public static UpdateMemberStateRequest DeserializeLengthDelimited(Stream stream, UpdateMemberStateRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return UpdateMemberStateRequest.Deserialize(stream, instance, position);
 		}
 
@@ -258,15 +258,15 @@ namespace bnet.protocol.channel
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentId)
 			{
-				hashCode = hashCode ^ this.AgentId.GetHashCode();
+				hashCode ^= this.AgentId.GetHashCode();
 			}
 			foreach (Member stateChange in this.StateChange)
 			{
-				hashCode = hashCode ^ stateChange.GetHashCode();
+				hashCode ^= stateChange.GetHashCode();
 			}
 			foreach (uint removedRole in this.RemovedRole)
 			{
-				hashCode = hashCode ^ removedRole.GetHashCode();
+				hashCode ^= removedRole.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -295,9 +295,9 @@ namespace bnet.protocol.channel
 				uint num1 = num;
 				foreach (uint removedRole in this.RemovedRole)
 				{
-					num = num + ProtocolParser.SizeOfUInt32(removedRole);
+					num += ProtocolParser.SizeOfUInt32(removedRole);
 				}
-				num = num + ProtocolParser.SizeOfUInt32(num - num1);
+				num += ProtocolParser.SizeOfUInt32(num - num1);
 			}
 			return num;
 		}
@@ -335,7 +335,7 @@ namespace bnet.protocol.channel
 				uint num = 0;
 				foreach (uint removedRole in instance.RemovedRole)
 				{
-					num = num + ProtocolParser.SizeOfUInt32(removedRole);
+					num += ProtocolParser.SizeOfUInt32(removedRole);
 				}
 				ProtocolParser.WriteUInt32(stream, num);
 				foreach (uint removedRole1 in instance.RemovedRole)

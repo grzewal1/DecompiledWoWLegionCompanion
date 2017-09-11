@@ -105,7 +105,7 @@ namespace bnet.protocol.game_master
 		public static GameHandle DeserializeLengthDelimited(Stream stream, GameHandle instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameHandle.Deserialize(stream, instance, position);
 		}
 
@@ -130,7 +130,7 @@ namespace bnet.protocol.game_master
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.FactoryId.GetHashCode();
+			hashCode ^= this.FactoryId.GetHashCode();
 			return hashCode ^ this.GameId.GetHashCode();
 		}
 

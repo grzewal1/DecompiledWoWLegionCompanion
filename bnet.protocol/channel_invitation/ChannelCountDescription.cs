@@ -149,7 +149,7 @@ namespace bnet.protocol.channel_invitation
 		public static ChannelCountDescription DeserializeLengthDelimited(Stream stream, ChannelCountDescription instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ChannelCountDescription.Deserialize(stream, instance, position);
 		}
 
@@ -182,15 +182,15 @@ namespace bnet.protocol.channel_invitation
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.ServiceType.GetHashCode();
-			hashCode = hashCode ^ this.Program.GetHashCode();
+			hashCode ^= this.ServiceType.GetHashCode();
+			hashCode ^= this.Program.GetHashCode();
 			if (this.HasChannelType)
 			{
-				hashCode = hashCode ^ this.ChannelType.GetHashCode();
+				hashCode ^= this.ChannelType.GetHashCode();
 			}
 			if (this.HasChannelId)
 			{
-				hashCode = hashCode ^ this.ChannelId.GetHashCode();
+				hashCode ^= this.ChannelId.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -198,8 +198,8 @@ namespace bnet.protocol.channel_invitation
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + ProtocolParser.SizeOfUInt32(this.ServiceType);
-			num = num + 4;
+			num += ProtocolParser.SizeOfUInt32(this.ServiceType);
+			num += 4;
 			if (this.HasChannelType)
 			{
 				num++;
@@ -212,7 +212,7 @@ namespace bnet.protocol.channel_invitation
 				uint serializedSize = this.ChannelId.GetSerializedSize();
 				num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
 			}
-			num = num + 2;
+			num += 2;
 			return num;
 		}
 

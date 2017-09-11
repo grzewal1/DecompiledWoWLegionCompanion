@@ -167,7 +167,7 @@ namespace bnet.protocol
 		public static AccountInfo DeserializeLengthDelimited(Stream stream, AccountInfo instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AccountInfo.Deserialize(stream, instance, position);
 		}
 
@@ -202,19 +202,19 @@ namespace bnet.protocol
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAccountPaid)
 			{
-				hashCode = hashCode ^ this.AccountPaid.GetHashCode();
+				hashCode ^= this.AccountPaid.GetHashCode();
 			}
 			if (this.HasCountryId)
 			{
-				hashCode = hashCode ^ this.CountryId.GetHashCode();
+				hashCode ^= this.CountryId.GetHashCode();
 			}
 			if (this.HasBattleTag)
 			{
-				hashCode = hashCode ^ this.BattleTag.GetHashCode();
+				hashCode ^= this.BattleTag.GetHashCode();
 			}
 			if (this.HasManualReview)
 			{
-				hashCode = hashCode ^ this.ManualReview.GetHashCode();
+				hashCode ^= this.ManualReview.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -230,7 +230,7 @@ namespace bnet.protocol
 			if (this.HasCountryId)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasBattleTag)
 			{

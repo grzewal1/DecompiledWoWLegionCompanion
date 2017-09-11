@@ -201,8 +201,7 @@ namespace Newtonsoft.Json
 		{
 			JTokenType jTokenType = this.Peek();
 			this._stack.RemoveAt(this._stack.Count - 1);
-			JsonReader jsonReader = this;
-			jsonReader._top = jsonReader._top - 1;
+			this._top--;
 			this._currentTypeContext = this._stack[this._top - 1];
 			return jTokenType;
 		}
@@ -210,8 +209,7 @@ namespace Newtonsoft.Json
 		private void Push(JTokenType value)
 		{
 			this._stack.Add(value);
-			JsonReader jsonReader = this;
-			jsonReader._top = jsonReader._top + 1;
+			this._top++;
 			this._currentTypeContext = value;
 		}
 

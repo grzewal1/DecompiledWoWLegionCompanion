@@ -118,7 +118,7 @@ namespace bnet.protocol
 		public static ObjectAddress DeserializeLengthDelimited(Stream stream, ObjectAddress instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ObjectAddress.Deserialize(stream, instance, position);
 		}
 
@@ -143,10 +143,10 @@ namespace bnet.protocol
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Host.GetHashCode();
+			hashCode ^= this.Host.GetHashCode();
 			if (this.HasObjectId)
 			{
-				hashCode = hashCode ^ this.ObjectId.GetHashCode();
+				hashCode ^= this.ObjectId.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -159,7 +159,7 @@ namespace bnet.protocol
 			if (this.HasObjectId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.ObjectId);
+				num += ProtocolParser.SizeOfUInt64(this.ObjectId);
 			}
 			num++;
 			return num;

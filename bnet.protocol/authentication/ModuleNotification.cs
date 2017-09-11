@@ -120,7 +120,7 @@ namespace bnet.protocol.authentication
 		public static ModuleNotification DeserializeLengthDelimited(Stream stream, ModuleNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ModuleNotification.Deserialize(stream, instance, position);
 		}
 
@@ -147,11 +147,11 @@ namespace bnet.protocol.authentication
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasModuleId)
 			{
-				hashCode = hashCode ^ this.ModuleId.GetHashCode();
+				hashCode ^= this.ModuleId.GetHashCode();
 			}
 			if (this.HasResult)
 			{
-				hashCode = hashCode ^ this.Result.GetHashCode();
+				hashCode ^= this.Result.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -162,12 +162,12 @@ namespace bnet.protocol.authentication
 			if (this.HasModuleId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64((ulong)this.ModuleId);
+				num += ProtocolParser.SizeOfUInt64((ulong)this.ModuleId);
 			}
 			if (this.HasResult)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Result);
+				num += ProtocolParser.SizeOfUInt32(this.Result);
 			}
 			return num;
 		}

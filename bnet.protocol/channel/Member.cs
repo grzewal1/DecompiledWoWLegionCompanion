@@ -111,7 +111,7 @@ namespace bnet.protocol.channel
 		public static Member DeserializeLengthDelimited(Stream stream, Member instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return Member.Deserialize(stream, instance, position);
 		}
 
@@ -136,7 +136,7 @@ namespace bnet.protocol.channel
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Identity.GetHashCode();
+			hashCode ^= this.Identity.GetHashCode();
 			return hashCode ^ this.State.GetHashCode();
 		}
 

@@ -143,7 +143,7 @@ namespace bnet.protocol.game_utilities
 		public static GetAllValuesForAttributeRequest DeserializeLengthDelimited(Stream stream, GetAllValuesForAttributeRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetAllValuesForAttributeRequest.Deserialize(stream, instance, position);
 		}
 
@@ -174,15 +174,15 @@ namespace bnet.protocol.game_utilities
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAttributeKey)
 			{
-				hashCode = hashCode ^ this.AttributeKey.GetHashCode();
+				hashCode ^= this.AttributeKey.GetHashCode();
 			}
 			if (this.HasAgentId)
 			{
-				hashCode = hashCode ^ this.AgentId.GetHashCode();
+				hashCode ^= this.AgentId.GetHashCode();
 			}
 			if (this.HasProgram)
 			{
-				hashCode = hashCode ^ this.Program.GetHashCode();
+				hashCode ^= this.Program.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -205,7 +205,7 @@ namespace bnet.protocol.game_utilities
 			if (this.HasProgram)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			return num;
 		}

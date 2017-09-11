@@ -123,7 +123,7 @@ namespace bnet.protocol.game_utilities
 		public static GetPlayerVariablesResponse DeserializeLengthDelimited(Stream stream, GetPlayerVariablesResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetPlayerVariablesResponse.Deserialize(stream, instance, position);
 		}
 
@@ -153,7 +153,7 @@ namespace bnet.protocol.game_utilities
 			int hashCode = this.GetType().GetHashCode();
 			foreach (bnet.protocol.game_utilities.PlayerVariables playerVariable in this.PlayerVariables)
 			{
-				hashCode = hashCode ^ playerVariable.GetHashCode();
+				hashCode ^= playerVariable.GetHashCode();
 			}
 			return hashCode;
 		}

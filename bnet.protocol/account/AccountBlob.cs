@@ -652,7 +652,7 @@ namespace bnet.protocol.account
 		public static AccountBlob DeserializeLengthDelimited(Stream stream, AccountBlob instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AccountBlob.Deserialize(stream, instance, position);
 		}
 
@@ -773,66 +773,66 @@ namespace bnet.protocol.account
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Id.GetHashCode();
-			hashCode = hashCode ^ this.Region.GetHashCode();
+			hashCode ^= this.Id.GetHashCode();
+			hashCode ^= this.Region.GetHashCode();
 			foreach (string email in this.Email)
 			{
-				hashCode = hashCode ^ email.GetHashCode();
+				hashCode ^= email.GetHashCode();
 			}
-			hashCode = hashCode ^ this.Flags.GetHashCode();
+			hashCode ^= this.Flags.GetHashCode();
 			if (this.HasSecureRelease)
 			{
-				hashCode = hashCode ^ this.SecureRelease.GetHashCode();
+				hashCode ^= this.SecureRelease.GetHashCode();
 			}
 			if (this.HasWhitelistStart)
 			{
-				hashCode = hashCode ^ this.WhitelistStart.GetHashCode();
+				hashCode ^= this.WhitelistStart.GetHashCode();
 			}
 			if (this.HasWhitelistEnd)
 			{
-				hashCode = hashCode ^ this.WhitelistEnd.GetHashCode();
+				hashCode ^= this.WhitelistEnd.GetHashCode();
 			}
-			hashCode = hashCode ^ this.FullName.GetHashCode();
+			hashCode ^= this.FullName.GetHashCode();
 			foreach (AccountLicense license in this.Licenses)
 			{
-				hashCode = hashCode ^ license.GetHashCode();
+				hashCode ^= license.GetHashCode();
 			}
 			foreach (AccountCredential credential in this.Credentials)
 			{
-				hashCode = hashCode ^ credential.GetHashCode();
+				hashCode ^= credential.GetHashCode();
 			}
 			foreach (GameAccountLink accountLink in this.AccountLinks)
 			{
-				hashCode = hashCode ^ accountLink.GetHashCode();
+				hashCode ^= accountLink.GetHashCode();
 			}
 			if (this.HasBattleTag)
 			{
-				hashCode = hashCode ^ this.BattleTag.GetHashCode();
+				hashCode ^= this.BattleTag.GetHashCode();
 			}
 			if (this.HasDefaultCurrency)
 			{
-				hashCode = hashCode ^ this.DefaultCurrency.GetHashCode();
+				hashCode ^= this.DefaultCurrency.GetHashCode();
 			}
 			if (this.HasLegalRegion)
 			{
-				hashCode = hashCode ^ this.LegalRegion.GetHashCode();
+				hashCode ^= this.LegalRegion.GetHashCode();
 			}
 			if (this.HasLegalLocale)
 			{
-				hashCode = hashCode ^ this.LegalLocale.GetHashCode();
+				hashCode ^= this.LegalLocale.GetHashCode();
 			}
-			hashCode = hashCode ^ this.CacheExpiration.GetHashCode();
+			hashCode ^= this.CacheExpiration.GetHashCode();
 			if (this.HasParentalControlInfo)
 			{
-				hashCode = hashCode ^ this.ParentalControlInfo.GetHashCode();
+				hashCode ^= this.ParentalControlInfo.GetHashCode();
 			}
 			if (this.HasCountry)
 			{
-				hashCode = hashCode ^ this.Country.GetHashCode();
+				hashCode ^= this.Country.GetHashCode();
 			}
 			if (this.HasPreferredRegion)
 			{
-				hashCode = hashCode ^ this.PreferredRegion.GetHashCode();
+				hashCode ^= this.PreferredRegion.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -840,8 +840,8 @@ namespace bnet.protocol.account
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + 4;
-			num = num + ProtocolParser.SizeOfUInt32(this.Region);
+			num += 4;
+			num += ProtocolParser.SizeOfUInt32(this.Region);
 			if (this.Email.Count > 0)
 			{
 				foreach (string email in this.Email)
@@ -851,21 +851,21 @@ namespace bnet.protocol.account
 					num = num + ProtocolParser.SizeOfUInt32(byteCount) + byteCount;
 				}
 			}
-			num = num + ProtocolParser.SizeOfUInt64(this.Flags);
+			num += ProtocolParser.SizeOfUInt64(this.Flags);
 			if (this.HasSecureRelease)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.SecureRelease);
+				num += ProtocolParser.SizeOfUInt64(this.SecureRelease);
 			}
 			if (this.HasWhitelistStart)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.WhitelistStart);
+				num += ProtocolParser.SizeOfUInt64(this.WhitelistStart);
 			}
 			if (this.HasWhitelistEnd)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.WhitelistEnd);
+				num += ProtocolParser.SizeOfUInt64(this.WhitelistEnd);
 			}
 			uint byteCount1 = (uint)Encoding.UTF8.GetByteCount(this.FullName);
 			num = num + ProtocolParser.SizeOfUInt32(byteCount1) + byteCount1;
@@ -873,7 +873,7 @@ namespace bnet.protocol.account
 			{
 				foreach (AccountLicense license in this.Licenses)
 				{
-					num = num + 2;
+					num += 2;
 					uint serializedSize = license.GetSerializedSize();
 					num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
 				}
@@ -882,7 +882,7 @@ namespace bnet.protocol.account
 			{
 				foreach (AccountCredential credential in this.Credentials)
 				{
-					num = num + 2;
+					num += 2;
 					uint serializedSize1 = credential.GetSerializedSize();
 					num = num + serializedSize1 + ProtocolParser.SizeOfUInt32(serializedSize1);
 				}
@@ -891,51 +891,51 @@ namespace bnet.protocol.account
 			{
 				foreach (GameAccountLink accountLink in this.AccountLinks)
 				{
-					num = num + 2;
+					num += 2;
 					uint num1 = accountLink.GetSerializedSize();
 					num = num + num1 + ProtocolParser.SizeOfUInt32(num1);
 				}
 			}
 			if (this.HasBattleTag)
 			{
-				num = num + 2;
+				num += 2;
 				uint byteCount2 = (uint)Encoding.UTF8.GetByteCount(this.BattleTag);
 				num = num + ProtocolParser.SizeOfUInt32(byteCount2) + byteCount2;
 			}
 			if (this.HasDefaultCurrency)
 			{
-				num = num + 2;
-				num = num + 4;
+				num += 2;
+				num += 4;
 			}
 			if (this.HasLegalRegion)
 			{
-				num = num + 2;
-				num = num + ProtocolParser.SizeOfUInt32(this.LegalRegion);
+				num += 2;
+				num += ProtocolParser.SizeOfUInt32(this.LegalRegion);
 			}
 			if (this.HasLegalLocale)
 			{
-				num = num + 2;
-				num = num + 4;
+				num += 2;
+				num += 4;
 			}
-			num = num + ProtocolParser.SizeOfUInt64(this.CacheExpiration);
+			num += ProtocolParser.SizeOfUInt64(this.CacheExpiration);
 			if (this.HasParentalControlInfo)
 			{
-				num = num + 2;
+				num += 2;
 				uint serializedSize2 = this.ParentalControlInfo.GetSerializedSize();
 				num = num + serializedSize2 + ProtocolParser.SizeOfUInt32(serializedSize2);
 			}
 			if (this.HasCountry)
 			{
-				num = num + 2;
+				num += 2;
 				uint num2 = (uint)Encoding.UTF8.GetByteCount(this.Country);
 				num = num + ProtocolParser.SizeOfUInt32(num2) + num2;
 			}
 			if (this.HasPreferredRegion)
 			{
-				num = num + 2;
-				num = num + ProtocolParser.SizeOfUInt32(this.PreferredRegion);
+				num += 2;
+				num += ProtocolParser.SizeOfUInt32(this.PreferredRegion);
 			}
-			num = num + 6;
+			num += 6;
 			return num;
 		}
 

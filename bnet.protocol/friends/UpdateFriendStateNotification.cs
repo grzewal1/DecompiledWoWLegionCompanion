@@ -122,7 +122,7 @@ namespace bnet.protocol.friends
 		public static UpdateFriendStateNotification DeserializeLengthDelimited(Stream stream, UpdateFriendStateNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return UpdateFriendStateNotification.Deserialize(stream, instance, position);
 		}
 
@@ -147,10 +147,10 @@ namespace bnet.protocol.friends
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.ChangedFriend.GetHashCode();
+			hashCode ^= this.ChangedFriend.GetHashCode();
 			if (this.HasGameAccountId)
 			{
-				hashCode = hashCode ^ this.GameAccountId.GetHashCode();
+				hashCode ^= this.GameAccountId.GetHashCode();
 			}
 			return hashCode;
 		}

@@ -141,7 +141,7 @@ namespace bnet.protocol.account
 		public static CAIS DeserializeLengthDelimited(Stream stream, CAIS instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return CAIS.Deserialize(stream, instance, position);
 		}
 
@@ -172,15 +172,15 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasPlayedMinutes)
 			{
-				hashCode = hashCode ^ this.PlayedMinutes.GetHashCode();
+				hashCode ^= this.PlayedMinutes.GetHashCode();
 			}
 			if (this.HasRestedMinutes)
 			{
-				hashCode = hashCode ^ this.RestedMinutes.GetHashCode();
+				hashCode ^= this.RestedMinutes.GetHashCode();
 			}
 			if (this.HasLastHeardTime)
 			{
-				hashCode = hashCode ^ this.LastHeardTime.GetHashCode();
+				hashCode ^= this.LastHeardTime.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -191,17 +191,17 @@ namespace bnet.protocol.account
 			if (this.HasPlayedMinutes)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.PlayedMinutes);
+				num += ProtocolParser.SizeOfUInt32(this.PlayedMinutes);
 			}
 			if (this.HasRestedMinutes)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.RestedMinutes);
+				num += ProtocolParser.SizeOfUInt32(this.RestedMinutes);
 			}
 			if (this.HasLastHeardTime)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.LastHeardTime);
+				num += ProtocolParser.SizeOfUInt64(this.LastHeardTime);
 			}
 			return num;
 		}

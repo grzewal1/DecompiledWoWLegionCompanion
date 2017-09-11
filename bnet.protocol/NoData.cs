@@ -74,7 +74,7 @@ namespace bnet.protocol
 		public static NoData DeserializeLengthDelimited(Stream stream, NoData instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return NoData.Deserialize(stream, instance, position);
 		}
 

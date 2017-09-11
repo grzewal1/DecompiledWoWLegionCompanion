@@ -214,7 +214,7 @@ namespace bnet.protocol.account
 		public static CredentialUpdateRequest DeserializeLengthDelimited(Stream stream, CredentialUpdateRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return CredentialUpdateRequest.Deserialize(stream, instance, position);
 		}
 
@@ -261,18 +261,18 @@ namespace bnet.protocol.account
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Account.GetHashCode();
+			hashCode ^= this.Account.GetHashCode();
 			foreach (AccountCredential oldCredential in this.OldCredentials)
 			{
-				hashCode = hashCode ^ oldCredential.GetHashCode();
+				hashCode ^= oldCredential.GetHashCode();
 			}
 			foreach (AccountCredential newCredential in this.NewCredentials)
 			{
-				hashCode = hashCode ^ newCredential.GetHashCode();
+				hashCode ^= newCredential.GetHashCode();
 			}
 			if (this.HasRegion)
 			{
-				hashCode = hashCode ^ this.Region.GetHashCode();
+				hashCode ^= this.Region.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -303,7 +303,7 @@ namespace bnet.protocol.account
 			if (this.HasRegion)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Region);
+				num += ProtocolParser.SizeOfUInt32(this.Region);
 			}
 			num++;
 			return num;

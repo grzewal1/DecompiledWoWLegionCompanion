@@ -160,7 +160,7 @@ namespace bnet.protocol.game_master
 		public static CancelGameEntryRequest DeserializeLengthDelimited(Stream stream, CancelGameEntryRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return CancelGameEntryRequest.Deserialize(stream, instance, position);
 		}
 
@@ -196,14 +196,14 @@ namespace bnet.protocol.game_master
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.RequestId.GetHashCode();
+			hashCode ^= this.RequestId.GetHashCode();
 			if (this.HasFactoryId)
 			{
-				hashCode = hashCode ^ this.FactoryId.GetHashCode();
+				hashCode ^= this.FactoryId.GetHashCode();
 			}
 			foreach (bnet.protocol.game_master.Player player in this.Player)
 			{
-				hashCode = hashCode ^ player.GetHashCode();
+				hashCode ^= player.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -211,11 +211,11 @@ namespace bnet.protocol.game_master
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + 8;
+			num += 8;
 			if (this.HasFactoryId)
 			{
 				num++;
-				num = num + 8;
+				num += 8;
 			}
 			if (this.Player.Count > 0)
 			{

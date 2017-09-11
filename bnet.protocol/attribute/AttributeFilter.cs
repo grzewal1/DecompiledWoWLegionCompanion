@@ -138,7 +138,7 @@ namespace bnet.protocol.attribute
 		public static AttributeFilter DeserializeLengthDelimited(Stream stream, AttributeFilter instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AttributeFilter.Deserialize(stream, instance, position);
 		}
 
@@ -170,10 +170,10 @@ namespace bnet.protocol.attribute
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Op.GetHashCode();
+			hashCode ^= this.Op.GetHashCode();
 			foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)
 			{
-				hashCode = hashCode ^ attribute.GetHashCode();
+				hashCode ^= attribute.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -181,7 +181,7 @@ namespace bnet.protocol.attribute
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + ProtocolParser.SizeOfUInt64((ulong)this.Op);
+			num += ProtocolParser.SizeOfUInt64((ulong)this.Op);
 			if (this.Attribute.Count > 0)
 			{
 				foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)

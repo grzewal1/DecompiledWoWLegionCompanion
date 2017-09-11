@@ -99,7 +99,7 @@ namespace bnet.protocol.authentication
 		public static VersionInfoNotification DeserializeLengthDelimited(Stream stream, VersionInfoNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return VersionInfoNotification.Deserialize(stream, instance, position);
 		}
 
@@ -122,7 +122,7 @@ namespace bnet.protocol.authentication
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasVersionInfo)
 			{
-				hashCode = hashCode ^ this.VersionInfo.GetHashCode();
+				hashCode ^= this.VersionInfo.GetHashCode();
 			}
 			return hashCode;
 		}

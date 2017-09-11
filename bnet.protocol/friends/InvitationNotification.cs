@@ -148,7 +148,7 @@ namespace bnet.protocol.friends
 		public static InvitationNotification DeserializeLengthDelimited(Stream stream, InvitationNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return InvitationNotification.Deserialize(stream, instance, position);
 		}
 
@@ -177,14 +177,14 @@ namespace bnet.protocol.friends
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Invitation.GetHashCode();
+			hashCode ^= this.Invitation.GetHashCode();
 			if (this.HasGameAccountId)
 			{
-				hashCode = hashCode ^ this.GameAccountId.GetHashCode();
+				hashCode ^= this.GameAccountId.GetHashCode();
 			}
 			if (this.HasReason)
 			{
-				hashCode = hashCode ^ this.Reason.GetHashCode();
+				hashCode ^= this.Reason.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -203,7 +203,7 @@ namespace bnet.protocol.friends
 			if (this.HasReason)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Reason);
+				num += ProtocolParser.SizeOfUInt32(this.Reason);
 			}
 			num++;
 			return num;

@@ -185,7 +185,7 @@ namespace bnet.protocol.presence
 		public static SubscribeRequest DeserializeLengthDelimited(Stream stream, SubscribeRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return SubscribeRequest.Deserialize(stream, instance, position);
 		}
 
@@ -227,13 +227,13 @@ namespace bnet.protocol.presence
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentId)
 			{
-				hashCode = hashCode ^ this.AgentId.GetHashCode();
+				hashCode ^= this.AgentId.GetHashCode();
 			}
-			hashCode = hashCode ^ this.EntityId.GetHashCode();
-			hashCode = hashCode ^ this.ObjectId.GetHashCode();
+			hashCode ^= this.EntityId.GetHashCode();
+			hashCode ^= this.ObjectId.GetHashCode();
 			foreach (uint programId in this.ProgramId)
 			{
-				hashCode = hashCode ^ programId.GetHashCode();
+				hashCode ^= programId.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -249,16 +249,16 @@ namespace bnet.protocol.presence
 			}
 			uint serializedSize1 = this.EntityId.GetSerializedSize();
 			num = num + serializedSize1 + ProtocolParser.SizeOfUInt32(serializedSize1);
-			num = num + ProtocolParser.SizeOfUInt64(this.ObjectId);
+			num += ProtocolParser.SizeOfUInt64(this.ObjectId);
 			if (this.ProgramId.Count > 0)
 			{
 				foreach (uint programId in this.ProgramId)
 				{
 					num++;
-					num = num + 4;
+					num += 4;
 				}
 			}
-			num = num + 2;
+			num += 2;
 			return num;
 		}
 

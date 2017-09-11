@@ -110,7 +110,7 @@ namespace bnet.protocol.account
 		public static AccountLicense DeserializeLengthDelimited(Stream stream, AccountLicense instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AccountLicense.Deserialize(stream, instance, position);
 		}
 
@@ -135,10 +135,10 @@ namespace bnet.protocol.account
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Id.GetHashCode();
+			hashCode ^= this.Id.GetHashCode();
 			if (this.HasExpires)
 			{
-				hashCode = hashCode ^ this.Expires.GetHashCode();
+				hashCode ^= this.Expires.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -146,11 +146,11 @@ namespace bnet.protocol.account
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + ProtocolParser.SizeOfUInt32(this.Id);
+			num += ProtocolParser.SizeOfUInt32(this.Id);
 			if (this.HasExpires)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.Expires);
+				num += ProtocolParser.SizeOfUInt64(this.Expires);
 			}
 			num++;
 			return num;

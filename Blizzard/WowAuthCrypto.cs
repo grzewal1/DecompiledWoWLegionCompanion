@@ -54,7 +54,7 @@ namespace Blizzard
 			for (int j = 0; j < (int)arrays.Length; j++)
 			{
 				Array.Copy(arrays[j], 0, numArray, num, (int)arrays[j].Length);
-				num = num + (int)arrays[j].Length;
+				num += (int)arrays[j].Length;
 			}
 			return numArray;
 		}

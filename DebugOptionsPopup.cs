@@ -72,14 +72,6 @@ public class DebugOptionsPopup : MonoBehaviour
 		AdventureMapPanel.instance.m_testEnableTapToZoomOut = isOn;
 	}
 
-	public void OnValueChanged_LocaleDropdown(int index)
-	{
-		string array = this.m_localeDropdown.options.ToArray()[this.m_localeDropdown.@value].text;
-		Debug.Log(string.Concat("Locale option is now ", array));
-		SecurePlayerPrefs.SetString("locale", array, Main.uniqueIdentifier);
-		PlayerPrefs.Save();
-	}
-
 	private void Start()
 	{
 		this.m_enableDetailedZoneMaps.onValueChanged.AddListener(new UnityAction<bool>(this.OnValueChanged_EnableDetailedZoneMaps));

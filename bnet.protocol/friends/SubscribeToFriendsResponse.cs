@@ -336,7 +336,7 @@ namespace bnet.protocol.friends
 		public static SubscribeToFriendsResponse DeserializeLengthDelimited(Stream stream, SubscribeToFriendsResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return SubscribeToFriendsResponse.Deserialize(stream, instance, position);
 		}
 
@@ -411,31 +411,31 @@ namespace bnet.protocol.friends
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasMaxFriends)
 			{
-				hashCode = hashCode ^ this.MaxFriends.GetHashCode();
+				hashCode ^= this.MaxFriends.GetHashCode();
 			}
 			if (this.HasMaxReceivedInvitations)
 			{
-				hashCode = hashCode ^ this.MaxReceivedInvitations.GetHashCode();
+				hashCode ^= this.MaxReceivedInvitations.GetHashCode();
 			}
 			if (this.HasMaxSentInvitations)
 			{
-				hashCode = hashCode ^ this.MaxSentInvitations.GetHashCode();
+				hashCode ^= this.MaxSentInvitations.GetHashCode();
 			}
 			foreach (bnet.protocol.Role role in this.Role)
 			{
-				hashCode = hashCode ^ role.GetHashCode();
+				hashCode ^= role.GetHashCode();
 			}
 			foreach (Friend friend in this.Friends)
 			{
-				hashCode = hashCode ^ friend.GetHashCode();
+				hashCode ^= friend.GetHashCode();
 			}
 			foreach (Invitation sentInvitation in this.SentInvitations)
 			{
-				hashCode = hashCode ^ sentInvitation.GetHashCode();
+				hashCode ^= sentInvitation.GetHashCode();
 			}
 			foreach (Invitation receivedInvitation in this.ReceivedInvitations)
 			{
-				hashCode = hashCode ^ receivedInvitation.GetHashCode();
+				hashCode ^= receivedInvitation.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -446,17 +446,17 @@ namespace bnet.protocol.friends
 			if (this.HasMaxFriends)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.MaxFriends);
+				num += ProtocolParser.SizeOfUInt32(this.MaxFriends);
 			}
 			if (this.HasMaxReceivedInvitations)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.MaxReceivedInvitations);
+				num += ProtocolParser.SizeOfUInt32(this.MaxReceivedInvitations);
 			}
 			if (this.HasMaxSentInvitations)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.MaxSentInvitations);
+				num += ProtocolParser.SizeOfUInt32(this.MaxSentInvitations);
 			}
 			if (this.Role.Count > 0)
 			{

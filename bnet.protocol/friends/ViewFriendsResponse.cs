@@ -123,7 +123,7 @@ namespace bnet.protocol.friends
 		public static ViewFriendsResponse DeserializeLengthDelimited(Stream stream, ViewFriendsResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ViewFriendsResponse.Deserialize(stream, instance, position);
 		}
 
@@ -153,7 +153,7 @@ namespace bnet.protocol.friends
 			int hashCode = this.GetType().GetHashCode();
 			foreach (Friend friend in this.Friends)
 			{
-				hashCode = hashCode ^ friend.GetHashCode();
+				hashCode ^= friend.GetHashCode();
 			}
 			return hashCode;
 		}

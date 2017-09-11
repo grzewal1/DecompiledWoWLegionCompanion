@@ -132,7 +132,7 @@ namespace bnet.protocol
 		public static ContentHandle DeserializeLengthDelimited(Stream stream, ContentHandle instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ContentHandle.Deserialize(stream, instance, position);
 		}
 
@@ -165,12 +165,12 @@ namespace bnet.protocol
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Region.GetHashCode();
-			hashCode = hashCode ^ this.Usage.GetHashCode();
-			hashCode = hashCode ^ this.Hash.GetHashCode();
+			hashCode ^= this.Region.GetHashCode();
+			hashCode ^= this.Usage.GetHashCode();
+			hashCode ^= this.Hash.GetHashCode();
 			if (this.HasProtoUrl)
 			{
-				hashCode = hashCode ^ this.ProtoUrl.GetHashCode();
+				hashCode ^= this.ProtoUrl.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -178,8 +178,8 @@ namespace bnet.protocol
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + 4;
-			num = num + 4;
+			num += 4;
+			num += 4;
 			num = num + ProtocolParser.SizeOfUInt32((int)this.Hash.Length) + (int)this.Hash.Length;
 			if (this.HasProtoUrl)
 			{
@@ -187,7 +187,7 @@ namespace bnet.protocol
 				uint byteCount = (uint)Encoding.UTF8.GetByteCount(this.ProtoUrl);
 				num = num + ProtocolParser.SizeOfUInt32(byteCount) + byteCount;
 			}
-			num = num + 3;
+			num += 3;
 			return num;
 		}
 

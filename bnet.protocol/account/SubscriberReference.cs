@@ -238,7 +238,7 @@ namespace bnet.protocol.account
 		public static SubscriberReference DeserializeLengthDelimited(Stream stream, SubscriberReference instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return SubscriberReference.Deserialize(stream, instance, position);
 		}
 
@@ -281,27 +281,27 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasObjectId)
 			{
-				hashCode = hashCode ^ this.ObjectId.GetHashCode();
+				hashCode ^= this.ObjectId.GetHashCode();
 			}
 			if (this.HasEntityId)
 			{
-				hashCode = hashCode ^ this.EntityId.GetHashCode();
+				hashCode ^= this.EntityId.GetHashCode();
 			}
 			if (this.HasAccountOptions)
 			{
-				hashCode = hashCode ^ this.AccountOptions.GetHashCode();
+				hashCode ^= this.AccountOptions.GetHashCode();
 			}
 			if (this.HasAccountTags)
 			{
-				hashCode = hashCode ^ this.AccountTags.GetHashCode();
+				hashCode ^= this.AccountTags.GetHashCode();
 			}
 			if (this.HasGameAccountOptions)
 			{
-				hashCode = hashCode ^ this.GameAccountOptions.GetHashCode();
+				hashCode ^= this.GameAccountOptions.GetHashCode();
 			}
 			if (this.HasGameAccountTags)
 			{
-				hashCode = hashCode ^ this.GameAccountTags.GetHashCode();
+				hashCode ^= this.GameAccountTags.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -312,7 +312,7 @@ namespace bnet.protocol.account
 			if (this.HasObjectId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.ObjectId);
+				num += ProtocolParser.SizeOfUInt64(this.ObjectId);
 			}
 			if (this.HasEntityId)
 			{

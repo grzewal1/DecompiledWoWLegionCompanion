@@ -222,7 +222,7 @@ namespace bnet.protocol.game_master
 		public static GameProperties DeserializeLengthDelimited(Stream stream, GameProperties instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameProperties.Deserialize(stream, instance, position);
 		}
 
@@ -268,23 +268,23 @@ namespace bnet.protocol.game_master
 			int hashCode = this.GetType().GetHashCode();
 			foreach (bnet.protocol.attribute.Attribute creationAttribute in this.CreationAttributes)
 			{
-				hashCode = hashCode ^ creationAttribute.GetHashCode();
+				hashCode ^= creationAttribute.GetHashCode();
 			}
 			if (this.HasFilter)
 			{
-				hashCode = hashCode ^ this.Filter.GetHashCode();
+				hashCode ^= this.Filter.GetHashCode();
 			}
 			if (this.HasCreate)
 			{
-				hashCode = hashCode ^ this.Create.GetHashCode();
+				hashCode ^= this.Create.GetHashCode();
 			}
 			if (this.HasOpen)
 			{
-				hashCode = hashCode ^ this.Open.GetHashCode();
+				hashCode ^= this.Open.GetHashCode();
 			}
 			if (this.HasProgramId)
 			{
-				hashCode = hashCode ^ this.ProgramId.GetHashCode();
+				hashCode ^= this.ProgramId.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -320,7 +320,7 @@ namespace bnet.protocol.game_master
 			if (this.HasProgramId)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			return num;
 		}

@@ -115,7 +115,7 @@ namespace bnet.protocol.notification
 		public static FindClientResponse DeserializeLengthDelimited(Stream stream, FindClientResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return FindClientResponse.Deserialize(stream, instance, position);
 		}
 
@@ -140,10 +140,10 @@ namespace bnet.protocol.notification
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Label.GetHashCode();
+			hashCode ^= this.Label.GetHashCode();
 			if (this.HasClientProcessId)
 			{
-				hashCode = hashCode ^ this.ClientProcessId.GetHashCode();
+				hashCode ^= this.ClientProcessId.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -151,7 +151,7 @@ namespace bnet.protocol.notification
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + ProtocolParser.SizeOfUInt32(this.Label);
+			num += ProtocolParser.SizeOfUInt32(this.Label);
 			if (this.HasClientProcessId)
 			{
 				num++;

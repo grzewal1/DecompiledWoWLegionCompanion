@@ -321,7 +321,7 @@ namespace bnet.protocol.authentication
 		public static LogonResult DeserializeLengthDelimited(Stream stream, LogonResult instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return LogonResult.Deserialize(stream, instance, position);
 		}
 
@@ -384,34 +384,34 @@ namespace bnet.protocol.authentication
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.ErrorCode.GetHashCode();
+			hashCode ^= this.ErrorCode.GetHashCode();
 			if (this.HasAccount)
 			{
-				hashCode = hashCode ^ this.Account.GetHashCode();
+				hashCode ^= this.Account.GetHashCode();
 			}
 			foreach (EntityId gameAccount in this.GameAccount)
 			{
-				hashCode = hashCode ^ gameAccount.GetHashCode();
+				hashCode ^= gameAccount.GetHashCode();
 			}
 			if (this.HasEmail)
 			{
-				hashCode = hashCode ^ this.Email.GetHashCode();
+				hashCode ^= this.Email.GetHashCode();
 			}
 			foreach (uint availableRegion in this.AvailableRegion)
 			{
-				hashCode = hashCode ^ availableRegion.GetHashCode();
+				hashCode ^= availableRegion.GetHashCode();
 			}
 			if (this.HasConnectedRegion)
 			{
-				hashCode = hashCode ^ this.ConnectedRegion.GetHashCode();
+				hashCode ^= this.ConnectedRegion.GetHashCode();
 			}
 			if (this.HasBattleTag)
 			{
-				hashCode = hashCode ^ this.BattleTag.GetHashCode();
+				hashCode ^= this.BattleTag.GetHashCode();
 			}
 			if (this.HasGeoipCountry)
 			{
-				hashCode = hashCode ^ this.GeoipCountry.GetHashCode();
+				hashCode ^= this.GeoipCountry.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -419,7 +419,7 @@ namespace bnet.protocol.authentication
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + ProtocolParser.SizeOfUInt32(this.ErrorCode);
+			num += ProtocolParser.SizeOfUInt32(this.ErrorCode);
 			if (this.HasAccount)
 			{
 				num++;
@@ -446,13 +446,13 @@ namespace bnet.protocol.authentication
 				foreach (uint availableRegion in this.AvailableRegion)
 				{
 					num++;
-					num = num + ProtocolParser.SizeOfUInt32(availableRegion);
+					num += ProtocolParser.SizeOfUInt32(availableRegion);
 				}
 			}
 			if (this.HasConnectedRegion)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.ConnectedRegion);
+				num += ProtocolParser.SizeOfUInt32(this.ConnectedRegion);
 			}
 			if (this.HasBattleTag)
 			{

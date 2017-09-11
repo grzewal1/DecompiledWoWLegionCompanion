@@ -307,7 +307,7 @@ namespace bnet.protocol.account
 		public static AccountState DeserializeLengthDelimited(Stream stream, AccountState instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AccountState.Deserialize(stream, instance, position);
 		}
 
@@ -371,27 +371,27 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAccountLevelInfo)
 			{
-				hashCode = hashCode ^ this.AccountLevelInfo.GetHashCode();
+				hashCode ^= this.AccountLevelInfo.GetHashCode();
 			}
 			if (this.HasPrivacyInfo)
 			{
-				hashCode = hashCode ^ this.PrivacyInfo.GetHashCode();
+				hashCode ^= this.PrivacyInfo.GetHashCode();
 			}
 			if (this.HasParentalControlInfo)
 			{
-				hashCode = hashCode ^ this.ParentalControlInfo.GetHashCode();
+				hashCode ^= this.ParentalControlInfo.GetHashCode();
 			}
 			foreach (bnet.protocol.account.GameLevelInfo gameLevelInfo in this.GameLevelInfo)
 			{
-				hashCode = hashCode ^ gameLevelInfo.GetHashCode();
+				hashCode ^= gameLevelInfo.GetHashCode();
 			}
 			foreach (bnet.protocol.account.GameStatus gameStatu in this.GameStatus)
 			{
-				hashCode = hashCode ^ gameStatu.GetHashCode();
+				hashCode ^= gameStatu.GetHashCode();
 			}
 			foreach (GameAccountList gameAccount in this.GameAccounts)
 			{
-				hashCode = hashCode ^ gameAccount.GetHashCode();
+				hashCode ^= gameAccount.GetHashCode();
 			}
 			return hashCode;
 		}

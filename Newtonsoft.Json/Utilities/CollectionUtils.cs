@@ -711,7 +711,7 @@ namespace Newtonsoft.Json.Utilities
 			num2 = (num2 >= 0 ? num2 : list.Count + num2);
 			num1 = Math.Max(num1, 0);
 			num2 = Math.Min(num2, list.Count - 1);
-			for (int i = num1; i < num2; i = i + num)
+			for (int i = num1; i < num2; i += num)
 			{
 				ts.Add(list[i]);
 			}

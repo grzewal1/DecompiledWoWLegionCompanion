@@ -123,7 +123,7 @@ namespace bnet.protocol.account
 		public static SubscriptionUpdateResponse DeserializeLengthDelimited(Stream stream, SubscriptionUpdateResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return SubscriptionUpdateResponse.Deserialize(stream, instance, position);
 		}
 
@@ -153,7 +153,7 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			foreach (SubscriberReference @ref in this.Ref)
 			{
-				hashCode = hashCode ^ @ref.GetHashCode();
+				hashCode ^= @ref.GetHashCode();
 			}
 			return hashCode;
 		}

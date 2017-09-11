@@ -118,7 +118,7 @@ namespace bnet.protocol.channel_invitation
 		public static InvitationRemovedNotification DeserializeLengthDelimited(Stream stream, InvitationRemovedNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return InvitationRemovedNotification.Deserialize(stream, instance, position);
 		}
 
@@ -143,10 +143,10 @@ namespace bnet.protocol.channel_invitation
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Invitation.GetHashCode();
+			hashCode ^= this.Invitation.GetHashCode();
 			if (this.HasReason)
 			{
-				hashCode = hashCode ^ this.Reason.GetHashCode();
+				hashCode ^= this.Reason.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -159,7 +159,7 @@ namespace bnet.protocol.channel_invitation
 			if (this.HasReason)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Reason);
+				num += ProtocolParser.SizeOfUInt32(this.Reason);
 			}
 			num++;
 			return num;

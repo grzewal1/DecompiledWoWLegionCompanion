@@ -162,7 +162,7 @@ namespace bnet.protocol.account
 		public static GameAccountFieldOptions DeserializeLengthDelimited(Stream stream, GameAccountFieldOptions instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameAccountFieldOptions.Deserialize(stream, instance, position);
 		}
 
@@ -197,19 +197,19 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAllFields)
 			{
-				hashCode = hashCode ^ this.AllFields.GetHashCode();
+				hashCode ^= this.AllFields.GetHashCode();
 			}
 			if (this.HasFieldGameLevelInfo)
 			{
-				hashCode = hashCode ^ this.FieldGameLevelInfo.GetHashCode();
+				hashCode ^= this.FieldGameLevelInfo.GetHashCode();
 			}
 			if (this.HasFieldGameTimeInfo)
 			{
-				hashCode = hashCode ^ this.FieldGameTimeInfo.GetHashCode();
+				hashCode ^= this.FieldGameTimeInfo.GetHashCode();
 			}
 			if (this.HasFieldGameStatus)
 			{
-				hashCode = hashCode ^ this.FieldGameStatus.GetHashCode();
+				hashCode ^= this.FieldGameStatus.GetHashCode();
 			}
 			return hashCode;
 		}

@@ -118,7 +118,7 @@ namespace bnet.protocol.account
 		public static GetWalletListRequest DeserializeLengthDelimited(Stream stream, GetWalletListRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetWalletListRequest.Deserialize(stream, instance, position);
 		}
 
@@ -143,10 +143,10 @@ namespace bnet.protocol.account
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.AccountId.GetHashCode();
+			hashCode ^= this.AccountId.GetHashCode();
 			if (this.HasRefresh)
 			{
-				hashCode = hashCode ^ this.Refresh.GetHashCode();
+				hashCode ^= this.Refresh.GetHashCode();
 			}
 			return hashCode;
 		}

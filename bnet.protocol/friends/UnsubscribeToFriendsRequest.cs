@@ -128,7 +128,7 @@ namespace bnet.protocol.friends
 		public static UnsubscribeToFriendsRequest DeserializeLengthDelimited(Stream stream, UnsubscribeToFriendsRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return UnsubscribeToFriendsRequest.Deserialize(stream, instance, position);
 		}
 
@@ -155,11 +155,11 @@ namespace bnet.protocol.friends
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentId)
 			{
-				hashCode = hashCode ^ this.AgentId.GetHashCode();
+				hashCode ^= this.AgentId.GetHashCode();
 			}
 			if (this.HasObjectId)
 			{
-				hashCode = hashCode ^ this.ObjectId.GetHashCode();
+				hashCode ^= this.ObjectId.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -176,7 +176,7 @@ namespace bnet.protocol.friends
 			if (this.HasObjectId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.ObjectId);
+				num += ProtocolParser.SizeOfUInt64(this.ObjectId);
 			}
 			return num;
 		}

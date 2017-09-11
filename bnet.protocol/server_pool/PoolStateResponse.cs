@@ -123,7 +123,7 @@ namespace bnet.protocol.server_pool
 		public static PoolStateResponse DeserializeLengthDelimited(Stream stream, PoolStateResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return PoolStateResponse.Deserialize(stream, instance, position);
 		}
 
@@ -153,7 +153,7 @@ namespace bnet.protocol.server_pool
 			int hashCode = this.GetType().GetHashCode();
 			foreach (ServerInfo info in this.Info)
 			{
-				hashCode = hashCode ^ info.GetHashCode();
+				hashCode ^= info.GetHashCode();
 			}
 			return hashCode;
 		}

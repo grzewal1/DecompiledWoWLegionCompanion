@@ -104,7 +104,7 @@ namespace bnet.protocol.attribute
 		public static bnet.protocol.attribute.Attribute DeserializeLengthDelimited(Stream stream, bnet.protocol.attribute.Attribute instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return bnet.protocol.attribute.Attribute.Deserialize(stream, instance, position);
 		}
 
@@ -129,7 +129,7 @@ namespace bnet.protocol.attribute
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Name.GetHashCode();
+			hashCode ^= this.Name.GetHashCode();
 			return hashCode ^ this.Value.GetHashCode();
 		}
 

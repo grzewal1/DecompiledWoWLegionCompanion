@@ -74,7 +74,7 @@ namespace bnet.protocol.server_pool
 		public static PoolStateRequest DeserializeLengthDelimited(Stream stream, PoolStateRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return PoolStateRequest.Deserialize(stream, instance, position);
 		}
 

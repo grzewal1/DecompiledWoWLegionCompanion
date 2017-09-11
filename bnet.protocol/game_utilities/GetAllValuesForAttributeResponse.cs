@@ -90,7 +90,7 @@ namespace bnet.protocol.game_utilities
 		public static GetAllValuesForAttributeResponse DeserializeLengthDelimited(Stream stream, GetAllValuesForAttributeResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetAllValuesForAttributeResponse.Deserialize(stream, instance, position);
 		}
 
@@ -120,7 +120,7 @@ namespace bnet.protocol.game_utilities
 			int hashCode = this.GetType().GetHashCode();
 			foreach (bnet.protocol.attribute.Variant attributeValue in this.AttributeValue)
 			{
-				hashCode = hashCode ^ attributeValue.GetHashCode();
+				hashCode ^= attributeValue.GetHashCode();
 			}
 			return hashCode;
 		}

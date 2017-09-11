@@ -27,8 +27,7 @@ public class DelayedObjectEnable : MonoBehaviour
 	{
 		if (this.m_enabled)
 		{
-			DelayedObjectEnable mTimeRemaining = this;
-			mTimeRemaining.m_timeRemaining = mTimeRemaining.m_timeRemaining - Time.deltaTime;
+			this.m_timeRemaining -= Time.deltaTime;
 			if (this.m_timeRemaining <= 0f)
 			{
 				this.m_objectToEnable.SetActive(true);

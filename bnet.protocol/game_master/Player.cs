@@ -157,7 +157,7 @@ namespace bnet.protocol.game_master
 		public static Player DeserializeLengthDelimited(Stream stream, Player instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return Player.Deserialize(stream, instance, position);
 		}
 
@@ -191,11 +191,11 @@ namespace bnet.protocol.game_master
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasIdentity)
 			{
-				hashCode = hashCode ^ this.Identity.GetHashCode();
+				hashCode ^= this.Identity.GetHashCode();
 			}
 			foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)
 			{
-				hashCode = hashCode ^ attribute.GetHashCode();
+				hashCode ^= attribute.GetHashCode();
 			}
 			return hashCode;
 		}

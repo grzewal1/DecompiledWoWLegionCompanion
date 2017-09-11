@@ -141,7 +141,7 @@ namespace bnet.protocol.game_master
 		public static ListFactoriesRequest DeserializeLengthDelimited(Stream stream, ListFactoriesRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ListFactoriesRequest.Deserialize(stream, instance, position);
 		}
 
@@ -170,14 +170,14 @@ namespace bnet.protocol.game_master
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Filter.GetHashCode();
+			hashCode ^= this.Filter.GetHashCode();
 			if (this.HasStartIndex)
 			{
-				hashCode = hashCode ^ this.StartIndex.GetHashCode();
+				hashCode ^= this.StartIndex.GetHashCode();
 			}
 			if (this.HasMaxResults)
 			{
-				hashCode = hashCode ^ this.MaxResults.GetHashCode();
+				hashCode ^= this.MaxResults.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -190,12 +190,12 @@ namespace bnet.protocol.game_master
 			if (this.HasStartIndex)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.StartIndex);
+				num += ProtocolParser.SizeOfUInt32(this.StartIndex);
 			}
 			if (this.HasMaxResults)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.MaxResults);
+				num += ProtocolParser.SizeOfUInt32(this.MaxResults);
 			}
 			num++;
 			return num;

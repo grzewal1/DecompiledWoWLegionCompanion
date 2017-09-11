@@ -123,7 +123,7 @@ namespace bnet.protocol.channel_invitation
 		public static IncrementChannelCountResponse DeserializeLengthDelimited(Stream stream, IncrementChannelCountResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return IncrementChannelCountResponse.Deserialize(stream, instance, position);
 		}
 
@@ -153,7 +153,7 @@ namespace bnet.protocol.channel_invitation
 			int hashCode = this.GetType().GetHashCode();
 			foreach (ulong reservationToken in this.ReservationTokens)
 			{
-				hashCode = hashCode ^ reservationToken.GetHashCode();
+				hashCode ^= reservationToken.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -166,7 +166,7 @@ namespace bnet.protocol.channel_invitation
 				foreach (ulong reservationToken in this.ReservationTokens)
 				{
 					num++;
-					num = num + ProtocolParser.SizeOfUInt64(reservationToken);
+					num += ProtocolParser.SizeOfUInt64(reservationToken);
 				}
 			}
 			return num;

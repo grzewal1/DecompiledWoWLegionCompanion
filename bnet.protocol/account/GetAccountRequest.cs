@@ -291,7 +291,7 @@ namespace bnet.protocol.account
 		public static GetAccountRequest DeserializeLengthDelimited(Stream stream, GetAccountRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetAccountRequest.Deserialize(stream, instance, position);
 		}
 
@@ -346,39 +346,39 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasRef)
 			{
-				hashCode = hashCode ^ this.Ref.GetHashCode();
+				hashCode ^= this.Ref.GetHashCode();
 			}
 			if (this.HasFetchAll)
 			{
-				hashCode = hashCode ^ this.FetchAll.GetHashCode();
+				hashCode ^= this.FetchAll.GetHashCode();
 			}
 			if (this.HasFetchBlob)
 			{
-				hashCode = hashCode ^ this.FetchBlob.GetHashCode();
+				hashCode ^= this.FetchBlob.GetHashCode();
 			}
 			if (this.HasFetchId)
 			{
-				hashCode = hashCode ^ this.FetchId.GetHashCode();
+				hashCode ^= this.FetchId.GetHashCode();
 			}
 			if (this.HasFetchEmail)
 			{
-				hashCode = hashCode ^ this.FetchEmail.GetHashCode();
+				hashCode ^= this.FetchEmail.GetHashCode();
 			}
 			if (this.HasFetchBattleTag)
 			{
-				hashCode = hashCode ^ this.FetchBattleTag.GetHashCode();
+				hashCode ^= this.FetchBattleTag.GetHashCode();
 			}
 			if (this.HasFetchFullName)
 			{
-				hashCode = hashCode ^ this.FetchFullName.GetHashCode();
+				hashCode ^= this.FetchFullName.GetHashCode();
 			}
 			if (this.HasFetchLinks)
 			{
-				hashCode = hashCode ^ this.FetchLinks.GetHashCode();
+				hashCode ^= this.FetchLinks.GetHashCode();
 			}
 			if (this.HasFetchParentalControls)
 			{
-				hashCode = hashCode ^ this.FetchParentalControls.GetHashCode();
+				hashCode ^= this.FetchParentalControls.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -424,12 +424,12 @@ namespace bnet.protocol.account
 			}
 			if (this.HasFetchLinks)
 			{
-				num = num + 2;
+				num += 2;
 				num++;
 			}
 			if (this.HasFetchParentalControls)
 			{
-				num = num + 2;
+				num += 2;
 				num++;
 			}
 			return num;

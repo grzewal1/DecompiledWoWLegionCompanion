@@ -74,7 +74,7 @@ namespace bnet.protocol.channel
 		public static GetChannelIdRequest DeserializeLengthDelimited(Stream stream, GetChannelIdRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetChannelIdRequest.Deserialize(stream, instance, position);
 		}
 

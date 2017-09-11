@@ -146,7 +146,7 @@ namespace bnet.protocol.presence
 		public static QueryRequest DeserializeLengthDelimited(Stream stream, QueryRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return QueryRequest.Deserialize(stream, instance, position);
 		}
 
@@ -178,10 +178,10 @@ namespace bnet.protocol.presence
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.EntityId.GetHashCode();
+			hashCode ^= this.EntityId.GetHashCode();
 			foreach (FieldKey key in this.Key)
 			{
-				hashCode = hashCode ^ key.GetHashCode();
+				hashCode ^= key.GetHashCode();
 			}
 			return hashCode;
 		}

@@ -171,7 +171,7 @@ namespace bnet.protocol.channel
 		public static JoinChannelResponse DeserializeLengthDelimited(Stream stream, JoinChannelResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return JoinChannelResponse.Deserialize(stream, instance, position);
 		}
 
@@ -209,15 +209,15 @@ namespace bnet.protocol.channel
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasObjectId)
 			{
-				hashCode = hashCode ^ this.ObjectId.GetHashCode();
+				hashCode ^= this.ObjectId.GetHashCode();
 			}
 			if (this.HasRequireFriendValidation)
 			{
-				hashCode = hashCode ^ this.RequireFriendValidation.GetHashCode();
+				hashCode ^= this.RequireFriendValidation.GetHashCode();
 			}
 			foreach (EntityId privilegedAccount in this.PrivilegedAccount)
 			{
-				hashCode = hashCode ^ privilegedAccount.GetHashCode();
+				hashCode ^= privilegedAccount.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -228,7 +228,7 @@ namespace bnet.protocol.channel
 			if (this.HasObjectId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.ObjectId);
+				num += ProtocolParser.SizeOfUInt64(this.ObjectId);
 			}
 			if (this.HasRequireFriendValidation)
 			{

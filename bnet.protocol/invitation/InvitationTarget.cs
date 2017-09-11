@@ -150,7 +150,7 @@ namespace bnet.protocol.invitation
 		public static InvitationTarget DeserializeLengthDelimited(Stream stream, InvitationTarget instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return InvitationTarget.Deserialize(stream, instance, position);
 		}
 
@@ -181,15 +181,15 @@ namespace bnet.protocol.invitation
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasIdentity)
 			{
-				hashCode = hashCode ^ this.Identity.GetHashCode();
+				hashCode ^= this.Identity.GetHashCode();
 			}
 			if (this.HasEmail)
 			{
-				hashCode = hashCode ^ this.Email.GetHashCode();
+				hashCode ^= this.Email.GetHashCode();
 			}
 			if (this.HasBattleTag)
 			{
-				hashCode = hashCode ^ this.BattleTag.GetHashCode();
+				hashCode ^= this.BattleTag.GetHashCode();
 			}
 			return hashCode;
 		}

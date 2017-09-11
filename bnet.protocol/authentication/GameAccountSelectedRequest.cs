@@ -115,7 +115,7 @@ namespace bnet.protocol.authentication
 		public static GameAccountSelectedRequest DeserializeLengthDelimited(Stream stream, GameAccountSelectedRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameAccountSelectedRequest.Deserialize(stream, instance, position);
 		}
 
@@ -140,10 +140,10 @@ namespace bnet.protocol.authentication
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Result.GetHashCode();
+			hashCode ^= this.Result.GetHashCode();
 			if (this.HasGameAccount)
 			{
-				hashCode = hashCode ^ this.GameAccount.GetHashCode();
+				hashCode ^= this.GameAccount.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -151,7 +151,7 @@ namespace bnet.protocol.authentication
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + ProtocolParser.SizeOfUInt32(this.Result);
+			num += ProtocolParser.SizeOfUInt32(this.Result);
 			if (this.HasGameAccount)
 			{
 				num++;

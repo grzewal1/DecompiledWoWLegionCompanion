@@ -132,7 +132,7 @@ namespace bnet.protocol.connection
 		public static ConnectRequest DeserializeLengthDelimited(Stream stream, ConnectRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ConnectRequest.Deserialize(stream, instance, position);
 		}
 
@@ -159,11 +159,11 @@ namespace bnet.protocol.connection
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasClientId)
 			{
-				hashCode = hashCode ^ this.ClientId.GetHashCode();
+				hashCode ^= this.ClientId.GetHashCode();
 			}
 			if (this.HasBindRequest)
 			{
-				hashCode = hashCode ^ this.BindRequest.GetHashCode();
+				hashCode ^= this.BindRequest.GetHashCode();
 			}
 			return hashCode;
 		}

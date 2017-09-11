@@ -333,7 +333,7 @@ namespace bnet.protocol.config
 		public static RPCMethodConfig DeserializeLengthDelimited(Stream stream, RPCMethodConfig instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return RPCMethodConfig.Deserialize(stream, instance, position);
 		}
 
@@ -396,47 +396,47 @@ namespace bnet.protocol.config
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasServiceName)
 			{
-				hashCode = hashCode ^ this.ServiceName.GetHashCode();
+				hashCode ^= this.ServiceName.GetHashCode();
 			}
 			if (this.HasMethodName)
 			{
-				hashCode = hashCode ^ this.MethodName.GetHashCode();
+				hashCode ^= this.MethodName.GetHashCode();
 			}
 			if (this.HasFixedCallCost)
 			{
-				hashCode = hashCode ^ this.FixedCallCost.GetHashCode();
+				hashCode ^= this.FixedCallCost.GetHashCode();
 			}
 			if (this.HasFixedPacketSize)
 			{
-				hashCode = hashCode ^ this.FixedPacketSize.GetHashCode();
+				hashCode ^= this.FixedPacketSize.GetHashCode();
 			}
 			if (this.HasVariableMultiplier)
 			{
-				hashCode = hashCode ^ this.VariableMultiplier.GetHashCode();
+				hashCode ^= this.VariableMultiplier.GetHashCode();
 			}
 			if (this.HasMultiplier)
 			{
-				hashCode = hashCode ^ this.Multiplier.GetHashCode();
+				hashCode ^= this.Multiplier.GetHashCode();
 			}
 			if (this.HasRateLimitCount)
 			{
-				hashCode = hashCode ^ this.RateLimitCount.GetHashCode();
+				hashCode ^= this.RateLimitCount.GetHashCode();
 			}
 			if (this.HasRateLimitSeconds)
 			{
-				hashCode = hashCode ^ this.RateLimitSeconds.GetHashCode();
+				hashCode ^= this.RateLimitSeconds.GetHashCode();
 			}
 			if (this.HasMaxPacketSize)
 			{
-				hashCode = hashCode ^ this.MaxPacketSize.GetHashCode();
+				hashCode ^= this.MaxPacketSize.GetHashCode();
 			}
 			if (this.HasMaxEncodedSize)
 			{
-				hashCode = hashCode ^ this.MaxEncodedSize.GetHashCode();
+				hashCode ^= this.MaxEncodedSize.GetHashCode();
 			}
 			if (this.HasTimeout)
 			{
-				hashCode = hashCode ^ this.Timeout.GetHashCode();
+				hashCode ^= this.Timeout.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -459,47 +459,47 @@ namespace bnet.protocol.config
 			if (this.HasFixedCallCost)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.FixedCallCost);
+				num += ProtocolParser.SizeOfUInt32(this.FixedCallCost);
 			}
 			if (this.HasFixedPacketSize)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.FixedPacketSize);
+				num += ProtocolParser.SizeOfUInt32(this.FixedPacketSize);
 			}
 			if (this.HasVariableMultiplier)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasMultiplier)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasRateLimitCount)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.RateLimitCount);
+				num += ProtocolParser.SizeOfUInt32(this.RateLimitCount);
 			}
 			if (this.HasRateLimitSeconds)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.RateLimitSeconds);
+				num += ProtocolParser.SizeOfUInt32(this.RateLimitSeconds);
 			}
 			if (this.HasMaxPacketSize)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.MaxPacketSize);
+				num += ProtocolParser.SizeOfUInt32(this.MaxPacketSize);
 			}
 			if (this.HasMaxEncodedSize)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.MaxEncodedSize);
+				num += ProtocolParser.SizeOfUInt32(this.MaxEncodedSize);
 			}
 			if (this.HasTimeout)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			return num;
 		}

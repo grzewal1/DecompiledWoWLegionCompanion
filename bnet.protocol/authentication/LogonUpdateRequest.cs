@@ -85,7 +85,7 @@ namespace bnet.protocol.authentication
 		public static LogonUpdateRequest DeserializeLengthDelimited(Stream stream, LogonUpdateRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return LogonUpdateRequest.Deserialize(stream, instance, position);
 		}
 

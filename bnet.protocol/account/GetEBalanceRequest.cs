@@ -128,7 +128,7 @@ namespace bnet.protocol.account
 		public static GetEBalanceRequest DeserializeLengthDelimited(Stream stream, GetEBalanceRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GetEBalanceRequest.Deserialize(stream, instance, position);
 		}
 
@@ -157,11 +157,11 @@ namespace bnet.protocol.account
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.AccountId.GetHashCode();
-			hashCode = hashCode ^ this.Currency.GetHashCode();
+			hashCode ^= this.AccountId.GetHashCode();
+			hashCode ^= this.Currency.GetHashCode();
 			if (this.HasCurrencyHomeRegion)
 			{
-				hashCode = hashCode ^ this.CurrencyHomeRegion.GetHashCode();
+				hashCode ^= this.CurrencyHomeRegion.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -176,9 +176,9 @@ namespace bnet.protocol.account
 			if (this.HasCurrencyHomeRegion)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.CurrencyHomeRegion);
+				num += ProtocolParser.SizeOfUInt32(this.CurrencyHomeRegion);
 			}
-			num = num + 2;
+			num += 2;
 			return num;
 		}
 

@@ -212,7 +212,7 @@ namespace bnet.protocol.authentication
 		public static AccountSettingsNotification DeserializeLengthDelimited(Stream stream, AccountSettingsNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AccountSettingsNotification.Deserialize(stream, instance, position);
 		}
 
@@ -258,23 +258,23 @@ namespace bnet.protocol.authentication
 			int hashCode = this.GetType().GetHashCode();
 			foreach (AccountLicense license in this.Licenses)
 			{
-				hashCode = hashCode ^ license.GetHashCode();
+				hashCode ^= license.GetHashCode();
 			}
 			if (this.HasIsUsingRid)
 			{
-				hashCode = hashCode ^ this.IsUsingRid.GetHashCode();
+				hashCode ^= this.IsUsingRid.GetHashCode();
 			}
 			if (this.HasIsPlayingFromIgr)
 			{
-				hashCode = hashCode ^ this.IsPlayingFromIgr.GetHashCode();
+				hashCode ^= this.IsPlayingFromIgr.GetHashCode();
 			}
 			if (this.HasCanReceiveVoice)
 			{
-				hashCode = hashCode ^ this.CanReceiveVoice.GetHashCode();
+				hashCode ^= this.CanReceiveVoice.GetHashCode();
 			}
 			if (this.HasCanSendVoice)
 			{
-				hashCode = hashCode ^ this.CanSendVoice.GetHashCode();
+				hashCode ^= this.CanSendVoice.GetHashCode();
 			}
 			return hashCode;
 		}

@@ -297,7 +297,7 @@ namespace bnet.protocol.account
 		public static GameLevelInfo DeserializeLengthDelimited(Stream stream, GameLevelInfo instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameLevelInfo.Deserialize(stream, instance, position);
 		}
 
@@ -359,39 +359,39 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasIsStarterEdition)
 			{
-				hashCode = hashCode ^ this.IsStarterEdition.GetHashCode();
+				hashCode ^= this.IsStarterEdition.GetHashCode();
 			}
 			if (this.HasIsTrial)
 			{
-				hashCode = hashCode ^ this.IsTrial.GetHashCode();
+				hashCode ^= this.IsTrial.GetHashCode();
 			}
 			if (this.HasIsLifetime)
 			{
-				hashCode = hashCode ^ this.IsLifetime.GetHashCode();
+				hashCode ^= this.IsLifetime.GetHashCode();
 			}
 			if (this.HasIsRestricted)
 			{
-				hashCode = hashCode ^ this.IsRestricted.GetHashCode();
+				hashCode ^= this.IsRestricted.GetHashCode();
 			}
 			if (this.HasIsBeta)
 			{
-				hashCode = hashCode ^ this.IsBeta.GetHashCode();
+				hashCode ^= this.IsBeta.GetHashCode();
 			}
 			if (this.HasName)
 			{
-				hashCode = hashCode ^ this.Name.GetHashCode();
+				hashCode ^= this.Name.GetHashCode();
 			}
 			if (this.HasProgram)
 			{
-				hashCode = hashCode ^ this.Program.GetHashCode();
+				hashCode ^= this.Program.GetHashCode();
 			}
 			foreach (AccountLicense license in this.Licenses)
 			{
-				hashCode = hashCode ^ license.GetHashCode();
+				hashCode ^= license.GetHashCode();
 			}
 			if (this.HasRealmPermissions)
 			{
-				hashCode = hashCode ^ this.RealmPermissions.GetHashCode();
+				hashCode ^= this.RealmPermissions.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -433,7 +433,7 @@ namespace bnet.protocol.account
 			if (this.HasProgram)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.Licenses.Count > 0)
 			{
@@ -447,7 +447,7 @@ namespace bnet.protocol.account
 			if (this.HasRealmPermissions)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.RealmPermissions);
+				num += ProtocolParser.SizeOfUInt32(this.RealmPermissions);
 			}
 			return num;
 		}

@@ -233,7 +233,7 @@ namespace bnet.protocol.account
 		public static ParentalControlInfo DeserializeLengthDelimited(Stream stream, ParentalControlInfo instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ParentalControlInfo.Deserialize(stream, instance, position);
 		}
 
@@ -283,27 +283,27 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasTimezone)
 			{
-				hashCode = hashCode ^ this.Timezone.GetHashCode();
+				hashCode ^= this.Timezone.GetHashCode();
 			}
 			if (this.HasMinutesPerDay)
 			{
-				hashCode = hashCode ^ this.MinutesPerDay.GetHashCode();
+				hashCode ^= this.MinutesPerDay.GetHashCode();
 			}
 			if (this.HasMinutesPerWeek)
 			{
-				hashCode = hashCode ^ this.MinutesPerWeek.GetHashCode();
+				hashCode ^= this.MinutesPerWeek.GetHashCode();
 			}
 			if (this.HasCanReceiveVoice)
 			{
-				hashCode = hashCode ^ this.CanReceiveVoice.GetHashCode();
+				hashCode ^= this.CanReceiveVoice.GetHashCode();
 			}
 			if (this.HasCanSendVoice)
 			{
-				hashCode = hashCode ^ this.CanSendVoice.GetHashCode();
+				hashCode ^= this.CanSendVoice.GetHashCode();
 			}
 			foreach (bool playSchedule in this.PlaySchedule)
 			{
-				hashCode = hashCode ^ playSchedule.GetHashCode();
+				hashCode ^= playSchedule.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -320,12 +320,12 @@ namespace bnet.protocol.account
 			if (this.HasMinutesPerDay)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.MinutesPerDay);
+				num += ProtocolParser.SizeOfUInt32(this.MinutesPerDay);
 			}
 			if (this.HasMinutesPerWeek)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.MinutesPerWeek);
+				num += ProtocolParser.SizeOfUInt32(this.MinutesPerWeek);
 			}
 			if (this.HasCanReceiveVoice)
 			{

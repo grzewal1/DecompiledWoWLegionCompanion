@@ -36,9 +36,9 @@ namespace bgs
 					return num;
 				}
 				this.headerSize = (bytes[offset] << 8) + bytes[offset + 1];
-				available = available - 2;
-				num = num + 2;
-				offset = offset + 2;
+				available -= 2;
+				num += 2;
+				offset += 2;
 			}
 			if (this.header == null)
 			{
@@ -53,9 +53,9 @@ namespace bgs
 				{
 					throw new Exception("failed to parse BattleNet packet header");
 				}
-				available = available - this.headerSize;
-				num = num + this.headerSize;
-				offset = offset + this.headerSize;
+				available -= this.headerSize;
+				num += this.headerSize;
+				offset += this.headerSize;
 			}
 			if (this.body == null)
 			{
@@ -66,7 +66,7 @@ namespace bgs
 				byte[] numArray = new byte[this.bodySize];
 				Array.Copy(bytes, offset, numArray, 0, this.bodySize);
 				this.body = numArray;
-				num = num + this.bodySize;
+				num += this.bodySize;
 			}
 			return num;
 		}

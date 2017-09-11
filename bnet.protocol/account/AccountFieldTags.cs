@@ -287,7 +287,7 @@ namespace bnet.protocol.account
 		public static AccountFieldTags DeserializeLengthDelimited(Stream stream, AccountFieldTags instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AccountFieldTags.Deserialize(stream, instance, position);
 		}
 
@@ -351,27 +351,27 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAccountLevelInfoTag)
 			{
-				hashCode = hashCode ^ this.AccountLevelInfoTag.GetHashCode();
+				hashCode ^= this.AccountLevelInfoTag.GetHashCode();
 			}
 			if (this.HasPrivacyInfoTag)
 			{
-				hashCode = hashCode ^ this.PrivacyInfoTag.GetHashCode();
+				hashCode ^= this.PrivacyInfoTag.GetHashCode();
 			}
 			if (this.HasParentalControlInfoTag)
 			{
-				hashCode = hashCode ^ this.ParentalControlInfoTag.GetHashCode();
+				hashCode ^= this.ParentalControlInfoTag.GetHashCode();
 			}
 			foreach (ProgramTag gameLevelInfoTag in this.GameLevelInfoTags)
 			{
-				hashCode = hashCode ^ gameLevelInfoTag.GetHashCode();
+				hashCode ^= gameLevelInfoTag.GetHashCode();
 			}
 			foreach (ProgramTag gameStatusTag in this.GameStatusTags)
 			{
-				hashCode = hashCode ^ gameStatusTag.GetHashCode();
+				hashCode ^= gameStatusTag.GetHashCode();
 			}
 			foreach (RegionTag gameAccountTag in this.GameAccountTags)
 			{
-				hashCode = hashCode ^ gameAccountTag.GetHashCode();
+				hashCode ^= gameAccountTag.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -382,17 +382,17 @@ namespace bnet.protocol.account
 			if (this.HasAccountLevelInfoTag)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasPrivacyInfoTag)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasParentalControlInfoTag)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.GameLevelInfoTags.Count > 0)
 			{

@@ -74,7 +74,7 @@ public class GarrisonStatus
 
 	public static void CheatFastForwardOneHour()
 	{
-		GarrisonStatus.s_serverConnectTime = GarrisonStatus.s_serverConnectTime + (long)3600;
+		GarrisonStatus.s_serverConnectTime += (long)3600;
 	}
 
 	public static long CurrentTime()

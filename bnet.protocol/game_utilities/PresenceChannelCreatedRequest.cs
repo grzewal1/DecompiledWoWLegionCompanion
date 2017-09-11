@@ -178,7 +178,7 @@ namespace bnet.protocol.game_utilities
 		public static PresenceChannelCreatedRequest DeserializeLengthDelimited(Stream stream, PresenceChannelCreatedRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return PresenceChannelCreatedRequest.Deserialize(stream, instance, position);
 		}
 
@@ -211,18 +211,18 @@ namespace bnet.protocol.game_utilities
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Id.GetHashCode();
+			hashCode ^= this.Id.GetHashCode();
 			if (this.HasGameAccountId)
 			{
-				hashCode = hashCode ^ this.GameAccountId.GetHashCode();
+				hashCode ^= this.GameAccountId.GetHashCode();
 			}
 			if (this.HasBnetAccountId)
 			{
-				hashCode = hashCode ^ this.BnetAccountId.GetHashCode();
+				hashCode ^= this.BnetAccountId.GetHashCode();
 			}
 			if (this.HasHost)
 			{
-				hashCode = hashCode ^ this.Host.GetHashCode();
+				hashCode ^= this.Host.GetHashCode();
 			}
 			return hashCode;
 		}

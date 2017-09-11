@@ -143,7 +143,7 @@ namespace bnet.protocol.game_master
 		public static FindGameResponse DeserializeLengthDelimited(Stream stream, FindGameResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return FindGameResponse.Deserialize(stream, instance, position);
 		}
 
@@ -174,15 +174,15 @@ namespace bnet.protocol.game_master
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasRequestId)
 			{
-				hashCode = hashCode ^ this.RequestId.GetHashCode();
+				hashCode ^= this.RequestId.GetHashCode();
 			}
 			if (this.HasFactoryId)
 			{
-				hashCode = hashCode ^ this.FactoryId.GetHashCode();
+				hashCode ^= this.FactoryId.GetHashCode();
 			}
 			if (this.HasQueued)
 			{
-				hashCode = hashCode ^ this.Queued.GetHashCode();
+				hashCode ^= this.Queued.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -193,12 +193,12 @@ namespace bnet.protocol.game_master
 			if (this.HasRequestId)
 			{
 				num++;
-				num = num + 8;
+				num += 8;
 			}
 			if (this.HasFactoryId)
 			{
 				num++;
-				num = num + 8;
+				num += 8;
 			}
 			if (this.HasQueued)
 			{

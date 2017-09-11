@@ -195,7 +195,7 @@ namespace bnet.protocol.invitation
 		public static SendInvitationRequest DeserializeLengthDelimited(Stream stream, SendInvitationRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return SendInvitationRequest.Deserialize(stream, instance, position);
 		}
 
@@ -234,17 +234,17 @@ namespace bnet.protocol.invitation
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAgentIdentity)
 			{
-				hashCode = hashCode ^ this.AgentIdentity.GetHashCode();
+				hashCode ^= this.AgentIdentity.GetHashCode();
 			}
-			hashCode = hashCode ^ this.TargetId.GetHashCode();
-			hashCode = hashCode ^ this.Params.GetHashCode();
+			hashCode ^= this.TargetId.GetHashCode();
+			hashCode ^= this.Params.GetHashCode();
 			if (this.HasAgentInfo)
 			{
-				hashCode = hashCode ^ this.AgentInfo.GetHashCode();
+				hashCode ^= this.AgentInfo.GetHashCode();
 			}
 			if (this.HasTarget)
 			{
-				hashCode = hashCode ^ this.Target.GetHashCode();
+				hashCode ^= this.Target.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -274,7 +274,7 @@ namespace bnet.protocol.invitation
 				uint num2 = this.Target.GetSerializedSize();
 				num = num + num2 + ProtocolParser.SizeOfUInt32(num2);
 			}
-			num = num + 2;
+			num += 2;
 			return num;
 		}
 

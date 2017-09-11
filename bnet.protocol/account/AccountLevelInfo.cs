@@ -192,7 +192,7 @@ namespace bnet.protocol.account
 		public static AccountLevelInfo DeserializeLengthDelimited(Stream stream, AccountLevelInfo instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AccountLevelInfo.Deserialize(stream, instance, position);
 		}
 
@@ -234,19 +234,19 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			foreach (AccountLicense license in this.Licenses)
 			{
-				hashCode = hashCode ^ license.GetHashCode();
+				hashCode ^= license.GetHashCode();
 			}
 			if (this.HasDefaultCurrency)
 			{
-				hashCode = hashCode ^ this.DefaultCurrency.GetHashCode();
+				hashCode ^= this.DefaultCurrency.GetHashCode();
 			}
 			if (this.HasCountry)
 			{
-				hashCode = hashCode ^ this.Country.GetHashCode();
+				hashCode ^= this.Country.GetHashCode();
 			}
 			if (this.HasPreferredRegion)
 			{
-				hashCode = hashCode ^ this.PreferredRegion.GetHashCode();
+				hashCode ^= this.PreferredRegion.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -266,7 +266,7 @@ namespace bnet.protocol.account
 			if (this.HasDefaultCurrency)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasCountry)
 			{
@@ -277,7 +277,7 @@ namespace bnet.protocol.account
 			if (this.HasPreferredRegion)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.PreferredRegion);
+				num += ProtocolParser.SizeOfUInt32(this.PreferredRegion);
 			}
 			return num;
 		}

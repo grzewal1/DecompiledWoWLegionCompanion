@@ -74,7 +74,7 @@ namespace bnet.protocol.account
 		public static FlagUpdateResponse DeserializeLengthDelimited(Stream stream, FlagUpdateResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return FlagUpdateResponse.Deserialize(stream, instance, position);
 		}
 

@@ -24,7 +24,7 @@ namespace Newtonsoft.Json.Utilities
 			}
 			for (i = 0; value - Math.Floor(value) > num1 && i < num; i++)
 			{
-				value = value * 10;
+				value *= 10;
 			}
 			return i;
 		}

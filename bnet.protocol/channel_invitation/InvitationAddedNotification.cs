@@ -90,7 +90,7 @@ namespace bnet.protocol.channel_invitation
 		public static InvitationAddedNotification DeserializeLengthDelimited(Stream stream, InvitationAddedNotification instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return InvitationAddedNotification.Deserialize(stream, instance, position);
 		}
 

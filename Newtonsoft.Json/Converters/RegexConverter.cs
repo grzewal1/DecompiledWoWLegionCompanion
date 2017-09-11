@@ -35,19 +35,19 @@ namespace Newtonsoft.Json.Converters
 				char chr = str2[i];
 				if (chr == 'i')
 				{
-					regexOption = regexOption | RegexOptions.IgnoreCase;
+					regexOption |= RegexOptions.IgnoreCase;
 				}
 				else if (chr == 'm')
 				{
-					regexOption = regexOption | RegexOptions.Multiline;
+					regexOption |= RegexOptions.Multiline;
 				}
 				else if (chr == 's')
 				{
-					regexOption = regexOption | RegexOptions.Singleline;
+					regexOption |= RegexOptions.Singleline;
 				}
 				else if (chr == 'x')
 				{
-					regexOption = regexOption | RegexOptions.ExplicitCapture;
+					regexOption |= RegexOptions.ExplicitCapture;
 				}
 			}
 			return new Regex(str, regexOption);

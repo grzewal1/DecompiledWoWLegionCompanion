@@ -110,7 +110,7 @@ namespace bnet.protocol.account
 		public static CurrencyRestriction DeserializeLengthDelimited(Stream stream, CurrencyRestriction instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return CurrencyRestriction.Deserialize(stream, instance, position);
 		}
 
@@ -139,8 +139,8 @@ namespace bnet.protocol.account
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Currency.GetHashCode();
-			hashCode = hashCode ^ this.AuthenticatorCap.GetHashCode();
+			hashCode ^= this.Currency.GetHashCode();
+			hashCode ^= this.AuthenticatorCap.GetHashCode();
 			return hashCode ^ this.SoftCap.GetHashCode();
 		}
 

@@ -344,13 +344,13 @@ namespace bgs
 		{
 			// 
 			// Current member / type: bgs.RPCContext bgs.RPCConnection::QueueRequest(System.UInt32,System.UInt32,IProtoBuf,bgs.RPCContextDelegate,System.UInt32)
-			// File path: C:\Users\RenameME-4\Desktop\wow_app\wow_v1.2.0_com.blizzard.wowcompanion\assets\bin\Data\Managed\Assembly-CSharp.dll
+			// File path: C:\jar_reverse\1.2.52\assets\bin\Data\Managed\Assembly-CSharp.dll
 			// 
-			// Product version: 2017.1.116.2
+			// Product version: 2017.2.706.0
 			// Exception in: bgs.RPCContext QueueRequest(System.UInt32,System.UInt32,IProtoBuf,bgs.RPCContextDelegate,System.UInt32)
 			// 
 			// La référence d'objet n'est pas définie à une instance d'un objet.
-			//    à ..() dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 81
+			//    à ..() dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 93
 			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 24
 			//    à ..Visit(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 69
 			//    à ..(DecompilationContext ,  ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 19

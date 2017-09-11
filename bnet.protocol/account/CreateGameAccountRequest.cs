@@ -182,7 +182,7 @@ namespace bnet.protocol.account
 		public static CreateGameAccountRequest DeserializeLengthDelimited(Stream stream, CreateGameAccountRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return CreateGameAccountRequest.Deserialize(stream, instance, position);
 		}
 
@@ -217,19 +217,19 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasAccount)
 			{
-				hashCode = hashCode ^ this.Account.GetHashCode();
+				hashCode ^= this.Account.GetHashCode();
 			}
 			if (this.HasRegion)
 			{
-				hashCode = hashCode ^ this.Region.GetHashCode();
+				hashCode ^= this.Region.GetHashCode();
 			}
 			if (this.HasProgram)
 			{
-				hashCode = hashCode ^ this.Program.GetHashCode();
+				hashCode ^= this.Program.GetHashCode();
 			}
 			if (this.HasRealmPermissions)
 			{
-				hashCode = hashCode ^ this.RealmPermissions.GetHashCode();
+				hashCode ^= this.RealmPermissions.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -246,17 +246,17 @@ namespace bnet.protocol.account
 			if (this.HasRegion)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Region);
+				num += ProtocolParser.SizeOfUInt32(this.Region);
 			}
 			if (this.HasProgram)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasRealmPermissions)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.RealmPermissions);
+				num += ProtocolParser.SizeOfUInt32(this.RealmPermissions);
 			}
 			return num;
 		}

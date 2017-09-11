@@ -123,7 +123,7 @@ namespace bnet.protocol.profanity
 		public static WordFilters DeserializeLengthDelimited(Stream stream, WordFilters instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return WordFilters.Deserialize(stream, instance, position);
 		}
 
@@ -153,7 +153,7 @@ namespace bnet.protocol.profanity
 			int hashCode = this.GetType().GetHashCode();
 			foreach (WordFilter filter in this.Filters)
 			{
-				hashCode = hashCode ^ filter.GetHashCode();
+				hashCode ^= filter.GetHashCode();
 			}
 			return hashCode;
 		}

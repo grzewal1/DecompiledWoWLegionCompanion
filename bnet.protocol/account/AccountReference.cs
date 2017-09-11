@@ -193,7 +193,7 @@ namespace bnet.protocol.account
 		public static AccountReference DeserializeLengthDelimited(Stream stream, AccountReference instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return AccountReference.Deserialize(stream, instance, position);
 		}
 
@@ -232,23 +232,23 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasId)
 			{
-				hashCode = hashCode ^ this.Id.GetHashCode();
+				hashCode ^= this.Id.GetHashCode();
 			}
 			if (this.HasEmail)
 			{
-				hashCode = hashCode ^ this.Email.GetHashCode();
+				hashCode ^= this.Email.GetHashCode();
 			}
 			if (this.HasHandle)
 			{
-				hashCode = hashCode ^ this.Handle.GetHashCode();
+				hashCode ^= this.Handle.GetHashCode();
 			}
 			if (this.HasBattleTag)
 			{
-				hashCode = hashCode ^ this.BattleTag.GetHashCode();
+				hashCode ^= this.BattleTag.GetHashCode();
 			}
 			if (this.HasRegion)
 			{
-				hashCode = hashCode ^ this.Region.GetHashCode();
+				hashCode ^= this.Region.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -259,7 +259,7 @@ namespace bnet.protocol.account
 			if (this.HasId)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasEmail)
 			{
@@ -282,7 +282,7 @@ namespace bnet.protocol.account
 			if (this.HasRegion)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Region);
+				num += ProtocolParser.SizeOfUInt32(this.Region);
 			}
 			return num;
 		}

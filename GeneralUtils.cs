@@ -310,7 +310,7 @@ public static class GeneralUtils
 		int num = x % y;
 		if (num < 0)
 		{
-			num = num + y;
+			num += y;
 		}
 		return num;
 	}

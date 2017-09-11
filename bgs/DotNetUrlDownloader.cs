@@ -61,13 +61,13 @@ namespace bgs
 		{
 			// 
 			// Current member / type: System.Void bgs.DotNetUrlDownloader::FinishDownload(bgs.DotNetUrlDownloader/DownloadState)
-			// File path: C:\Users\RenameME-4\Desktop\wow_app\wow_v1.2.0_com.blizzard.wowcompanion\assets\bin\Data\Managed\Assembly-CSharp.dll
+			// File path: C:\jar_reverse\1.2.52\assets\bin\Data\Managed\Assembly-CSharp.dll
 			// 
-			// Product version: 2017.1.116.2
+			// Product version: 2017.2.706.0
 			// Exception in: System.Void FinishDownload(bgs.DotNetUrlDownloader/DownloadState)
 			// 
 			// La référence d'objet n'est pas définie à une instance d'un objet.
-			//    à ..() dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 81
+			//    à ..() dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 93
 			//    à ..( ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 24
 			//    à ..Visit(ICodeNode ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Ast\BaseCodeVisitor.cs:ligne 69
 			//    à ..(DecompilationContext ,  ) dans C:\Builds\556\Behemoth\ReleaseBranch Production Build NT\Sources\OpenSource\Cecil.Decompiler\Steps\RebuildLockStatements.cs:ligne 19
@@ -111,8 +111,7 @@ namespace bgs
 				{
 					flag = false;
 					Array.Copy(asyncState.readBuffer, 0, asyncState.downloadResult.downloadData, asyncState.readPos, num);
-					DotNetUrlDownloader.DownloadState downloadState = asyncState;
-					downloadState.readPos = downloadState.readPos + num;
+					asyncState.readPos += num;
 					stream.BeginRead(asyncState.readBuffer, 0, (int)asyncState.readBuffer.Length, new AsyncCallback(DotNetUrlDownloader.ReadCallback), asyncState);
 				}
 				else if (num == 0)

@@ -90,7 +90,7 @@ namespace bnet.protocol
 					else if (num == 10)
 					{
 						long position = (long)ProtocolParser.ReadUInt32(stream);
-						position = position + stream.Position;
+						position += stream.Position;
 						while (stream.Position < position)
 						{
 							instance.Ordinal.Add(ProtocolParser.ReadUInt32(stream));
@@ -132,7 +132,7 @@ namespace bnet.protocol
 		public static bnet.protocol.Path DeserializeLengthDelimited(Stream stream, bnet.protocol.Path instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return bnet.protocol.Path.Deserialize(stream, instance, position);
 		}
 
@@ -162,7 +162,7 @@ namespace bnet.protocol
 			int hashCode = this.GetType().GetHashCode();
 			foreach (uint ordinal in this.Ordinal)
 			{
-				hashCode = hashCode ^ ordinal.GetHashCode();
+				hashCode ^= ordinal.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -176,9 +176,9 @@ namespace bnet.protocol
 				uint num1 = num;
 				foreach (uint ordinal in this.Ordinal)
 				{
-					num = num + ProtocolParser.SizeOfUInt32(ordinal);
+					num += ProtocolParser.SizeOfUInt32(ordinal);
 				}
-				num = num + ProtocolParser.SizeOfUInt32(num - num1);
+				num += ProtocolParser.SizeOfUInt32(num - num1);
 			}
 			return num;
 		}
@@ -201,7 +201,7 @@ namespace bnet.protocol
 				uint num = 0;
 				foreach (uint ordinal in instance.Ordinal)
 				{
-					num = num + ProtocolParser.SizeOfUInt32(ordinal);
+					num += ProtocolParser.SizeOfUInt32(ordinal);
 				}
 				ProtocolParser.WriteUInt32(stream, num);
 				foreach (uint ordinal1 in instance.Ordinal)

@@ -122,7 +122,7 @@ namespace bnet.protocol.resources
 		public static ContentHandleRequest DeserializeLengthDelimited(Stream stream, ContentHandleRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ContentHandleRequest.Deserialize(stream, instance, position);
 		}
 
@@ -151,11 +151,11 @@ namespace bnet.protocol.resources
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.ProgramId.GetHashCode();
-			hashCode = hashCode ^ this.StreamId.GetHashCode();
+			hashCode ^= this.ProgramId.GetHashCode();
+			hashCode ^= this.StreamId.GetHashCode();
 			if (this.HasLocale)
 			{
-				hashCode = hashCode ^ this.Locale.GetHashCode();
+				hashCode ^= this.Locale.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -163,14 +163,14 @@ namespace bnet.protocol.resources
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + 4;
-			num = num + 4;
+			num += 4;
+			num += 4;
 			if (this.HasLocale)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
-			num = num + 2;
+			num += 2;
 			return num;
 		}
 

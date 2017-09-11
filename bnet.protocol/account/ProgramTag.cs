@@ -121,7 +121,7 @@ namespace bnet.protocol.account
 		public static ProgramTag DeserializeLengthDelimited(Stream stream, ProgramTag instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ProgramTag.Deserialize(stream, instance, position);
 		}
 
@@ -148,11 +148,11 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasProgram)
 			{
-				hashCode = hashCode ^ this.Program.GetHashCode();
+				hashCode ^= this.Program.GetHashCode();
 			}
 			if (this.HasTag)
 			{
-				hashCode = hashCode ^ this.Tag.GetHashCode();
+				hashCode ^= this.Tag.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -163,12 +163,12 @@ namespace bnet.protocol.account
 			if (this.HasProgram)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasTag)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			return num;
 		}

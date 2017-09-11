@@ -90,7 +90,7 @@ namespace bnet.protocol.connection
 					else if (num == 10)
 					{
 						long position = (long)ProtocolParser.ReadUInt32(stream);
-						position = position + stream.Position;
+						position += stream.Position;
 						while (stream.Position < position)
 						{
 							instance.ImportedServiceId.Add(ProtocolParser.ReadUInt32(stream));
@@ -132,7 +132,7 @@ namespace bnet.protocol.connection
 		public static BindResponse DeserializeLengthDelimited(Stream stream, BindResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return BindResponse.Deserialize(stream, instance, position);
 		}
 
@@ -162,7 +162,7 @@ namespace bnet.protocol.connection
 			int hashCode = this.GetType().GetHashCode();
 			foreach (uint importedServiceId in this.ImportedServiceId)
 			{
-				hashCode = hashCode ^ importedServiceId.GetHashCode();
+				hashCode ^= importedServiceId.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -176,9 +176,9 @@ namespace bnet.protocol.connection
 				uint num1 = num;
 				foreach (uint importedServiceId in this.ImportedServiceId)
 				{
-					num = num + ProtocolParser.SizeOfUInt32(importedServiceId);
+					num += ProtocolParser.SizeOfUInt32(importedServiceId);
 				}
-				num = num + ProtocolParser.SizeOfUInt32(num - num1);
+				num += ProtocolParser.SizeOfUInt32(num - num1);
 			}
 			return num;
 		}
@@ -201,7 +201,7 @@ namespace bnet.protocol.connection
 				uint num = 0;
 				foreach (uint importedServiceId in instance.ImportedServiceId)
 				{
-					num = num + ProtocolParser.SizeOfUInt32(importedServiceId);
+					num += ProtocolParser.SizeOfUInt32(importedServiceId);
 				}
 				ProtocolParser.WriteUInt32(stream, num);
 				foreach (uint importedServiceId1 in instance.ImportedServiceId)

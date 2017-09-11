@@ -176,7 +176,7 @@ namespace bnet.protocol.channel_invitation
 		public static SubscribeResponse DeserializeLengthDelimited(Stream stream, SubscribeResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return SubscribeResponse.Deserialize(stream, instance, position);
 		}
 
@@ -217,11 +217,11 @@ namespace bnet.protocol.channel_invitation
 			int hashCode = this.GetType().GetHashCode();
 			foreach (InvitationCollection collection in this.Collection)
 			{
-				hashCode = hashCode ^ collection.GetHashCode();
+				hashCode ^= collection.GetHashCode();
 			}
 			foreach (Invitation receivedInvitation in this.ReceivedInvitation)
 			{
-				hashCode = hashCode ^ receivedInvitation.GetHashCode();
+				hashCode ^= receivedInvitation.GetHashCode();
 			}
 			return hashCode;
 		}

@@ -137,7 +137,7 @@ namespace bnet.protocol.account
 		public static FlagUpdateRequest DeserializeLengthDelimited(Stream stream, FlagUpdateRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return FlagUpdateRequest.Deserialize(stream, instance, position);
 		}
 
@@ -170,13 +170,13 @@ namespace bnet.protocol.account
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Account.GetHashCode();
+			hashCode ^= this.Account.GetHashCode();
 			if (this.HasRegion)
 			{
-				hashCode = hashCode ^ this.Region.GetHashCode();
+				hashCode ^= this.Region.GetHashCode();
 			}
-			hashCode = hashCode ^ this.Flag.GetHashCode();
-			hashCode = hashCode ^ this.Active.GetHashCode();
+			hashCode ^= this.Flag.GetHashCode();
+			hashCode ^= this.Active.GetHashCode();
 			return hashCode;
 		}
 
@@ -188,11 +188,11 @@ namespace bnet.protocol.account
 			if (this.HasRegion)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Region);
+				num += ProtocolParser.SizeOfUInt32(this.Region);
 			}
-			num = num + ProtocolParser.SizeOfUInt64(this.Flag);
+			num += ProtocolParser.SizeOfUInt64(this.Flag);
 			num++;
-			num = num + 3;
+			num += 3;
 			return num;
 		}
 

@@ -142,7 +142,7 @@ namespace bnet.protocol
 		public static RoleSetConfig DeserializeLengthDelimited(Stream stream, RoleSetConfig instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return RoleSetConfig.Deserialize(stream, instance, position);
 		}
 
@@ -176,9 +176,9 @@ namespace bnet.protocol
 			int hashCode = this.GetType().GetHashCode();
 			foreach (bnet.protocol.Privilege privilege in this.Privilege)
 			{
-				hashCode = hashCode ^ privilege.GetHashCode();
+				hashCode ^= privilege.GetHashCode();
 			}
-			hashCode = hashCode ^ this.RoleSet.GetHashCode();
+			hashCode ^= this.RoleSet.GetHashCode();
 			return hashCode;
 		}
 

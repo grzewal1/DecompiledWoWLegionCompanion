@@ -99,7 +99,7 @@ namespace bnet.protocol
 		public static ProcessId DeserializeLengthDelimited(Stream stream, ProcessId instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ProcessId.Deserialize(stream, instance, position);
 		}
 
@@ -124,14 +124,14 @@ namespace bnet.protocol
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Label.GetHashCode();
+			hashCode ^= this.Label.GetHashCode();
 			return hashCode ^ this.Epoch.GetHashCode();
 		}
 
 		public uint GetSerializedSize()
 		{
 			uint num = 0 + ProtocolParser.SizeOfUInt32(this.Label);
-			num = num + ProtocolParser.SizeOfUInt32(this.Epoch);
+			num += ProtocolParser.SizeOfUInt32(this.Epoch);
 			return num + 2;
 		}
 

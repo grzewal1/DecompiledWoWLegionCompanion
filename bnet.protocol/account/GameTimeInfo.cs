@@ -162,7 +162,7 @@ namespace bnet.protocol.account
 		public static GameTimeInfo DeserializeLengthDelimited(Stream stream, GameTimeInfo instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return GameTimeInfo.Deserialize(stream, instance, position);
 		}
 
@@ -197,19 +197,19 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasIsUnlimitedPlayTime)
 			{
-				hashCode = hashCode ^ this.IsUnlimitedPlayTime.GetHashCode();
+				hashCode ^= this.IsUnlimitedPlayTime.GetHashCode();
 			}
 			if (this.HasPlayTimeExpires)
 			{
-				hashCode = hashCode ^ this.PlayTimeExpires.GetHashCode();
+				hashCode ^= this.PlayTimeExpires.GetHashCode();
 			}
 			if (this.HasIsSubscription)
 			{
-				hashCode = hashCode ^ this.IsSubscription.GetHashCode();
+				hashCode ^= this.IsSubscription.GetHashCode();
 			}
 			if (this.HasIsRecurringSubscription)
 			{
-				hashCode = hashCode ^ this.IsRecurringSubscription.GetHashCode();
+				hashCode ^= this.IsRecurringSubscription.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -225,7 +225,7 @@ namespace bnet.protocol.account
 			if (this.HasPlayTimeExpires)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.PlayTimeExpires);
+				num += ProtocolParser.SizeOfUInt64(this.PlayTimeExpires);
 			}
 			if (this.HasIsSubscription)
 			{

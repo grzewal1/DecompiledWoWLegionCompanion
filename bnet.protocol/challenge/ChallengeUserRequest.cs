@@ -272,7 +272,7 @@ namespace bnet.protocol.challenge
 		public static ChallengeUserRequest DeserializeLengthDelimited(Stream stream, ChallengeUserRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ChallengeUserRequest.Deserialize(stream, instance, position);
 		}
 
@@ -329,24 +329,24 @@ namespace bnet.protocol.challenge
 			int hashCode = this.GetType().GetHashCode();
 			foreach (Challenge challenge in this.Challenges)
 			{
-				hashCode = hashCode ^ challenge.GetHashCode();
+				hashCode ^= challenge.GetHashCode();
 			}
-			hashCode = hashCode ^ this.Context.GetHashCode();
+			hashCode ^= this.Context.GetHashCode();
 			if (this.HasId)
 			{
-				hashCode = hashCode ^ this.Id.GetHashCode();
+				hashCode ^= this.Id.GetHashCode();
 			}
 			if (this.HasDeadline)
 			{
-				hashCode = hashCode ^ this.Deadline.GetHashCode();
+				hashCode ^= this.Deadline.GetHashCode();
 			}
 			foreach (bnet.protocol.attribute.Attribute attribute in this.Attributes)
 			{
-				hashCode = hashCode ^ attribute.GetHashCode();
+				hashCode ^= attribute.GetHashCode();
 			}
 			if (this.HasGameAccountId)
 			{
-				hashCode = hashCode ^ this.GameAccountId.GetHashCode();
+				hashCode ^= this.GameAccountId.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -363,16 +363,16 @@ namespace bnet.protocol.challenge
 					num = num + serializedSize + ProtocolParser.SizeOfUInt32(serializedSize);
 				}
 			}
-			num = num + 4;
+			num += 4;
 			if (this.HasId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Id);
+				num += ProtocolParser.SizeOfUInt32(this.Id);
 			}
 			if (this.HasDeadline)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.Deadline);
+				num += ProtocolParser.SizeOfUInt64(this.Deadline);
 			}
 			if (this.Attributes.Count > 0)
 			{

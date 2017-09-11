@@ -469,7 +469,7 @@ public class Main : MonoBehaviour
 
 	private void MobileClientCompleteMissionResultHandler(MobileClientCompleteMissionResult msg)
 	{
-		Debug.Log(string.Concat(new object[] { "CompleteMissionResult: ID=", msg.GarrMissionID, ", result=", msg.Result, " success chance was ", msg.MissionSuccessChance }));
+		Debug.Log(string.Concat(new object[] { "CompleteMissionResult: ID=", msg.GarrMissionID, ", result=", msg.Result }));
 		PersistentMissionData.UpdateMission(msg.Mission);
 		AdventureMapMissionSite[] componentsInChildren = AdventureMapPanel.instance.m_missionAndWordQuestArea.GetComponentsInChildren<AdventureMapMissionSite>(true);
 		for (int i = 0; i < (int)componentsInChildren.Length; i++)
@@ -1649,8 +1649,7 @@ public class Main : MonoBehaviour
 
 	private void UpdateDebugText()
 	{
-		Main mFrameCount = this;
-		mFrameCount.m_frameCount = mFrameCount.m_frameCount + 1;
+		this.m_frameCount++;
 	}
 
 	public void UseArmament(int garrFollowerID, int itemID)

@@ -90,7 +90,7 @@ namespace bnet.protocol.authentication
 		public static SelectGameAccountRequest DeserializeLengthDelimited(Stream stream, SelectGameAccountRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return SelectGameAccountRequest.Deserialize(stream, instance, position);
 		}
 

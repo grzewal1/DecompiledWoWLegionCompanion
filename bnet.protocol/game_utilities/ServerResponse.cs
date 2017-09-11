@@ -124,7 +124,7 @@ namespace bnet.protocol.game_utilities
 		public static ServerResponse DeserializeLengthDelimited(Stream stream, ServerResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ServerResponse.Deserialize(stream, instance, position);
 		}
 
@@ -154,7 +154,7 @@ namespace bnet.protocol.game_utilities
 			int hashCode = this.GetType().GetHashCode();
 			foreach (bnet.protocol.attribute.Attribute attribute in this.Attribute)
 			{
-				hashCode = hashCode ^ attribute.GetHashCode();
+				hashCode ^= attribute.GetHashCode();
 			}
 			return hashCode;
 		}

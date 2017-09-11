@@ -163,7 +163,7 @@ namespace bnet.protocol.account
 		public static PrivacyInfo DeserializeLengthDelimited(Stream stream, PrivacyInfo instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return PrivacyInfo.Deserialize(stream, instance, position);
 		}
 
@@ -198,19 +198,19 @@ namespace bnet.protocol.account
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasIsUsingRid)
 			{
-				hashCode = hashCode ^ this.IsUsingRid.GetHashCode();
+				hashCode ^= this.IsUsingRid.GetHashCode();
 			}
 			if (this.HasIsRealIdVisibleForViewFriends)
 			{
-				hashCode = hashCode ^ this.IsRealIdVisibleForViewFriends.GetHashCode();
+				hashCode ^= this.IsRealIdVisibleForViewFriends.GetHashCode();
 			}
 			if (this.HasIsHiddenFromFriendFinder)
 			{
-				hashCode = hashCode ^ this.IsHiddenFromFriendFinder.GetHashCode();
+				hashCode ^= this.IsHiddenFromFriendFinder.GetHashCode();
 			}
 			if (this.HasGameInfoPrivacy)
 			{
-				hashCode = hashCode ^ this.GameInfoPrivacy.GetHashCode();
+				hashCode ^= this.GameInfoPrivacy.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -236,7 +236,7 @@ namespace bnet.protocol.account
 			if (this.HasGameInfoPrivacy)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64((ulong)this.GameInfoPrivacy);
+				num += ProtocolParser.SizeOfUInt64((ulong)this.GameInfoPrivacy);
 			}
 			return num;
 		}

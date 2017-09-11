@@ -110,7 +110,7 @@ namespace bnet.protocol.connection
 		public static BoundService DeserializeLengthDelimited(Stream stream, BoundService instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return BoundService.Deserialize(stream, instance, position);
 		}
 
@@ -135,14 +135,14 @@ namespace bnet.protocol.connection
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Hash.GetHashCode();
+			hashCode ^= this.Hash.GetHashCode();
 			return hashCode ^ this.Id.GetHashCode();
 		}
 
 		public uint GetSerializedSize()
 		{
 			uint num = 0 + 4;
-			num = num + ProtocolParser.SizeOfUInt32(this.Id);
+			num += ProtocolParser.SizeOfUInt32(this.Id);
 			return num + 2;
 		}
 

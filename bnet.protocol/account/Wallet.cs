@@ -351,7 +351,7 @@ namespace bnet.protocol.account
 		public static Wallet DeserializeLengthDelimited(Stream stream, Wallet instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return Wallet.Deserialize(stream, instance, position);
 		}
 
@@ -428,53 +428,53 @@ namespace bnet.protocol.account
 		public override int GetHashCode()
 		{
 			int hashCode = this.GetType().GetHashCode();
-			hashCode = hashCode ^ this.Region.GetHashCode();
-			hashCode = hashCode ^ this.WalletId.GetHashCode();
-			hashCode = hashCode ^ this.WalletType.GetHashCode();
+			hashCode ^= this.Region.GetHashCode();
+			hashCode ^= this.WalletId.GetHashCode();
+			hashCode ^= this.WalletType.GetHashCode();
 			if (this.HasDescription)
 			{
-				hashCode = hashCode ^ this.Description.GetHashCode();
+				hashCode ^= this.Description.GetHashCode();
 			}
-			hashCode = hashCode ^ this.CountryId.GetHashCode();
+			hashCode ^= this.CountryId.GetHashCode();
 			if (this.HasState)
 			{
-				hashCode = hashCode ^ this.State.GetHashCode();
+				hashCode ^= this.State.GetHashCode();
 			}
 			if (this.HasCity)
 			{
-				hashCode = hashCode ^ this.City.GetHashCode();
+				hashCode ^= this.City.GetHashCode();
 			}
 			if (this.HasPostalCode)
 			{
-				hashCode = hashCode ^ this.PostalCode.GetHashCode();
+				hashCode ^= this.PostalCode.GetHashCode();
 			}
 			if (this.HasPaymentInfo)
 			{
-				hashCode = hashCode ^ this.PaymentInfo.GetHashCode();
+				hashCode ^= this.PaymentInfo.GetHashCode();
 			}
 			if (this.HasBin)
 			{
-				hashCode = hashCode ^ this.Bin.GetHashCode();
+				hashCode ^= this.Bin.GetHashCode();
 			}
 			if (this.HasLocaleId)
 			{
-				hashCode = hashCode ^ this.LocaleId.GetHashCode();
+				hashCode ^= this.LocaleId.GetHashCode();
 			}
 			if (this.HasStreet)
 			{
-				hashCode = hashCode ^ this.Street.GetHashCode();
+				hashCode ^= this.Street.GetHashCode();
 			}
 			if (this.HasFirstName)
 			{
-				hashCode = hashCode ^ this.FirstName.GetHashCode();
+				hashCode ^= this.FirstName.GetHashCode();
 			}
 			if (this.HasLastName)
 			{
-				hashCode = hashCode ^ this.LastName.GetHashCode();
+				hashCode ^= this.LastName.GetHashCode();
 			}
 			if (this.HasBirthDate)
 			{
-				hashCode = hashCode ^ this.BirthDate.GetHashCode();
+				hashCode ^= this.BirthDate.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -482,16 +482,16 @@ namespace bnet.protocol.account
 		public uint GetSerializedSize()
 		{
 			uint num = 0;
-			num = num + ProtocolParser.SizeOfUInt32(this.Region);
-			num = num + ProtocolParser.SizeOfUInt64(this.WalletId);
-			num = num + ProtocolParser.SizeOfUInt32(this.WalletType);
+			num += ProtocolParser.SizeOfUInt32(this.Region);
+			num += ProtocolParser.SizeOfUInt64(this.WalletId);
+			num += ProtocolParser.SizeOfUInt32(this.WalletType);
 			if (this.HasDescription)
 			{
 				num++;
 				uint byteCount = (uint)Encoding.UTF8.GetByteCount(this.Description);
 				num = num + ProtocolParser.SizeOfUInt32(byteCount) + byteCount;
 			}
-			num = num + ProtocolParser.SizeOfUInt32(this.CountryId);
+			num += ProtocolParser.SizeOfUInt32(this.CountryId);
 			if (this.HasState)
 			{
 				num++;
@@ -548,9 +548,9 @@ namespace bnet.protocol.account
 			if (this.HasBirthDate)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt64(this.BirthDate);
+				num += ProtocolParser.SizeOfUInt64(this.BirthDate);
 			}
-			num = num + 4;
+			num += 4;
 			return num;
 		}
 

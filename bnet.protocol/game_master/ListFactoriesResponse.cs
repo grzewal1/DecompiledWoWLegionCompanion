@@ -148,7 +148,7 @@ namespace bnet.protocol.game_master
 		public static ListFactoriesResponse DeserializeLengthDelimited(Stream stream, ListFactoriesResponse instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ListFactoriesResponse.Deserialize(stream, instance, position);
 		}
 
@@ -182,11 +182,11 @@ namespace bnet.protocol.game_master
 			int hashCode = this.GetType().GetHashCode();
 			foreach (GameFactoryDescription description in this.Description)
 			{
-				hashCode = hashCode ^ description.GetHashCode();
+				hashCode ^= description.GetHashCode();
 			}
 			if (this.HasTotalResults)
 			{
-				hashCode = hashCode ^ this.TotalResults.GetHashCode();
+				hashCode ^= this.TotalResults.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -206,7 +206,7 @@ namespace bnet.protocol.game_master
 			if (this.HasTotalResults)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.TotalResults);
+				num += ProtocolParser.SizeOfUInt32(this.TotalResults);
 			}
 			return num;
 		}

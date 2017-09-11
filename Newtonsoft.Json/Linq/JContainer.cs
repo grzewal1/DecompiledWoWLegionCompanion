@@ -275,7 +275,7 @@ namespace Newtonsoft.Json.Linq
 			{
 				while (enumerator.MoveNext())
 				{
-					deepHashCode = deepHashCode ^ enumerator.Current.GetDeepHashCode();
+					deepHashCode ^= enumerator.Current.GetDeepHashCode();
 				}
 			}
 			finally

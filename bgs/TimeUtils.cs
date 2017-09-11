@@ -58,7 +58,7 @@ namespace bgs
 					builder.Append(' ');
 				}
 				builder.AppendFormat(formatString, num);
-				unitCount = unitCount + 1;
+				unitCount++;
 			}
 			ms = ms - num * (long)msPerUnit;
 		}
@@ -238,11 +238,11 @@ namespace bgs
 			str = TimeUtils.ParseTimeUnitsStr(str);
 			if (str == "min")
 			{
-				sec = sec * 60f;
+				sec *= 60f;
 			}
 			else if (str == "hour")
 			{
-				sec = sec * 3600f;
+				sec *= 3600f;
 			}
 			return true;
 		}

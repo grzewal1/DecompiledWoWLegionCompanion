@@ -635,7 +635,7 @@ public class MissionResultsPanel : MonoBehaviour
 			if (jamGarrisonFollower.CurrentMissionID == garrMissionID)
 			{
 				int[] buffsForCurrentMission = GeneralHelpers.GetBuffsForCurrentMission(jamGarrisonFollower.GarrFollowerID, garrMissionID, this.missionFollowerSlotGroup);
-				length = length + (int)buffsForCurrentMission.Length;
+				length += (int)buffsForCurrentMission.Length;
 				int[] numArray = buffsForCurrentMission;
 				for (int s = 0; s < (int)numArray.Length; s++)
 				{
@@ -654,14 +654,12 @@ public class MissionResultsPanel : MonoBehaviour
 		this.UpdateMissionRemainingTimeDisplay();
 		if (!this.m_followerExperienceDisplayArea.activeSelf && (this.m_currentResultType == MissionResultType.success || this.m_currentResultType == MissionResultType.failure))
 		{
-			MissionResultsPanel mTimeUntilFadeOutMissionDetailsDisplay = this;
-			mTimeUntilFadeOutMissionDetailsDisplay.m_timeUntilFadeOutMissionDetailsDisplay = mTimeUntilFadeOutMissionDetailsDisplay.m_timeUntilFadeOutMissionDetailsDisplay - Time.deltaTime;
+			this.m_timeUntilFadeOutMissionDetailsDisplay -= Time.deltaTime;
 			if (this.m_timeUntilFadeOutMissionDetailsDisplay < 0f)
 			{
 				this.m_missionResultsDisplayCanvasGroupAutoFadeOut.EnableFadeOut();
 			}
-			MissionResultsPanel mTimeUntilShowFollowerExperienceDisplays = this;
-			mTimeUntilShowFollowerExperienceDisplays.m_timeUntilShowFollowerExperienceDisplays = mTimeUntilShowFollowerExperienceDisplays.m_timeUntilShowFollowerExperienceDisplays - Time.deltaTime;
+			this.m_timeUntilShowFollowerExperienceDisplays -= Time.deltaTime;
 			if (this.m_timeUntilShowFollowerExperienceDisplays < 0f)
 			{
 				this.m_followerExperienceDisplayArea.SetActive(true);
@@ -730,7 +728,10 @@ public class MissionResultsPanel : MonoBehaviour
 				else
 				{
 					componentsInChildren[num].SetCountered(true, false, false);
-					abilityDisplayArray[num].SetCountered(true, false);
+					if (num < (int)abilityDisplayArray.Length)
+					{
+						abilityDisplayArray[num].SetCountered(true, false);
+					}
 					break;
 				}
 			}

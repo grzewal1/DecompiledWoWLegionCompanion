@@ -174,7 +174,7 @@ namespace bnet.protocol.challenge
 		public static ChallengeResultRequest DeserializeLengthDelimited(Stream stream, ChallengeResultRequest instance)
 		{
 			long position = (long)ProtocolParser.ReadUInt32(stream);
-			position = position + stream.Position;
+			position += stream.Position;
 			return ChallengeResultRequest.Deserialize(stream, instance, position);
 		}
 
@@ -209,19 +209,19 @@ namespace bnet.protocol.challenge
 			int hashCode = this.GetType().GetHashCode();
 			if (this.HasId)
 			{
-				hashCode = hashCode ^ this.Id.GetHashCode();
+				hashCode ^= this.Id.GetHashCode();
 			}
 			if (this.HasType)
 			{
-				hashCode = hashCode ^ this.Type.GetHashCode();
+				hashCode ^= this.Type.GetHashCode();
 			}
 			if (this.HasErrorId)
 			{
-				hashCode = hashCode ^ this.ErrorId.GetHashCode();
+				hashCode ^= this.ErrorId.GetHashCode();
 			}
 			if (this.HasAnswer)
 			{
-				hashCode = hashCode ^ this.Answer.GetHashCode();
+				hashCode ^= this.Answer.GetHashCode();
 			}
 			return hashCode;
 		}
@@ -232,17 +232,17 @@ namespace bnet.protocol.challenge
 			if (this.HasId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.Id);
+				num += ProtocolParser.SizeOfUInt32(this.Id);
 			}
 			if (this.HasType)
 			{
 				num++;
-				num = num + 4;
+				num += 4;
 			}
 			if (this.HasErrorId)
 			{
 				num++;
-				num = num + ProtocolParser.SizeOfUInt32(this.ErrorId);
+				num += ProtocolParser.SizeOfUInt32(this.ErrorId);
 			}
 			if (this.HasAnswer)
 			{

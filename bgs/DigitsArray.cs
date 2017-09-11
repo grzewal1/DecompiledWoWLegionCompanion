@@ -157,8 +157,7 @@ namespace bgs
 			{
 				while (this.m_dataUsed > 1 && this.m_data[this.m_dataUsed - 1] == 0)
 				{
-					DigitsArray mDataUsed = this;
-					mDataUsed.m_dataUsed = mDataUsed.m_dataUsed - 1;
+					this.m_dataUsed--;
 				}
 				if (this.m_dataUsed == 0)
 				{
@@ -169,11 +168,9 @@ namespace bgs
 			{
 				while (this.m_dataUsed > 1 && this.m_data[this.m_dataUsed - 1] == DigitsArray.AllBits)
 				{
-					DigitsArray digitsArray = this;
-					digitsArray.m_dataUsed = digitsArray.m_dataUsed - 1;
+					this.m_dataUsed--;
 				}
-				DigitsArray mDataUsed1 = this;
-				mDataUsed1.m_dataUsed = mDataUsed1.m_dataUsed + 1;
+				this.m_dataUsed++;
 			}
 		}
 
@@ -190,7 +187,7 @@ namespace bgs
 			{
 				length--;
 			}
-			for (int i = shiftCount; i > 0; i = i - dataSizeBits)
+			for (int i = shiftCount; i > 0; i -= dataSizeBits)
 			{
 				if (i < dataSizeBits)
 				{
@@ -200,7 +197,7 @@ namespace bgs
 				for (int j = 0; j < length; j++)
 				{
 					ulong num1 = (ulong)buffer[j] << (dataSizeBits & 63);
-					num1 = num1 | num;
+					num1 |= num;
 					buffer[j] = (uint)(num1 & (ulong)DigitsArray.AllBits);
 					num = num1 >> (DigitsArray.DataSizeBits & 63);
 				}
@@ -222,7 +219,7 @@ namespace bgs
 		{
 			List<uint> nums = new List<uint>(this.m_data);
 			int dataSizeBits = DigitsArray.DataSizeBits;
-			for (int i = shiftCount; i > 0; i = i - dataSizeBits)
+			for (int i = shiftCount; i > 0; i -= dataSizeBits)
 			{
 				if (i < dataSizeBits)
 				{
@@ -232,7 +229,7 @@ namespace bgs
 				for (int j = 0; j < nums.Count; j++)
 				{
 					ulong item = (ulong)nums[j] << (dataSizeBits & 63);
-					item = item | num;
+					item |= num;
 					nums[j] = (uint)(item & (ulong)DigitsArray.AllBits);
 					num = item >> (DigitsArray.DataSizeBits & 63);
 				}
@@ -261,7 +258,7 @@ namespace bgs
 			{
 				length--;
 			}
-			for (int i = shiftCount; i > 0; i = i - dataSizeBits)
+			for (int i = shiftCount; i > 0; i -= dataSizeBits)
 			{
 				if (i < dataSizeBits)
 				{
@@ -272,7 +269,7 @@ namespace bgs
 				for (int j = length - 1; j >= 0; j--)
 				{
 					ulong num2 = (ulong)buffer[j] >> (dataSizeBits & 63);
-					num2 = num2 | num1;
+					num2 |= num1;
 					num1 = (ulong)buffer[j] << (num & 63);
 					buffer[j] = (uint)num2;
 				}

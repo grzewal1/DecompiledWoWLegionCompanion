@@ -128,6 +128,8 @@ public class Login : MonoBehaviour
 
 	public static string m_portal;
 
+	public static string[] m_devPortals;
+
 	public bool ReturnToRecentCharacter
 	{
 		get;
@@ -137,6 +139,7 @@ public class Login : MonoBehaviour
 	static Login()
 	{
 		Login.m_portal = "beta";
+		Login.m_devPortals = new string[] { "wow-dev", "st1", "st-us", "st2", "st-eu", "st3", "st-kr", "st5", "st-cn", "st21", "st22", "st23", "st25" };
 	}
 
 	public Login()
@@ -354,8 +357,7 @@ public class Login : MonoBehaviour
 				AllPopups.instance.ShowGenericPopup("Battle.net Error", "Unable to contact Battle.net, tap anywhere to retry.");
 			}
 		}
-		Login mBattlenetFailures = this;
-		mBattlenetFailures.m_battlenetFailures = mBattlenetFailures.m_battlenetFailures + 1;
+		this.m_battlenetFailures++;
 		this.SetLoginState(Login.eLoginState.IDLE);
 		Debug.Log(string.Concat("=================== BN Login Failed. ", this.m_battlenetFailures, " ==================="));
 	}
@@ -419,6 +421,7 @@ public class Login : MonoBehaviour
 		{
 			this.LoginLog("CheckWebAuth was true in BnLoginUpdate, starting WebAuth.");
 			this.SetLoginState(Login.eLoginState.WEB_AUTH_START);
+			return;
 		}
 		switch (BattleNet.BattleNetStatus())
 		{
@@ -734,8 +737,8 @@ public class Login : MonoBehaviour
 				{
 					break;
 				}
-				num1 = num1 + num2;
-				length = length - num2;
+				num1 += num2;
+				length -= num2;
 			}
 			if (num1 != num)
 			{
@@ -776,14 +779,15 @@ public class Login : MonoBehaviour
 
 	public string GetBnServerString()
 	{
-		string str = SecurePlayerPrefs.GetString("Portal", Main.uniqueIdentifier);
-		if (str != null && str != string.Empty)
+		string str;
+		string str1 = SecurePlayerPrefs.GetString("Portal", Main.uniqueIdentifier);
+		if (str1 != null && str1 != string.Empty)
 		{
-			Login.m_portal = str;
+			Login.m_portal = str1;
 		}
-		string str1 = string.Concat(Login.m_portal, ".actual.battle.net");
-		this.LoginLog(string.Concat("BnServerString is ", str1));
-		return str1;
+		str = (!this.IsDevPortal(Login.m_portal) ? string.Concat(Login.m_portal, ".actual.battle.net") : string.Concat(Login.m_portal, ".bgs.battle.net"));
+		this.LoginLog(string.Concat("BnServerString is ", str));
+		return str;
 	}
 
 	public int GetExpectedServerProtocolVersion()
@@ -810,6 +814,45 @@ public class Login : MonoBehaviour
 	private void InitRecentCharacters()
 	{
 		this.m_recentCharacters = new List<RecentCharacter>();
+	}
+
+	public void InvalidateRecentTokens()
+	{
+		for (int i = 0; i < this.m_recentCharacters.Count && i < 3; i++)
+		{
+			StringBuilder stringBuilder = new StringBuilder(this.m_recentCharacters[i].WebToken);
+			if (stringBuilder.Length > 10)
+			{
+				stringBuilder[6] = '0';
+				stringBuilder[7] = '0';
+				stringBuilder[8] = '0';
+				stringBuilder[9] = '0';
+				this.m_recentCharacters[i].WebToken = stringBuilder.ToString();
+			}
+		}
+		this.SaveRecentCharacters();
+		StringBuilder stringBuilder1 = new StringBuilder(SecurePlayerPrefs.GetString("WebToken", Main.uniqueIdentifier));
+		if (stringBuilder1.Length > 10)
+		{
+			stringBuilder1[6] = '0';
+			stringBuilder1[7] = '0';
+			stringBuilder1[8] = '0';
+			stringBuilder1[9] = '0';
+			SecurePlayerPrefs.SetString("WebToken", stringBuilder1.ToString(), Main.uniqueIdentifier);
+		}
+	}
+
+	public bool IsDevPortal(string portal)
+	{
+		string[] mDevPortals = Login.m_devPortals;
+		for (int i = 0; i < (int)mDevPortals.Length; i++)
+		{
+			if (portal == mDevPortals[i])
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public bool IsDevRegionList()
@@ -1222,23 +1265,22 @@ public class Login : MonoBehaviour
 				}
 			}
 			BattleNet.ApplicationWasUnpaused();
-			if (this.m_initialUnpause)
+			if (!this.m_initialUnpause)
 			{
-				Debug.Log("No update test performed on initial unpause.");
-			}
-			else if (flag)
-			{
-				Debug.Log("reconnect update test");
-				AssetBundleManager.instance.UpdateVersion();
-				if (!this.IsUpdateAvailable())
+				if (flag)
 				{
-					Debug.Log("updateFound = false");
-				}
-				else
-				{
-					this.SetLoginState(Login.eLoginState.UPDATE_REQUIRED_START);
-					this.CancelWebAuth();
-					Debug.Log("updateFound = true");
+					Debug.Log("reconnect update test");
+					AssetBundleManager.instance.UpdateVersion();
+					if (!this.IsUpdateAvailable())
+					{
+						Debug.Log("updateFound = false");
+					}
+					else
+					{
+						this.SetLoginState(Login.eLoginState.UPDATE_REQUIRED_START);
+						this.CancelWebAuth();
+						Debug.Log("updateFound = true");
+					}
 				}
 			}
 			mLoginState = this.m_loginState;
