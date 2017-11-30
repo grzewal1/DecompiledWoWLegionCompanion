@@ -17,6 +17,8 @@ public class StackableMapIconContainer : MonoBehaviour
 
 	public Image m_iconAreaBG;
 
+	public int m_startLocationMapID;
+
 	public List<StackableMapIcon> m_icons;
 
 	public StackableMapIconContainer()

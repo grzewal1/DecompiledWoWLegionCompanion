@@ -34,6 +34,14 @@ public class MissionStartedEffect : MonoBehaviour
 		this.m_missionStartedLabel.text = StaticDB.GetString("MISSION_STARTED", "Mission Started PH");
 	}
 
+	private void OnApplicationPause(bool paused)
+	{
+		if (paused)
+		{
+			UnityEngine.Object.DestroyObject(base.gameObject);
+		}
+	}
+
 	private void Phase1Complete()
 	{
 		RectTransform mRootRT = this.m_rootRT;

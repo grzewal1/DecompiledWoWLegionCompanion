@@ -149,7 +149,7 @@ public class UiAnimMgr
 				mAnchor = value.m_anchor.relativePoint;
 				if (mAnchor != null)
 				{
-					if (UiAnimMgr.<>f__switch$mapB == null)
+					if (UiAnimMgr.<>f__switch$mapC == null)
 					{
 						strs = new Dictionary<string, int>(9)
 						{
@@ -163,9 +163,9 @@ public class UiAnimMgr
 							{ "BOTTOMLEFT", 7 },
 							{ "BOTTOMRIGHT", 8 }
 						};
-						UiAnimMgr.<>f__switch$mapB = strs;
+						UiAnimMgr.<>f__switch$mapC = strs;
 					}
-					if (UiAnimMgr.<>f__switch$mapB.TryGetValue(mAnchor, out num))
+					if (UiAnimMgr.<>f__switch$mapC.TryGetValue(mAnchor, out num))
 					{
 						switch (num)
 						{
@@ -234,7 +234,7 @@ public class UiAnimMgr
 				mAnchor = value.m_anchor.point;
 				if (mAnchor != null)
 				{
-					if (UiAnimMgr.<>f__switch$mapC == null)
+					if (UiAnimMgr.<>f__switch$mapD == null)
 					{
 						strs = new Dictionary<string, int>(9)
 						{
@@ -248,9 +248,9 @@ public class UiAnimMgr
 							{ "BOTTOMLEFT", 7 },
 							{ "BOTTOMRIGHT", 8 }
 						};
-						UiAnimMgr.<>f__switch$mapC = strs;
+						UiAnimMgr.<>f__switch$mapD = strs;
 					}
-					if (UiAnimMgr.<>f__switch$mapC.TryGetValue(mAnchor, out num))
+					if (UiAnimMgr.<>f__switch$mapD.TryGetValue(mAnchor, out num))
 					{
 						switch (num)
 						{

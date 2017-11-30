@@ -177,7 +177,6 @@ public class Main : MonoBehaviour
 
 	public void ClaimMissionBonus(int garrMissionID)
 	{
-		Debug.Log(string.Concat(new object[] { "Main.ClaimMissionBonus() ", garrMissionID, " State is: ", ((JamGarrisonMobileMission)PersistentMissionData.missionDictionary[garrMissionID]).MissionState }));
 		MobilePlayerClaimMissionBonus mobilePlayerClaimMissionBonu = new MobilePlayerClaimMissionBonus()
 		{
 			GarrMissionID = garrMissionID
@@ -227,7 +226,6 @@ public class Main : MonoBehaviour
 
 	public void CompleteMission(int garrMissionID)
 	{
-		Debug.Log(string.Concat("Main.CompleteMission() ", garrMissionID));
 		MobilePlayerGarrisonCompleteMission mobilePlayerGarrisonCompleteMission = new MobilePlayerGarrisonCompleteMission()
 		{
 			GarrMissionID = garrMissionID
@@ -448,7 +446,7 @@ public class Main : MonoBehaviour
 	private void MobileClientClaimMissionBonusResultHandler(MobileClientClaimMissionBonusResult msg)
 	{
 		PersistentMissionData.UpdateMission(msg.Mission);
-		AdventureMapMissionSite[] componentsInChildren = AdventureMapPanel.instance.m_missionAndWordQuestArea.GetComponentsInChildren<AdventureMapMissionSite>(true);
+		AdventureMapMissionSite[] componentsInChildren = AdventureMapPanel.instance.m_mapViewContentsRT.GetComponentsInChildren<AdventureMapMissionSite>(true);
 		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
 			AdventureMapMissionSite adventureMapMissionSite = componentsInChildren[i];
@@ -465,13 +463,29 @@ public class Main : MonoBehaviour
 				}
 			}
 		}
+		AdventureMapMissionSite[] adventureMapMissionSiteArray = AdventureMapPanel.instance.m_missionAndWorldQuestArea_Argus.GetComponentsInChildren<AdventureMapMissionSite>(true);
+		for (int j = 0; j < (int)adventureMapMissionSiteArray.Length; j++)
+		{
+			AdventureMapMissionSite adventureMapMissionSite1 = adventureMapMissionSiteArray[j];
+			if (!adventureMapMissionSite1.m_isStackablePreview)
+			{
+				if (adventureMapMissionSite1.GetGarrMissionID() == msg.GarrMissionID)
+				{
+					if (!adventureMapMissionSite1.gameObject.activeSelf)
+					{
+						adventureMapMissionSite1.gameObject.SetActive(true);
+					}
+					adventureMapMissionSite1.HandleClaimMissionBonusResult(msg.GarrMissionID, msg.AwardOvermax, msg.Result);
+					break;
+				}
+			}
+		}
 	}
 
 	private void MobileClientCompleteMissionResultHandler(MobileClientCompleteMissionResult msg)
 	{
-		Debug.Log(string.Concat(new object[] { "CompleteMissionResult: ID=", msg.GarrMissionID, ", result=", msg.Result }));
 		PersistentMissionData.UpdateMission(msg.Mission);
-		AdventureMapMissionSite[] componentsInChildren = AdventureMapPanel.instance.m_missionAndWordQuestArea.GetComponentsInChildren<AdventureMapMissionSite>(true);
+		AdventureMapMissionSite[] componentsInChildren = AdventureMapPanel.instance.m_mapViewContentsRT.GetComponentsInChildren<AdventureMapMissionSite>(true);
 		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
 			AdventureMapMissionSite adventureMapMissionSite = componentsInChildren[i];
@@ -484,6 +498,23 @@ public class Main : MonoBehaviour
 						adventureMapMissionSite.gameObject.SetActive(true);
 					}
 					adventureMapMissionSite.HandleCompleteMissionResult(msg.GarrMissionID, msg.BonusRollSucceeded);
+					break;
+				}
+			}
+		}
+		AdventureMapMissionSite[] adventureMapMissionSiteArray = AdventureMapPanel.instance.m_missionAndWorldQuestArea_Argus.GetComponentsInChildren<AdventureMapMissionSite>(true);
+		for (int j = 0; j < (int)adventureMapMissionSiteArray.Length; j++)
+		{
+			AdventureMapMissionSite adventureMapMissionSite1 = adventureMapMissionSiteArray[j];
+			if (!adventureMapMissionSite1.m_isStackablePreview)
+			{
+				if (adventureMapMissionSite1.GetGarrMissionID() == msg.GarrMissionID)
+				{
+					if (!adventureMapMissionSite1.gameObject.activeSelf)
+					{
+						adventureMapMissionSite1.gameObject.SetActive(true);
+					}
+					adventureMapMissionSite1.HandleCompleteMissionResult(msg.GarrMissionID, msg.BonusRollSucceeded);
 					break;
 				}
 			}
@@ -623,7 +654,6 @@ public class Main : MonoBehaviour
 
 	private void MobileClientFollowerChangedXPHandler(MobileClientFollowerChangedXP msg)
 	{
-		Debug.Log(string.Concat(new object[] { "MobileClientFollowerChangedXPHandler: follower ", msg.Follower.GarrFollowerID, " xp changed by ", msg.XpChange }));
 		if (this.FollowerChangedXPAction != null)
 		{
 			this.FollowerChangedXPAction(msg.OldFollower, msg.Follower);
@@ -669,13 +699,9 @@ public class Main : MonoBehaviour
 				if (StaticDB.garrFollowerDB.GetRecord(follower.GarrFollowerID) != null)
 				{
 					PersistentFollowerData.AddOrUpdateFollower(follower);
-					if ((follower.Flags & 8) != 0 && follower.Durability <= 0)
+					if ((follower.Flags & 8) != 0 && follower.Durability <= 0 && this.TroopExpiredAction != null)
 					{
-						Debug.Log(string.Concat("Follower ", follower.GarrFollowerID, " has expired."));
-						if (this.TroopExpiredAction != null)
-						{
-							this.TroopExpiredAction(follower);
-						}
+						this.TroopExpiredAction(follower);
 					}
 				}
 			}
@@ -898,7 +924,6 @@ public class Main : MonoBehaviour
 
 	private void MobileClientStartMissionResultHandler(MobileClientStartMissionResult msg)
 	{
-		Debug.Log(string.Concat(new object[] { "StartMissionResult: ID=", msg.GarrMissionID, ", result=", msg.Result }));
 		if (msg.Result != 0)
 		{
 			GARRISON_RESULT result = (GARRISON_RESULT)msg.Result;
@@ -975,13 +1000,17 @@ public class Main : MonoBehaviour
 		for (int i = 0; i < (int)quest.Length; i++)
 		{
 			MobileWorldQuest mobileWorldQuest = quest[i];
-			if (mobileWorldQuest.StartLocationMapID == 1220)
+			if (mobileWorldQuest.StartLocationMapID == 1220 || mobileWorldQuest.StartLocationMapID == 1669)
 			{
 				WorldQuestData.AddWorldQuest(mobileWorldQuest);
 				for (int j = 0; j < mobileWorldQuest.Item.Count<MobileWorldQuestReward>(); j++)
 				{
 					ItemStatCache.instance.GetItemStats(mobileWorldQuest.Item[j].RecordID, mobileWorldQuest.Item[j].ItemContext);
 				}
+			}
+			else
+			{
+				Debug.Log(string.Concat(new object[] { "UNHANDLED WORLD QUEST ", mobileWorldQuest.QuestID, " MapID ", mobileWorldQuest.StartLocationMapID, " AreaID ", mobileWorldQuest.WorldMapAreaID }));
 			}
 		}
 	}
@@ -1619,7 +1648,6 @@ public class Main : MonoBehaviour
 
 	public void StartMission(int garrMissionID, ulong[] followerDBIDs)
 	{
-		Debug.Log(string.Concat("Main.StartMission() ", garrMissionID));
 		MobilePlayerGarrisonStartMission mobilePlayerGarrisonStartMission = new MobilePlayerGarrisonStartMission()
 		{
 			GarrMissionID = garrMissionID,

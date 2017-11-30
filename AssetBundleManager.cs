@@ -373,30 +373,43 @@ public class AssetBundleManager : MonoBehaviour
 
 	private bool ParseVersionFile(string versionText)
 	{
+		bool flag;
 		if (versionText == null)
 		{
 			return false;
 		}
 		string[] strArrays = versionText.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-		this.LatestVersion = Convert.ToInt32(strArrays[0]);
-		this.ForceUpgrade = Convert.ToBoolean(strArrays[1]);
-		if ((int)strArrays.Length < 3)
+		if ((int)strArrays.Length < 2)
 		{
-			this.AppStoreUrl = null;
+			return false;
 		}
-		else
+		try
 		{
-			this.AppStoreUrl = strArrays[2];
+			this.LatestVersion = Convert.ToInt32(strArrays[0]);
+			this.ForceUpgrade = Convert.ToBoolean(strArrays[1]);
+			if ((int)strArrays.Length < 3)
+			{
+				this.AppStoreUrl = null;
+			}
+			else
+			{
+				this.AppStoreUrl = strArrays[2];
+			}
+			if ((int)strArrays.Length < 4)
+			{
+				this.AppStoreUrl_CN = null;
+			}
+			else
+			{
+				this.AppStoreUrl_CN = strArrays[3];
+			}
+			return true;
 		}
-		if ((int)strArrays.Length < 4)
+		catch (Exception exception)
 		{
-			this.AppStoreUrl_CN = null;
+			flag = false;
 		}
-		else
-		{
-			this.AppStoreUrl_CN = strArrays[3];
-		}
-		return true;
+		return flag;
 	}
 
 	private void Start()

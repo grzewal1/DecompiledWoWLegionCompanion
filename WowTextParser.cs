@@ -193,7 +193,11 @@ public class WowTextParser
 		this.m_spellID = spellID;
 		if (spellID > 0 && GeneralHelpers.SpellGrantsArtifactXP(spellID))
 		{
-			return this.ParseForArtifactXP(input, spellID);
+			if (Main.instance.GetLocale() == "enUS")
+			{
+				return this.ParseForArtifactXP(input, spellID);
+			}
+			this.m_input = this.ParseForArtifactXP(input, spellID);
 		}
 		do
 		{
@@ -357,9 +361,13 @@ public class WowTextParser
 		{
 			this.ParseInlineIcon();
 		}
-		else
+		else if (this.ReadCharacter() != '7')
 		{
 			this.ParseCharacter();
+		}
+		else
+		{
+			this.ParseMillionBillion();
 		}
 	}
 
@@ -492,53 +500,106 @@ public class WowTextParser
 	private string ParseForArtifactXP(string input, int spellID)
 	{
 		string str;
-		int num = 0;
-		while (!this.CharacterIsNumeric(input[num]) && num < input.Length)
+		string str1;
+		int num;
+		int num1 = 0;
+		while (!this.CharacterIsNumeric(input[num1]) && num1 < input.Length)
 		{
-			num++;
+			num1++;
 		}
-		if (num >= input.Length)
+		if (num1 >= input.Length)
 		{
 			return input;
 		}
 		string empty = string.Empty;
 		string empty1 = string.Empty;
-		while (num < input.Length && (this.CharacterIsNumeric(input[num]) || input[num] == ','))
+		while (num1 < input.Length && (this.CharacterIsNumeric(input[num1]) || input[num1] == ','))
 		{
-			if (input[num] != ',')
+			if (input[num1] != ',')
 			{
-				empty = string.Concat(empty, input[num]);
+				empty = string.Concat(empty, input[num1]);
 			}
-			empty1 = string.Concat(empty1, input[num]);
-			num++;
+			empty1 = string.Concat(empty1, input[num1]);
+			num1++;
 		}
 		if (empty == string.Empty)
 		{
 			return input;
 		}
-		int num1 = 0;
+		long num2 = (long)0;
 		try
 		{
-			num1 = int.Parse(empty);
-			int num2 = GeneralHelpers.ApplyArtifactXPMultiplier(num1, GarrisonStatus.ArtifactXpMultiplier);
-			if (num2 > 1000000)
-			{
-				double num3 = (double)((float)num2) / 1000000;
-				string str1 = string.Format("{0:F1} {1}", num3, StaticDB.GetString("MILLION", "million"));
-				return input.Replace(empty1, str1);
-			}
-			if (num2 <= 999)
-			{
-				return input.Replace(empty1, num2.ToString());
-			}
-			string str2 = string.Format("{0},{1:D3}", num2 / 1000, num2 % 1000);
-			return input.Replace(empty1, str2);
+			num2 = long.Parse(empty);
+			goto Label0;
 		}
 		catch (Exception exception)
 		{
-			str = input;
+			str1 = input;
 		}
-		return str;
+		return str1;
+	Label0:
+		long num3 = GeneralHelpers.ApplyArtifactXPMultiplier(num2, (double)GarrisonStatus.ArtifactXpMultiplier);
+		if (num3 < (long)1000000)
+		{
+			if (num3 <= (long)999)
+			{
+				return input.Replace(empty1, num3.ToString());
+			}
+			string str2 = string.Format("{0},{1:D3}", num3 / (long)1000, num3 % (long)1000);
+			return input.Replace(empty1, str2);
+		}
+		long num4 = num3 / (long)1000000;
+		long num5 = num3 % (long)1000000 / (long)100000;
+		string str3 = StaticDB.GetString("MILLION", "million");
+		if (num3 > (long)1000000000)
+		{
+			num4 = num3 / (long)1000000000;
+			num5 = num3 % (long)1000000000 / (long)100000000;
+			str3 = StaticDB.GetString("BILLION", "billion");
+		}
+		string str4 = ".";
+		string empty2 = string.Empty;
+		string locale = Main.instance.GetLocale();
+		if (locale != null)
+		{
+			if (WowTextParser.<>f__switch$map7 == null)
+			{
+				Dictionary<string, int> strs = new Dictionary<string, int>(5)
+				{
+					{ "esES", 0 },
+					{ "frFR", 0 },
+					{ "itIT", 1 },
+					{ "deDE", 2 },
+					{ "ruRU", 2 }
+				};
+				WowTextParser.<>f__switch$map7 = strs;
+			}
+			if (WowTextParser.<>f__switch$map7.TryGetValue(locale, out num))
+			{
+				switch (num)
+				{
+					case 0:
+					{
+						str4 = ",";
+						empty2 = " de";
+						break;
+					}
+					case 1:
+					{
+						str4 = ",";
+						empty2 = " di";
+						break;
+					}
+					case 2:
+					{
+						str4 = ",";
+						break;
+					}
+				}
+			}
+		}
+		str = (num5 <= (long)0 ? string.Format("{0:D} {3}{4}", new object[] { num4, str4, num5, str3, empty2 }) : string.Format("{0:D}{1}{2:D} {3}{4}", new object[] { num4, str4, num5, str3, empty2 }));
+		return input.Replace(empty1, str);
 	}
 
 	private void ParseInlineIcon()
@@ -549,6 +610,40 @@ public class WowTextParser
 		}
 		this.ConsumeCharacter();
 		this.ConsumeCharacter();
+	}
+
+	private void ParseMillionBillion()
+	{
+		this.ConsumeCharacter();
+		this.m_currentValue = string.Empty;
+		if (false)
+		{
+			while (this.ReadCharacter() != ':')
+			{
+				WowTextParser wowTextParser = this;
+				wowTextParser.m_currentValue = string.Concat(wowTextParser.m_currentValue, this.ReadCharacter());
+				this.ConsumeCharacter();
+			}
+			while (this.ReadCharacter() != ';' && this.ConsumeCharacter())
+			{
+			}
+			this.ConsumeCharacter();
+		}
+		else
+		{
+			while (this.ReadCharacter() != ':' && this.ConsumeCharacter())
+			{
+			}
+			this.ConsumeCharacter();
+			while (this.ReadCharacter() != ';')
+			{
+				WowTextParser wowTextParser1 = this;
+				wowTextParser1.m_currentValue = string.Concat(wowTextParser1.m_currentValue, this.ReadCharacter());
+				this.ConsumeCharacter();
+			}
+			this.ConsumeCharacter();
+		}
+		this.AddTextToken();
 	}
 
 	private void ParseMinusSign()

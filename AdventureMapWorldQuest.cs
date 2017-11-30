@@ -142,7 +142,7 @@ public class AdventureMapWorldQuest : MonoBehaviour
 				if (this.m_showLootIconInsteadOfMain)
 				{
 					bool flag1 = false;
-					int num = 0;
+					long num = (long)0;
 					StaticDB.itemEffectDB.EnumRecordsByParentID(mobileWorldQuestReward.RecordID, (ItemEffectRec itemEffectRec) => {
 						StaticDB.spellEffectDB.EnumRecordsByParentID(itemEffectRec.SpellID, (SpellEffectRec spellEffectRec) => {
 							if (spellEffectRec.Effect != 240)
@@ -150,7 +150,7 @@ public class AdventureMapWorldQuest : MonoBehaviour
 								return true;
 							}
 							flag1 = true;
-							num = GeneralHelpers.ApplyArtifactXPMultiplier(spellEffectRec.EffectBasePoints, GarrisonStatus.ArtifactXpMultiplier);
+							num = GeneralHelpers.ApplyArtifactXPMultiplier((long)spellEffectRec.EffectBasePoints, (double)GarrisonStatus.ArtifactXpMultiplier);
 							return false;
 						});
 						if (flag1)

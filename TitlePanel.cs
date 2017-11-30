@@ -79,7 +79,7 @@ public class TitlePanel : MonoBehaviour
 				}
 				case 4:
 				{
-					lower = "beta";
+					lower = "test";
 					break;
 				}
 				default:
@@ -93,7 +93,7 @@ public class TitlePanel : MonoBehaviour
 			lower = this.m_portalDropdown.options.ToArray()[this.m_portalDropdown.@value].text.ToLower();
 			if (lower.ToLower() == "ptr")
 			{
-				lower = "beta";
+				lower = "test";
 			}
 		}
 		return lower;
@@ -124,19 +124,20 @@ public class TitlePanel : MonoBehaviour
 			string bnPortal = Login.instance.GetBnPortal();
 			if (bnPortal != null)
 			{
-				if (TitlePanel.<>f__switch$mapA == null)
+				if (TitlePanel.<>f__switch$mapB == null)
 				{
-					Dictionary<string, int> strs = new Dictionary<string, int>(5)
+					Dictionary<string, int> strs = new Dictionary<string, int>(6)
 					{
 						{ "us", 0 },
 						{ "eu", 1 },
 						{ "kr", 2 },
 						{ "cn", 3 },
-						{ "beta", 4 }
+						{ "beta", 4 },
+						{ "test", 4 }
 					};
-					TitlePanel.<>f__switch$mapA = strs;
+					TitlePanel.<>f__switch$mapB = strs;
 				}
-				if (TitlePanel.<>f__switch$mapA.TryGetValue(bnPortal, out num))
+				if (TitlePanel.<>f__switch$mapB.TryGetValue(bnPortal, out num))
 				{
 					switch (num)
 					{
@@ -221,7 +222,10 @@ public class TitlePanel : MonoBehaviour
 	{
 		DateTime today = DateTime.Today;
 		Debug.Log(string.Concat(new object[] { "Date: ", today.Month, "/", today.Day, "/", today.Year }));
-		this.m_showPTR = false;
+		if (today.Year > 2017 || today.Month > 8 || today.Day > 28)
+		{
+			this.m_showPTR = false;
+		}
 		if (Login.instance.IsDevRegionList())
 		{
 			this.m_regionOptions = new string[] { "WoW-Dev", "PTR", "ST-US", "ST-EU", "ST-KR", "ST-CN", "US", "EU", "CN", "KR" };

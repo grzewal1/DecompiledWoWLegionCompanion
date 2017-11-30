@@ -27,7 +27,7 @@ namespace bgs
 				string str2 = str1;
 				if (str2 != null)
 				{
-					if (RPCMeterConfigParser.<>f__switch$mapF == null)
+					if (RPCMeterConfigParser.<>f__switch$map10 == null)
 					{
 						Dictionary<string, int> strs = new Dictionary<string, int>(5)
 						{
@@ -37,9 +37,9 @@ namespace bgs
 							{ "cap_balance:", 3 },
 							{ "startup_period:", 4 }
 						};
-						RPCMeterConfigParser.<>f__switch$mapF = strs;
+						RPCMeterConfigParser.<>f__switch$map10 = strs;
 					}
-					if (RPCMeterConfigParser.<>f__switch$mapF.TryGetValue(str2, out num))
+					if (RPCMeterConfigParser.<>f__switch$map10.TryGetValue(str2, out num))
 					{
 						switch (num)
 						{
@@ -110,7 +110,7 @@ namespace bgs
 				string str1 = str;
 				if (str1 != null)
 				{
-					if (RPCMeterConfigParser.<>f__switch$mapE == null)
+					if (RPCMeterConfigParser.<>f__switch$mapF == null)
 					{
 						Dictionary<string, int> strs = new Dictionary<string, int>(11)
 						{
@@ -126,9 +126,9 @@ namespace bgs
 							{ "max_encoded_size:", 9 },
 							{ "timeout:", 10 }
 						};
-						RPCMeterConfigParser.<>f__switch$mapE = strs;
+						RPCMeterConfigParser.<>f__switch$mapF = strs;
 					}
-					if (RPCMeterConfigParser.<>f__switch$mapE.TryGetValue(str1, out num))
+					if (RPCMeterConfigParser.<>f__switch$mapF.TryGetValue(str1, out num))
 					{
 						switch (num)
 						{

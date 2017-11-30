@@ -39,16 +39,19 @@ public class StackableMapIconManager : MonoBehaviour
 			{
 				if (mContainer.gameObject.activeSelf)
 				{
-					Rect worldRect = mContainer.GetWorldRect();
-					if (!icon.GetWorldRect().Overlaps(worldRect))
+					if (mContainer.m_startLocationMapID == icon.m_startLocationMapID)
 					{
-						continue;
+						Rect worldRect = mContainer.GetWorldRect();
+						if (!icon.GetWorldRect().Overlaps(worldRect))
+						{
+							continue;
+						}
+						mContainer.AddStackableMapIcon(icon);
+						icon.SetContainer(mContainer);
+						StackableMapIconManager.s_instance.m_containers.Add(mContainer);
+						flag = true;
+						break;
 					}
-					mContainer.AddStackableMapIcon(icon);
-					icon.SetContainer(mContainer);
-					StackableMapIconManager.s_instance.m_containers.Add(mContainer);
-					flag = true;
-					break;
 				}
 			}
 		}
@@ -62,16 +65,17 @@ public class StackableMapIconManager : MonoBehaviour
 			component.anchorMax = rectTransform.anchorMax;
 			component.sizeDelta = icon.m_iconBoundsRT.sizeDelta;
 			component.anchoredPosition = Vector2.zero;
-			StackableMapIconContainer stackableMapIconContainer = gameObject.GetComponent<StackableMapIconContainer>();
-			if (stackableMapIconContainer == null)
+			StackableMapIconContainer mStartLocationMapID = gameObject.GetComponent<StackableMapIconContainer>();
+			if (mStartLocationMapID == null)
 			{
 				Debug.LogError("ERROR: containerObj has no StackableMapIconContainer!!");
 			}
 			else
 			{
-				stackableMapIconContainer.AddStackableMapIcon(icon);
-				icon.SetContainer(stackableMapIconContainer);
-				StackableMapIconManager.s_instance.m_containers.Add(stackableMapIconContainer);
+				mStartLocationMapID.m_startLocationMapID = icon.m_startLocationMapID;
+				mStartLocationMapID.AddStackableMapIcon(icon);
+				icon.SetContainer(mStartLocationMapID);
+				StackableMapIconManager.s_instance.m_containers.Add(mStartLocationMapID);
 			}
 		}
 	}

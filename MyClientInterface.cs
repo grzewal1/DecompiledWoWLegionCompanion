@@ -38,20 +38,21 @@ internal class MyClientInterface : ClientInterface
 		string lower = Login.m_portal.ToLower();
 		if (lower != null)
 		{
-			if (MyClientInterface.<>f__switch$map8 == null)
+			if (MyClientInterface.<>f__switch$map9 == null)
 			{
-				Dictionary<string, int> strs = new Dictionary<string, int>(6)
+				Dictionary<string, int> strs = new Dictionary<string, int>(7)
 				{
 					{ "us", 0 },
 					{ "eu", 0 },
 					{ "kr", 0 },
 					{ "cn", 0 },
 					{ "tw", 0 },
-					{ "beta", 0 }
+					{ "beta", 0 },
+					{ "test", 0 }
 				};
-				MyClientInterface.<>f__switch$map8 = strs;
+				MyClientInterface.<>f__switch$map9 = strs;
 			}
-			if (MyClientInterface.<>f__switch$map8.TryGetValue(lower, out num))
+			if (MyClientInterface.<>f__switch$map9.TryGetValue(lower, out num))
 			{
 				if (num == 0)
 				{

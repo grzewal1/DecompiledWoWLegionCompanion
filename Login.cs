@@ -36,7 +36,7 @@ public class Login : MonoBehaviour
 
 	private const int m_unpauseReconnectTime = 30;
 
-	private const int m_recentCharacterVersion = 1;
+	private const int m_recentCharacterVersion = 2;
 
 	private const float m_bnLoginTimeout = 20f;
 
@@ -138,7 +138,7 @@ public class Login : MonoBehaviour
 
 	static Login()
 	{
-		Login.m_portal = "beta";
+		Login.m_portal = "test";
 		Login.m_devPortals = new string[] { "wow-dev", "st1", "st-us", "st2", "st-eu", "st3", "st-kr", "st5", "st-cn", "st21", "st22", "st23", "st25" };
 	}
 
@@ -904,7 +904,7 @@ public class Login : MonoBehaviour
 				if (obj is RecentCharacter)
 				{
 					RecentCharacter recentCharacter = (RecentCharacter)obj;
-					if (recentCharacter.Version != 1)
+					if (recentCharacter.Version != 2)
 					{
 						PlayerPrefs.DeleteKey(string.Concat("RecentCharacter", i));
 					}
@@ -1436,6 +1436,24 @@ public class Login : MonoBehaviour
 		Debug.Log(string.Concat("Registered for push using game account ", bnetAccountID, ", region ", str));
 	}
 
+	private void RemoveWebTokenFromCaches()
+	{
+		RecentCharacter recentCharacter = null;
+		foreach (RecentCharacter mRecentCharacter in this.m_recentCharacters)
+		{
+			if (mRecentCharacter.WebToken != this.m_webToken)
+			{
+				continue;
+			}
+			recentCharacter = mRecentCharacter;
+		}
+		if (recentCharacter != null)
+		{
+			this.m_recentCharacters.Remove(recentCharacter);
+			this.SaveRecentCharacters();
+		}
+	}
+
 	private void RequestGameAccountNames()
 	{
 		this.SetLoginState(Login.eLoginState.BN_ACCOUNT_NAME_WAIT);
@@ -1735,7 +1753,7 @@ public class Login : MonoBehaviour
 			string locale = Main.instance.GetLocale();
 			if (locale != null)
 			{
-				if (Login.<>f__switch$map7 == null)
+				if (Login.<>f__switch$map8 == null)
 				{
 					Dictionary<string, int> strs = new Dictionary<string, int>(7)
 					{
@@ -1747,9 +1765,9 @@ public class Login : MonoBehaviour
 						{ "zhTW", 1 },
 						{ "zhCN", 2 }
 					};
-					Login.<>f__switch$map7 = strs;
+					Login.<>f__switch$map8 = strs;
 				}
-				if (Login.<>f__switch$map7.TryGetValue(locale, out num))
+				if (Login.<>f__switch$map8.TryGetValue(locale, out num))
 				{
 					switch (num)
 					{
@@ -2034,7 +2052,7 @@ public class Login : MonoBehaviour
 			UnixTime = GeneralHelpers.CurrentUnixTime(),
 			WebToken = this.m_webToken,
 			SubRegion = this.m_subRegion,
-			Version = 1
+			Version = 2
 		};
 		RecentCharacter recentCharacter1 = null;
 		foreach (RecentCharacter mRecentCharacter in this.m_recentCharacters)

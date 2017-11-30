@@ -277,16 +277,16 @@ public class MobileDeviceLocale
 			string str1 = languageCode;
 			if (str1 != null)
 			{
-				if (MobileDeviceLocale.<>f__switch$map9 == null)
+				if (MobileDeviceLocale.<>f__switch$mapA == null)
 				{
 					Dictionary<string, int> strs = new Dictionary<string, int>(2)
 					{
 						{ "es", 0 },
 						{ "zh", 1 }
 					};
-					MobileDeviceLocale.<>f__switch$map9 = strs;
+					MobileDeviceLocale.<>f__switch$mapA = strs;
 				}
-				if (MobileDeviceLocale.<>f__switch$map9.TryGetValue(str1, out num))
+				if (MobileDeviceLocale.<>f__switch$mapA.TryGetValue(str1, out num))
 				{
 					if (num == 0)
 					{

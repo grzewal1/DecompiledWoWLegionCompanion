@@ -3,15 +3,15 @@ using UnityEngine;
 
 public class BuildNum : MonoBehaviour
 {
-	private const int s_buildNum = 99;
+	private const int s_buildNum = 114;
 
-	private const int s_dataBuildNum = 45;
+	private const int s_dataBuildNum = 57;
 
 	public static int CodeBuildNum
 	{
 		get
 		{
-			return 99;
+			return 114;
 		}
 	}
 
@@ -19,7 +19,7 @@ public class BuildNum : MonoBehaviour
 	{
 		get
 		{
-			return 45;
+			return 57;
 		}
 	}
 

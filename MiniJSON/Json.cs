@@ -111,7 +111,7 @@ namespace MiniJSON
 											nextWord = this.NextWord;
 											if (nextWord != null)
 											{
-												if (Json.Parser.<>f__switch$mapD == null)
+												if (Json.Parser.<>f__switch$mapE == null)
 												{
 													strs = new Dictionary<string, int>(3)
 													{
@@ -119,9 +119,9 @@ namespace MiniJSON
 														{ "true", 1 },
 														{ "null", 2 }
 													};
-													Json.Parser.<>f__switch$mapD = strs;
+													Json.Parser.<>f__switch$mapE = strs;
 												}
-												if (Json.Parser.<>f__switch$mapD.TryGetValue(nextWord, out num))
+												if (Json.Parser.<>f__switch$mapE.TryGetValue(nextWord, out num))
 												{
 													switch (num)
 													{
@@ -152,7 +152,7 @@ namespace MiniJSON
 											nextWord = this.NextWord;
 											if (nextWord != null)
 											{
-												if (Json.Parser.<>f__switch$mapD == null)
+												if (Json.Parser.<>f__switch$mapE == null)
 												{
 													strs = new Dictionary<string, int>(3)
 													{
@@ -160,9 +160,9 @@ namespace MiniJSON
 														{ "true", 1 },
 														{ "null", 2 }
 													};
-													Json.Parser.<>f__switch$mapD = strs;
+													Json.Parser.<>f__switch$mapE = strs;
 												}
-												if (Json.Parser.<>f__switch$mapD.TryGetValue(nextWord, out num))
+												if (Json.Parser.<>f__switch$mapE.TryGetValue(nextWord, out num))
 												{
 													switch (num)
 													{

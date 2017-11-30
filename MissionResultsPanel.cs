@@ -318,15 +318,32 @@ public class MissionResultsPanel : MonoBehaviour
 	{
 		List<int> nums = new List<int>();
 		MissionFollowerSlot[] componentsInChildren = this.missionFollowerSlotGroup.GetComponentsInChildren<MissionFollowerSlot>(true);
+		List<JamGarrisonFollower> jamGarrisonFollowers = new List<JamGarrisonFollower>();
 		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
 			int currentGarrFollowerID = componentsInChildren[i].GetCurrentGarrFollowerID();
-			if (currentGarrFollowerID != 0)
+			if (PersistentFollowerData.followerDictionary.ContainsKey(currentGarrFollowerID))
 			{
-				int[] buffsForCurrentMission = GeneralHelpers.GetBuffsForCurrentMission(currentGarrFollowerID, this.m_garrMissionID, this.missionFollowerSlotGroup);
-				for (int j = 0; j < (int)buffsForCurrentMission.Length; j++)
+				jamGarrisonFollowers.Add(PersistentFollowerData.followerDictionary[currentGarrFollowerID]);
+			}
+		}
+		GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(this.m_garrMissionID);
+		if (record == null)
+		{
+			return;
+		}
+		int adjustedMissionDuration = GeneralHelpers.GetAdjustedMissionDuration(record, jamGarrisonFollowers, this.enemyPortraitsGroup);
+		MissionFollowerSlot[] missionFollowerSlotArray = componentsInChildren;
+		for (int j = 0; j < (int)missionFollowerSlotArray.Length; j++)
+		{
+			int num = missionFollowerSlotArray[j].GetCurrentGarrFollowerID();
+			if (num != 0)
+			{
+				int[] buffsForCurrentMission = GeneralHelpers.GetBuffsForCurrentMission(num, this.m_garrMissionID, this.missionFollowerSlotGroup, adjustedMissionDuration);
+				int[] numArray = buffsForCurrentMission;
+				for (int k = 0; k < (int)numArray.Length; k++)
 				{
-					nums.Add(buffsForCurrentMission[j]);
+					nums.Add(numArray[k]);
 				}
 			}
 		}
@@ -474,6 +491,7 @@ public class MissionResultsPanel : MonoBehaviour
 		{
 			PersistentFollowerData.ClearPreMissionFollowerData();
 		}
+		List<JamGarrisonFollower> jamGarrisonFollowers = new List<JamGarrisonFollower>();
 		MissionFollowerSlot[] missionFollowerSlotArray = this.missionFollowerSlotGroup.GetComponentsInChildren<MissionFollowerSlot>(true);
 		int num2 = 0;
 		foreach (JamGarrisonFollower value in PersistentFollowerData.followerDictionary.Values)
@@ -485,11 +503,11 @@ public class MissionResultsPanel : MonoBehaviour
 			int num3 = num2;
 			num2 = num3 + 1;
 			missionFollowerSlotArray[num3].SetFollower(value.GarrFollowerID);
-			if (missionResultType != 1)
+			if (missionResultType == 1)
 			{
-				continue;
+				PersistentFollowerData.CachePreMissionFollower(value);
 			}
-			PersistentFollowerData.CachePreMissionFollower(value);
+			jamGarrisonFollowers.Add(value);
 		}
 		this.UpdateMissionStatus(garrMissionID);
 		MissionFollowerSlot[] missionFollowerSlotArray1 = missionFollowerSlotArray;
@@ -629,12 +647,13 @@ public class MissionResultsPanel : MonoBehaviour
 				UnityEngine.Object.DestroyImmediate(abilityDisplayArray[r].gameObject);
 			}
 		}
+		int adjustedMissionDuration = GeneralHelpers.GetAdjustedMissionDuration(record, jamGarrisonFollowers, this.enemyPortraitsGroup);
 		int length = 0;
 		foreach (JamGarrisonFollower jamGarrisonFollower in PersistentFollowerData.followerDictionary.Values)
 		{
 			if (jamGarrisonFollower.CurrentMissionID == garrMissionID)
 			{
-				int[] buffsForCurrentMission = GeneralHelpers.GetBuffsForCurrentMission(jamGarrisonFollower.GarrFollowerID, garrMissionID, this.missionFollowerSlotGroup);
+				int[] buffsForCurrentMission = GeneralHelpers.GetBuffsForCurrentMission(jamGarrisonFollower.GarrFollowerID, garrMissionID, this.missionFollowerSlotGroup, adjustedMissionDuration);
 				length += (int)buffsForCurrentMission.Length;
 				int[] numArray = buffsForCurrentMission;
 				for (int s = 0; s < (int)numArray.Length; s++)

@@ -2212,7 +2212,7 @@ public class iTween : MonoBehaviour
 			string str = (string)this.tweenArguments["axis"];
 			if (str != null)
 			{
-				if (iTween.<>f__switch$map1C == null)
+				if (iTween.<>f__switch$map1D == null)
 				{
 					Dictionary<string, int> strs = new Dictionary<string, int>(3)
 					{
@@ -2220,9 +2220,9 @@ public class iTween : MonoBehaviour
 						{ "y", 1 },
 						{ "z", 2 }
 					};
-					iTween.<>f__switch$map1C = strs;
+					iTween.<>f__switch$map1D = strs;
 				}
-				if (iTween.<>f__switch$map1C.TryGetValue(str, out num))
+				if (iTween.<>f__switch$map1D.TryGetValue(str, out num))
 				{
 					switch (num)
 					{
@@ -2852,7 +2852,7 @@ public class iTween : MonoBehaviour
 		string str1 = this.type;
 		if (str1 != null)
 		{
-			if (iTween.<>f__switch$map1B == null)
+			if (iTween.<>f__switch$map1C == null)
 			{
 				strs = new Dictionary<string, int>(10)
 				{
@@ -2867,9 +2867,9 @@ public class iTween : MonoBehaviour
 					{ "look", 8 },
 					{ "stab", 9 }
 				};
-				iTween.<>f__switch$map1B = strs;
+				iTween.<>f__switch$map1C = strs;
 			}
-			if (iTween.<>f__switch$map1B.TryGetValue(str1, out num))
+			if (iTween.<>f__switch$map1C.TryGetValue(str1, out num))
 			{
 				switch (num)
 				{
@@ -2878,7 +2878,7 @@ public class iTween : MonoBehaviour
 						str = this.method;
 						if (str != null)
 						{
-							if (iTween.<>f__switch$map12 == null)
+							if (iTween.<>f__switch$map13 == null)
 							{
 								strs = new Dictionary<string, int>(5)
 								{
@@ -2888,9 +2888,9 @@ public class iTween : MonoBehaviour
 									{ "color", 3 },
 									{ "rect", 4 }
 								};
-								iTween.<>f__switch$map12 = strs;
+								iTween.<>f__switch$map13 = strs;
 							}
-							if (iTween.<>f__switch$map12.TryGetValue(str, out num1))
+							if (iTween.<>f__switch$map13.TryGetValue(str, out num1))
 							{
 								switch (num1)
 								{
@@ -2934,15 +2934,15 @@ public class iTween : MonoBehaviour
 						str = this.method;
 						if (str != null)
 						{
-							if (iTween.<>f__switch$map13 == null)
+							if (iTween.<>f__switch$map14 == null)
 							{
 								strs = new Dictionary<string, int>(1)
 								{
 									{ "to", 0 }
 								};
-								iTween.<>f__switch$map13 = strs;
+								iTween.<>f__switch$map14 = strs;
 							}
-							if (iTween.<>f__switch$map13.TryGetValue(str, out num1))
+							if (iTween.<>f__switch$map14.TryGetValue(str, out num1))
 							{
 								if (num1 == 0)
 								{
@@ -2958,15 +2958,15 @@ public class iTween : MonoBehaviour
 						str = this.method;
 						if (str != null)
 						{
-							if (iTween.<>f__switch$map14 == null)
+							if (iTween.<>f__switch$map15 == null)
 							{
 								strs = new Dictionary<string, int>(1)
 								{
 									{ "to", 0 }
 								};
-								iTween.<>f__switch$map14 = strs;
+								iTween.<>f__switch$map15 = strs;
 							}
-							if (iTween.<>f__switch$map14.TryGetValue(str, out num1))
+							if (iTween.<>f__switch$map15.TryGetValue(str, out num1))
 							{
 								if (num1 == 0)
 								{
@@ -2982,7 +2982,7 @@ public class iTween : MonoBehaviour
 						str = this.method;
 						if (str != null)
 						{
-							if (iTween.<>f__switch$map15 == null)
+							if (iTween.<>f__switch$map16 == null)
 							{
 								strs = new Dictionary<string, int>(3)
 								{
@@ -2990,9 +2990,9 @@ public class iTween : MonoBehaviour
 									{ "by", 1 },
 									{ "add", 1 }
 								};
-								iTween.<>f__switch$map15 = strs;
+								iTween.<>f__switch$map16 = strs;
 							}
-							if (iTween.<>f__switch$map15.TryGetValue(str, out num1))
+							if (iTween.<>f__switch$map16.TryGetValue(str, out num1))
 							{
 								if (num1 != 0)
 								{
@@ -3021,7 +3021,7 @@ public class iTween : MonoBehaviour
 						str = this.method;
 						if (str != null)
 						{
-							if (iTween.<>f__switch$map16 == null)
+							if (iTween.<>f__switch$map17 == null)
 							{
 								strs = new Dictionary<string, int>(3)
 								{
@@ -3029,9 +3029,9 @@ public class iTween : MonoBehaviour
 									{ "by", 1 },
 									{ "add", 2 }
 								};
-								iTween.<>f__switch$map16 = strs;
+								iTween.<>f__switch$map17 = strs;
 							}
-							if (iTween.<>f__switch$map16.TryGetValue(str, out num1))
+							if (iTween.<>f__switch$map17.TryGetValue(str, out num1))
 							{
 								switch (num1)
 								{
@@ -3063,7 +3063,7 @@ public class iTween : MonoBehaviour
 						str = this.method;
 						if (str != null)
 						{
-							if (iTween.<>f__switch$map17 == null)
+							if (iTween.<>f__switch$map18 == null)
 							{
 								strs = new Dictionary<string, int>(3)
 								{
@@ -3071,9 +3071,9 @@ public class iTween : MonoBehaviour
 									{ "add", 1 },
 									{ "by", 2 }
 								};
-								iTween.<>f__switch$map17 = strs;
+								iTween.<>f__switch$map18 = strs;
 							}
-							if (iTween.<>f__switch$map17.TryGetValue(str, out num1))
+							if (iTween.<>f__switch$map18.TryGetValue(str, out num1))
 							{
 								switch (num1)
 								{
@@ -3105,7 +3105,7 @@ public class iTween : MonoBehaviour
 						str = this.method;
 						if (str != null)
 						{
-							if (iTween.<>f__switch$map18 == null)
+							if (iTween.<>f__switch$map19 == null)
 							{
 								strs = new Dictionary<string, int>(3)
 								{
@@ -3113,9 +3113,9 @@ public class iTween : MonoBehaviour
 									{ "scale", 1 },
 									{ "rotation", 2 }
 								};
-								iTween.<>f__switch$map18 = strs;
+								iTween.<>f__switch$map19 = strs;
 							}
-							if (iTween.<>f__switch$map18.TryGetValue(str, out num1))
+							if (iTween.<>f__switch$map19.TryGetValue(str, out num1))
 							{
 								switch (num1)
 								{
@@ -3147,7 +3147,7 @@ public class iTween : MonoBehaviour
 						str = this.method;
 						if (str != null)
 						{
-							if (iTween.<>f__switch$map19 == null)
+							if (iTween.<>f__switch$map1A == null)
 							{
 								strs = new Dictionary<string, int>(3)
 								{
@@ -3155,9 +3155,9 @@ public class iTween : MonoBehaviour
 									{ "rotation", 1 },
 									{ "scale", 2 }
 								};
-								iTween.<>f__switch$map19 = strs;
+								iTween.<>f__switch$map1A = strs;
 							}
-							if (iTween.<>f__switch$map19.TryGetValue(str, out num1))
+							if (iTween.<>f__switch$map1A.TryGetValue(str, out num1))
 							{
 								switch (num1)
 								{
@@ -3189,15 +3189,15 @@ public class iTween : MonoBehaviour
 						str = this.method;
 						if (str != null)
 						{
-							if (iTween.<>f__switch$map1A == null)
+							if (iTween.<>f__switch$map1B == null)
 							{
 								strs = new Dictionary<string, int>(1)
 								{
 									{ "to", 0 }
 								};
-								iTween.<>f__switch$map1A = strs;
+								iTween.<>f__switch$map1B = strs;
 							}
-							if (iTween.<>f__switch$map1A.TryGetValue(str, out num1))
+							if (iTween.<>f__switch$map1B.TryGetValue(str, out num1))
 							{
 								if (num1 == 0)
 								{
@@ -3497,7 +3497,7 @@ public class iTween : MonoBehaviour
 			string str = (string)args["axis"];
 			if (str != null)
 			{
-				if (iTween.<>f__switch$map11 == null)
+				if (iTween.<>f__switch$map12 == null)
 				{
 					Dictionary<string, int> strs = new Dictionary<string, int>(3)
 					{
@@ -3505,9 +3505,9 @@ public class iTween : MonoBehaviour
 						{ "y", 1 },
 						{ "z", 2 }
 					};
-					iTween.<>f__switch$map11 = strs;
+					iTween.<>f__switch$map12 = strs;
 				}
-				if (iTween.<>f__switch$map11.TryGetValue(str, out num))
+				if (iTween.<>f__switch$map12.TryGetValue(str, out num))
 				{
 					switch (num)
 					{
@@ -3617,7 +3617,7 @@ public class iTween : MonoBehaviour
 			string str = (string)args["axis"];
 			if (str != null)
 			{
-				if (iTween.<>f__switch$map1D == null)
+				if (iTween.<>f__switch$map1E == null)
 				{
 					Dictionary<string, int> strs = new Dictionary<string, int>(3)
 					{
@@ -3625,9 +3625,9 @@ public class iTween : MonoBehaviour
 						{ "y", 1 },
 						{ "z", 2 }
 					};
-					iTween.<>f__switch$map1D = strs;
+					iTween.<>f__switch$map1E = strs;
 				}
-				if (iTween.<>f__switch$map1D.TryGetValue(str, out num))
+				if (iTween.<>f__switch$map1E.TryGetValue(str, out num))
 				{
 					switch (num)
 					{

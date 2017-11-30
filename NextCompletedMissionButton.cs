@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using WowJamMessages;
 using WowStatConstants;
 
 public class NextCompletedMissionButton : MonoBehaviour
@@ -108,16 +110,22 @@ public class NextCompletedMissionButton : MonoBehaviour
 
 	public void ZoomToNextCompleteMission()
 	{
-		AdventureMapMissionSite[] componentsInChildren = AdventureMapPanel.instance.m_missionAndWordQuestArea.GetComponentsInChildren<AdventureMapMissionSite>(true);
+		AllPanels.instance.m_orderHallMultiPanel.m_miniMissionListPanel.InitMissionList();
+		MiniMissionListItem[] componentsInChildren = AllPanels.instance.m_orderHallMultiPanel.m_miniMissionListPanel.m_inProgressMission_listContents.GetComponentsInChildren<MiniMissionListItem>(true);
 		for (int i = 0; i < (int)componentsInChildren.Length; i++)
 		{
-			AdventureMapMissionSite adventureMapMissionSite = componentsInChildren[i];
-			if (!adventureMapMissionSite.m_isStackablePreview)
+			MiniMissionListItem miniMissionListItem = componentsInChildren[i];
+			JamGarrisonMobileMission item = (JamGarrisonMobileMission)PersistentMissionData.missionDictionary[miniMissionListItem.GetMissionID()];
+			if (item != null)
 			{
-				if (adventureMapMissionSite.ShouldShowCompletedMission())
+				if (item.MissionState == 1)
 				{
-					adventureMapMissionSite.JustZoomToMission();
-					break;
+					long num = GarrisonStatus.CurrentTime() - item.StartTime;
+					if (item.MissionDuration - num <= (long)0)
+					{
+						AdventureMapPanel.instance.ShowMissionResultAction(item.MissionRecID, 0, false);
+						break;
+					}
 				}
 			}
 		}
