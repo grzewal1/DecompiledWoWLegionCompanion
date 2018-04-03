@@ -19,7 +19,7 @@ namespace bgs
 		{
 			get
 			{
-				return (this.Hi != 0 ? false : this.Lo == (long)0);
+				return (this.Hi != (long)0 ? false : this.Lo == (long)0);
 			}
 		}
 

@@ -247,86 +247,82 @@ namespace bnet.protocol.account
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 8)
-						{
-							instance.Region = ProtocolParser.ReadUInt32(stream);
-						}
-						else if (num1 == 16)
-						{
-							instance.WalletId = ProtocolParser.ReadUInt64(stream);
-						}
-						else if (num1 == 24)
-						{
-							instance.WalletType = ProtocolParser.ReadUInt32(stream);
-						}
-						else if (num1 == 34)
-						{
-							instance.Description = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 40)
-						{
-							instance.CountryId = ProtocolParser.ReadUInt32(stream);
-						}
-						else if (num1 == 50)
-						{
-							instance.State = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 58)
-						{
-							instance.City = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 66)
-						{
-							instance.PostalCode = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 74)
-						{
-							instance.PaymentInfo = ProtocolParser.ReadBytes(stream);
-						}
-						else if (num1 == 82)
-						{
-							instance.Bin = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 90)
-						{
-							instance.LocaleId = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 98)
-						{
-							instance.Street = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 106)
-						{
-							instance.FirstName = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 114)
-						{
-							instance.LastName = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 120)
-						{
-							instance.BirthDate = ProtocolParser.ReadUInt64(stream);
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 8)
+					{
+						instance.Region = ProtocolParser.ReadUInt32(stream);
+					}
+					else if (num == 16)
+					{
+						instance.WalletId = ProtocolParser.ReadUInt64(stream);
+					}
+					else if (num == 24)
+					{
+						instance.WalletType = ProtocolParser.ReadUInt32(stream);
+					}
+					else if (num == 34)
+					{
+						instance.Description = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 40)
+					{
+						instance.CountryId = ProtocolParser.ReadUInt32(stream);
+					}
+					else if (num == 50)
+					{
+						instance.State = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 58)
+					{
+						instance.City = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 66)
+					{
+						instance.PostalCode = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 74)
+					{
+						instance.PaymentInfo = ProtocolParser.ReadBytes(stream);
+					}
+					else if (num == 82)
+					{
+						instance.Bin = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 90)
+					{
+						instance.LocaleId = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 98)
+					{
+						instance.Street = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 106)
+					{
+						instance.FirstName = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 114)
+					{
+						instance.LastName = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 120)
+					{
+						instance.BirthDate = ProtocolParser.ReadUInt64(stream);
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
 					}
 				}
 				else

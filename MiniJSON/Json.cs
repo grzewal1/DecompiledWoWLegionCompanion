@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace MiniJSON
@@ -47,9 +46,6 @@ namespace MiniJSON
 			{
 				get
 				{
-					string nextWord;
-					Dictionary<string, int> strs;
-					int num;
 					this.EatWhitespace();
 					if (this.json.Peek() == -1)
 					{
@@ -58,10 +54,6 @@ namespace MiniJSON
 					char peekChar = this.PeekChar;
 					switch (peekChar)
 					{
-						case '\"':
-						{
-							return Json.Parser.TOKEN.STRING;
-						}
 						case ',':
 						{
 							this.json.Read();
@@ -106,42 +98,6 @@ namespace MiniJSON
 										{
 											return Json.Parser.TOKEN.CURLY_OPEN;
 										}
-										case '|':
-										{
-											nextWord = this.NextWord;
-											if (nextWord != null)
-											{
-												if (Json.Parser.<>f__switch$mapE == null)
-												{
-													strs = new Dictionary<string, int>(3)
-													{
-														{ "false", 0 },
-														{ "true", 1 },
-														{ "null", 2 }
-													};
-													Json.Parser.<>f__switch$mapE = strs;
-												}
-												if (Json.Parser.<>f__switch$mapE.TryGetValue(nextWord, out num))
-												{
-													switch (num)
-													{
-														case 0:
-														{
-															return Json.Parser.TOKEN.FALSE;
-														}
-														case 1:
-														{
-															return Json.Parser.TOKEN.TRUE;
-														}
-														case 2:
-														{
-															return Json.Parser.TOKEN.NULL;
-														}
-													}
-												}
-											}
-											return Json.Parser.TOKEN.NONE;
-										}
 										case '}':
 										{
 											this.json.Read();
@@ -149,39 +105,27 @@ namespace MiniJSON
 										}
 										default:
 										{
-											nextWord = this.NextWord;
-											if (nextWord != null)
+											if (peekChar != '\"')
 											{
-												if (Json.Parser.<>f__switch$mapE == null)
+												string nextWord = this.NextWord;
+												if (nextWord != null)
 												{
-													strs = new Dictionary<string, int>(3)
+													if (nextWord == "false")
 													{
-														{ "false", 0 },
-														{ "true", 1 },
-														{ "null", 2 }
-													};
-													Json.Parser.<>f__switch$mapE = strs;
-												}
-												if (Json.Parser.<>f__switch$mapE.TryGetValue(nextWord, out num))
-												{
-													switch (num)
+														return Json.Parser.TOKEN.FALSE;
+													}
+													if (nextWord == "true")
 													{
-														case 0:
-														{
-															return Json.Parser.TOKEN.FALSE;
-														}
-														case 1:
-														{
-															return Json.Parser.TOKEN.TRUE;
-														}
-														case 2:
-														{
-															return Json.Parser.TOKEN.NULL;
-														}
+														return Json.Parser.TOKEN.TRUE;
+													}
+													if (nextWord == "null")
+													{
+														return Json.Parser.TOKEN.NULL;
 													}
 												}
+												return Json.Parser.TOKEN.NONE;
 											}
-											return Json.Parser.TOKEN.NONE;
+											break;
 										}
 									}
 									break;
@@ -190,6 +134,7 @@ namespace MiniJSON
 							break;
 						}
 					}
+					return Json.Parser.TOKEN.STRING;
 				}
 			}
 
@@ -268,8 +213,7 @@ namespace MiniJSON
 				while (flag)
 				{
 					nextToken = this.NextToken;
-					Json.Parser.TOKEN tOKEN = nextToken;
-					switch (tOKEN)
+					switch (nextToken)
 					{
 						case Json.Parser.TOKEN.SQUARED_CLOSE:
 						{
@@ -282,7 +226,7 @@ namespace MiniJSON
 						}
 						default:
 						{
-							if (tOKEN == Json.Parser.TOKEN.NONE)
+							if (nextToken == Json.Parser.TOKEN.NONE)
 							{
 								break;
 							}
@@ -309,21 +253,6 @@ namespace MiniJSON
 			{
 				switch (token)
 				{
-					case Json.Parser.TOKEN.CURLY_OPEN:
-					{
-						return this.ParseObject();
-					}
-					case Json.Parser.TOKEN.CURLY_CLOSE:
-					case Json.Parser.TOKEN.SQUARED_CLOSE:
-					case Json.Parser.TOKEN.COLON:
-					case Json.Parser.TOKEN.COMMA:
-					{
-						return null;
-					}
-					case Json.Parser.TOKEN.SQUARED_OPEN:
-					{
-						return this.ParseArray();
-					}
 					case Json.Parser.TOKEN.STRING:
 					{
 						return this.ParseString();
@@ -346,7 +275,26 @@ namespace MiniJSON
 					}
 					default:
 					{
-						return null;
+						switch (token)
+						{
+							case Json.Parser.TOKEN.CURLY_OPEN:
+							{
+								return this.ParseObject();
+							}
+							case Json.Parser.TOKEN.CURLY_CLOSE:
+							{
+								return null;
+							}
+							case Json.Parser.TOKEN.SQUARED_OPEN:
+							{
+								return this.ParseArray();
+							}
+							default:
+							{
+								return null;
+							}
+						}
+						break;
 					}
 				}
 			}
@@ -419,26 +367,19 @@ namespace MiniJSON
 					if (this.json.Peek() != -1)
 					{
 						char nextChar = this.NextChar;
-						char chr = nextChar;
-						if (chr == '\"')
+						if (nextChar == '\"')
 						{
 							flag = false;
 						}
-						else if (chr != '\\')
+						else if (nextChar != '\\')
 						{
 							stringBuilder.Append(nextChar);
 						}
 						else if (this.json.Peek() != -1)
 						{
 							nextChar = this.NextChar;
-							char chr1 = nextChar;
-							switch (chr1)
+							switch (nextChar)
 							{
-								case 'n':
-								{
-									stringBuilder.Append('\n');
-									break;
-								}
 								case 'r':
 								{
 									stringBuilder.Append('\r');
@@ -461,19 +402,24 @@ namespace MiniJSON
 								}
 								default:
 								{
-									if (chr1 == '\"' || chr1 == '/' || chr1 == '\\')
+									if (nextChar == '\"' || nextChar == '/' || nextChar == '\\')
 									{
 										stringBuilder.Append(nextChar);
 										break;
 									}
-									else if (chr1 == 'b')
+									else if (nextChar == 'b')
 									{
 										stringBuilder.Append('\b');
 										break;
 									}
-									else if (chr1 == 'f')
+									else if (nextChar == 'f')
 									{
 										stringBuilder.Append('\f');
+										break;
+									}
+									else if (nextChar == 'n')
+									{
+										stringBuilder.Append('\n');
 										break;
 									}
 									else
@@ -601,8 +547,7 @@ namespace MiniJSON
 				for (int i = 0; i < (int)charArray.Length; i++)
 				{
 					char chr = charArray[i];
-					char chr1 = chr;
-					switch (chr1)
+					switch (chr)
 					{
 						case '\b':
 						{
@@ -631,12 +576,12 @@ namespace MiniJSON
 						}
 						default:
 						{
-							if (chr1 == '\"')
+							if (chr == '\"')
 							{
 								this.builder.Append("\\\"");
 								break;
 							}
-							else if (chr1 == '\\')
+							else if (chr == '\\')
 							{
 								this.builder.Append("\\\\");
 								break;

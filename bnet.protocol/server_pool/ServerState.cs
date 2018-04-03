@@ -89,48 +89,34 @@ namespace bnet.protocol.server_pool
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						switch (num1)
-						{
-							case 13:
-							{
-								instance.CurrentLoad = binaryReader.ReadSingle();
-								continue;
-							}
-							case 16:
-							{
-								instance.GameCount = ProtocolParser.ReadUInt32(stream);
-								continue;
-							}
-							default:
-							{
-								if (num1 == 24)
-								{
-									instance.PlayerCount = ProtocolParser.ReadUInt32(stream);
-									continue;
-								}
-								else
-								{
-									Key key = ProtocolParser.ReadKey((byte)num, stream);
-									if (key.Field == 0)
-									{
-										throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-									}
-									ProtocolParser.SkipKey(stream, key);
-									continue;
-								}
-							}
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 13)
+					{
+						instance.CurrentLoad = binaryReader.ReadSingle();
+					}
+					else if (num == 16)
+					{
+						instance.GameCount = ProtocolParser.ReadUInt32(stream);
+					}
+					else if (num == 24)
+					{
+						instance.PlayerCount = ProtocolParser.ReadUInt32(stream);
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
 					}
 				}
 				else

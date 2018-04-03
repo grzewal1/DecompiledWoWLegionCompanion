@@ -150,8 +150,16 @@ namespace Newtonsoft.Json.Schema
 		{
 			this.CurrentSchema.Identity = new List<string>();
 			JsonToken tokenType = this._reader.TokenType;
-			if (tokenType == JsonToken.StartArray)
+			if (tokenType == JsonToken.String)
 			{
+				this.CurrentSchema.Identity.Add(this._reader.Value.ToString());
+			}
+			else
+			{
+				if (tokenType != JsonToken.StartArray)
+				{
+					throw new Exception("Expected array or JSON property name string token, got {0}.".FormatWith(CultureInfo.InvariantCulture, new object[] { this._reader.TokenType }));
+				}
 				while (this._reader.Read() && this._reader.TokenType != JsonToken.EndArray)
 				{
 					if (this._reader.TokenType != JsonToken.String)
@@ -160,14 +168,6 @@ namespace Newtonsoft.Json.Schema
 					}
 					this.CurrentSchema.Identity.Add(this._reader.Value.ToString());
 				}
-			}
-			else
-			{
-				if (tokenType != JsonToken.String)
-				{
-					throw new Exception("Expected array or JSON property name string token, got {0}.".FormatWith(CultureInfo.InvariantCulture, new object[] { this._reader.TokenType }));
-				}
-				this.CurrentSchema.Identity.Add(this._reader.Value.ToString());
 			}
 		}
 
@@ -195,7 +195,6 @@ namespace Newtonsoft.Json.Schema
 		private void ProcessOptions()
 		{
 			string str;
-			int num;
 			this.CurrentSchema.Options = new Dictionary<JToken, string>(new JTokenEqualityComparer());
 			if (this._reader.TokenType != JsonToken.StartArray)
 			{
@@ -229,29 +228,15 @@ namespace Newtonsoft.Json.Schema
 					{
 						str = Convert.ToString(this._reader.Value, CultureInfo.InvariantCulture);
 						this._reader.Read();
-						string str1 = str;
-						if (str1 == null)
+						if (str == null)
 						{
 							break;
 						}
-						if (JsonSchemaBuilder.<>f__switch$map3 == null)
-						{
-							Dictionary<string, int> strs = new Dictionary<string, int>(2)
-							{
-								{ "value", 0 },
-								{ "label", 1 }
-							};
-							JsonSchemaBuilder.<>f__switch$map3 = strs;
-						}
-						if (!JsonSchemaBuilder.<>f__switch$map3.TryGetValue(str1, out num))
-						{
-							break;
-						}
-						if (num == 0)
+						if (str == "value")
 						{
 							jTokens = JToken.ReadFrom(this._reader);
 						}
-						else if (num == 1)
+						else if (str == "label")
 						{
 							value = (string)this._reader.Value;
 						}
@@ -308,10 +293,9 @@ namespace Newtonsoft.Json.Schema
 		private void ProcessSchemaProperty(string propertyName)
 		{
 			int num;
-			string str = propertyName;
-			if (str != null)
+			if (propertyName != null)
 			{
-				if (JsonSchemaBuilder.<>f__switch$map2 == null)
+				if (JsonSchemaBuilder.<>f__switch$map0 == null)
 				{
 					Dictionary<string, int> strs = new Dictionary<string, int>(29)
 					{
@@ -345,9 +329,9 @@ namespace Newtonsoft.Json.Schema
 						{ "enum", 27 },
 						{ "extends", 28 }
 					};
-					JsonSchemaBuilder.<>f__switch$map2 = strs;
+					JsonSchemaBuilder.<>f__switch$map0 = strs;
 				}
-				if (JsonSchemaBuilder.<>f__switch$map2.TryGetValue(str, out num))
+				if (JsonSchemaBuilder.<>f__switch$map0.TryGetValue(propertyName, out num))
 				{
 					switch (num)
 					{
@@ -496,6 +480,11 @@ namespace Newtonsoft.Json.Schema
 							this.ProcessExtends();
 							break;
 						}
+						case 29:
+						{
+							this._reader.Skip();
+							return;
+						}
 						default:
 						{
 							this._reader.Skip();
@@ -520,13 +509,13 @@ namespace Newtonsoft.Json.Schema
 		{
 			JsonSchemaType? nullable;
 			JsonToken tokenType = this._reader.TokenType;
+			if (tokenType == JsonToken.String)
+			{
+				return new JsonSchemaType?(JsonSchemaBuilder.MapType(this._reader.Value.ToString()));
+			}
 			if (tokenType != JsonToken.StartArray)
 			{
-				if (tokenType != JsonToken.String)
-				{
-					throw new Exception("Expected array or JSON schema type string token, got {0}.".FormatWith(CultureInfo.InvariantCulture, new object[] { this._reader.TokenType }));
-				}
-				return new JsonSchemaType?(JsonSchemaBuilder.MapType(this._reader.Value.ToString()));
+				throw new Exception("Expected array or JSON schema type string token, got {0}.".FormatWith(CultureInfo.InvariantCulture, new object[] { this._reader.TokenType }));
 			}
 			JsonSchemaType? nullable1 = new JsonSchemaType?(JsonSchemaType.None);
 			while (this._reader.Read() && this._reader.TokenType != JsonToken.EndArray)

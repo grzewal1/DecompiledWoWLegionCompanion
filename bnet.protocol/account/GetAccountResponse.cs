@@ -209,84 +209,80 @@ namespace bnet.protocol.account
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 90)
-						{
-							if (instance.Blob != null)
-							{
-								AccountBlob.DeserializeLengthDelimited(stream, instance.Blob);
-							}
-							else
-							{
-								instance.Blob = AccountBlob.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 98)
-						{
-							if (instance.Id != null)
-							{
-								AccountId.DeserializeLengthDelimited(stream, instance.Id);
-							}
-							else
-							{
-								instance.Id = AccountId.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 106)
-						{
-							instance.Email.Add(ProtocolParser.ReadString(stream));
-						}
-						else if (num1 == 114)
-						{
-							instance.BattleTag = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 122)
-						{
-							instance.FullName = ProtocolParser.ReadString(stream);
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							uint field = key.Field;
-							if (field == 16)
-							{
-								if (key.WireType == Wire.LengthDelimited)
-								{
-									instance.Links.Add(GameAccountLink.DeserializeLengthDelimited(stream));
-									continue;
-								}
-							}
-							else if (field != 17)
-							{
-								if (field == 0)
-								{
-									throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-								}
-								ProtocolParser.SkipKey(stream, key);
-							}
-							else if (key.WireType == Wire.LengthDelimited)
-							{
-								if (instance.ParentalControlInfo != null)
-								{
-									bnet.protocol.account.ParentalControlInfo.DeserializeLengthDelimited(stream, instance.ParentalControlInfo);
-								}
-								else
-								{
-									instance.ParentalControlInfo = bnet.protocol.account.ParentalControlInfo.DeserializeLengthDelimited(stream);
-								}
-								continue;
-							}
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 90)
+					{
+						if (instance.Blob != null)
+						{
+							AccountBlob.DeserializeLengthDelimited(stream, instance.Blob);
+						}
+						else
+						{
+							instance.Blob = AccountBlob.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 98)
+					{
+						if (instance.Id != null)
+						{
+							AccountId.DeserializeLengthDelimited(stream, instance.Id);
+						}
+						else
+						{
+							instance.Id = AccountId.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 106)
+					{
+						instance.Email.Add(ProtocolParser.ReadString(stream));
+					}
+					else if (num == 114)
+					{
+						instance.BattleTag = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 122)
+					{
+						instance.FullName = ProtocolParser.ReadString(stream);
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						uint field = key.Field;
+						if (field == 16)
+						{
+							if (key.WireType == Wire.LengthDelimited)
+							{
+								instance.Links.Add(GameAccountLink.DeserializeLengthDelimited(stream));
+								continue;
+							}
+						}
+						else if (field != 17)
+						{
+							if (field == 0)
+							{
+								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+							}
+							ProtocolParser.SkipKey(stream, key);
+						}
+						else if (key.WireType == Wire.LengthDelimited)
+						{
+							if (instance.ParentalControlInfo != null)
+							{
+								bnet.protocol.account.ParentalControlInfo.DeserializeLengthDelimited(stream, instance.ParentalControlInfo);
+							}
+							else
+							{
+								instance.ParentalControlInfo = bnet.protocol.account.ParentalControlInfo.DeserializeLengthDelimited(stream);
+							}
+							continue;
+						}
 					}
 				}
 				else

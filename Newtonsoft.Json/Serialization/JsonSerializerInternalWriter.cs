@@ -4,9 +4,7 @@ using Newtonsoft.Json.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -232,10 +230,11 @@ namespace Newtonsoft.Json.Serialization
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable == null)
+				IDisposable disposable1 = disposable;
+				if (disposable != null)
 				{
+					disposable1.Dispose();
 				}
-				disposable.Dispose();
 			}
 			writer.WriteEndObject();
 			this.SerializeStack.RemoveAt(this.SerializeStack.Count - 1);
@@ -243,7 +242,6 @@ namespace Newtonsoft.Json.Serialization
 		}
 
 		[SecuritySafeCritical]
-		[SuppressMessage("Microsoft.Portability", "CA1903:UseOnlyApiFromTargetedFramework", MessageId="System.Security.SecuritySafeCriticalAttribute")]
 		private void SerializeISerializable(JsonWriter writer, ISerializable value, JsonISerializableContract contract)
 		{
 			contract.InvokeOnSerializing(value, base.Serializer.Context);
@@ -329,10 +327,11 @@ namespace Newtonsoft.Json.Serialization
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable == null)
+				IDisposable disposable1 = disposable;
+				if (disposable != null)
 				{
+					disposable1.Dispose();
 				}
-				disposable.Dispose();
 			}
 			writer.WriteEndArray();
 			if (flag || flag1)
@@ -420,39 +419,27 @@ namespace Newtonsoft.Json.Serialization
 				this.WriteTypeProperty(writer, contract.UnderlyingType);
 			}
 			int top = writer.Top;
-			IEnumerator<JsonProperty> enumerator = contract.Properties.GetEnumerator();
-			try
+			foreach (JsonProperty property in contract.Properties)
 			{
-				while (enumerator.MoveNext())
+				try
 				{
-					JsonProperty current = enumerator.Current;
-					try
+					if (!property.Ignored && property.Readable && this.ShouldSerialize(property, value) && this.IsSpecified(property, value))
 					{
-						if (!current.Ignored && current.Readable && this.ShouldSerialize(current, value) && this.IsSpecified(current, value))
-						{
-							object obj = current.ValueProvider.GetValue(value);
-							this.WriteMemberInfoProperty(writer, obj, current, this.GetContractSafe(obj));
-						}
-					}
-					catch (Exception exception)
-					{
-						if (!base.IsErrorHandled(value, contract, current.PropertyName, exception))
-						{
-							throw;
-						}
-						else
-						{
-							this.HandleError(writer, top);
-						}
+						object obj = property.ValueProvider.GetValue(value);
+						this.WriteMemberInfoProperty(writer, obj, property, this.GetContractSafe(obj));
 					}
 				}
-			}
-			finally
-			{
-				if (enumerator == null)
+				catch (Exception exception)
 				{
+					if (!base.IsErrorHandled(value, contract, property.PropertyName, exception))
+					{
+						throw;
+					}
+					else
+					{
+						this.HandleError(writer, top);
+					}
 				}
-				enumerator.Dispose();
 			}
 			writer.WriteEndObject();
 			this.SerializeStack.RemoveAt(this.SerializeStack.Count - 1);
@@ -614,16 +601,18 @@ namespace Newtonsoft.Json.Serialization
 
 		private bool ShouldWriteType(TypeNameHandling typeNameHandlingFlag, JsonContract contract, JsonProperty member, JsonContract collectionValueContract)
 		{
+			TypeNameHandling? nullable;
 			TypeNameHandling? typeNameHandling;
 			if (member == null)
 			{
-				typeNameHandling = null;
+				nullable = null;
+				typeNameHandling = nullable;
 			}
 			else
 			{
 				typeNameHandling = member.TypeNameHandling;
 			}
-			TypeNameHandling? nullable = typeNameHandling;
+			nullable = typeNameHandling;
 			if (this.HasFlag((!nullable.HasValue ? base.Serializer.TypeNameHandling : nullable.Value), typeNameHandlingFlag))
 			{
 				return true;

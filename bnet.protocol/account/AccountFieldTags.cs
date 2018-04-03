@@ -219,50 +219,46 @@ namespace bnet.protocol.account
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 21)
-						{
-							instance.AccountLevelInfoTag = binaryReader.ReadUInt32();
-						}
-						else if (num1 == 29)
-						{
-							instance.PrivacyInfoTag = binaryReader.ReadUInt32();
-						}
-						else if (num1 == 37)
-						{
-							instance.ParentalControlInfoTag = binaryReader.ReadUInt32();
-						}
-						else if (num1 == 58)
-						{
-							instance.GameLevelInfoTags.Add(ProgramTag.DeserializeLengthDelimited(stream));
-						}
-						else if (num1 == 74)
-						{
-							instance.GameStatusTags.Add(ProgramTag.DeserializeLengthDelimited(stream));
-						}
-						else if (num1 == 90)
-						{
-							instance.GameAccountTags.Add(RegionTag.DeserializeLengthDelimited(stream));
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 21)
+					{
+						instance.AccountLevelInfoTag = binaryReader.ReadUInt32();
+					}
+					else if (num == 29)
+					{
+						instance.PrivacyInfoTag = binaryReader.ReadUInt32();
+					}
+					else if (num == 37)
+					{
+						instance.ParentalControlInfoTag = binaryReader.ReadUInt32();
+					}
+					else if (num == 58)
+					{
+						instance.GameLevelInfoTags.Add(ProgramTag.DeserializeLengthDelimited(stream));
+					}
+					else if (num == 74)
+					{
+						instance.GameStatusTags.Add(ProgramTag.DeserializeLengthDelimited(stream));
+					}
+					else if (num == 90)
+					{
+						instance.GameAccountTags.Add(RegionTag.DeserializeLengthDelimited(stream));
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
 					}
 				}
 				else

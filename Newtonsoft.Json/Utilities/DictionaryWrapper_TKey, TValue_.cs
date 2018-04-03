@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace Newtonsoft.Json.Utilities
 {
-	internal class DictionaryWrapper<TKey, TValue> : IEnumerable, IWrappedDictionary, ICollection, IDictionary, IDictionary<TKey, TValue>, ICollection<KeyValuePair<TKey, TValue>>, IEnumerable<KeyValuePair<TKey, TValue>>
+	internal class DictionaryWrapper<TKey, TValue> : IDictionary<TKey, TValue>, IWrappedDictionary, ICollection<KeyValuePair<TKey, TValue>>, IEnumerable<KeyValuePair<TKey, TValue>>, IEnumerable, IDictionary, ICollection
 	{
 		private readonly IDictionary _dictionary;
 
@@ -266,10 +266,11 @@ namespace Newtonsoft.Json.Utilities
 				finally
 				{
 					IDisposable disposable = enumerator as IDisposable;
-					if (disposable == null)
+					IDisposable disposable1 = disposable;
+					if (disposable != null)
 					{
+						disposable1.Dispose();
 					}
-					disposable.Dispose();
 				}
 			}
 			else
@@ -395,7 +396,7 @@ namespace Newtonsoft.Json.Utilities
 			return true;
 		}
 
-		private struct DictionaryEnumerator<TEnumeratorKey, TEnumeratorValue> : IEnumerator, IDictionaryEnumerator
+		private struct DictionaryEnumerator<TEnumeratorKey, TEnumeratorValue> : IDictionaryEnumerator, IEnumerator
 		{
 			private readonly IEnumerator<KeyValuePair<TEnumeratorKey, TEnumeratorValue>> _e;
 

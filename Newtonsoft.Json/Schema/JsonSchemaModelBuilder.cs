@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -49,21 +48,9 @@ namespace Newtonsoft.Json.Schema
 		{
 			if (source != null)
 			{
-				IEnumerator<KeyValuePair<string, JsonSchema>> enumerator = source.GetEnumerator();
-				try
+				foreach (KeyValuePair<string, JsonSchema> keyValuePair in source)
 				{
-					while (enumerator.MoveNext())
-					{
-						KeyValuePair<string, JsonSchema> current = enumerator.Current;
-						this.AddProperty(target, current.Key, current.Value);
-					}
-				}
-				finally
-				{
-					if (enumerator == null)
-					{
-					}
-					enumerator.Dispose();
+					this.AddProperty(target, keyValuePair.Key, keyValuePair.Value);
 				}
 			}
 		}

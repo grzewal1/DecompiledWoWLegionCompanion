@@ -93,67 +93,63 @@ namespace bnet.protocol.game_utilities
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 10)
-						{
-							if (instance.Id != null)
-							{
-								EntityId.DeserializeLengthDelimited(stream, instance.Id);
-							}
-							else
-							{
-								instance.Id = EntityId.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 26)
-						{
-							if (instance.GameAccountId != null)
-							{
-								EntityId.DeserializeLengthDelimited(stream, instance.GameAccountId);
-							}
-							else
-							{
-								instance.GameAccountId = EntityId.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 34)
-						{
-							if (instance.BnetAccountId != null)
-							{
-								EntityId.DeserializeLengthDelimited(stream, instance.BnetAccountId);
-							}
-							else
-							{
-								instance.BnetAccountId = EntityId.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 != 42)
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-						else if (instance.Host != null)
-						{
-							ProcessId.DeserializeLengthDelimited(stream, instance.Host);
-						}
-						else
-						{
-							instance.Host = ProcessId.DeserializeLengthDelimited(stream);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 10)
+					{
+						if (instance.Id != null)
+						{
+							EntityId.DeserializeLengthDelimited(stream, instance.Id);
+						}
+						else
+						{
+							instance.Id = EntityId.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 26)
+					{
+						if (instance.GameAccountId != null)
+						{
+							EntityId.DeserializeLengthDelimited(stream, instance.GameAccountId);
+						}
+						else
+						{
+							instance.GameAccountId = EntityId.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 34)
+					{
+						if (instance.BnetAccountId != null)
+						{
+							EntityId.DeserializeLengthDelimited(stream, instance.BnetAccountId);
+						}
+						else
+						{
+							instance.BnetAccountId = EntityId.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num != 42)
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
+					}
+					else if (instance.Host != null)
+					{
+						ProcessId.DeserializeLengthDelimited(stream, instance.Host);
+					}
+					else
+					{
+						instance.Host = ProcessId.DeserializeLengthDelimited(stream);
 					}
 				}
 				else

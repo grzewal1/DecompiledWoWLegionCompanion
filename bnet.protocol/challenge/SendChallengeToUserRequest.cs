@@ -186,8 +186,7 @@ namespace bnet.protocol.challenge
 					int num = stream.ReadByte();
 					if (num != -1)
 					{
-						int num1 = num;
-						switch (num1)
+						switch (num)
 						{
 							case 37:
 							{
@@ -201,7 +200,7 @@ namespace bnet.protocol.challenge
 							}
 							default:
 							{
-								if (num1 == 10)
+								if (num == 10)
 								{
 									if (instance.PeerId != null)
 									{
@@ -213,7 +212,7 @@ namespace bnet.protocol.challenge
 									}
 									continue;
 								}
-								else if (num1 == 18)
+								else if (num == 18)
 								{
 									if (instance.GameAccountId != null)
 									{
@@ -225,12 +224,12 @@ namespace bnet.protocol.challenge
 									}
 									continue;
 								}
-								else if (num1 == 26)
+								else if (num == 26)
 								{
 									instance.Challenges.Add(Challenge.DeserializeLengthDelimited(stream));
 									continue;
 								}
-								else if (num1 == 50)
+								else if (num == 50)
 								{
 									instance.Attributes.Add(bnet.protocol.attribute.Attribute.DeserializeLengthDelimited(stream));
 									continue;

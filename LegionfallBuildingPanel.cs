@@ -465,7 +465,7 @@ public class LegionfallBuildingPanel : MonoBehaviour
 			MobileContribution mobileContribution = item.contribution;
 			if (mobileContribution.State == 3)
 			{
-				if (item.underAttackExpireTime == 0)
+				if (item.underAttackExpireTime == (long)0)
 				{
 					item.underAttackExpireTime = GarrisonStatus.CurrentTime() + (long)item.contribution.CurrentValue;
 				}

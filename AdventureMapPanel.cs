@@ -319,6 +319,7 @@ public class AdventureMapPanel : MonoBehaviour
 
 	public void HandleBountyInfoUpdated()
 	{
+		ZoneMissionOverview mAllZoneMissionOverviews;
 		if (this.m_mapViewContentsRT != null)
 		{
 			BountySite[] componentsInChildren = this.m_mapViewContentsRT.GetComponentsInChildren<BountySite>(true);
@@ -367,53 +368,59 @@ public class AdventureMapPanel : MonoBehaviour
 							QuestV2Rec record = StaticDB.questDB.GetRecord(current.QuestID);
 							int num = (record == null ? 0 : record.QuestSortID);
 							bool flag = true;
-							ZoneMissionOverview mAllZoneMissionOverviews = null;
+							mAllZoneMissionOverviews = null;
 							int num1 = 1220;
-							int num2 = num;
-							switch (num2)
+							if (num == 7502)
 							{
-								case 7541:
+								goto Label0;
+							}
+							else if (num == 7503)
+							{
+								mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[2];
+							}
+							else
+							{
+								switch (num)
 								{
-									mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[3];
-									break;
-								}
-								case 7543:
-								{
-									mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[1];
-									break;
-								}
-								default:
-								{
-									if (num2 != 7502)
+									case 7541:
 									{
-										if (num2 == 7503)
-										{
-											mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[2];
-											break;
-										}
-										else if (num2 == 7334)
+										mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[3];
+										break;
+									}
+									case 7543:
+									{
+										mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[1];
+										break;
+									}
+									default:
+									{
+										if (num == 7334)
 										{
 											mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[0];
 											break;
 										}
-										else if (num2 == 7558)
+										else if (num == 7558)
 										{
 											mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[5];
 											break;
 										}
-										else if (num2 == 7637)
+										else if (num == 7637)
 										{
 											mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[4];
 											break;
 										}
-										else if (num2 != 8147)
+										else
 										{
-											if (num2 == 8574)
+											if (num == 8147)
+											{
+												goto Label0;
+											}
+											if (num == 8574)
 											{
 												mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[7];
 												break;
 											}
-											else if (num2 == 8701)
+											else if (num == 8701)
 											{
 												mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[9];
 												break;
@@ -426,10 +433,9 @@ public class AdventureMapPanel : MonoBehaviour
 											}
 										}
 									}
-									mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[6];
-									break;
 								}
 							}
+						Label1:
 							if (!flag)
 							{
 								vector3.transform.localPosition = new Vector3(0f, 0f, 0f);
@@ -474,11 +480,16 @@ public class AdventureMapPanel : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
+		return;
+	Label0:
+		mAllZoneMissionOverviews = this.m_allZoneMissionOverviews[6];
+		goto Label1;
 	}
 
 	private void HandleInvasionPOIChanged()
@@ -569,10 +580,11 @@ public class AdventureMapPanel : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
 	}
 
@@ -1096,10 +1108,11 @@ public class AdventureMapPanel : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
 		this.m_pinchZoomContentManager.ForceZoomFactorChanged();
 	}

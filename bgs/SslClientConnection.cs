@@ -7,11 +7,11 @@ namespace bgs
 {
 	public class SslClientConnection : IClientConnection<BattleNetPacket>
 	{
-		private const float BLOCKING_SEND_TIME_OUT = 1f;
-
 		private static int RECEIVE_BUFFER_SIZE;
 
 		private static int BACKING_BUFFER_SIZE;
+
+		private const float BLOCKING_SEND_TIME_OUT = 1f;
 
 		private SslClientConnection.ConnectionState m_connectionState;
 
@@ -268,9 +268,9 @@ namespace bgs
 		{
 			// 
 			// Current member / type: System.Void bgs.SslClientConnection::SendBytes(System.Byte[])
-			// File path: C:\apktool\wow_v1.3.20_com.blizzard.wowcompanion\assets\bin\Data\Managed\Assembly-CSharp.dll
+			// File path: C:\apktool\wow\assets\bin\Data\Managed\Assembly-CSharp.dll
 			// 
-			// Product version: 2017.3.1005.3
+			// Product version: 2018.1.123.0
 			// Exception in: System.Void SendBytes(System.Byte[])
 			// 
 			// La référence d'objet n'est pas définie à une instance d'un objet.
@@ -344,58 +344,49 @@ namespace bgs
 		public void Update()
 		{
 			SslSocket.Process();
-			List<SslClientConnection.ConnectionEvent> mConnectionEvents = this.m_connectionEvents;
+			object mConnectionEvents = this.m_connectionEvents;
 			Monitor.Enter(mConnectionEvents);
 			try
 			{
 				foreach (SslClientConnection.ConnectionEvent mConnectionEvent in this.m_connectionEvents)
 				{
-					switch (mConnectionEvent.Type)
+					SslClientConnection.ConnectionEventTypes type = mConnectionEvent.Type;
+					if (type == SslClientConnection.ConnectionEventTypes.OnConnected)
 					{
-						case SslClientConnection.ConnectionEventTypes.OnConnected:
+						if (mConnectionEvent.Error == BattleNetErrors.ERROR_OK)
 						{
-							if (mConnectionEvent.Error == BattleNetErrors.ERROR_OK)
-							{
-								this.m_connectionState = SslClientConnection.ConnectionState.Connected;
-							}
-							else
-							{
-								this.Disconnect();
-								this.m_connectionState = SslClientConnection.ConnectionState.ConnectionFailed;
-							}
-							ConnectHandler[] array = this.m_connectHandlers.ToArray();
-							for (int i = 0; i < (int)array.Length; i++)
-							{
-								array[i](mConnectionEvent.Error);
-							}
-							continue;
+							this.m_connectionState = SslClientConnection.ConnectionState.Connected;
 						}
-						case SslClientConnection.ConnectionEventTypes.OnDisconnected:
+						else
 						{
-							if (mConnectionEvent.Error != BattleNetErrors.ERROR_OK)
-							{
-								this.Disconnect();
-							}
-							DisconnectHandler[] disconnectHandlerArray = this.m_disconnectHandlers.ToArray();
-							for (int j = 0; j < (int)disconnectHandlerArray.Length; j++)
-							{
-								disconnectHandlerArray[j](mConnectionEvent.Error);
-							}
-							continue;
+							this.Disconnect();
+							this.m_connectionState = SslClientConnection.ConnectionState.ConnectionFailed;
 						}
-						case SslClientConnection.ConnectionEventTypes.OnPacketCompleted:
+						ConnectHandler[] array = this.m_connectHandlers.ToArray();
+						for (int i = 0; i < (int)array.Length; i++)
 						{
-							for (int k = 0; k < this.m_listeners.Count; k++)
-							{
-								IClientConnectionListener<BattleNetPacket> item = this.m_listeners[k];
-								object obj = this.m_listenerStates[k];
-								item.PacketReceived(mConnectionEvent.Packet, obj);
-							}
-							continue;
+							array[i](mConnectionEvent.Error);
 						}
-						default:
+					}
+					else if (type == SslClientConnection.ConnectionEventTypes.OnDisconnected)
+					{
+						if (mConnectionEvent.Error != BattleNetErrors.ERROR_OK)
 						{
-							continue;
+							this.Disconnect();
+						}
+						DisconnectHandler[] disconnectHandlerArray = this.m_disconnectHandlers.ToArray();
+						for (int j = 0; j < (int)disconnectHandlerArray.Length; j++)
+						{
+							disconnectHandlerArray[j](mConnectionEvent.Error);
+						}
+					}
+					else if (type == SslClientConnection.ConnectionEventTypes.OnPacketCompleted)
+					{
+						for (int k = 0; k < this.m_listeners.Count; k++)
+						{
+							IClientConnectionListener<BattleNetPacket> item = this.m_listeners[k];
+							object obj = this.m_listenerStates[k];
+							item.PacketReceived(mConnectionEvent.Packet, obj);
 						}
 					}
 				}

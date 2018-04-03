@@ -31,9 +31,9 @@ namespace Newtonsoft.Json.Serialization
 				{
 					throw new JsonSerializationException("A member with the name '{0}' already exists on '{1}'. Use the JsonPropertyAttribute to specify another name.".FormatWith(CultureInfo.InvariantCulture, new object[] { property.PropertyName, this._type }));
 				}
-				this.Remove(item);
+				base.Remove(item);
 			}
-			this.Add(property);
+			base.Add(property);
 		}
 
 		public JsonProperty GetClosestMatchProperty(string propertyName)
@@ -50,8 +50,7 @@ namespace Newtonsoft.Json.Serialization
 		public JsonProperty GetProperty(string propertyName, StringComparison comparisonType)
 		{
 			JsonProperty jsonProperty;
-			IEnumerator<JsonProperty> enumerator = this.GetEnumerator();
-			try
+			using (IEnumerator<JsonProperty> enumerator = base.GetEnumerator())
 			{
 				while (enumerator.MoveNext())
 				{
@@ -64,13 +63,6 @@ namespace Newtonsoft.Json.Serialization
 					return jsonProperty;
 				}
 				return null;
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
 			}
 			return jsonProperty;
 		}

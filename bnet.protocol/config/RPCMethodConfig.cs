@@ -229,8 +229,7 @@ namespace bnet.protocol.config
 					int num = stream.ReadByte();
 					if (num != -1)
 					{
-						int num1 = num;
-						switch (num1)
+						switch (num)
 						{
 							case 53:
 							{
@@ -244,47 +243,47 @@ namespace bnet.protocol.config
 							}
 							default:
 							{
-								if (num1 == 10)
+								if (num == 10)
 								{
 									instance.ServiceName = ProtocolParser.ReadString(stream);
 									continue;
 								}
-								else if (num1 == 18)
+								else if (num == 18)
 								{
 									instance.MethodName = ProtocolParser.ReadString(stream);
 									continue;
 								}
-								else if (num1 == 24)
+								else if (num == 24)
 								{
 									instance.FixedCallCost = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 32)
+								else if (num == 32)
 								{
 									instance.FixedPacketSize = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 45)
+								else if (num == 45)
 								{
 									instance.VariableMultiplier = binaryReader.ReadSingle();
 									continue;
 								}
-								else if (num1 == 64)
+								else if (num == 64)
 								{
 									instance.RateLimitSeconds = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 72)
+								else if (num == 72)
 								{
 									instance.MaxPacketSize = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 80)
+								else if (num == 80)
 								{
 									instance.MaxEncodedSize = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 93)
+								else if (num == 93)
 								{
 									instance.Timeout = binaryReader.ReadSingle();
 									continue;

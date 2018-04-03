@@ -118,6 +118,14 @@ public class OrderHallNavButton : MonoBehaviour
 		Main.instance.SelectOrderHallNavButton(this);
 	}
 
+	private void Start()
+	{
+		if (Main.instance.IsNarrowScreen())
+		{
+			this.m_selectedSize = 100f;
+		}
+	}
+
 	private void StopGlowEffect()
 	{
 		if (this.m_glowSpinHandle != null)

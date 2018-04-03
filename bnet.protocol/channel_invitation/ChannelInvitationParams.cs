@@ -82,49 +82,45 @@ namespace bnet.protocol.channel_invitation
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 10)
-						{
-							if (instance.ChannelId != null)
-							{
-								EntityId.DeserializeLengthDelimited(stream, instance.ChannelId);
-							}
-							else
-							{
-								instance.ChannelId = EntityId.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 16)
-						{
-							instance.Reserved = ProtocolParser.ReadBool(stream);
-						}
-						else if (num1 == 24)
-						{
-							instance.Rejoin = ProtocolParser.ReadBool(stream);
-						}
-						else if (num1 == 32)
-						{
-							instance.ServiceType = ProtocolParser.ReadUInt32(stream);
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 10)
+					{
+						if (instance.ChannelId != null)
+						{
+							EntityId.DeserializeLengthDelimited(stream, instance.ChannelId);
+						}
+						else
+						{
+							instance.ChannelId = EntityId.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 16)
+					{
+						instance.Reserved = ProtocolParser.ReadBool(stream);
+					}
+					else if (num == 24)
+					{
+						instance.Rejoin = ProtocolParser.ReadBool(stream);
+					}
+					else if (num == 32)
+					{
+						instance.ServiceType = ProtocolParser.ReadUInt32(stream);
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
 					}
 				}
 				else

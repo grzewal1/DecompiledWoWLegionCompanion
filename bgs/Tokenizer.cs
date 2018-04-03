@@ -5,11 +5,11 @@ namespace bgs
 {
 	public class Tokenizer
 	{
-		private const char NULLCHAR = '\0';
-
 		private char[] m_chars;
 
 		private int m_index;
+
+		private const char NULLCHAR = '\0';
 
 		public Tokenizer(string str)
 		{

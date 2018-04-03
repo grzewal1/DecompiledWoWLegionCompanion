@@ -264,54 +264,50 @@ namespace bnet.protocol.friends
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 8)
-						{
-							instance.MaxFriends = ProtocolParser.ReadUInt32(stream);
-						}
-						else if (num1 == 16)
-						{
-							instance.MaxReceivedInvitations = ProtocolParser.ReadUInt32(stream);
-						}
-						else if (num1 == 24)
-						{
-							instance.MaxSentInvitations = ProtocolParser.ReadUInt32(stream);
-						}
-						else if (num1 == 34)
-						{
-							instance.Role.Add(bnet.protocol.Role.DeserializeLengthDelimited(stream));
-						}
-						else if (num1 == 42)
-						{
-							instance.Friends.Add(Friend.DeserializeLengthDelimited(stream));
-						}
-						else if (num1 == 50)
-						{
-							instance.SentInvitations.Add(Invitation.DeserializeLengthDelimited(stream));
-						}
-						else if (num1 == 58)
-						{
-							instance.ReceivedInvitations.Add(Invitation.DeserializeLengthDelimited(stream));
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 8)
+					{
+						instance.MaxFriends = ProtocolParser.ReadUInt32(stream);
+					}
+					else if (num == 16)
+					{
+						instance.MaxReceivedInvitations = ProtocolParser.ReadUInt32(stream);
+					}
+					else if (num == 24)
+					{
+						instance.MaxSentInvitations = ProtocolParser.ReadUInt32(stream);
+					}
+					else if (num == 34)
+					{
+						instance.Role.Add(bnet.protocol.Role.DeserializeLengthDelimited(stream));
+					}
+					else if (num == 42)
+					{
+						instance.Friends.Add(Friend.DeserializeLengthDelimited(stream));
+					}
+					else if (num == 50)
+					{
+						instance.SentInvitations.Add(Invitation.DeserializeLengthDelimited(stream));
+					}
+					else if (num == 58)
+					{
+						instance.ReceivedInvitations.Add(Invitation.DeserializeLengthDelimited(stream));
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
 					}
 				}
 				else

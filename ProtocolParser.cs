@@ -148,7 +148,7 @@ public static class ProtocolParser
 			{
 				return num | num1 << (7 * i & 31);
 			}
-			num = num | (num1 & 127) << (7 * i & 31 & 31);
+			num = num | (num1 & 127) << (7 * i & 31);
 		}
 		throw new ProtocolBufferException("Got larger VarInt than 32bit unsigned");
 	}
@@ -171,7 +171,7 @@ public static class ProtocolParser
 			{
 				return num | (long)num1 << (7 * i & 63);
 			}
-			num = num | (long)(num1 & 127) << (7 * i & 63 & 63);
+			num = num | (long)(num1 & 127) << (7 * i & 63);
 		}
 		throw new ProtocolBufferException("Got larger VarInt than 64 bit unsigned");
 	}
@@ -302,7 +302,7 @@ public static class ProtocolParser
 		while (true)
 		{
 			val >>= 7;
-			if (val == 0)
+			if (val == (long)0)
 			{
 				break;
 			}
@@ -464,7 +464,7 @@ public static class ProtocolParser
 		{
 			num = (byte)(val & (long)127);
 			val >>= 7;
-			if (val == 0)
+			if (val == (long)0)
 			{
 				break;
 			}

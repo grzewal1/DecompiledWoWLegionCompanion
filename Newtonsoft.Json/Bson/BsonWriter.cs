@@ -44,7 +44,7 @@ namespace Newtonsoft.Json.Bson
 		{
 			if (this._parent == null)
 			{
-				if ((int)token.Type != 3 && (int)token.Type != 4)
+				if (token.Type != BsonType.Object && token.Type != BsonType.Array)
 				{
 					throw new JsonWriterException("Error writing {0} value. BSON must start with an Object or Array.".FormatWith(CultureInfo.InvariantCulture, new object[] { token.Type }));
 				}

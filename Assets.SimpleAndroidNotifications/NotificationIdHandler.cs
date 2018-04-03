@@ -37,7 +37,7 @@ namespace Assets.SimpleAndroidNotifications
 			return (!PlayerPrefs.HasKey("NotificationHelper.Scheduled") ? new List<int>() : (
 				from i in PlayerPrefs.GetString("NotificationHelper.Scheduled").Split(new char[] { '|' })
 				where i != string.Empty
-				select int.Parse(i)).ToList<int>());
+				select i).Select<string, int>(new Func<string, int>(int.Parse)).ToList<int>());
 		}
 
 		public static void RemoveScheduledNotificaion(int id)

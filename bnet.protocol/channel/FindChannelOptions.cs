@@ -167,8 +167,7 @@ namespace bnet.protocol.channel
 					int num = stream.ReadByte();
 					if (num != -1)
 					{
-						int num1 = num;
-						switch (num1)
+						switch (num)
 						{
 							case 45:
 							{
@@ -182,27 +181,27 @@ namespace bnet.protocol.channel
 							}
 							default:
 							{
-								if (num1 == 8)
+								if (num == 8)
 								{
 									instance.StartIndex = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 16)
+								else if (num == 16)
 								{
 									instance.MaxResults = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 26)
+								else if (num == 26)
 								{
 									instance.Name = ProtocolParser.ReadString(stream);
 									continue;
 								}
-								else if (num1 == 37)
+								else if (num == 37)
 								{
 									instance.Program = binaryReader.ReadUInt32();
 									continue;
 								}
-								else if (num1 == 58)
+								else if (num == 58)
 								{
 									if (instance.AttributeFilter != null)
 									{
@@ -214,7 +213,7 @@ namespace bnet.protocol.channel
 									}
 									continue;
 								}
-								else if (num1 == 66)
+								else if (num == 66)
 								{
 									instance.ChannelType = ProtocolParser.ReadString(stream);
 									continue;

@@ -10,11 +10,11 @@ namespace bgs
 {
 	public class BattleNet
 	{
+		private static IBattleNet s_impl;
+
 		public const string COUNTRY_KOREA = "KOR";
 
 		public const string COUNTRY_CHINA = "CHN";
-
-		private static IBattleNet s_impl;
 
 		public static BattleNetLogSource Log
 		{

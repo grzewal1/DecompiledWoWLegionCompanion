@@ -165,7 +165,7 @@ namespace bgs
 
 		private static void FinalizeState(LocalStorageFileState state)
 		{
-			List<LocalStorageFileState> mCompletedDownloads = LocalStorageAPI.m_completedDownloads;
+			object mCompletedDownloads = LocalStorageAPI.m_completedDownloads;
 			Monitor.Enter(mCompletedDownloads);
 			try
 			{
@@ -387,7 +387,7 @@ namespace bgs
 
 		public override void Process()
 		{
-			List<LocalStorageFileState> mCompletedDownloads = LocalStorageAPI.m_completedDownloads;
+			object mCompletedDownloads = LocalStorageAPI.m_completedDownloads;
 			Monitor.Enter(mCompletedDownloads);
 			try
 			{

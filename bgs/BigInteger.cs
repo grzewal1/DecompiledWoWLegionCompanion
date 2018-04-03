@@ -33,7 +33,7 @@ namespace bgs
 		public BigInteger(long number)
 		{
 			this.m_digits = new DigitsArray(8 / DigitsArray.DataSizeOf + 1, 0);
-			while (number != 0 && this.m_digits.DataUsed < this.m_digits.Count)
+			while (number != (long)0 && this.m_digits.DataUsed < this.m_digits.Count)
 			{
 				this.m_digits[this.m_digits.DataUsed] = (uint)(number & (ulong)DigitsArray.AllBits);
 				number = number >> (DigitsArray.DataSizeBits & 63);
@@ -46,7 +46,7 @@ namespace bgs
 		public BigInteger(ulong number)
 		{
 			this.m_digits = new DigitsArray(8 / DigitsArray.DataSizeOf + 1, 0);
-			while (number != 0 && this.m_digits.DataUsed < this.m_digits.Count)
+			while (number != (long)0 && this.m_digits.DataUsed < this.m_digits.Count)
 			{
 				this.m_digits[this.m_digits.DataUsed] = (uint)(number & (ulong)DigitsArray.AllBits);
 				number = number >> (DigitsArray.DataSizeBits & 63);
@@ -664,7 +664,7 @@ namespace bgs
 					num++;
 					num1++;
 				}
-				if (dataSizeBits != 0)
+				if (dataSizeBits != (long)0)
 				{
 					digitsArray[i + rightSide.m_digits.DataUsed] = (uint)dataSizeBits;
 				}

@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Newtonsoft.Json.Utilities
 {
-	internal class ListWrapper<T> : CollectionWrapper<T>, IEnumerable, IList, ICollection, IWrappedList, IList<T>, ICollection<T>, IEnumerable<T>
+	internal class ListWrapper<T> : CollectionWrapper<T>, IList<T>, IWrappedList, ICollection<T>, IEnumerable<T>, IEnumerable, IList, ICollection
 	{
 		private readonly IList<T> _genericList;
 
@@ -64,7 +64,7 @@ namespace Newtonsoft.Json.Utilities
 				{
 					return this._genericList;
 				}
-				return this.UnderlyingCollection;
+				return base.UnderlyingCollection;
 			}
 		}
 

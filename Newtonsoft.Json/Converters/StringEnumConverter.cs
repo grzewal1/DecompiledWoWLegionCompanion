@@ -33,12 +33,12 @@ namespace Newtonsoft.Json.Converters
 		private BidirectionalDictionary<string, string> GetEnumNameMap(Type t)
 		{
 			BidirectionalDictionary<string, string> bidirectionalDictionary;
-			string str;
 			BidirectionalDictionary<string, string> bidirectionalDictionary1;
+			string str;
 			if (!this._enumMemberNamesPerType.TryGetValue(t, out bidirectionalDictionary))
 			{
-				Dictionary<Type, BidirectionalDictionary<string, string>> types = this._enumMemberNamesPerType;
-				Monitor.Enter(types);
+				object obj = this._enumMemberNamesPerType;
+				Monitor.Enter(obj);
 				try
 				{
 					if (!this._enumMemberNamesPerType.TryGetValue(t, out bidirectionalDictionary))
@@ -68,7 +68,7 @@ namespace Newtonsoft.Json.Converters
 				}
 				finally
 				{
-					Monitor.Exit(types);
+					Monitor.Exit(obj);
 				}
 				return bidirectionalDictionary1;
 			}

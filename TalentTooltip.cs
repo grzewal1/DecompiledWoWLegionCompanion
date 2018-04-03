@@ -24,6 +24,10 @@ public class TalentTooltip : MonoBehaviour
 
 	public Image m_resourceIcon;
 
+	public Text m_resourceCostDescription;
+
+	public Text m_resourceDurationDescription;
+
 	public Text m_resourceCostText;
 
 	public Text m_researchDurationText;
@@ -137,9 +141,13 @@ public class TalentTooltip : MonoBehaviour
 		this.m_talentName.font = GeneralHelpers.LoadStandardFont();
 		this.m_talentDescription.font = GeneralHelpers.LoadStandardFont();
 		this.m_researchOrRespecText.font = GeneralHelpers.LoadStandardFont();
+		this.m_resourceCostDescription.font = GeneralHelpers.LoadStandardFont();
+		this.m_resourceDurationDescription.font = GeneralHelpers.LoadStandardFont();
 		this.m_resourceCostText.font = GeneralHelpers.LoadStandardFont();
 		this.m_researchDurationText.font = GeneralHelpers.LoadStandardFont();
 		this.m_statusText.font = GeneralHelpers.LoadStandardFont();
+		this.m_resourceCostDescription.text = StaticDB.GetString("COST2", "Cost:");
+		this.m_resourceDurationDescription.text = string.Concat(StaticDB.GetString("RESEARCH_TIME", "Research Time"), ":");
 	}
 
 	public void StartResearch()

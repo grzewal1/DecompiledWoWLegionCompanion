@@ -35,6 +35,18 @@ public class PartyBuffsPopup : MonoBehaviour
 			PartyBuffDisplay partyBuffDisplay = UnityEngine.Object.Instantiate<PartyBuffDisplay>(this.m_partyBuffDisplayPrefab);
 			partyBuffDisplay.transform.SetParent(this.m_partyBuffRoot.transform, false);
 			partyBuffDisplay.SetAbility(num);
+			if ((int)buffIDs.Length > 7)
+			{
+				partyBuffDisplay.UseReducedHeight();
+				if ((int)buffIDs.Length > 9)
+				{
+					VerticalLayoutGroup component = this.m_partyBuffRoot.GetComponent<VerticalLayoutGroup>();
+					if (component != null)
+					{
+						component.spacing = 3f;
+					}
+				}
+			}
 		}
 	}
 

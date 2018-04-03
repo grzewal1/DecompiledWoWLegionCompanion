@@ -113,6 +113,8 @@ public class Main : MonoBehaviour
 
 	public BackButtonManager m_backButtonManager;
 
+	private bool m_narrowScreen;
+
 	public Main()
 	{
 	}
@@ -168,6 +170,7 @@ public class Main : MonoBehaviour
 		AllPanels.instance.ShowConnectingPanelCancelButton(false);
 		AllPanels.instance.SetConnectingPanelStatus(string.Empty);
 		UnityEngine.Object.DontDestroyOnLoad(base.gameObject);
+		this.SetNarrowScreen();
 	}
 
 	public void CheatFastForwardOneHour()
@@ -217,10 +220,11 @@ public class Main : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
 	}
 
@@ -347,6 +351,11 @@ public class Main : MonoBehaviour
 	public void HideDebugText()
 	{
 		this.m_debugButton.SetActive(false);
+	}
+
+	public bool IsNarrowScreen()
+	{
+		return this.m_narrowScreen;
 	}
 
 	public void Logout()
@@ -743,22 +752,10 @@ public class Main : MonoBehaviour
 
 	private void MobileClientGuildMembersOnlineHandler(MobileClientGuildMembersOnline msg)
 	{
-		IEnumerator<MobileGuildMember> enumerator = msg.Members.AsEnumerable<MobileGuildMember>().GetEnumerator();
-		try
+		foreach (MobileGuildMember mobileGuildMember in msg.Members.AsEnumerable<MobileGuildMember>())
 		{
-			while (enumerator.MoveNext())
-			{
-				MobileGuildMember current = enumerator.Current;
-				Debug.Log(string.Concat(new string[] { "Guild member ", current.Name, " (", current.Guid, ") is online." }));
-				GuildData.AddGuildMember(current);
-			}
-		}
-		finally
-		{
-			if (enumerator == null)
-			{
-			}
-			enumerator.Dispose();
+			Debug.Log(string.Concat(new string[] { "Guild member ", mobileGuildMember.Name, " (", mobileGuildMember.Guid, ") is online." }));
+			GuildData.AddGuildMember(mobileGuildMember);
 		}
 	}
 
@@ -1074,6 +1071,38 @@ public class Main : MonoBehaviour
 		Login.instance.SendToMobileServer(mobilePlayerGarrisonDataRequest);
 	}
 
+	public void NudgeX(ref GameObject gameObj, float amount)
+	{
+		if (gameObj != null)
+		{
+			RectTransform component = gameObj.GetComponent<RectTransform>();
+			if (component)
+			{
+				Vector3 vector3 = gameObj.transform.position;
+				vector3 = component.InverseTransformPoint(vector3);
+				vector3.x += amount;
+				vector3 = component.TransformPoint(vector3);
+				gameObj.transform.position = vector3;
+			}
+		}
+	}
+
+	public void NudgeY(ref GameObject gameObj, float amount)
+	{
+		if (gameObj != null)
+		{
+			RectTransform component = gameObj.GetComponent<RectTransform>();
+			if (component)
+			{
+				Vector3 vector3 = gameObj.transform.position;
+				vector3 = component.InverseTransformPoint(vector3);
+				vector3.y += amount;
+				vector3 = component.TransformPoint(vector3);
+				gameObj.transform.position = vector3;
+			}
+		}
+	}
+
 	private void OnApplicationPause(bool pauseStatus)
 	{
 		if (!pauseStatus)
@@ -1093,7 +1122,7 @@ public class Main : MonoBehaviour
 
 	public void OnMessageReceivedCB(object msg, MobileNetwork.MobileNetworkEventArgs args)
 	{
-		Queue<Main.MobileMessage> mMessageQueue = this.m_messageQueue;
+		object mMessageQueue = this.m_messageQueue;
 		Monitor.Enter(mMessageQueue);
 		try
 		{
@@ -1153,7 +1182,7 @@ public class Main : MonoBehaviour
 					}
 					finally
 					{
-						((IDisposable)(object)enumerator1).Dispose();
+						((IDisposable)enumerator1).Dispose();
 					}
 					MobilePlayerEvaluateMission mobilePlayerEvaluateMission = new MobilePlayerEvaluateMission()
 					{
@@ -1174,7 +1203,7 @@ public class Main : MonoBehaviour
 					}
 					finally
 					{
-						((IDisposable)(object)enumerator2).Dispose();
+						((IDisposable)enumerator2).Dispose();
 					}
 					Login.instance.SendToMobileServer(mobilePlayerEvaluateMission);
 				}
@@ -1183,10 +1212,11 @@ public class Main : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
 	}
 
@@ -1392,7 +1422,7 @@ public class Main : MonoBehaviour
 		Main.MobileMessage mobileMessage;
 		do
 		{
-			Queue<Main.MobileMessage> mMessageQueue = this.m_messageQueue;
+			object mMessageQueue = this.m_messageQueue;
 			Monitor.Enter(mMessageQueue);
 			try
 			{
@@ -1536,10 +1566,11 @@ public class Main : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
 		IEnumerator enumerator1 = PersistentTalentData.talentDictionary.Values.GetEnumerator();
 		try
@@ -1570,11 +1601,12 @@ public class Main : MonoBehaviour
 		}
 		finally
 		{
-			IDisposable disposable1 = enumerator1 as IDisposable;
-			if (disposable1 == null)
+			IDisposable disposable2 = enumerator1 as IDisposable;
+			IDisposable disposable3 = disposable2;
+			if (disposable2 != null)
 			{
+				disposable3.Dispose();
 			}
-			disposable1.Dispose();
 		}
 		notificationDatas.Sort(new NotificationDataComparer());
 		int num4 = 0;
@@ -1637,6 +1669,21 @@ public class Main : MonoBehaviour
 	{
 		this.m_debugText.text = newText;
 		this.m_debugButton.SetActive(true);
+	}
+
+	private void SetNarrowScreen()
+	{
+		float single = 1f;
+		float single1 = (float)Screen.currentResolution.height;
+		float single2 = (float)Screen.currentResolution.width;
+		if (single2 > 0f && single1 > 0f)
+		{
+			single = (single1 <= single2 ? single2 / single1 : single1 / single2);
+		}
+		if (single > 1.9f)
+		{
+			this.m_narrowScreen = true;
+		}
 	}
 
 	private void Start()

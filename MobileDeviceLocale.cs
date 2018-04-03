@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class MobileDeviceLocale
@@ -241,7 +240,6 @@ public class MobileDeviceLocale
 
 	public static string GetBestGuessForLocale()
 	{
-		int num;
 		string str = "enUS";
 		bool flag = false;
 		string languageCode = MobileDeviceLocale.GetLanguageCode();
@@ -265,43 +263,30 @@ public class MobileDeviceLocale
 		}
 		if (!flag)
 		{
-			int num1 = 1;
+			int num = 1;
 			string countryCode = MobileDeviceLocale.GetCountryCode();
 			try
 			{
-				MobileDeviceLocale.s_countryCodeToRegionId.TryGetValue(countryCode, out num1);
+				MobileDeviceLocale.s_countryCodeToRegionId.TryGetValue(countryCode, out num);
 			}
 			catch (Exception exception2)
 			{
 			}
-			string str1 = languageCode;
-			if (str1 != null)
+			if (languageCode != null)
 			{
-				if (MobileDeviceLocale.<>f__switch$mapA == null)
+				if (languageCode == "es")
 				{
-					Dictionary<string, int> strs = new Dictionary<string, int>(2)
-					{
-						{ "es", 0 },
-						{ "zh", 1 }
-					};
-					MobileDeviceLocale.<>f__switch$mapA = strs;
+					str = (num != 1 ? "esES" : "esMX");
+					return str;
 				}
-				if (MobileDeviceLocale.<>f__switch$mapA.TryGetValue(str1, out num))
+				else
 				{
-					if (num == 0)
+					if (languageCode != "zh")
 					{
-						str = (num1 != 1 ? "esES" : "esMX");
-						return str;
+						goto Label2;
 					}
-					else
-					{
-						if (num != 1)
-						{
-							goto Label2;
-						}
-						str = (countryCode != "CN" ? "zhTW" : "zhCN");
-						return str;
-					}
+					str = (countryCode != "CN" ? "zhTW" : "zhCN");
+					return str;
 				}
 			}
 		Label2:

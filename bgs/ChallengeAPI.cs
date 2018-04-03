@@ -11,8 +11,6 @@ namespace bgs
 {
 	public class ChallengeAPI : BattleNetAPI
 	{
-		private const uint PWD_FOURCC = 5265220;
-
 		private ServiceDescriptor m_challengeService = new bgs.RPCServices.ChallengeService();
 
 		private ServiceDescriptor m_challengeNotifyService = new ChallengeNotify();
@@ -22,6 +20,8 @@ namespace bgs
 		private Dictionary<uint, ChallengeInfo> m_challengePendingList = new Dictionary<uint, ChallengeInfo>();
 
 		private Dictionary<uint, ulong> s_pendingAnswers = new Dictionary<uint, ulong>();
+
+		private const uint PWD_FOURCC = 5265220;
 
 		private ExternalChallenge m_nextExternalChallenge;
 
@@ -76,7 +76,7 @@ namespace bgs
 		{
 			ChallengeAnsweredRequest challengeAnsweredRequest = new ChallengeAnsweredRequest();
 			challengeAnsweredRequest.SetAnswer("pass");
-			challengeAnsweredRequest.SetData(new byte[] { typeof(<PrivateImplementationDetails>).GetField("$$field-12").FieldHandle });
+			challengeAnsweredRequest.SetData(new byte[] { typeof(<PrivateImplementationDetails>).GetField("$field-0702550BB56A81BC051BA8F9BCD15ACBBB08D7EF").FieldHandle });
 			if (!challengeAnsweredRequest.IsInitialized)
 			{
 				return;

@@ -2,7 +2,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Utilities;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -50,20 +49,9 @@ namespace Newtonsoft.Json.Schema
 				return;
 			}
 			this._writer.WriteStartArray();
-			IEnumerator<JsonSchema> enumerator = schema.Items.GetEnumerator();
-			try
+			foreach (JsonSchema item in schema.Items)
 			{
-				while (enumerator.MoveNext())
-				{
-					this.ReferenceOrWriteSchema(enumerator.Current);
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				this.ReferenceOrWriteSchema(item);
 			}
 			this._writer.WriteEndArray();
 		}
@@ -124,20 +112,9 @@ namespace Newtonsoft.Json.Schema
 			{
 				this._writer.WritePropertyName("enum");
 				this._writer.WriteStartArray();
-				IEnumerator<JToken> enumerator = schema.Enum.GetEnumerator();
-				try
+				foreach (JToken @enum in schema.Enum)
 				{
-					while (enumerator.MoveNext())
-					{
-						enumerator.Current.WriteTo(this._writer, new JsonConverter[0]);
-					}
-				}
-				finally
-				{
-					if (enumerator == null)
-					{
-					}
-					enumerator.Dispose();
+					@enum.WriteTo(this._writer, new JsonConverter[0]);
 				}
 				this._writer.WriteEndArray();
 			}
@@ -150,29 +127,17 @@ namespace Newtonsoft.Json.Schema
 			{
 				this._writer.WritePropertyName("options");
 				this._writer.WriteStartArray();
-				IEnumerator<KeyValuePair<JToken, string>> enumerator1 = schema.Options.GetEnumerator();
-				try
+				foreach (KeyValuePair<JToken, string> option in schema.Options)
 				{
-					while (enumerator1.MoveNext())
+					this._writer.WriteStartObject();
+					this._writer.WritePropertyName("value");
+					option.Key.WriteTo(this._writer, new JsonConverter[0]);
+					if (option.Value != null)
 					{
-						KeyValuePair<JToken, string> current = enumerator1.Current;
-						this._writer.WriteStartObject();
-						this._writer.WritePropertyName("value");
-						current.Key.WriteTo(this._writer, new JsonConverter[0]);
-						if (current.Value != null)
-						{
-							this._writer.WritePropertyName("label");
-							this._writer.WriteValue(current.Value);
-						}
-						this._writer.WriteEndObject();
+						this._writer.WritePropertyName("label");
+						this._writer.WriteValue(option.Value);
 					}
-				}
-				finally
-				{
-					if (enumerator1 == null)
-					{
-					}
-					enumerator1.Dispose();
+					this._writer.WriteEndObject();
 				}
 				this._writer.WriteEndArray();
 			}
@@ -194,22 +159,10 @@ namespace Newtonsoft.Json.Schema
 			{
 				writer.WritePropertyName(propertyName);
 				writer.WriteStartObject();
-				IEnumerator<KeyValuePair<string, JsonSchema>> enumerator = properties.GetEnumerator();
-				try
+				foreach (KeyValuePair<string, JsonSchema> property in properties)
 				{
-					while (enumerator.MoveNext())
-					{
-						KeyValuePair<string, JsonSchema> current = enumerator.Current;
-						writer.WritePropertyName(current.Key);
-						this.ReferenceOrWriteSchema(current.Value);
-					}
-				}
-				finally
-				{
-					if (enumerator == null)
-					{
-					}
-					enumerator.Dispose();
+					writer.WritePropertyName(property.Key);
+					this.ReferenceOrWriteSchema(property.Value);
 				}
 				writer.WriteEndObject();
 			}
@@ -236,20 +189,9 @@ namespace Newtonsoft.Json.Schema
 				return;
 			}
 			writer.WriteStartArray();
-			IEnumerator<JsonSchemaType> enumerator = jsonSchemaTypes.GetEnumerator();
-			try
+			foreach (JsonSchemaType jsonSchemaType in jsonSchemaTypes)
 			{
-				while (enumerator.MoveNext())
-				{
-					writer.WriteValue(JsonSchemaBuilder.MapType(enumerator.Current));
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				writer.WriteValue(JsonSchemaBuilder.MapType(jsonSchemaType));
 			}
 			writer.WriteEndArray();
 		}

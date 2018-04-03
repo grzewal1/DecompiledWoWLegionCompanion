@@ -42,12 +42,11 @@ namespace WowStaticData
 
 		private void DeserializeIndex(int index, string valueText)
 		{
-			int num = index;
-			if (num == 0)
+			if (index == 0)
 			{
 				this.ID = Convert.ToInt32(valueText);
 			}
-			else if (num == 1)
+			else if (index == 1)
 			{
 				this.AreaID = Convert.ToInt32(valueText);
 			}

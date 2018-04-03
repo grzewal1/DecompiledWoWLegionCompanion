@@ -5,8 +5,6 @@ namespace bgs
 {
 	public class ServiceDescriptor
 	{
-		private const uint INVALID_SERVICE_ID = 255;
-
 		private string name;
 
 		private uint id;
@@ -14,6 +12,8 @@ namespace bgs
 		private uint hash;
 
 		protected MethodDescriptor[] Methods;
+
+		private const uint INVALID_SERVICE_ID = 255;
 
 		public uint Hash
 		{

@@ -13,81 +13,49 @@ namespace bgs
 
 		public static RPCMeterConfig ParseConfig(string str)
 		{
-			int num;
 			RPCMeterConfig rPCMeterConfig = new RPCMeterConfig();
 			Tokenizer tokenizer = new Tokenizer(str);
 			while (true)
 			{
-			Label1:
+			Label2:
 				string str1 = tokenizer.NextString();
 				if (str1 == null)
 				{
 					break;
 				}
-				string str2 = str1;
-				if (str2 != null)
+				if (str1 == null)
 				{
-					if (RPCMeterConfigParser.<>f__switch$map10 == null)
-					{
-						Dictionary<string, int> strs = new Dictionary<string, int>(5)
-						{
-							{ "method", 0 },
-							{ "income_per_second:", 1 },
-							{ "initial_balance:", 2 },
-							{ "cap_balance:", 3 },
-							{ "startup_period:", 4 }
-						};
-						RPCMeterConfigParser.<>f__switch$map10 = strs;
-					}
-					if (RPCMeterConfigParser.<>f__switch$map10.TryGetValue(str2, out num))
-					{
-						switch (num)
-						{
-							case 0:
-							{
-								rPCMeterConfig.AddMethod(RPCMeterConfigParser.ParseMethod(tokenizer));
-								break;
-							}
-							case 1:
-							{
-								rPCMeterConfig.IncomePerSecond = tokenizer.NextUInt32();
-								break;
-							}
-							case 2:
-							{
-								rPCMeterConfig.InitialBalance = tokenizer.NextUInt32();
-								break;
-							}
-							case 3:
-							{
-								rPCMeterConfig.CapBalance = tokenizer.NextUInt32();
-								break;
-							}
-							case 4:
-							{
-								rPCMeterConfig.StartupPeriod = tokenizer.NextFloat();
-								break;
-							}
-							default:
-							{
-								goto Label0;
-							}
-						}
-					}
-					else
-					{
-						goto Label0;
-					}
+					goto Label0;
+				}
+				else if (str1 == "method")
+				{
+					rPCMeterConfig.AddMethod(RPCMeterConfigParser.ParseMethod(tokenizer));
+				}
+				else if (str1 == "income_per_second:")
+				{
+					rPCMeterConfig.IncomePerSecond = tokenizer.NextUInt32();
+				}
+				else if (str1 == "initial_balance:")
+				{
+					rPCMeterConfig.InitialBalance = tokenizer.NextUInt32();
+				}
+				else if (str1 == "cap_balance:")
+				{
+					rPCMeterConfig.CapBalance = tokenizer.NextUInt32();
 				}
 				else
 				{
-					goto Label0;
+					if (str1 != "startup_period:")
+					{
+						goto Label0;
+					}
+					rPCMeterConfig.StartupPeriod = tokenizer.NextFloat();
 				}
 			}
 			return rPCMeterConfig;
 		Label0:
 			tokenizer.SkipUnknownToken();
-			goto Label1;
+			goto Label2;
 		}
 
 		public static RPCMethodConfig ParseMethod(Tokenizer tokenizer)
@@ -107,10 +75,9 @@ namespace bgs
 				{
 					break;
 				}
-				string str1 = str;
-				if (str1 != null)
+				if (str != null)
 				{
-					if (RPCMeterConfigParser.<>f__switch$mapF == null)
+					if (RPCMeterConfigParser.<>f__switch$map8 == null)
 					{
 						Dictionary<string, int> strs = new Dictionary<string, int>(11)
 						{
@@ -126,9 +93,9 @@ namespace bgs
 							{ "max_encoded_size:", 9 },
 							{ "timeout:", 10 }
 						};
-						RPCMeterConfigParser.<>f__switch$mapF = strs;
+						RPCMeterConfigParser.<>f__switch$map8 = strs;
 					}
-					if (RPCMeterConfigParser.<>f__switch$mapF.TryGetValue(str1, out num))
+					if (RPCMeterConfigParser.<>f__switch$map8.TryGetValue(str, out num))
 					{
 						switch (num)
 						{

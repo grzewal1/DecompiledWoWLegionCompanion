@@ -386,9 +386,9 @@ namespace bgs
 		{
 			// 
 			// Current member / type: System.Boolean bgs.ClientConnection`1::SendPacket(PacketType)
-			// File path: C:\apktool\wow_v1.3.20_com.blizzard.wowcompanion\assets\bin\Data\Managed\Assembly-CSharp.dll
+			// File path: C:\apktool\wow\assets\bin\Data\Managed\Assembly-CSharp.dll
 			// 
-			// Product version: 2017.3.1005.3
+			// Product version: 2018.1.123.0
 			// Exception in: System.Boolean SendPacket(PacketType)
 			// 
 			// La référence d'objet n'est pas définie à une instance d'un objet.
@@ -447,52 +447,43 @@ namespace bgs
 				foreach (ClientConnection<PacketType>.ConnectionEvent mConnectionEvent in this.m_connectionEvents)
 				{
 					this.PrintConnectionException(mConnectionEvent);
-					switch (mConnectionEvent.Type)
+					ClientConnection<PacketType>.ConnectionEventTypes type = mConnectionEvent.Type;
+					if (type == ClientConnection<PacketType>.ConnectionEventTypes.OnConnected)
 					{
-						case (ClientConnection<PacketType>.ConnectionEventTypes)ClientConnection<PacketType>.ConnectionEventTypes.OnConnected:
+						if (mConnectionEvent.Error == BattleNetErrors.ERROR_OK)
 						{
-							if (mConnectionEvent.Error == BattleNetErrors.ERROR_OK)
-							{
-								this.m_connectionState = ClientConnection<PacketType>.ConnectionState.Connected;
-							}
-							else
-							{
-								this.DisconnectSocket();
-								this.m_connectionState = ClientConnection<PacketType>.ConnectionState.ConnectionFailed;
-							}
-							ConnectHandler[] array = this.m_connectHandlers.ToArray();
-							for (int i = 0; i < (int)array.Length; i++)
-							{
-								array[i](mConnectionEvent.Error);
-							}
-							continue;
+							this.m_connectionState = ClientConnection<PacketType>.ConnectionState.Connected;
 						}
-						case (ClientConnection<PacketType>.ConnectionEventTypes)ClientConnection<PacketType>.ConnectionEventTypes.OnDisconnected:
+						else
 						{
-							if (mConnectionEvent.Error != BattleNetErrors.ERROR_OK)
-							{
-								this.Disconnect();
-							}
-							DisconnectHandler[] disconnectHandlerArray = this.m_disconnectHandlers.ToArray();
-							for (int j = 0; j < (int)disconnectHandlerArray.Length; j++)
-							{
-								disconnectHandlerArray[j](mConnectionEvent.Error);
-							}
-							continue;
+							this.DisconnectSocket();
+							this.m_connectionState = ClientConnection<PacketType>.ConnectionState.ConnectionFailed;
 						}
-						case (ClientConnection<PacketType>.ConnectionEventTypes)ClientConnection<PacketType>.ConnectionEventTypes.OnPacketCompleted:
+						ConnectHandler[] array = this.m_connectHandlers.ToArray();
+						for (int i = 0; i < (int)array.Length; i++)
 						{
-							for (int k = 0; k < this.m_listeners.Count; k++)
-							{
-								IClientConnectionListener<PacketType> item = this.m_listeners[k];
-								object obj = this.m_listenerStates[k];
-								item.PacketReceived(mConnectionEvent.Packet, obj);
-							}
-							continue;
+							array[i](mConnectionEvent.Error);
 						}
-						default:
+					}
+					else if (type == ClientConnection<PacketType>.ConnectionEventTypes.OnDisconnected)
+					{
+						if (mConnectionEvent.Error != BattleNetErrors.ERROR_OK)
 						{
-							continue;
+							this.Disconnect();
+						}
+						DisconnectHandler[] disconnectHandlerArray = this.m_disconnectHandlers.ToArray();
+						for (int j = 0; j < (int)disconnectHandlerArray.Length; j++)
+						{
+							disconnectHandlerArray[j](mConnectionEvent.Error);
+						}
+					}
+					else if (type == ClientConnection<PacketType>.ConnectionEventTypes.OnPacketCompleted)
+					{
+						for (int k = 0; k < this.m_listeners.Count; k++)
+						{
+							IClientConnectionListener<PacketType> item = this.m_listeners[k];
+							object obj = this.m_listenerStates[k];
+							item.PacketReceived(mConnectionEvent.Packet, obj);
 						}
 					}
 				}

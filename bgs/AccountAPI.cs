@@ -87,7 +87,7 @@ namespace bgs
 			}
 			finally
 			{
-				((IDisposable)(object)enumerator).Dispose();
+				((IDisposable)enumerator).Dispose();
 			}
 			return flag;
 		}

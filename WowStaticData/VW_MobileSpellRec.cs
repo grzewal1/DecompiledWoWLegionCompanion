@@ -48,23 +48,17 @@ namespace WowStaticData
 
 		private void DeserializeIndex(int index, string valueText)
 		{
-			switch (index)
+			if (index == 0)
 			{
-				case 0:
-				{
-					this.ID = Convert.ToInt32(valueText);
-					break;
-				}
-				case 1:
-				{
-					this.Name = valueText;
-					break;
-				}
-				case 2:
-				{
-					this.SpellIconFileDataID = Convert.ToInt32(valueText);
-					break;
-				}
+				this.ID = Convert.ToInt32(valueText);
+			}
+			else if (index == 1)
+			{
+				this.Name = valueText;
+			}
+			else if (index == 2)
+			{
+				this.SpellIconFileDataID = Convert.ToInt32(valueText);
 			}
 		}
 	}

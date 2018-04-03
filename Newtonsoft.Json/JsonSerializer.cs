@@ -2,10 +2,12 @@ using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
+using System.Threading;
 
 namespace Newtonsoft.Json
 {
@@ -38,8 +40,6 @@ namespace Newtonsoft.Json
 		private SerializationBinder _binder;
 
 		private StreamingContext _context;
-
-		private EventHandler<Newtonsoft.Json.Serialization.ErrorEventArgs> Error;
 
 		public virtual SerializationBinder Binder
 		{
@@ -296,7 +296,7 @@ namespace Newtonsoft.Json
 				jsonSerializer.Context = settings.Context;
 				if (settings.Error != null)
 				{
-					jsonSerializer.Error += settings.get_Error();
+					jsonSerializer.Error += settings.Error;
 				}
 				if (settings.ContractResolver != null)
 				{
@@ -406,15 +406,27 @@ namespace Newtonsoft.Json
 
 		public virtual event EventHandler<Newtonsoft.Json.Serialization.ErrorEventArgs> Error
 		{
-			[MethodImpl(MethodImplOptions.Synchronized)]
 			add
 			{
-				this.Error += value;
+				EventHandler<Newtonsoft.Json.Serialization.ErrorEventArgs> eventHandler;
+				EventHandler<Newtonsoft.Json.Serialization.ErrorEventArgs> error = this.Error;
+				do
+				{
+					eventHandler = error;
+					error = Interlocked.CompareExchange<EventHandler<Newtonsoft.Json.Serialization.ErrorEventArgs>>(ref this.Error, (EventHandler<Newtonsoft.Json.Serialization.ErrorEventArgs>)Delegate.Combine(eventHandler, value), error);
+				}
+				while ((object)error != (object)eventHandler);
 			}
-			[MethodImpl(MethodImplOptions.Synchronized)]
 			remove
 			{
-				this.Error -= value;
+				EventHandler<Newtonsoft.Json.Serialization.ErrorEventArgs> eventHandler;
+				EventHandler<Newtonsoft.Json.Serialization.ErrorEventArgs> error = this.Error;
+				do
+				{
+					eventHandler = error;
+					error = Interlocked.CompareExchange<EventHandler<Newtonsoft.Json.Serialization.ErrorEventArgs>>(ref this.Error, (EventHandler<Newtonsoft.Json.Serialization.ErrorEventArgs>)Delegate.Remove(eventHandler, value), error);
+				}
+				while ((object)error != (object)eventHandler);
 			}
 		}
 	}

@@ -20,8 +20,6 @@ namespace bgs
 
 		private const float PAYDOWN_RATE_PER_MS = 0.00333333341f;
 
-		private const string variablePrefix = "$0x";
-
 		private float m_presenceSubscriptionBalance;
 
 		private long m_lastPresenceSubscriptionSent;
@@ -43,6 +41,8 @@ namespace bgs
 		private int m_numOutstandingRichPresenceStringFetches;
 
 		private ServiceDescriptor m_presenceService = new bgs.RPCServices.PresenceService();
+
+		private const string variablePrefix = "$0x";
 
 		private static char[] hexChars;
 
@@ -84,9 +84,9 @@ namespace bgs
 		{
 			// 
 			// Current member / type: System.Void bgs.PresenceAPI::DownloadCompletedCallback(System.Byte[],System.Object)
-			// File path: C:\apktool\wow_v1.3.20_com.blizzard.wowcompanion\assets\bin\Data\Managed\Assembly-CSharp.dll
+			// File path: C:\apktool\wow\assets\bin\Data\Managed\Assembly-CSharp.dll
 			// 
-			// Product version: 2017.3.1005.3
+			// Product version: 2018.1.123.0
 			// Exception in: System.Void DownloadCompletedCallback(System.Byte[],System.Object)
 			// 
 			// La référence d'objet n'est pas définie à une instance d'un objet.
@@ -698,8 +698,8 @@ namespace bgs
 		{
 			int num;
 			ulong num1;
-			string str;
 			bool flag;
+			string str;
 			substitutedString = originalStr;
 			int num2 = 0;
 		Label1:

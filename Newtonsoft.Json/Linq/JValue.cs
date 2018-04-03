@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace Newtonsoft.Json.Linq
 {
-	public class JValue : JToken, IFormattable, IComparable, IEquatable<JValue>, IComparable<JValue>
+	public class JValue : JToken, IEquatable<JValue>, IFormattable, IComparable, IComparable<JValue>
 	{
 		private JTokenType _valueType;
 
@@ -521,8 +521,7 @@ namespace Newtonsoft.Json.Linq
 					return;
 				}
 			}
-			jTokenType = this._valueType;
-			switch (jTokenType)
+			switch (this._valueType)
 			{
 				case JTokenType.Integer:
 				{

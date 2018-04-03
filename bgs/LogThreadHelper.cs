@@ -47,7 +47,7 @@ namespace bgs
 
 		private void LogMessage(string message, LogLevel level)
 		{
-			List<LogThreadHelper.LogEntry> mQueuedLogs = this.m_queuedLogs;
+			object mQueuedLogs = this.m_queuedLogs;
 			Monitor.Enter(mQueuedLogs);
 			try
 			{
@@ -77,7 +77,7 @@ namespace bgs
 
 		public void Process()
 		{
-			List<LogThreadHelper.LogEntry> mQueuedLogs = this.m_queuedLogs;
+			object mQueuedLogs = this.m_queuedLogs;
 			Monitor.Enter(mQueuedLogs);
 			try
 			{

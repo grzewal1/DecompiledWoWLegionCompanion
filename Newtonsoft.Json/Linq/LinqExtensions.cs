@@ -55,16 +55,18 @@ namespace Newtonsoft.Json.Linq
 		internal static IEnumerable<U> Convert<T, U>(this IEnumerable<T> source)
 		where T : JToken
 		{
-			LinqExtensions.<Convert>c__Iterator6<T, U> variable = null;
+			LinqExtensions.<Convert>c__Iterator1<T, U> variable = null;
 			return variable;
 		}
 
 		internal static U Convert<T, U>(this T token)
 		where T : JToken
 		{
+			U u;
 			if (token == null)
 			{
-				return default(U);
+				u = default(U);
+				return u;
 			}
 			if ((object)token is U && typeof(U) != typeof(IComparable) && typeof(U) != typeof(IFormattable))
 			{
@@ -84,7 +86,8 @@ namespace Newtonsoft.Json.Linq
 			{
 				if (jValue.Value == null)
 				{
-					return default(U);
+					u = default(U);
+					return u;
 				}
 				underlyingType = Nullable.GetUnderlyingType(underlyingType);
 			}
@@ -145,7 +148,7 @@ namespace Newtonsoft.Json.Linq
 		internal static IEnumerable<U> Values<T, U>(this IEnumerable<T> source, object key)
 		where T : JToken
 		{
-			LinqExtensions.<Values>c__Iterator5<T, U> variable = null;
+			LinqExtensions.<Values>c__Iterator0<T, U> variable = null;
 			return variable;
 		}
 	}

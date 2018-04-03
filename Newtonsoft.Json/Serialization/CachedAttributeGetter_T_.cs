@@ -1,6 +1,7 @@
 using Newtonsoft.Json.Utilities;
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Newtonsoft.Json.Serialization
 {

@@ -5,7 +5,6 @@ using bnet.protocol.channel;
 using bnet.protocol.channel_invitation;
 using bnet.protocol.invitation;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -659,21 +658,10 @@ namespace bgs
 				PartyId = PartyId.FromProtocol(mChannelId),
 				StringData = partyType
 			};
-			IEnumerator<bnet.protocol.EntityId> enumerator = membersWithRoleChanges.GetEnumerator();
-			try
+			foreach (bnet.protocol.EntityId membersWithRoleChange in membersWithRoleChanges)
 			{
-				while (enumerator.MoveNext())
-				{
-					partyListenerEvent.SubjectMemberId = BnetGameAccountId.CreateFromProtocol(enumerator.Current);
-					this.m_partyListenerEvents.Add(partyListenerEvent);
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				partyListenerEvent.SubjectMemberId = BnetGameAccountId.CreateFromProtocol(membersWithRoleChange);
+				this.m_partyListenerEvents.Add(partyListenerEvent);
 			}
 		}
 
@@ -1142,7 +1130,7 @@ namespace bgs
 				return;
 			}
 			this.PushPartyEvent(partyId, "dll", "deck", partyData.m_friendGameAccount);
-			if (deckId == 0)
+			if (deckId == (long)0)
 			{
 				this.FriendlyChallenge_PushStateChange(partyId, "deck", false);
 			}
@@ -1160,7 +1148,7 @@ namespace bgs
 				return;
 			}
 			partyData.m_makerDeck = deckId;
-			if (deckId != 0)
+			if (deckId != (long)0)
 			{
 				partyData.StartFriendlyChallengeGameIfReady();
 			}
@@ -1300,36 +1288,24 @@ namespace bgs
 
 			public void FriendlyChallenge_HandleChannelAttributeUpdate(IList<bnet.protocol.attribute.Attribute> attributeList)
 			{
-				IEnumerator<bnet.protocol.attribute.Attribute> enumerator = attributeList.GetEnumerator();
-				try
+				foreach (bnet.protocol.attribute.Attribute attribute in attributeList)
 				{
-					while (enumerator.MoveNext())
+					if (attribute.Value.HasIntValue)
 					{
-						bnet.protocol.attribute.Attribute current = enumerator.Current;
-						if (current.Value.HasIntValue)
+						if (attribute.Name == "d2")
 						{
-							if (current.Name == "d2")
-							{
-								this.m_inviteeDeck = current.Value.IntValue;
-								this.StartFriendlyChallengeGameIfReady();
-							}
-						}
-						else if (!current.Value.HasStringValue)
-						{
-							this.m_battleNet.Party.ApiLog.LogError(string.Concat("Party : unknown value type, key: ", current.Name));
-						}
-						else
-						{
-							this.m_battleNet.Party.PushPartyEvent(this.m_partyId, current.Name, current.Value.StringValue, this.m_friendGameAccount);
+							this.m_inviteeDeck = attribute.Value.IntValue;
+							this.StartFriendlyChallengeGameIfReady();
 						}
 					}
-				}
-				finally
-				{
-					if (enumerator == null)
+					else if (!attribute.Value.HasStringValue)
 					{
+						this.m_battleNet.Party.ApiLog.LogError(string.Concat("Party : unknown value type, key: ", attribute.Name));
 					}
-					enumerator.Dispose();
+					else
+					{
+						this.m_battleNet.Party.PushPartyEvent(this.m_partyId, attribute.Name, attribute.Value.StringValue, this.m_friendGameAccount);
+					}
 				}
 			}
 
@@ -1378,11 +1354,11 @@ namespace bgs
 				{
 					return;
 				}
-				if (this.m_makerDeck == 0)
+				if (this.m_makerDeck == (long)0)
 				{
 					return;
 				}
-				if (this.m_inviteeDeck == 0)
+				if (this.m_inviteeDeck == (long)0)
 				{
 					return;
 				}

@@ -124,43 +124,39 @@ namespace bnet.protocol.connection
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 10)
-						{
-							long position = (long)ProtocolParser.ReadUInt32(stream);
-							position += stream.Position;
-							while (stream.Position < position)
-							{
-								instance.ImportedServiceHash.Add(binaryReader.ReadUInt32());
-							}
-							if (stream.Position != position)
-							{
-								throw new ProtocolBufferException("Read too many bytes in packed data");
-							}
-						}
-						else if (num1 == 18)
-						{
-							instance.ExportedService.Add(BoundService.DeserializeLengthDelimited(stream));
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 10)
+					{
+						long position = (long)ProtocolParser.ReadUInt32(stream);
+						position += stream.Position;
+						while (stream.Position < position)
+						{
+							instance.ImportedServiceHash.Add(binaryReader.ReadUInt32());
+						}
+						if (stream.Position != position)
+						{
+							throw new ProtocolBufferException("Read too many bytes in packed data");
+						}
+					}
+					else if (num == 18)
+					{
+						instance.ExportedService.Add(BoundService.DeserializeLengthDelimited(stream));
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
 					}
 				}
 				else

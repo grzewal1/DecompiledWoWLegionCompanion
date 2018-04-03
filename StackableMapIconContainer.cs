@@ -110,6 +110,11 @@ public class StackableMapIconContainer : MonoBehaviour
 			return;
 		}
 		this.m_iconAreaCanvasGroup.gameObject.SetActive(show);
+		if (show)
+		{
+			Rect component = this.m_iconAreaCanvas.GetComponent<RectTransform>().rect;
+			component.Set(0f, 0f, 120f, 192f);
+		}
 		if (!show || this.GetIconCount() <= 1)
 		{
 			this.m_iconAreaCanvas.sortingOrder = 1;

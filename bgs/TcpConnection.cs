@@ -179,8 +179,7 @@ namespace bgs
 		{
 			bool flag;
 			IPHostEntry hostEntry = Dns.GetHostEntry(this.Host);
-			IEnumerator<string> enumerator = certNames.GetEnumerator();
-			try
+			using (IEnumerator<string> enumerator = certNames.GetEnumerator())
 			{
 				while (enumerator.MoveNext())
 				{
@@ -212,31 +211,12 @@ namespace bgs
 				}
 				goto Label0;
 			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
-			}
 			return flag;
 		Label0:
 			string str1 = string.Format("TcpConnection - MatchSslCertName failed.", new object[0]);
-			IEnumerator<string> enumerator1 = certNames.GetEnumerator();
-			try
+			foreach (string certName in certNames)
 			{
-				while (enumerator1.MoveNext())
-				{
-					string current1 = enumerator1.Current;
-					str1 = string.Concat(str1, string.Format("\n\t certName: {0}", current1));
-				}
-			}
-			finally
-			{
-				if (enumerator1 == null)
-				{
-				}
-				enumerator1.Dispose();
+				str1 = string.Concat(str1, string.Format("\n\t certName: {0}", certName));
 			}
 			IPAddress[] addressList1 = hostEntry.AddressList;
 			for (int j = 0; j < (int)addressList1.Length; j++)

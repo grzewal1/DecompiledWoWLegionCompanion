@@ -253,8 +253,7 @@ namespace bnet.protocol.game_master
 					int num = stream.ReadByte();
 					if (num != -1)
 					{
-						int num1 = num;
-						switch (num1)
+						switch (num)
 						{
 							case 21:
 							{
@@ -268,52 +267,52 @@ namespace bnet.protocol.game_master
 							}
 							default:
 							{
-								if (num1 == 13)
+								if (num == 13)
 								{
 									instance.BucketMin = binaryReader.ReadSingle();
 									continue;
 								}
-								else if (num1 == 32)
+								else if (num == 32)
 								{
 									instance.GamesPerHour = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 40)
+								else if (num == 40)
 								{
 									instance.ActiveGames = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 48)
+								else if (num == 48)
 								{
 									instance.ActivePlayers = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 56)
+								else if (num == 56)
 								{
 									instance.FormingGames = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 64)
+								else if (num == 64)
 								{
 									instance.WaitingPlayers = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 72)
+								else if (num == 72)
 								{
 									instance.OpenJoinableGames = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 80)
+								else if (num == 80)
 								{
 									instance.PlayersInOpenJoinableGames = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 88)
+								else if (num == 88)
 								{
 									instance.OpenGamesTotal = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 96)
+								else if (num == 96)
 								{
 									instance.PlayersInOpenGamesTotal = ProtocolParser.ReadUInt32(stream);
 									continue;

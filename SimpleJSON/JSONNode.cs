@@ -100,7 +100,7 @@ namespace SimpleJSON
 		{
 			get
 			{
-				JSONNode.<>c__IteratorB variable = null;
+				JSONNode.<>c__Iterator0 variable = null;
 				return variable;
 			}
 		}
@@ -117,7 +117,7 @@ namespace SimpleJSON
 		{
 			get
 			{
-				JSONNode.<>c__IteratorC variable = null;
+				JSONNode.<>c__Iterator1 variable = null;
 				return variable;
 			}
 		}
@@ -229,8 +229,7 @@ namespace SimpleJSON
 			for (int i = 0; i < str.Length; i++)
 			{
 				char chr = str[i];
-				char chr1 = chr;
-				switch (chr1)
+				switch (chr)
 				{
 					case '\b':
 					{
@@ -259,12 +258,12 @@ namespace SimpleJSON
 					}
 					default:
 					{
-						if (chr1 == '\"')
+						if (chr == '\"')
 						{
 							empty = string.Concat(empty, "\\\"");
 							break;
 						}
-						else if (chr1 == '\\')
+						else if (chr == '\\')
 						{
 							empty = string.Concat(empty, "\\\\");
 							break;
@@ -393,132 +392,131 @@ namespace SimpleJSON
 					{
 						switch (chr)
 						{
-							case ' ':
+							case '[':
 							{
-								goto Label0;
+								if (!flag)
+								{
+									jSONNodes.Push(new JSONArray());
+									if (jSONNode != null)
+									{
+										str = str.Trim();
+										if (jSONNode is JSONArray)
+										{
+											jSONNode.Add(jSONNodes.Peek());
+										}
+										else if (str != string.Empty)
+										{
+											jSONNode.Add(str, jSONNodes.Peek());
+										}
+									}
+									str = string.Empty;
+									empty = string.Empty;
+									jSONNode = jSONNodes.Peek();
+								}
+								else
+								{
+									empty = string.Concat(empty, aJSON[num]);
+								}
+								break;
 							}
-							case '\"':
+							case '\\':
 							{
-								flag ^= 1;
+								num++;
+								if (flag)
+								{
+									char chr1 = aJSON[num];
+									switch (chr1)
+									{
+										case 'r':
+										{
+											empty = string.Concat(empty, '\r');
+											break;
+										}
+										case 't':
+										{
+											empty = string.Concat(empty, '\t');
+											break;
+										}
+										case 'u':
+										{
+											string str1 = aJSON.Substring(num + 1, 4);
+											empty = string.Concat(empty, (char)int.Parse(str1, NumberStyles.AllowHexSpecifier));
+											num += 4;
+											break;
+										}
+										default:
+										{
+											if (chr1 == 'b')
+											{
+												empty = string.Concat(empty, '\b');
+												break;
+											}
+											else if (chr1 == 'f')
+											{
+												empty = string.Concat(empty, '\f');
+												break;
+											}
+											else if (chr1 == 'n')
+											{
+												empty = string.Concat(empty, '\n');
+												break;
+											}
+											else
+											{
+												empty = string.Concat(empty, chr1);
+												break;
+											}
+										}
+									}
+								}
+								break;
+							}
+							case ']':
+							{
+							Label1:
+								if (!flag)
+								{
+									if (jSONNodes.Count == 0)
+									{
+										throw new Exception("JSON Parse: Too many closing brackets");
+									}
+									jSONNodes.Pop();
+									if (empty != string.Empty)
+									{
+										str = str.Trim();
+										if (jSONNode is JSONArray)
+										{
+											jSONNode.Add(empty);
+										}
+										else if (str != string.Empty)
+										{
+											jSONNode.Add(str, empty);
+										}
+									}
+									str = string.Empty;
+									empty = string.Empty;
+									if (jSONNodes.Count > 0)
+									{
+										jSONNode = jSONNodes.Peek();
+									}
+								}
+								else
+								{
+									empty = string.Concat(empty, aJSON[num]);
+								}
 								break;
 							}
 							default:
 							{
 								switch (chr)
 								{
-									case '[':
+									case ' ':
 									{
-										if (!flag)
-										{
-											jSONNodes.Push(new JSONArray());
-											if (jSONNode != null)
-											{
-												str = str.Trim();
-												if (jSONNode is JSONArray)
-												{
-													jSONNode.Add(jSONNodes.Peek());
-												}
-												else if (str != string.Empty)
-												{
-													jSONNode.Add(str, jSONNodes.Peek());
-												}
-											}
-											str = string.Empty;
-											empty = string.Empty;
-											jSONNode = jSONNodes.Peek();
-										}
-										else
-										{
-											empty = string.Concat(empty, aJSON[num]);
-										}
-										break;
+										goto Label0;
 									}
-									case '\\':
+									case '\"':
 									{
-										num++;
-										if (flag)
-										{
-											char chr1 = aJSON[num];
-											char chr2 = chr1;
-											switch (chr2)
-											{
-												case 'n':
-												{
-													empty = string.Concat(empty, '\n');
-													break;
-												}
-												case 'r':
-												{
-													empty = string.Concat(empty, '\r');
-													break;
-												}
-												case 't':
-												{
-													empty = string.Concat(empty, '\t');
-													break;
-												}
-												case 'u':
-												{
-													string str1 = aJSON.Substring(num + 1, 4);
-													empty = string.Concat(empty, (char)int.Parse(str1, NumberStyles.AllowHexSpecifier));
-													num += 4;
-													break;
-												}
-												default:
-												{
-													if (chr2 == 'b')
-													{
-														empty = string.Concat(empty, '\b');
-														break;
-													}
-													else if (chr2 == 'f')
-													{
-														empty = string.Concat(empty, '\f');
-														break;
-													}
-													else
-													{
-														empty = string.Concat(empty, chr1);
-														break;
-													}
-												}
-											}
-										}
-										break;
-									}
-									case ']':
-									{
-									Label1:
-										if (!flag)
-										{
-											if (jSONNodes.Count == 0)
-											{
-												throw new Exception("JSON Parse: Too many closing brackets");
-											}
-											jSONNodes.Pop();
-											if (empty != string.Empty)
-											{
-												str = str.Trim();
-												if (jSONNode is JSONArray)
-												{
-													jSONNode.Add(empty);
-												}
-												else if (str != string.Empty)
-												{
-													jSONNode.Add(str, empty);
-												}
-											}
-											str = string.Empty;
-											empty = string.Empty;
-											if (jSONNodes.Count > 0)
-											{
-												jSONNode = jSONNodes.Peek();
-											}
-										}
-										else
-										{
-											empty = string.Concat(empty, aJSON[num]);
-										}
+										flag ^= 1;
 										break;
 									}
 									default:

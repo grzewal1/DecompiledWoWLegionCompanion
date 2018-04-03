@@ -3,9 +3,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Utilities;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
@@ -92,9 +90,10 @@ namespace Newtonsoft.Json.Schema
 
 		private JsonSchema GenerateInternal(Type type, Required valueRequired, bool required)
 		{
+			JsonSchemaType? nullable;
 			Type type1;
 			Type type2;
-			JsonSchemaType? nullable;
+			JsonSchemaType? nullable1;
 			ValidationUtils.ArgumentNotNull(type, "type");
 			string typeId = this.GetTypeId(type, false);
 			string str = this.GetTypeId(type, true);
@@ -106,21 +105,22 @@ namespace Newtonsoft.Json.Schema
 					if (valueRequired != Required.Always && !JsonSchemaGenerator.HasFlag(schema.Type, JsonSchemaType.Null))
 					{
 						JsonSchema jsonSchema = schema;
-						JsonSchemaType? nullable1 = jsonSchema.Type;
-						if (!nullable1.HasValue)
+						JsonSchemaType? nullable2 = jsonSchema.Type;
+						if (!nullable2.HasValue)
 						{
 							nullable = null;
+							nullable1 = nullable;
 						}
 						else
 						{
-							nullable = new JsonSchemaType?(nullable1.GetValueOrDefault() | JsonSchemaType.Null);
+							nullable1 = new JsonSchemaType?(nullable2.GetValueOrDefault() | JsonSchemaType.Null);
 						}
-						jsonSchema.Type = nullable;
+						jsonSchema.Type = nullable1;
 					}
 					if (required)
 					{
-						bool? nullable2 = schema.Required;
-						if ((!nullable2.GetValueOrDefault() ? true : !nullable2.HasValue))
+						bool? nullable3 = schema.Required;
+						if ((!nullable3.GetValueOrDefault() ? true : !nullable3.HasValue))
 						{
 							schema.Required = new bool?(true);
 						}
@@ -192,28 +192,16 @@ namespace Newtonsoft.Json.Schema
 			else if (jsonContract is JsonPrimitiveContract)
 			{
 				this.CurrentSchema.Type = new JsonSchemaType?(this.GetJsonSchemaType(type, valueRequired));
-				JsonSchemaType? nullable3 = this.CurrentSchema.Type;
-				if ((nullable3.GetValueOrDefault() != JsonSchemaType.Integer ? false : nullable3.HasValue) && type.IsEnum && !type.IsDefined(typeof(FlagsAttribute), true))
+				nullable = this.CurrentSchema.Type;
+				if ((nullable.GetValueOrDefault() != JsonSchemaType.Integer ? false : nullable.HasValue) && type.IsEnum && !type.IsDefined(typeof(FlagsAttribute), true))
 				{
 					this.CurrentSchema.Enum = new List<JToken>();
 					this.CurrentSchema.Options = new Dictionary<JToken, string>();
-					IEnumerator<EnumValue<long>> enumerator = EnumUtils.GetNamesAndValues<long>(type).GetEnumerator();
-					try
+					foreach (EnumValue<long> namesAndValue in EnumUtils.GetNamesAndValues<long>(type))
 					{
-						while (enumerator.MoveNext())
-						{
-							EnumValue<long> current = enumerator.Current;
-							JToken jTokens = JToken.FromObject(current.Value);
-							this.CurrentSchema.Enum.Add(jTokens);
-							this.CurrentSchema.Options.Add(jTokens, current.Name);
-						}
-					}
-					finally
-					{
-						if (enumerator == null)
-						{
-						}
-						enumerator.Dispose();
+						JToken jTokens = JToken.FromObject(namesAndValue.Value);
+						this.CurrentSchema.Enum.Add(jTokens);
+						this.CurrentSchema.Options.Add(jTokens, namesAndValue.Name);
 					}
 				}
 			}
@@ -252,32 +240,20 @@ namespace Newtonsoft.Json.Schema
 		private void GenerateObjectSchema(Type type, JsonObjectContract contract)
 		{
 			this.CurrentSchema.Properties = new Dictionary<string, JsonSchema>();
-			IEnumerator<JsonProperty> enumerator = contract.Properties.GetEnumerator();
-			try
+			foreach (JsonProperty property in contract.Properties)
 			{
-				while (enumerator.MoveNext())
+				if (property.Ignored)
 				{
-					JsonProperty current = enumerator.Current;
-					if (current.Ignored)
-					{
-						continue;
-					}
-					NullValueHandling? nullValueHandling = current.NullValueHandling;
-					bool flag = ((nullValueHandling.GetValueOrDefault() != NullValueHandling.Ignore ? false : nullValueHandling.HasValue) || this.HasFlag(current.DefaultValueHandling.GetValueOrDefault(), DefaultValueHandling.Ignore) || current.ShouldSerialize != null ? true : current.GetIsSpecified != null);
-					JsonSchema jsonSchema = this.GenerateInternal(current.PropertyType, current.Required, !flag);
-					if (current.DefaultValue != null)
-					{
-						jsonSchema.Default = JToken.FromObject(current.DefaultValue);
-					}
-					this.CurrentSchema.Properties.Add(current.PropertyName, jsonSchema);
+					continue;
 				}
-			}
-			finally
-			{
-				if (enumerator == null)
+				NullValueHandling? nullValueHandling = property.NullValueHandling;
+				bool flag = ((nullValueHandling.GetValueOrDefault() != NullValueHandling.Ignore ? false : nullValueHandling.HasValue) || this.HasFlag(property.DefaultValueHandling.GetValueOrDefault(), DefaultValueHandling.Ignore) || property.ShouldSerialize != null ? true : property.GetIsSpecified != null);
+				JsonSchema jsonSchema = this.GenerateInternal(property.PropertyType, property.Required, !flag);
+				if (property.DefaultValue != null)
 				{
+					jsonSchema.Default = JToken.FromObject(property.DefaultValue);
 				}
-				enumerator.Dispose();
+				this.CurrentSchema.Properties.Add(property.PropertyName, jsonSchema);
 			}
 			if (type.IsSealed)
 			{
@@ -414,6 +390,7 @@ namespace Newtonsoft.Json.Schema
 		internal static bool HasFlag(JsonSchemaType? value, JsonSchemaType flag)
 		{
 			JsonSchemaType? nullable;
+			JsonSchemaType? nullable1;
 			if (!value.HasValue)
 			{
 				return true;
@@ -421,13 +398,14 @@ namespace Newtonsoft.Json.Schema
 			if (!value.HasValue)
 			{
 				nullable = null;
+				nullable1 = nullable;
 			}
 			else
 			{
-				nullable = new JsonSchemaType?(value.GetValueOrDefault() & flag);
+				nullable1 = new JsonSchemaType?(value.GetValueOrDefault() & flag);
 			}
-			JsonSchemaType? nullable1 = nullable;
-			return (nullable1.GetValueOrDefault() != flag ? false : nullable1.HasValue);
+			nullable = nullable1;
+			return (nullable.GetValueOrDefault() != flag ? false : nullable.HasValue);
 		}
 
 		private JsonSchemaGenerator.TypeSchema Pop()

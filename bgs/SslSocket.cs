@@ -18,12 +18,6 @@ namespace bgs
 {
 	public class SslSocket
 	{
-		private const int PUBKEY_MODULUS_SIZE_BITS = 2048;
-
-		private const int PUBKEY_MODULUS_SIZE_BYTES = 256;
-
-		private const int PUBKEY_EXP_SIZE_BYTES = 4;
-
 		private string m_address;
 
 		public SslCertBundleSettings m_bundleSettings;
@@ -31,6 +25,12 @@ namespace bgs
 		private static Map<SslStream, SslSocket.SslStreamValidateContext> s_streamValidationContexts;
 
 		private static string s_magicBundleSignaturePreamble;
+
+		private const int PUBKEY_MODULUS_SIZE_BITS = 2048;
+
+		private const int PUBKEY_MODULUS_SIZE_BYTES = 256;
+
+		private const int PUBKEY_EXP_SIZE_BYTES = 4;
 
 		private static byte[] s_standardPublicExponent;
 
@@ -355,8 +355,8 @@ namespace bgs
 
 		private static SslSocket.CertValidationResult IsServerCertificateValid(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 		{
-			string str;
 			SslSocket.CertValidationResult certValidationResult;
+			string str;
 			SslStream sslStream = (SslStream)sender;
 			SslSocket mSslSocket = SslSocket.s_streamValidationContexts[sslStream].m_sslSocket;
 			SslCertBundleSettings mBundleSettings = mSslSocket.m_bundleSettings;
@@ -751,7 +751,7 @@ namespace bgs
 			BigInteger bigInteger1 = new BigInteger(numArray1);
 			BigInteger bigInteger2 = BigInteger.PowMod(new BigInteger(numArray2), bigInteger1, bigInteger);
 			byte[] numArray3 = new byte[(int)key.Modulus.Length];
-			byte[] fieldHandle = new byte[] { typeof(<PrivateImplementationDetails>).GetField("$$field-20").FieldHandle };
+			byte[] fieldHandle = new byte[] { typeof(<PrivateImplementationDetails>).GetField("$field-2FFAC053D2D8FD53E1733DCE28216805289D3E35").FieldHandle };
 			if (!SslSocket.MakePKCS1SignatureBlock(hash, (int)hash.Length, fieldHandle, (int)fieldHandle.Length, numArray3, (int)key.Modulus.Length))
 			{
 				return false;

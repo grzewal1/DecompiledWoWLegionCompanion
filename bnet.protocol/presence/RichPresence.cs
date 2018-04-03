@@ -54,48 +54,34 @@ namespace bnet.protocol.presence
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						switch (num1)
-						{
-							case 21:
-							{
-								instance.StreamId = binaryReader.ReadUInt32();
-								continue;
-							}
-							case 24:
-							{
-								instance.Index = ProtocolParser.ReadUInt32(stream);
-								continue;
-							}
-							default:
-							{
-								if (num1 == 13)
-								{
-									instance.ProgramId = binaryReader.ReadUInt32();
-									continue;
-								}
-								else
-								{
-									Key key = ProtocolParser.ReadKey((byte)num, stream);
-									if (key.Field == 0)
-									{
-										throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-									}
-									ProtocolParser.SkipKey(stream, key);
-									continue;
-								}
-							}
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 13)
+					{
+						instance.ProgramId = binaryReader.ReadUInt32();
+					}
+					else if (num == 21)
+					{
+						instance.StreamId = binaryReader.ReadUInt32();
+					}
+					else if (num == 24)
+					{
+						instance.Index = ProtocolParser.ReadUInt32(stream);
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
 					}
 				}
 				else

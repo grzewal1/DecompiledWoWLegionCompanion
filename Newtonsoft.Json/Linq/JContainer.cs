@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace Newtonsoft.Json.Linq
 {
-	public abstract class JContainer : JToken, IEnumerable, IEnumerable<JToken>, ICollection<JToken>, IList<JToken>, IList, ICollection
+	public abstract class JContainer : JToken, IList<JToken>, IList, ICollection<JToken>, IEnumerable<JToken>, IEnumerable, ICollection
 	{
 		private object _syncRoot;
 
@@ -130,20 +130,9 @@ namespace Newtonsoft.Json.Linq
 		internal JContainer(JContainer other)
 		{
 			ValidationUtils.ArgumentNotNull(other, "c");
-			IEnumerator<JToken> enumerator = ((IEnumerable<JToken>)other).GetEnumerator();
-			try
+			foreach (JToken jTokens in (IEnumerable<JToken>)other)
 			{
-				while (enumerator.MoveNext())
-				{
-					this.Add(enumerator.Current);
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				this.Add(jTokens);
 			}
 		}
 
@@ -179,10 +168,11 @@ namespace Newtonsoft.Json.Linq
 				finally
 				{
 					IDisposable disposable = enumerator as IDisposable;
-					if (disposable == null)
+					IDisposable disposable1 = disposable;
+					if (disposable != null)
 					{
+						disposable1.Dispose();
 					}
-					disposable.Dispose();
 				}
 			}
 		}
@@ -203,23 +193,11 @@ namespace Newtonsoft.Json.Linq
 		internal virtual void ClearItems()
 		{
 			this.CheckReentrancy();
-			IEnumerator<JToken> enumerator = this.ChildrenTokens.GetEnumerator();
-			try
+			foreach (JToken childrenToken in this.ChildrenTokens)
 			{
-				while (enumerator.MoveNext())
-				{
-					JToken current = enumerator.Current;
-					current.Parent = null;
-					current.Previous = null;
-					current.Next = null;
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				childrenToken.Parent = null;
+				childrenToken.Previous = null;
+				childrenToken.Next = null;
 			}
 			this.ChildrenTokens.Clear();
 		}
@@ -270,20 +248,9 @@ namespace Newtonsoft.Json.Linq
 		internal int ContentsHashCode()
 		{
 			int deepHashCode = 0;
-			IEnumerator<JToken> enumerator = this.ChildrenTokens.GetEnumerator();
-			try
+			foreach (JToken childrenToken in this.ChildrenTokens)
 			{
-				while (enumerator.MoveNext())
-				{
-					deepHashCode ^= enumerator.Current.GetDeepHashCode();
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				deepHashCode ^= childrenToken.GetDeepHashCode();
 			}
 			return deepHashCode;
 		}
@@ -307,21 +274,10 @@ namespace Newtonsoft.Json.Linq
 				throw new ArgumentException("The number of elements in the source JObject is greater than the available space from arrayIndex to the end of the destination array.");
 			}
 			int num = 0;
-			IEnumerator<JToken> enumerator = this.ChildrenTokens.GetEnumerator();
-			try
+			foreach (JToken childrenToken in this.ChildrenTokens)
 			{
-				while (enumerator.MoveNext())
-				{
-					array.SetValue(enumerator.Current, arrayIndex + num);
-					num++;
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				array.SetValue(childrenToken, arrayIndex + num);
+				num++;
 			}
 		}
 
@@ -342,7 +298,7 @@ namespace Newtonsoft.Json.Linq
 		[DebuggerHidden]
 		public IEnumerable<JToken> Descendants()
 		{
-			JContainer.<Descendants>c__Iterator3 variable = null;
+			JContainer.<Descendants>c__Iterator0 variable = null;
 			return variable;
 		}
 

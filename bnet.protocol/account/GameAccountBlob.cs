@@ -256,90 +256,86 @@ namespace bnet.protocol.account
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 10)
-						{
-							if (instance.GameAccount != null)
-							{
-								GameAccountHandle.DeserializeLengthDelimited(stream, instance.GameAccount);
-							}
-							else
-							{
-								instance.GameAccount = GameAccountHandle.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 18)
-						{
-							instance.Name = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 24)
-						{
-							instance.RealmPermissions = ProtocolParser.ReadUInt32(stream);
-						}
-						else if (num1 == 32)
-						{
-							instance.Status = ProtocolParser.ReadUInt32(stream);
-						}
-						else if (num1 == 40)
-						{
-							instance.Flags = ProtocolParser.ReadUInt64(stream);
-						}
-						else if (num1 == 48)
-						{
-							instance.BillingFlags = ProtocolParser.ReadUInt32(stream);
-						}
-						else if (num1 == 56)
-						{
-							instance.CacheExpiration = ProtocolParser.ReadUInt64(stream);
-						}
-						else if (num1 == 80)
-						{
-							instance.SubscriptionExpiration = ProtocolParser.ReadUInt64(stream);
-						}
-						else if (num1 == 88)
-						{
-							instance.UnitsRemaining = ProtocolParser.ReadUInt32(stream);
-						}
-						else if (num1 == 96)
-						{
-							instance.StatusExpiration = ProtocolParser.ReadUInt64(stream);
-						}
-						else if (num1 == 104)
-						{
-							instance.BoxLevel = ProtocolParser.ReadUInt32(stream);
-						}
-						else if (num1 == 112)
-						{
-							instance.BoxLevelExpiration = ProtocolParser.ReadUInt64(stream);
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							uint field = key.Field;
-							if (field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							if (field != 20)
-							{
-								ProtocolParser.SkipKey(stream, key);
-							}
-							else if (key.WireType == Wire.LengthDelimited)
-							{
-								instance.Licenses.Add(AccountLicense.DeserializeLengthDelimited(stream));
-								continue;
-							}
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 10)
+					{
+						if (instance.GameAccount != null)
+						{
+							GameAccountHandle.DeserializeLengthDelimited(stream, instance.GameAccount);
+						}
+						else
+						{
+							instance.GameAccount = GameAccountHandle.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 18)
+					{
+						instance.Name = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 24)
+					{
+						instance.RealmPermissions = ProtocolParser.ReadUInt32(stream);
+					}
+					else if (num == 32)
+					{
+						instance.Status = ProtocolParser.ReadUInt32(stream);
+					}
+					else if (num == 40)
+					{
+						instance.Flags = ProtocolParser.ReadUInt64(stream);
+					}
+					else if (num == 48)
+					{
+						instance.BillingFlags = ProtocolParser.ReadUInt32(stream);
+					}
+					else if (num == 56)
+					{
+						instance.CacheExpiration = ProtocolParser.ReadUInt64(stream);
+					}
+					else if (num == 80)
+					{
+						instance.SubscriptionExpiration = ProtocolParser.ReadUInt64(stream);
+					}
+					else if (num == 88)
+					{
+						instance.UnitsRemaining = ProtocolParser.ReadUInt32(stream);
+					}
+					else if (num == 96)
+					{
+						instance.StatusExpiration = ProtocolParser.ReadUInt64(stream);
+					}
+					else if (num == 104)
+					{
+						instance.BoxLevel = ProtocolParser.ReadUInt32(stream);
+					}
+					else if (num == 112)
+					{
+						instance.BoxLevelExpiration = ProtocolParser.ReadUInt64(stream);
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						uint field = key.Field;
+						if (field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						if (field != 20)
+						{
+							ProtocolParser.SkipKey(stream, key);
+						}
+						else if (key.WireType == Wire.LengthDelimited)
+						{
+							instance.Licenses.Add(AccountLicense.DeserializeLengthDelimited(stream));
+							continue;
+						}
 					}
 				}
 				else

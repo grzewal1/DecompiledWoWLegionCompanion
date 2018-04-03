@@ -136,8 +136,8 @@ public class RewardInfoPopup : MonoBehaviour
 				if (itemNameDescriptionRec != null)
 				{
 					Text mRewardName = this.m_rewardName;
-					str1 = mRewardName.text;
-					mRewardName.text = string.Concat(new string[] { str1, "\n<color=#", GeneralHelpers.GetColorFromInt(itemNameDescriptionRec.Color), "ff>", itemNameDescriptionRec.Description, "</color>" });
+					str = mRewardName.text;
+					mRewardName.text = string.Concat(new string[] { str, "\n<color=#", GeneralHelpers.GetColorFromInt(itemNameDescriptionRec.Color), "ff>", itemNameDescriptionRec.Description, "</color>" });
 				}
 			}
 			if (record.ClassID == 2 || record.ClassID == 3 || record.ClassID == 4 || record.ClassID == 5 || record.ClassID == 6)
@@ -148,8 +148,8 @@ public class RewardInfoPopup : MonoBehaviour
 					itemLevel = itemStats.ItemLevel;
 				}
 				Text text = this.m_rewardName;
-				str1 = text.text;
-				text.text = string.Concat(new string[] { str1, "\n<color=#", GeneralHelpers.s_defaultColor, ">", StaticDB.GetString("ITEM_LEVEL", null), " ", itemLevel.ToString(), "</color>" });
+				str = text.text;
+				text.text = string.Concat(new string[] { str, "\n<color=#", GeneralHelpers.s_defaultColor, ">", StaticDB.GetString("ITEM_LEVEL", null), " ", itemLevel.ToString(), "</color>" });
 			}
 			if (record.Bonding > 0)
 			{
@@ -177,8 +177,8 @@ public class RewardInfoPopup : MonoBehaviour
 				if (empty != string.Empty)
 				{
 					Text mRewardName1 = this.m_rewardName;
-					str1 = mRewardName1.text;
-					mRewardName1.text = string.Concat(new string[] { str1, "\n<color=#", GeneralHelpers.s_normalColor, ">", empty, "</color>" });
+					str = mRewardName1.text;
+					mRewardName1.text = string.Concat(new string[] { str, "\n<color=#", GeneralHelpers.s_normalColor, ">", empty, "</color>" });
 				}
 			}
 			ItemSubClassRec itemSubclass = StaticDB.GetItemSubclass(record.ClassID, record.SubclassID);
@@ -190,8 +190,8 @@ public class RewardInfoPopup : MonoBehaviour
 					mRewardDescription.text = string.Concat(mRewardDescription.text, "\n");
 				}
 				Text mRewardDescription1 = this.m_rewardDescription;
-				str1 = mRewardDescription1.text;
-				mRewardDescription1.text = string.Concat(new string[] { str1, "<color=#", GeneralHelpers.s_normalColor, ">", itemSubclass.DisplayName, "</color>" });
+				str = mRewardDescription1.text;
+				mRewardDescription1.text = string.Concat(new string[] { str, "<color=#", GeneralHelpers.s_normalColor, ">", itemSubclass.DisplayName, "</color>" });
 			}
 			string inventoryTypeString = GeneralHelpers.GetInventoryTypeString((INVENTORY_TYPE)record.InventoryType);
 			if (inventoryTypeString != null && inventoryTypeString != string.Empty)
@@ -202,8 +202,8 @@ public class RewardInfoPopup : MonoBehaviour
 					text1.text = string.Concat(text1.text, "\n");
 				}
 				Text mRewardDescription2 = this.m_rewardDescription;
-				str1 = mRewardDescription2.text;
-				mRewardDescription2.text = string.Concat(new string[] { str1, "<color=#", GeneralHelpers.s_normalColor, ">", inventoryTypeString, "</color>" });
+				str = mRewardDescription2.text;
+				mRewardDescription2.text = string.Concat(new string[] { str, "<color=#", GeneralHelpers.s_normalColor, ">", inventoryTypeString, "</color>" });
 			}
 			if (itemStats != null)
 			{
@@ -238,8 +238,8 @@ public class RewardInfoPopup : MonoBehaviour
 						mRewardDescription4.text = string.Concat(mRewardDescription4.text, "\n");
 					}
 					Text text4 = this.m_rewardDescription;
-					str1 = text4.text;
-					string[] sNormalColor = new string[] { str1, "<color=#", GeneralHelpers.s_normalColor, ">", null, null };
+					str = text4.text;
+					string[] sNormalColor = new string[] { str, "<color=#", GeneralHelpers.s_normalColor, ">", null, null };
 					int effectiveArmor = itemStats.EffectiveArmor;
 					sNormalColor[4] = GeneralHelpers.TextOrderString(effectiveArmor.ToString(), StaticDB.GetString("ARMOR", null));
 					sNormalColor[5] = "</color>";
@@ -258,11 +258,11 @@ public class RewardInfoPopup : MonoBehaviour
 						}
 						Text text5 = this.m_rewardDescription;
 						text5.text = string.Concat(text5.text, "<color=#", GeneralHelpers.GetMobileStatColorString(mobileItemBonusStat.Color), ">");
-						str = (mobileItemBonusStat.BonusAmount <= 0 ? "-" : "+");
+						str1 = (mobileItemBonusStat.BonusAmount <= 0 ? "-" : "+");
 						Text mRewardDescription6 = this.m_rewardDescription;
 						string str5 = mRewardDescription6.text;
 						int bonusAmount = mobileItemBonusStat.BonusAmount;
-						mRewardDescription6.text = string.Concat(str5, GeneralHelpers.TextOrderString(string.Concat(str, bonusAmount.ToString()), GeneralHelpers.GetBonusStatString((BonusStatIndex)mobileItemBonusStat.StatID)), "</color>");
+						mRewardDescription6.text = string.Concat(str5, GeneralHelpers.TextOrderString(string.Concat(str1, bonusAmount.ToString()), GeneralHelpers.GetBonusStatString((BonusStatIndex)mobileItemBonusStat.StatID)), "</color>");
 					}
 				}
 			}
@@ -284,8 +284,8 @@ public class RewardInfoPopup : MonoBehaviour
 					mobileStatColorString = GeneralHelpers.GetMobileStatColorString(MobileStatColor.MOBILE_STAT_COLOR_ERROR);
 				}
 				Text mRewardDescription7 = this.m_rewardDescription;
-				str1 = mRewardDescription7.text;
-				mRewardDescription7.text = string.Concat(new object[] { str1, "<color=#", mobileStatColorString, ">", StaticDB.GetString("ITEM_MIN_LEVEL", null), " ", requiredLevel, "</color>" });
+				str = mRewardDescription7.text;
+				mRewardDescription7.text = string.Concat(new object[] { str, "<color=#", mobileStatColorString, ">", StaticDB.GetString("ITEM_MIN_LEVEL", null), " ", requiredLevel, "</color>" });
 			}
 			string itemDescription = GeneralHelpers.GetItemDescription(record);
 			if (itemDescription != null && itemDescription != string.Empty)

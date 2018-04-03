@@ -38,7 +38,7 @@ internal class MyClientInterface : ClientInterface
 		string lower = Login.m_portal.ToLower();
 		if (lower != null)
 		{
-			if (MyClientInterface.<>f__switch$map9 == null)
+			if (MyClientInterface.<>f__switch$map5 == null)
 			{
 				Dictionary<string, int> strs = new Dictionary<string, int>(7)
 				{
@@ -50,9 +50,9 @@ internal class MyClientInterface : ClientInterface
 					{ "beta", 0 },
 					{ "test", 0 }
 				};
-				MyClientInterface.<>f__switch$map9 = strs;
+				MyClientInterface.<>f__switch$map5 = strs;
 			}
-			if (MyClientInterface.<>f__switch$map9.TryGetValue(lower, out num))
+			if (MyClientInterface.<>f__switch$map5.TryGetValue(lower, out num))
 			{
 				if (num == 0)
 				{

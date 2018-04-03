@@ -84,10 +84,11 @@ public class PersistentMissionData
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
 		return num;
 	}

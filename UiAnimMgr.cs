@@ -72,7 +72,6 @@ public class UiAnimMgr
 	private GameObject CreateAnimObj(string animName, bool createForInit = false)
 	{
 		UiAnimMgr.AnimData animDatum;
-		string mAnchor;
 		Dictionary<string, int> strs;
 		int num;
 		this.m_animData.TryGetValue(animName, out animDatum);
@@ -146,10 +145,10 @@ public class UiAnimMgr
 			RectTransform vector2 = gameObject1.GetComponent<RectTransform>();
 			if (value.m_anchor != null && value.m_anchor.relativePoint != null)
 			{
-				mAnchor = value.m_anchor.relativePoint;
+				string mAnchor = value.m_anchor.relativePoint;
 				if (mAnchor != null)
 				{
-					if (UiAnimMgr.<>f__switch$mapC == null)
+					if (UiAnimMgr.<>f__switch$map6 == null)
 					{
 						strs = new Dictionary<string, int>(9)
 						{
@@ -163,9 +162,9 @@ public class UiAnimMgr
 							{ "BOTTOMLEFT", 7 },
 							{ "BOTTOMRIGHT", 8 }
 						};
-						UiAnimMgr.<>f__switch$mapC = strs;
+						UiAnimMgr.<>f__switch$map6 = strs;
 					}
-					if (UiAnimMgr.<>f__switch$mapC.TryGetValue(mAnchor, out num))
+					if (UiAnimMgr.<>f__switch$map6.TryGetValue(mAnchor, out num))
 					{
 						switch (num)
 						{
@@ -231,10 +230,10 @@ public class UiAnimMgr
 			Vector2 vector21 = new Vector2();
 			if (value.m_anchor != null && value.m_anchor.point != null)
 			{
-				mAnchor = value.m_anchor.point;
-				if (mAnchor != null)
+				string str = value.m_anchor.point;
+				if (str != null)
 				{
-					if (UiAnimMgr.<>f__switch$mapD == null)
+					if (UiAnimMgr.<>f__switch$map7 == null)
 					{
 						strs = new Dictionary<string, int>(9)
 						{
@@ -248,9 +247,9 @@ public class UiAnimMgr
 							{ "BOTTOMLEFT", 7 },
 							{ "BOTTOMRIGHT", 8 }
 						};
-						UiAnimMgr.<>f__switch$mapD = strs;
+						UiAnimMgr.<>f__switch$map7 = strs;
 					}
-					if (UiAnimMgr.<>f__switch$mapD.TryGetValue(mAnchor, out num))
+					if (UiAnimMgr.<>f__switch$map7.TryGetValue(str, out num))
 					{
 						switch (num)
 						{

@@ -76,49 +76,45 @@ namespace bnet.protocol.channel
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 10)
-						{
-							if (instance.ChannelId != null)
-							{
-								EntityId.DeserializeLengthDelimited(stream, instance.ChannelId);
-							}
-							else
-							{
-								instance.ChannelId = EntityId.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 16)
-						{
-							instance.CurrentMembers = ProtocolParser.ReadUInt32(stream);
-						}
-						else if (num1 != 26)
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-						else if (instance.State != null)
-						{
-							ChannelState.DeserializeLengthDelimited(stream, instance.State);
-						}
-						else
-						{
-							instance.State = ChannelState.DeserializeLengthDelimited(stream);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 10)
+					{
+						if (instance.ChannelId != null)
+						{
+							EntityId.DeserializeLengthDelimited(stream, instance.ChannelId);
+						}
+						else
+						{
+							instance.ChannelId = EntityId.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 16)
+					{
+						instance.CurrentMembers = ProtocolParser.ReadUInt32(stream);
+					}
+					else if (num != 26)
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
+					}
+					else if (instance.State != null)
+					{
+						ChannelState.DeserializeLengthDelimited(stream, instance.State);
+					}
+					else
+					{
+						instance.State = ChannelState.DeserializeLengthDelimited(stream);
 					}
 				}
 				else

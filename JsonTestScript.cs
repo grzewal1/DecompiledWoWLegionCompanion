@@ -9,9 +9,9 @@ using UnityEngine;
 
 public class JsonTestScript
 {
-	private const string BAD_RESULT_MESSAGE = "Incorrect Deserialized Result";
-
 	private TextMesh _text;
+
+	private const string BAD_RESULT_MESSAGE = "Incorrect Deserialized Result";
 
 	public JsonTestScript(TextMesh text)
 	{

@@ -386,6 +386,8 @@ namespace bgs
 
 		private void HandleChannelSubscriber_NotifyLeave(RPCContext context)
 		{
+			ChannelAPI.ChannelData mChannelData;
+			bool flag;
 			LeaveNotification leaveNotification = LeaveNotification.ParseFrom(context.Payload);
 			base.ApiLog.LogDebug(string.Concat("HandleChannelSubscriber_NotifyLeave: ", leaveNotification));
 			ChannelAPI.ChannelReferenceObject channelReferenceObject = this.GetChannelReferenceObject(context.Header.ObjectId);
@@ -394,32 +396,42 @@ namespace bgs
 				base.ApiLog.LogError(string.Concat("HandleChannelSubscriber_NotifyLeave had unexpected traffic for objectId : ", context.Header.ObjectId));
 				return;
 			}
-			switch (channelReferenceObject.m_channelData.m_channelType)
+			ChannelAPI.ChannelType mChannelType = channelReferenceObject.m_channelData.m_channelType;
+			if (mChannelType == ChannelAPI.ChannelType.PARTY_CHANNEL)
 			{
-				case ChannelAPI.ChannelType.CHAT_CHANNEL:
-				case ChannelAPI.ChannelType.GAME_CHANNEL:
+				this.m_battleNet.Party.PartyMemberLeft(channelReferenceObject, leaveNotification);
+			}
+			else
+			{
+				if (mChannelType == ChannelAPI.ChannelType.CHAT_CHANNEL || mChannelType == ChannelAPI.ChannelType.GAME_CHANNEL)
 				{
-					ChannelAPI.ChannelData mChannelData = (ChannelAPI.ChannelData)channelReferenceObject.m_channelData;
+					mChannelData = (ChannelAPI.ChannelData)channelReferenceObject.m_channelData;
 					if (mChannelData != null)
 					{
-						mChannelData.m_members.Remove(leaveNotification.MemberId);
+						flag = mChannelData.m_members.Remove(leaveNotification.MemberId);
 						if (!this.m_battleNet.GameAccountId.Equals(leaveNotification.MemberId))
 						{
 							this.m_battleNet.Presence.PresenceUnsubscribe(leaveNotification.MemberId);
 						}
 					}
-					break;
+					return;
 				}
-				case ChannelAPI.ChannelType.PARTY_CHANNEL:
+				return;
+			}
+			mChannelData = (ChannelAPI.ChannelData)channelReferenceObject.m_channelData;
+			if (mChannelData != null)
+			{
+				flag = mChannelData.m_members.Remove(leaveNotification.MemberId);
+				if (!this.m_battleNet.GameAccountId.Equals(leaveNotification.MemberId))
 				{
-					this.m_battleNet.Party.PartyMemberLeft(channelReferenceObject, leaveNotification);
-					goto case ChannelAPI.ChannelType.GAME_CHANNEL;
+					this.m_battleNet.Presence.PresenceUnsubscribe(leaveNotification.MemberId);
 				}
 			}
 		}
 
 		private void HandleChannelSubscriber_NotifyRemove(RPCContext context)
 		{
+			ChannelAPI.ChannelData mChannelData;
 			RemoveNotification removeNotification = RemoveNotification.ParseFrom(context.Payload);
 			base.ApiLog.LogDebug(string.Concat("HandleChannelSubscriber_NotifyRemove: ", removeNotification));
 			ChannelAPI.ChannelReferenceObject channelReferenceObject = this.GetChannelReferenceObject(context.Header.ObjectId);
@@ -428,11 +440,20 @@ namespace bgs
 				base.ApiLog.LogError(string.Concat("HandleChannelSubscriber_NotifyRemove had unexpected traffic for objectId : ", context.Header.ObjectId));
 				return;
 			}
-			switch (channelReferenceObject.m_channelData.m_channelType)
+			ChannelAPI.ChannelType mChannelType = channelReferenceObject.m_channelData.m_channelType;
+			if (mChannelType == ChannelAPI.ChannelType.PARTY_CHANNEL)
 			{
-				case ChannelAPI.ChannelType.CHAT_CHANNEL:
+				this.m_battleNet.Party.PartyLeft(channelReferenceObject, removeNotification);
+			}
+			else if (mChannelType == ChannelAPI.ChannelType.GAME_CHANNEL)
+			{
+				this.m_battleNet.Games.GameLeft(channelReferenceObject, removeNotification);
+			}
+			else
+			{
+				if (mChannelType == ChannelAPI.ChannelType.CHAT_CHANNEL)
 				{
-					ChannelAPI.ChannelData mChannelData = (ChannelAPI.ChannelData)channelReferenceObject.m_channelData;
+					mChannelData = (ChannelAPI.ChannelData)channelReferenceObject.m_channelData;
 					if (mChannelData != null)
 					{
 						foreach (Member value in mChannelData.m_members.Values)
@@ -444,17 +465,22 @@ namespace bgs
 							this.m_battleNet.Presence.PresenceUnsubscribe(value.Identity.GameAccountId);
 						}
 					}
-					break;
+					this.RemoveActiveChannel(context.Header.ObjectId);
+					return;
 				}
-				case ChannelAPI.ChannelType.PARTY_CHANNEL:
+				this.RemoveActiveChannel(context.Header.ObjectId);
+				return;
+			}
+			mChannelData = (ChannelAPI.ChannelData)channelReferenceObject.m_channelData;
+			if (mChannelData != null)
+			{
+				foreach (Member member in mChannelData.m_members.Values)
 				{
-					this.m_battleNet.Party.PartyLeft(channelReferenceObject, removeNotification);
-					goto case ChannelAPI.ChannelType.CHAT_CHANNEL;
-				}
-				case ChannelAPI.ChannelType.GAME_CHANNEL:
-				{
-					this.m_battleNet.Games.GameLeft(channelReferenceObject, removeNotification);
-					goto case ChannelAPI.ChannelType.CHAT_CHANNEL;
+					if (this.m_battleNet.GameAccountId.Equals(member.Identity.GameAccountId))
+					{
+						continue;
+					}
+					this.m_battleNet.Presence.PresenceUnsubscribe(member.Identity.GameAccountId);
 				}
 			}
 			this.RemoveActiveChannel(context.Header.ObjectId);

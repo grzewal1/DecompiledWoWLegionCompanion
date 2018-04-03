@@ -234,69 +234,65 @@ namespace bnet.protocol.authentication
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 8)
-						{
-							instance.ErrorCode = ProtocolParser.ReadUInt32(stream);
-						}
-						else if (num1 == 18)
-						{
-							if (instance.Account != null)
-							{
-								EntityId.DeserializeLengthDelimited(stream, instance.Account);
-							}
-							else
-							{
-								instance.Account = EntityId.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 26)
-						{
-							instance.GameAccount.Add(EntityId.DeserializeLengthDelimited(stream));
-						}
-						else if (num1 == 34)
-						{
-							instance.Email = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 40)
-						{
-							instance.AvailableRegion.Add(ProtocolParser.ReadUInt32(stream));
-						}
-						else if (num1 == 48)
-						{
-							instance.ConnectedRegion = ProtocolParser.ReadUInt32(stream);
-						}
-						else if (num1 == 58)
-						{
-							instance.BattleTag = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 66)
-						{
-							instance.GeoipCountry = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 74)
-						{
-							instance.SessionKey = ProtocolParser.ReadBytes(stream);
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 8)
+					{
+						instance.ErrorCode = ProtocolParser.ReadUInt32(stream);
+					}
+					else if (num == 18)
+					{
+						if (instance.Account != null)
+						{
+							EntityId.DeserializeLengthDelimited(stream, instance.Account);
+						}
+						else
+						{
+							instance.Account = EntityId.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 26)
+					{
+						instance.GameAccount.Add(EntityId.DeserializeLengthDelimited(stream));
+					}
+					else if (num == 34)
+					{
+						instance.Email = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 40)
+					{
+						instance.AvailableRegion.Add(ProtocolParser.ReadUInt32(stream));
+					}
+					else if (num == 48)
+					{
+						instance.ConnectedRegion = ProtocolParser.ReadUInt32(stream);
+					}
+					else if (num == 58)
+					{
+						instance.BattleTag = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 66)
+					{
+						instance.GeoipCountry = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 74)
+					{
+						instance.SessionKey = ProtocolParser.ReadBytes(stream);
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
 					}
 				}
 				else

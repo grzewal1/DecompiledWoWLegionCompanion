@@ -132,42 +132,38 @@ namespace bnet.protocol.account
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 26)
-						{
-							instance.Licenses.Add(AccountLicense.DeserializeLengthDelimited(stream));
-						}
-						else if (num1 == 37)
-						{
-							instance.DefaultCurrency = binaryReader.ReadUInt32();
-						}
-						else if (num1 == 42)
-						{
-							instance.Country = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 48)
-						{
-							instance.PreferredRegion = ProtocolParser.ReadUInt32(stream);
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 26)
+					{
+						instance.Licenses.Add(AccountLicense.DeserializeLengthDelimited(stream));
+					}
+					else if (num == 37)
+					{
+						instance.DefaultCurrency = binaryReader.ReadUInt32();
+					}
+					else if (num == 42)
+					{
+						instance.Country = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 48)
+					{
+						instance.PreferredRegion = ProtocolParser.ReadUInt32(stream);
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
 					}
 				}
 				else

@@ -308,26 +308,14 @@ namespace bgs
 			{
 				return;
 			}
-			switch (action)
+			FriendsAPI.InviteAction inviteAction = (FriendsAPI.InviteAction)action;
+			if (inviteAction == FriendsAPI.InviteAction.INVITE_ACCEPT)
 			{
-				case 1:
-				{
-					this.AcceptInvitation(inviteId);
-					break;
-				}
-				case 2:
-				{
-					break;
-				}
-				case 3:
-				{
-					this.DeclineInvitation(inviteId);
-					break;
-				}
-				default:
-				{
-					goto case 2;
-				}
+				this.AcceptInvitation(inviteId);
+			}
+			else if (inviteAction == FriendsAPI.InviteAction.INVITE_DECLINE)
+			{
+				this.DeclineInvitation(inviteId);
 			}
 		}
 

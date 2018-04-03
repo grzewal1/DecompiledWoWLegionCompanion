@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Newtonsoft.Json.Linq
 {
-	public struct JEnumerable<T> : IEnumerable, IEnumerable<T>, IJEnumerable<T>
+	public struct JEnumerable<T> : IJEnumerable<T>, IEnumerable<T>, IEnumerable
 	where T : JToken
 	{
 		public readonly static JEnumerable<T> Empty;

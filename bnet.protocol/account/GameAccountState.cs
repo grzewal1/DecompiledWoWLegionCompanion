@@ -85,56 +85,52 @@ namespace bnet.protocol.account
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 10)
-						{
-							if (instance.GameLevelInfo != null)
-							{
-								bnet.protocol.account.GameLevelInfo.DeserializeLengthDelimited(stream, instance.GameLevelInfo);
-							}
-							else
-							{
-								instance.GameLevelInfo = bnet.protocol.account.GameLevelInfo.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 18)
-						{
-							if (instance.GameTimeInfo != null)
-							{
-								bnet.protocol.account.GameTimeInfo.DeserializeLengthDelimited(stream, instance.GameTimeInfo);
-							}
-							else
-							{
-								instance.GameTimeInfo = bnet.protocol.account.GameTimeInfo.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 != 26)
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-						else if (instance.GameStatus != null)
-						{
-							bnet.protocol.account.GameStatus.DeserializeLengthDelimited(stream, instance.GameStatus);
-						}
-						else
-						{
-							instance.GameStatus = bnet.protocol.account.GameStatus.DeserializeLengthDelimited(stream);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 10)
+					{
+						if (instance.GameLevelInfo != null)
+						{
+							bnet.protocol.account.GameLevelInfo.DeserializeLengthDelimited(stream, instance.GameLevelInfo);
+						}
+						else
+						{
+							instance.GameLevelInfo = bnet.protocol.account.GameLevelInfo.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 18)
+					{
+						if (instance.GameTimeInfo != null)
+						{
+							bnet.protocol.account.GameTimeInfo.DeserializeLengthDelimited(stream, instance.GameTimeInfo);
+						}
+						else
+						{
+							instance.GameTimeInfo = bnet.protocol.account.GameTimeInfo.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num != 26)
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
+					}
+					else if (instance.GameStatus != null)
+					{
+						bnet.protocol.account.GameStatus.DeserializeLengthDelimited(stream, instance.GameStatus);
+					}
+					else
+					{
+						instance.GameStatus = bnet.protocol.account.GameStatus.DeserializeLengthDelimited(stream);
 					}
 				}
 				else

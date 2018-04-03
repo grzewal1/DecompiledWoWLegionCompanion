@@ -1,5 +1,6 @@
 using bgs;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace bgs.RPCServices
 {

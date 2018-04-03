@@ -104,15 +104,18 @@ namespace bgs
 
 		public static T StructFromBytes<T>(byte[] bytes, int offset)
 		{
+			T t;
 			Type type = typeof(T);
 			int num = Marshal.SizeOf(type);
 			if (bytes == null)
 			{
-				return default(T);
+				t = default(T);
+				return t;
 			}
 			if ((int)bytes.Length - offset < num)
 			{
-				return default(T);
+				t = default(T);
+				return t;
 			}
 			IntPtr intPtr = Marshal.AllocHGlobal(num);
 			Marshal.Copy(bytes, offset, intPtr, num);

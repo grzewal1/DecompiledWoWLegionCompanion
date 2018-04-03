@@ -22,6 +22,8 @@ public class TalentTreePanel : MonoBehaviour
 
 	private List<TalentTreeItem> m_talentTreeItems;
 
+	public GameObject m_resourcesDisplay;
+
 	public TalentTreePanel()
 	{
 	}
@@ -256,6 +258,10 @@ public class TalentTreePanel : MonoBehaviour
 		this.m_needsFullInit = true;
 	}
 
+	private void Start()
+	{
+	}
+
 	public bool TalentIsReadyToPlayGreenCheckAnim()
 	{
 		bool flag;
@@ -276,7 +282,7 @@ public class TalentTreePanel : MonoBehaviour
 		}
 		finally
 		{
-			((IDisposable)(object)enumerator).Dispose();
+			((IDisposable)enumerator).Dispose();
 		}
 		return flag;
 	}

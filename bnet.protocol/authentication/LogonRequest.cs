@@ -259,78 +259,74 @@ namespace bnet.protocol.authentication
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 10)
-						{
-							instance.Program = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 18)
-						{
-							instance.Platform = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 26)
-						{
-							instance.Locale = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 34)
-						{
-							instance.Email = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 42)
-						{
-							instance.Version = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 48)
-						{
-							instance.ApplicationVersion = (int)ProtocolParser.ReadUInt64(stream);
-						}
-						else if (num1 == 56)
-						{
-							instance.PublicComputer = ProtocolParser.ReadBool(stream);
-						}
-						else if (num1 == 66)
-						{
-							instance.SsoId = ProtocolParser.ReadBytes(stream);
-						}
-						else if (num1 == 72)
-						{
-							instance.DisconnectOnCookieFail = ProtocolParser.ReadBool(stream);
-						}
-						else if (num1 == 80)
-						{
-							instance.AllowLogonQueueNotifications = ProtocolParser.ReadBool(stream);
-						}
-						else if (num1 == 88)
-						{
-							instance.WebClientVerification = ProtocolParser.ReadBool(stream);
-						}
-						else if (num1 == 98)
-						{
-							instance.CachedWebCredentials = ProtocolParser.ReadBytes(stream);
-						}
-						else if (num1 == 114)
-						{
-							instance.UserAgent = ProtocolParser.ReadString(stream);
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 10)
+					{
+						instance.Program = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 18)
+					{
+						instance.Platform = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 26)
+					{
+						instance.Locale = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 34)
+					{
+						instance.Email = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 42)
+					{
+						instance.Version = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 48)
+					{
+						instance.ApplicationVersion = (int)ProtocolParser.ReadUInt64(stream);
+					}
+					else if (num == 56)
+					{
+						instance.PublicComputer = ProtocolParser.ReadBool(stream);
+					}
+					else if (num == 66)
+					{
+						instance.SsoId = ProtocolParser.ReadBytes(stream);
+					}
+					else if (num == 72)
+					{
+						instance.DisconnectOnCookieFail = ProtocolParser.ReadBool(stream);
+					}
+					else if (num == 80)
+					{
+						instance.AllowLogonQueueNotifications = ProtocolParser.ReadBool(stream);
+					}
+					else if (num == 88)
+					{
+						instance.WebClientVerification = ProtocolParser.ReadBool(stream);
+					}
+					else if (num == 98)
+					{
+						instance.CachedWebCredentials = ProtocolParser.ReadBytes(stream);
+					}
+					else if (num == 114)
+					{
+						instance.UserAgent = ProtocolParser.ReadString(stream);
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
 					}
 				}
 				else

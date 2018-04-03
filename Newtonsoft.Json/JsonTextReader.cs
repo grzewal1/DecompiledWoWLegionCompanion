@@ -8,10 +8,6 @@ namespace Newtonsoft.Json
 {
 	public class JsonTextReader : JsonReader, IJsonLineInfo
 	{
-		private const int LineFeedValue = 10;
-
-		private const int CarriageReturnValue = 13;
-
 		private readonly TextReader _reader;
 
 		private readonly StringBuffer _buffer;
@@ -27,6 +23,10 @@ namespace Newtonsoft.Json
 		private JsonTextReader.ReadType _readType;
 
 		private CultureInfo _culture;
+
+		private const int LineFeedValue = 10;
+
+		private const int CarriageReturnValue = 13;
 
 		public CultureInfo Culture
 		{
@@ -114,8 +114,7 @@ namespace Newtonsoft.Json
 
 		private bool IsSeperator(char c)
 		{
-			char chr = c;
-			switch (chr)
+			switch (c)
 			{
 				case '\t':
 				case '\n':
@@ -125,7 +124,7 @@ namespace Newtonsoft.Json
 				}
 				default:
 				{
-					switch (chr)
+					switch (c)
 					{
 						case ')':
 						{
@@ -141,15 +140,15 @@ namespace Newtonsoft.Json
 						}
 						default:
 						{
-							if (chr == ' ')
+							if (c == ' ')
 							{
 								return true;
 							}
-							if (chr == '/')
+							if (c == '/')
 							{
 								return (!this.HasNext() ? false : this.PeekNext() == 42);
 							}
-							if (chr == ']' || chr == '}')
+							if (c == ']' || c == '}')
 							{
 								return true;
 							}
@@ -215,8 +214,7 @@ namespace Newtonsoft.Json
 		private char MoveNext()
 		{
 			int num = this._reader.Read();
-			int num1 = num;
-			switch (num1)
+			switch (num)
 			{
 				case 10:
 				{
@@ -236,7 +234,7 @@ namespace Newtonsoft.Json
 				}
 				default:
 				{
-					if (num1 == -1)
+					if (num == -1)
 					{
 						this._end = true;
 						return '\0';
@@ -315,7 +313,7 @@ namespace Newtonsoft.Json
 
 		private void ParseDate(string text)
 		{
-			DateTime localTime;
+			DateTime dateTime;
 			string str = text.Substring(6, text.Length - 8);
 			DateTimeKind dateTimeKind = DateTimeKind.Utc;
 			int num = str.IndexOf('+', 1);
@@ -331,37 +329,23 @@ namespace Newtonsoft.Json
 				str = str.Substring(0, num);
 			}
 			long num1 = long.Parse(str, NumberStyles.Integer, CultureInfo.InvariantCulture);
-			DateTime dateTime = JsonConvert.ConvertJavaScriptTicksToDateTime(num1);
+			DateTime dateTime1 = JsonConvert.ConvertJavaScriptTicksToDateTime(num1);
 			if (this._readType != JsonTextReader.ReadType.ReadAsDateTimeOffset)
 			{
-				switch (dateTimeKind)
+				if (dateTimeKind == DateTimeKind.Unspecified)
 				{
-					case DateTimeKind.Unspecified:
-					{
-						localTime = DateTime.SpecifyKind(dateTime.ToLocalTime(), DateTimeKind.Unspecified);
-						break;
-					}
-					case DateTimeKind.Utc:
-					{
-						localTime = dateTime;
-						break;
-					}
-					case DateTimeKind.Local:
-					{
-						localTime = dateTime.ToLocalTime();
-						break;
-					}
-					default:
-					{
-						goto case DateTimeKind.Utc;
-					}
+					dateTime = DateTime.SpecifyKind(dateTime1.ToLocalTime(), DateTimeKind.Unspecified);
 				}
-				this.SetToken(JsonToken.Date, localTime);
+				else
+				{
+					dateTime = (dateTimeKind == DateTimeKind.Local ? dateTime1.ToLocalTime() : dateTime1);
+				}
+				this.SetToken(JsonToken.Date, dateTime);
 			}
 			else
 			{
-				DateTime dateTime1 = dateTime.Add(zero);
-				this.SetToken(JsonToken.Date, new DateTimeOffset(dateTime1.Ticks, zero));
+				DateTime dateTime2 = dateTime1.Add(zero);
+				this.SetToken(JsonToken.Date, new DateTimeOffset(dateTime2.Ticks, zero));
 			}
 		}
 
@@ -475,8 +459,7 @@ namespace Newtonsoft.Json
 			char chr;
 			do
 			{
-				char chr1 = currentChar;
-				switch (chr1)
+				switch (currentChar)
 				{
 					case '\t':
 					case '\n':
@@ -486,16 +469,16 @@ namespace Newtonsoft.Json
 					}
 					default:
 					{
-						if (chr1 == ' ')
+						if (currentChar == ' ')
 						{
 							goto case '\r';
 						}
-						if (chr1 == '/')
+						if (currentChar == '/')
 						{
 							this.ParseComment();
 							return true;
 						}
-						if (chr1 == '}')
+						if (currentChar == '}')
 						{
 							base.SetToken(JsonToken.EndObject);
 							return true;
@@ -519,8 +502,7 @@ namespace Newtonsoft.Json
 			char chr;
 			do
 			{
-				char chr1 = currentChar;
-				switch (chr1)
+				switch (currentChar)
 				{
 					case '\t':
 					case '\n':
@@ -531,7 +513,7 @@ namespace Newtonsoft.Json
 					}
 					default:
 					{
-						switch (chr1)
+						switch (currentChar)
 						{
 							case ')':
 							{
@@ -545,21 +527,21 @@ namespace Newtonsoft.Json
 							}
 							default:
 							{
-								if (chr1 == ' ')
+								if (currentChar == ' ')
 								{
 									goto Label0;
 								}
-								if (chr1 == '/')
+								if (currentChar == '/')
 								{
 									this.ParseComment();
 									return true;
 								}
-								if (chr1 == ']')
+								if (currentChar == ']')
 								{
 									base.SetToken(JsonToken.EndArray);
 									return true;
 								}
-								if (chr1 == '}')
+								if (currentChar == '}')
 								{
 									base.SetToken(JsonToken.EndObject);
 									return true;
@@ -695,8 +677,7 @@ namespace Newtonsoft.Json
 		{
 			while (true)
 			{
-				char chr = currentChar;
-				switch (chr)
+				switch (currentChar)
 				{
 					case '\'':
 					{
@@ -731,7 +712,7 @@ namespace Newtonsoft.Json
 					}
 					default:
 					{
-						switch (chr)
+						switch (currentChar)
 						{
 							case '\t':
 							case '\n':
@@ -742,7 +723,7 @@ namespace Newtonsoft.Json
 							}
 							default:
 							{
-								switch (chr)
+								switch (currentChar)
 								{
 									case ' ':
 									{
@@ -755,7 +736,7 @@ namespace Newtonsoft.Json
 									}
 									default:
 									{
-										switch (chr)
+										switch (currentChar)
 										{
 											case '[':
 											{
@@ -769,7 +750,17 @@ namespace Newtonsoft.Json
 											}
 											default:
 											{
-												switch (chr)
+												if (currentChar == 't')
+												{
+													this.ParseTrue();
+													return true;
+												}
+												if (currentChar == 'u')
+												{
+													this.ParseUndefined();
+													return true;
+												}
+												switch (currentChar)
 												{
 													case '{':
 													{
@@ -783,41 +774,31 @@ namespace Newtonsoft.Json
 													}
 													default:
 													{
-														if (chr == 't')
-														{
-															this.ParseTrue();
-															return true;
-														}
-														if (chr == 'u')
-														{
-															this.ParseUndefined();
-															return true;
-														}
-														if (chr == 'I')
+														if (currentChar == 'I')
 														{
 															this.ParseNumberPositiveInfinity();
 															return true;
 														}
-														if (chr == 'N')
+														if (currentChar == 'N')
 														{
 															this.ParseNumberNaN();
 															return true;
 														}
-														if (chr == 'f')
+														if (currentChar == 'f')
 														{
 															this.ParseFalse();
 															return true;
 														}
-														if (chr == 'n')
+														if (currentChar == 'n')
 														{
 															if (!this.HasNext())
 															{
 																throw this.CreateJsonReaderException("Unexpected end. Line {0}, position {1}.", new object[] { this._currentLineNumber, this._currentLinePosition });
 															}
-															char chr1 = (char)this.PeekNext();
-															if (chr1 != 'u')
+															char chr = (char)this.PeekNext();
+															if (chr != 'u')
 															{
-																if (chr1 != 'e')
+																if (chr != 'e')
 																{
 																	throw this.CreateJsonReaderException("Unexpected character encountered while parsing value: {0}. Line {1}, position {2}.", new object[] { currentChar, this._currentLineNumber, this._currentLinePosition });
 																}
@@ -850,9 +831,9 @@ namespace Newtonsoft.Json
 								break;
 							}
 						}
-						char chr2 = this.MoveNext();
-						currentChar = chr2;
-						if (chr2 != 0 || !this._end)
+						char chr1 = this.MoveNext();
+						currentChar = chr1;
+						if (chr1 != 0 || !this._end)
 						{
 							continue;
 						}
@@ -1076,8 +1057,7 @@ namespace Newtonsoft.Json
 			while (true)
 			{
 				char chr = this.MoveNext();
-				char chr1 = chr;
-				if (chr1 == '\0')
+				if (chr == 0)
 				{
 					if (this._end)
 					{
@@ -1085,7 +1065,7 @@ namespace Newtonsoft.Json
 					}
 					this._buffer.Append('\0');
 				}
-				else if (chr1 == '\"' || chr1 == '\'')
+				else if (chr == '\"' || chr == '\'')
 				{
 					if (chr == quote)
 					{
@@ -1093,22 +1073,16 @@ namespace Newtonsoft.Json
 					}
 					this._buffer.Append(chr);
 				}
-				else if (chr1 == '\\')
+				else if (chr == '\\')
 				{
-					char chr2 = this.MoveNext();
-					chr = chr2;
-					if (chr2 == 0 && this._end)
+					char chr1 = this.MoveNext();
+					chr = chr1;
+					if (chr1 == 0 && this._end)
 					{
 						throw this.CreateJsonReaderException("Unterminated string. Expected delimiter: {0}. Line {1}, position {2}.", new object[] { quote, this._currentLineNumber, this._currentLinePosition });
 					}
-					char chr3 = chr;
-					switch (chr3)
+					switch (chr)
 					{
-						case 'n':
-						{
-							this._buffer.Append('\n');
-							break;
-						}
 						case 'r':
 						{
 							this._buffer.Append('\r');
@@ -1124,42 +1098,47 @@ namespace Newtonsoft.Json
 							char[] chrArray = new char[4];
 							for (int i = 0; i < (int)chrArray.Length; i++)
 							{
-								char chr4 = this.MoveNext();
-								chr = chr4;
-								if (chr4 == 0 && this._end)
+								char chr2 = this.MoveNext();
+								chr = chr2;
+								if (chr2 == 0 && this._end)
 								{
 									throw this.CreateJsonReaderException("Unexpected end while parsing unicode character. Line {0}, position {1}.", new object[] { this._currentLineNumber, this._currentLinePosition });
 								}
 								chrArray[i] = chr;
 							}
-							char chr5 = Convert.ToChar(int.Parse(new string(chrArray), NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo));
-							this._buffer.Append(chr5);
+							char chr3 = Convert.ToChar(int.Parse(new string(chrArray), NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo));
+							this._buffer.Append(chr3);
 							break;
 						}
 						default:
 						{
-							if (chr3 == '\"' || chr3 == '\'' || chr3 == '/')
+							if (chr == '\"' || chr == '\'' || chr == '/')
 							{
 								this._buffer.Append(chr);
 								break;
 							}
-							else if (chr3 == '\\')
+							else if (chr == '\\')
 							{
 								this._buffer.Append('\\');
 								break;
 							}
-							else if (chr3 == 'b')
+							else if (chr == 'b')
 							{
 								this._buffer.Append('\b');
 								break;
 							}
+							else if (chr == 'f')
+							{
+								this._buffer.Append('\f');
+								break;
+							}
 							else
 							{
-								if (chr3 != 'f')
+								if (chr != 'n')
 								{
 									throw this.CreateJsonReaderException("Bad JSON escape sequence: {0}. Line {1}, position {2}.", new object[] { string.Concat("\\", chr), this._currentLineNumber, this._currentLinePosition });
 								}
-								this._buffer.Append('\f');
+								this._buffer.Append('\n');
 								break;
 							}
 						}

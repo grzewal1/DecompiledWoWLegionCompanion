@@ -11,14 +11,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace Newtonsoft.Json.Linq
 {
-	public class JObject : JContainer, IEnumerable, IDictionary<string, JToken>, ICollection<KeyValuePair<string, JToken>>, ICustomTypeDescriptor, INotifyPropertyChanged, IEnumerable<KeyValuePair<string, JToken>>
+	public class JObject : JContainer, IDictionary<string, JToken>, INotifyPropertyChanged, ICustomTypeDescriptor, ICollection<KeyValuePair<string, JToken>>, IEnumerable<KeyValuePair<string, JToken>>, IEnumerable
 	{
 		private JObject.JPropertKeyedCollection _properties = new JObject.JPropertKeyedCollection(StringComparer.Ordinal);
-
-		private PropertyChangedEventHandler PropertyChanged;
 
 		protected override IList<JToken> ChildrenTokens
 		{
@@ -172,7 +171,7 @@ namespace Newtonsoft.Json.Linq
 		[DebuggerHidden]
 		public IEnumerator<KeyValuePair<string, JToken>> GetEnumerator()
 		{
-			JObject.<GetEnumerator>c__Iterator4 variable = null;
+			JObject.<GetEnumerator>c__Iterator0 variable = null;
 			return variable;
 		}
 
@@ -306,27 +305,15 @@ namespace Newtonsoft.Json.Linq
 			{
 				throw new ArgumentException("arrayIndex is equal to or greater than the length of array.");
 			}
-			if (this.Count > (int)array.Length - arrayIndex)
+			if (base.Count > (int)array.Length - arrayIndex)
 			{
 				throw new ArgumentException("The number of elements in the source JObject is greater than the available space from arrayIndex to the end of the destination array.");
 			}
 			int num = 0;
-			IEnumerator<JToken> enumerator = this.ChildrenTokens.GetEnumerator();
-			try
+			foreach (JProperty childrenToken in this.ChildrenTokens)
 			{
-				while (enumerator.MoveNext())
-				{
-					JProperty current = (JProperty)enumerator.Current;
-					array[arrayIndex + num] = new KeyValuePair<string, JToken>(current.Name, current.Value);
-					num++;
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				array[arrayIndex + num] = new KeyValuePair<string, JToken>(childrenToken.Name, childrenToken.Value);
+				num++;
 			}
 		}
 
@@ -402,21 +389,9 @@ namespace Newtonsoft.Json.Linq
 		PropertyDescriptorCollection System.ComponentModel.ICustomTypeDescriptor.GetProperties(Attribute[] attributes)
 		{
 			PropertyDescriptorCollection propertyDescriptorCollections = new PropertyDescriptorCollection(null);
-			IEnumerator<KeyValuePair<string, JToken>> enumerator = this.GetEnumerator();
-			try
+			foreach (KeyValuePair<string, JToken> keyValuePair in this)
 			{
-				while (enumerator.MoveNext())
-				{
-					KeyValuePair<string, JToken> current = enumerator.Current;
-					propertyDescriptorCollections.Add(new JPropertyDescriptor(current.Key, JObject.GetTokenPropertyType(current.Value)));
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				propertyDescriptorCollections.Add(new JPropertyDescriptor(keyValuePair.Key, JObject.GetTokenPropertyType(keyValuePair.Value)));
 			}
 			return propertyDescriptorCollections;
 		}
@@ -463,35 +438,36 @@ namespace Newtonsoft.Json.Linq
 		public override void WriteTo(JsonWriter writer, params JsonConverter[] converters)
 		{
 			writer.WriteStartObject();
-			IEnumerator<JToken> enumerator = this.ChildrenTokens.GetEnumerator();
-			try
+			foreach (JProperty childrenToken in this.ChildrenTokens)
 			{
-				while (enumerator.MoveNext())
-				{
-					((JProperty)enumerator.Current).WriteTo(writer, converters);
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				childrenToken.WriteTo(writer, converters);
 			}
 			writer.WriteEndObject();
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged
 		{
-			[MethodImpl(MethodImplOptions.Synchronized)]
 			add
 			{
-				this.PropertyChanged += value;
+				PropertyChangedEventHandler propertyChangedEventHandler;
+				PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+				do
+				{
+					propertyChangedEventHandler = propertyChanged;
+					propertyChanged = Interlocked.CompareExchange<PropertyChangedEventHandler>(ref this.PropertyChanged, (PropertyChangedEventHandler)Delegate.Combine(propertyChangedEventHandler, value), propertyChanged);
+				}
+				while ((object)propertyChanged != (object)propertyChangedEventHandler);
 			}
-			[MethodImpl(MethodImplOptions.Synchronized)]
 			remove
 			{
-				this.PropertyChanged -= value;
+				PropertyChangedEventHandler propertyChangedEventHandler;
+				PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+				do
+				{
+					propertyChangedEventHandler = propertyChanged;
+					propertyChanged = Interlocked.CompareExchange<PropertyChangedEventHandler>(ref this.PropertyChanged, (PropertyChangedEventHandler)Delegate.Remove(propertyChangedEventHandler, value), propertyChanged);
+				}
+				while ((object)propertyChanged != (object)propertyChangedEventHandler);
 			}
 		}
 

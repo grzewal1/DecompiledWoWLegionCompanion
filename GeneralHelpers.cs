@@ -107,8 +107,7 @@ public class GeneralHelpers : MonoBehaviour
 
 	public static string GetBonusStatString(BonusStatIndex statIndex)
 	{
-		BonusStatIndex bonusStatIndex = statIndex;
-		switch (bonusStatIndex)
+		switch (statIndex)
 		{
 			case BonusStatIndex.MANA:
 			{
@@ -204,7 +203,7 @@ public class GeneralHelpers : MonoBehaviour
 			}
 			default:
 			{
-				if (bonusStatIndex == BonusStatIndex.MASTERY_RATING)
+				if (statIndex == BonusStatIndex.MASTERY_RATING)
 				{
 					break;
 				}
@@ -719,10 +718,11 @@ public class GeneralHelpers : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
 		return actionValueFlat;
 	}
@@ -730,8 +730,7 @@ public class GeneralHelpers : MonoBehaviour
 	private static int GetMobileAtlasMemberOverride(int iconFileDataID)
 	{
 		int num = 0;
-		int num1 = iconFileDataID;
-		switch (num1)
+		switch (iconFileDataID)
 		{
 			case 1383681:
 			{
@@ -750,12 +749,12 @@ public class GeneralHelpers : MonoBehaviour
 			}
 			default:
 			{
-				if (num1 == 1380306)
+				if (iconFileDataID == 1380306)
 				{
 					num = 6147;
 					break;
 				}
-				else if (num1 == 1390116)
+				else if (iconFileDataID == 1390116)
 				{
 					num = 0;
 					break;

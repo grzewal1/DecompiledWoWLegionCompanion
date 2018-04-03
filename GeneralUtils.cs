@@ -97,10 +97,11 @@ public static class GeneralUtils
 				finally
 				{
 					IDisposable disposable = enumerator as IDisposable;
-					if (disposable == null)
+					IDisposable disposable1 = disposable;
+					if (disposable != null)
 					{
+						disposable1.Dispose();
 					}
-					disposable.Dispose();
 				}
 				return dictionaries1;
 			}
@@ -120,11 +121,12 @@ public static class GeneralUtils
 				}
 				finally
 				{
-					IDisposable disposable1 = enumerator1 as IDisposable;
-					if (disposable1 == null)
+					IDisposable disposable2 = enumerator1 as IDisposable;
+					IDisposable disposable3 = disposable2;
+					if (disposable2 != null)
 					{
+						disposable3.Dispose();
 					}
-					disposable1.Dispose();
 				}
 				return lists1;
 			}

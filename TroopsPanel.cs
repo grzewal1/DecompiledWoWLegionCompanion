@@ -21,6 +21,8 @@ public class TroopsPanel : MonoBehaviour
 
 	public RectTransform m_panelViewRT;
 
+	public GameObject m_resourcesDisplay;
+
 	public TroopsPanel()
 	{
 	}
@@ -191,10 +193,11 @@ public class TroopsPanel : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
 	}
 
@@ -224,6 +227,10 @@ public class TroopsPanel : MonoBehaviour
 		{
 			UnityEngine.Object.DestroyImmediate(componentsInChildren[i].gameObject);
 		}
+	}
+
+	private void Start()
+	{
 	}
 
 	private void Update()

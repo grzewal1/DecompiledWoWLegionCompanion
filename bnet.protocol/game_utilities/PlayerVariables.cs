@@ -106,45 +106,41 @@ namespace bnet.protocol.game_utilities
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 10)
-						{
-							if (instance.Identity != null)
-							{
-								bnet.protocol.Identity.DeserializeLengthDelimited(stream, instance.Identity);
-							}
-							else
-							{
-								instance.Identity = bnet.protocol.Identity.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 17)
-						{
-							instance.Rating = binaryReader.ReadDouble();
-						}
-						else if (num1 == 26)
-						{
-							instance.Attribute.Add(bnet.protocol.attribute.Attribute.DeserializeLengthDelimited(stream));
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 10)
+					{
+						if (instance.Identity != null)
+						{
+							bnet.protocol.Identity.DeserializeLengthDelimited(stream, instance.Identity);
+						}
+						else
+						{
+							instance.Identity = bnet.protocol.Identity.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 17)
+					{
+						instance.Rating = binaryReader.ReadDouble();
+					}
+					else if (num == 26)
+					{
+						instance.Attribute.Add(bnet.protocol.attribute.Attribute.DeserializeLengthDelimited(stream));
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
 					}
 				}
 				else

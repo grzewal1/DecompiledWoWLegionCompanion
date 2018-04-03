@@ -48,38 +48,34 @@ namespace bnet.protocol.attribute
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 10)
-						{
-							instance.Name = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 != 18)
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-						else if (instance.Value != null)
-						{
-							bnet.protocol.attribute.Variant.DeserializeLengthDelimited(stream, instance.Value);
-						}
-						else
-						{
-							instance.Value = bnet.protocol.attribute.Variant.DeserializeLengthDelimited(stream);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 10)
+					{
+						instance.Name = ProtocolParser.ReadString(stream);
+					}
+					else if (num != 18)
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
+					}
+					else if (instance.Value != null)
+					{
+						bnet.protocol.attribute.Variant.DeserializeLengthDelimited(stream, instance.Value);
+					}
+					else
+					{
+						instance.Value = bnet.protocol.attribute.Variant.DeserializeLengthDelimited(stream);
 					}
 				}
 				else

@@ -17,7 +17,7 @@ namespace SimpleJSON
 		{
 			get
 			{
-				JSONArray.<>c__IteratorD variable = null;
+				JSONArray.<>c__Iterator0 variable = null;
 				return variable;
 			}
 		}
@@ -77,7 +77,7 @@ namespace SimpleJSON
 		[DebuggerHidden]
 		public IEnumerator GetEnumerator()
 		{
-			JSONArray.<GetEnumerator>c__IteratorE variable = null;
+			JSONArray.<GetEnumerator>c__Iterator1 variable = null;
 			return variable;
 		}
 

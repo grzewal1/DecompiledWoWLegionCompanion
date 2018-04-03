@@ -25,6 +25,8 @@ public class OptionsDialog : MonoBehaviour
 
 	public Text m_notificationsText;
 
+	public GameObject m_FilterOptionsArea;
+
 	public OptionsDialog()
 	{
 	}
@@ -49,10 +51,11 @@ public class OptionsDialog : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
 		return flag;
 	}
@@ -194,6 +197,16 @@ public class OptionsDialog : MonoBehaviour
 
 	private void Start()
 	{
+		if (this.m_FilterOptionsArea != null && Main.instance.IsNarrowScreen())
+		{
+			GridLayoutGroup component = this.m_FilterOptionsArea.GetComponent<GridLayoutGroup>();
+			if (component != null)
+			{
+				Vector2 vector2 = component.cellSize;
+				vector2.x = 185f;
+				component.cellSize = vector2;
+			}
+		}
 		this.m_enableSFX.onValueChanged.AddListener(new UnityAction<bool>(this.OnValueChanged_EnableSFX));
 		this.m_enableNotifications.onValueChanged.AddListener(new UnityAction<bool>(this.OnValueChanged_EnableNotifications));
 		this.m_titleText.font = GeneralHelpers.LoadStandardFont();

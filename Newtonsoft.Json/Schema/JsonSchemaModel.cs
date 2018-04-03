@@ -1,7 +1,6 @@
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Utilities;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -205,20 +204,9 @@ namespace Newtonsoft.Json.Schema
 		public static JsonSchemaModel Create(IList<JsonSchema> schemata)
 		{
 			JsonSchemaModel jsonSchemaModel = new JsonSchemaModel();
-			IEnumerator<JsonSchema> enumerator = schemata.GetEnumerator();
-			try
+			foreach (JsonSchema schematum in schemata)
 			{
-				while (enumerator.MoveNext())
-				{
-					JsonSchemaModel.Combine(jsonSchemaModel, enumerator.Current);
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				JsonSchemaModel.Combine(jsonSchemaModel, schematum);
 			}
 			return jsonSchemaModel;
 		}

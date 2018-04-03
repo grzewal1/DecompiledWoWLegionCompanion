@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Newtonsoft.Json.Bson
 {
-	internal class BsonArray : BsonToken, IEnumerable, IEnumerable<BsonToken>
+	internal class BsonArray : BsonToken, IEnumerable<BsonToken>, IEnumerable
 	{
 		private readonly List<BsonToken> _children = new List<BsonToken>();
 

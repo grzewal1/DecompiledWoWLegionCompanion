@@ -490,7 +490,7 @@ namespace Newtonsoft.Json.Bson
 					int length = containerContext1.Length - 1;
 					if (containerContext1.Position < length)
 					{
-						if ((int)containerContext1.Type != 4)
+						if (containerContext1.Type != BsonType.Array)
 						{
 							this.SetToken(JsonToken.PropertyName, this.ReadElement());
 							return true;
@@ -512,7 +512,7 @@ namespace Newtonsoft.Json.Bson
 					{
 						this.MovePosition(containerContext1.Length);
 					}
-					base.SetToken(((int)containerContext1.Type != 3 ? JsonToken.EndArray : JsonToken.EndObject));
+					base.SetToken((containerContext1.Type != BsonType.Object ? JsonToken.EndArray : JsonToken.EndObject));
 					return true;
 				}
 				case JsonReader.State.Object:
@@ -642,7 +642,7 @@ namespace Newtonsoft.Json.Bson
 
 		private void ReadType(BsonType type)
 		{
-			DateTime localTime;
+			DateTime dateTime;
 			switch (type)
 			{
 				case BsonType.Number:
@@ -695,30 +695,17 @@ namespace Newtonsoft.Json.Bson
 				}
 				case BsonType.Date:
 				{
-					DateTime dateTime = JsonConvert.ConvertJavaScriptTicksToDateTime(this.ReadInt64());
-					switch (this.DateTimeKindHandling)
+					DateTime dateTime1 = JsonConvert.ConvertJavaScriptTicksToDateTime(this.ReadInt64());
+					DateTimeKind dateTimeKindHandling = this.DateTimeKindHandling;
+					if (dateTimeKindHandling == DateTimeKind.Unspecified)
 					{
-						case DateTimeKind.Unspecified:
-						{
-							localTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Unspecified);
-							break;
-						}
-						case DateTimeKind.Utc:
-						{
-							localTime = dateTime;
-							break;
-						}
-						case DateTimeKind.Local:
-						{
-							localTime = dateTime.ToLocalTime();
-							break;
-						}
-						default:
-						{
-							goto case DateTimeKind.Utc;
-						}
+						dateTime = DateTime.SpecifyKind(dateTime1, DateTimeKind.Unspecified);
 					}
-					this.SetToken(JsonToken.Date, localTime);
+					else
+					{
+						dateTime = (dateTimeKindHandling == DateTimeKind.Local ? dateTime1.ToLocalTime() : dateTime1);
+					}
+					this.SetToken(JsonToken.Date, dateTime);
 					break;
 				}
 				case BsonType.Null:

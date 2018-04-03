@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-public class ThreadUnsafeStack : IDisposable, MemoryStreamStack
+public class ThreadUnsafeStack : MemoryStreamStack, IDisposable
 {
 	private Stack<MemoryStream> stack = new Stack<MemoryStream>();
 

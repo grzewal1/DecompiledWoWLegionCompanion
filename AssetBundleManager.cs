@@ -10,8 +10,6 @@ public class AssetBundleManager : MonoBehaviour
 {
 	private const int HASH_LENGTH = 32;
 
-	private const string m_versionFile = "update.txt";
-
 	private static AssetBundleManager s_instance;
 
 	private static bool s_initialized;
@@ -39,6 +37,8 @@ public class AssetBundleManager : MonoBehaviour
 	private float m_progressMultiplier;
 
 	private float m_progressStartTime;
+
+	private const string m_versionFile = "update.txt";
 
 	private string m_assetBundleDirectory = "ab";
 
@@ -138,7 +138,7 @@ public class AssetBundleManager : MonoBehaviour
 	[DebuggerHidden]
 	public IEnumerator FetchLatestVersion(string url)
 	{
-		AssetBundleManager.<FetchLatestVersion>c__Iterator9 variable = null;
+		AssetBundleManager.<FetchLatestVersion>c__Iterator2 variable = null;
 		return variable;
 	}
 
@@ -158,7 +158,7 @@ public class AssetBundleManager : MonoBehaviour
 		string locale = Main.instance.GetLocale();
 		if (locale != null)
 		{
-			if (AssetBundleManager.<>f__switch$map6 == null)
+			if (AssetBundleManager.<>f__switch$map3 == null)
 			{
 				Dictionary<string, int> strs = new Dictionary<string, int>(11)
 				{
@@ -174,9 +174,9 @@ public class AssetBundleManager : MonoBehaviour
 					{ "ptBR", 9 },
 					{ "itIT", 10 }
 				};
-				AssetBundleManager.<>f__switch$map6 = strs;
+				AssetBundleManager.<>f__switch$map3 = strs;
 			}
-			if (AssetBundleManager.<>f__switch$map6.TryGetValue(locale, out num))
+			if (AssetBundleManager.<>f__switch$map3.TryGetValue(locale, out num))
 			{
 				switch (num)
 				{
@@ -236,7 +236,7 @@ public class AssetBundleManager : MonoBehaviour
 		string locale = Main.instance.GetLocale();
 		if (locale != null)
 		{
-			if (AssetBundleManager.<>f__switch$map5 == null)
+			if (AssetBundleManager.<>f__switch$map2 == null)
 			{
 				Dictionary<string, int> strs = new Dictionary<string, int>(11)
 				{
@@ -252,9 +252,9 @@ public class AssetBundleManager : MonoBehaviour
 					{ "ptBR", 9 },
 					{ "itIT", 10 }
 				};
-				AssetBundleManager.<>f__switch$map5 = strs;
+				AssetBundleManager.<>f__switch$map2 = strs;
 			}
-			if (AssetBundleManager.<>f__switch$map5.TryGetValue(locale, out num))
+			if (AssetBundleManager.<>f__switch$map2.TryGetValue(locale, out num))
 			{
 				switch (num)
 				{
@@ -330,7 +330,7 @@ public class AssetBundleManager : MonoBehaviour
 	[DebuggerHidden]
 	private IEnumerator InternalInitAssetBundleManager()
 	{
-		AssetBundleManager.<InternalInitAssetBundleManager>c__Iterator7 variable = null;
+		AssetBundleManager.<InternalInitAssetBundleManager>c__Iterator0 variable = null;
 		return variable;
 	}
 
@@ -347,7 +347,7 @@ public class AssetBundleManager : MonoBehaviour
 	[DebuggerHidden]
 	public IEnumerator LoadAssetBundle(string fileIdentifier, Action<AssetBundle> resultCallback)
 	{
-		AssetBundleManager.<LoadAssetBundle>c__Iterator8 variable = null;
+		AssetBundleManager.<LoadAssetBundle>c__Iterator1 variable = null;
 		return variable;
 	}
 

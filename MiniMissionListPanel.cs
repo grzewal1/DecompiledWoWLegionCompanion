@@ -43,6 +43,11 @@ public class MiniMissionListPanel : MonoBehaviour
 
 	private GameObject m_currentMissionStartedEffectObj;
 
+	[Header("Notched Screen")]
+	public GameObject m_missionScrollViewport;
+
+	public GameObject m_tabsArea;
+
 	public MiniMissionListPanel()
 	{
 	}
@@ -177,10 +182,11 @@ public class MiniMissionListPanel : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
 		componentsInChildren1 = this.m_availableMission_listContents.GetComponentsInChildren<MiniMissionListItem>(true);
 		miniMissionListItemArray1 = this.m_inProgressMission_listContents.GetComponentsInChildren<MiniMissionListItem>(true);
@@ -190,6 +196,10 @@ public class MiniMissionListPanel : MonoBehaviour
 		this.m_inProgressMissionsTabLabel.text = string.Concat(StaticDB.GetString("IN_PROGRESS", null), " - ", length1);
 		this.m_noMissionsAvailableLabel.gameObject.SetActive(length == 0);
 		this.m_noMissionsInProgressLabel.gameObject.SetActive(length1 == 0);
+	}
+
+	private void NarrowScreenAdjust()
+	{
 	}
 
 	private void OnDisable()
@@ -231,6 +241,14 @@ public class MiniMissionListPanel : MonoBehaviour
 		this.m_currentMissionStartedEffectObj = UnityEngine.Object.Instantiate<GameObject>(this.m_missionStartedEffectObjPrefab);
 		this.m_currentMissionStartedEffectObj.transform.SetParent(this.m_inProgressMissionsTabButton.transform, false);
 		this.m_currentMissionStartedEffectObj.transform.localPosition = Vector3.zero;
+	}
+
+	private void Start()
+	{
+		if (Main.instance.IsNarrowScreen())
+		{
+			this.NarrowScreenAdjust();
+		}
 	}
 
 	private void Update()

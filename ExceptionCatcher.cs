@@ -14,13 +14,13 @@ using UnityEngine.UI;
 
 public class ExceptionCatcher : MonoBehaviour
 {
-	private const int WoWCompanionProjectID = 292;
-
 	public ExceptionPanel exceptionPanel;
 
 	private readonly static HashSet<string> sentReports;
 
 	private IPAddress unknownAddress = new IPAddress(new byte[4]);
+
+	private const int WoWCompanionProjectID = 292;
 
 	private IPAddress ipAddress
 	{
@@ -154,7 +154,7 @@ public class ExceptionCatcher : MonoBehaviour
 	[DebuggerHidden]
 	private IEnumerator SendExceptionReport(string message, string stackTrace, string hash)
 	{
-		ExceptionCatcher.<SendExceptionReport>c__IteratorA variable = null;
+		ExceptionCatcher.<SendExceptionReport>c__Iterator0 variable = null;
 		return variable;
 	}
 

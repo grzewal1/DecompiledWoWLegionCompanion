@@ -878,10 +878,11 @@ public class iTween : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
 		IDictionaryEnumerator dictionaryEnumerator = hashtables.GetEnumerator();
 		try
@@ -904,11 +905,12 @@ public class iTween : MonoBehaviour
 		}
 		finally
 		{
-			IDisposable disposable1 = dictionaryEnumerator as IDisposable;
-			if (disposable1 == null)
+			IDisposable disposable2 = dictionaryEnumerator as IDisposable;
+			IDisposable disposable3 = disposable2;
+			if (disposable2 != null)
 			{
+				disposable3.Dispose();
 			}
-			disposable1.Dispose();
 		}
 		IDictionaryEnumerator enumerator1 = args.GetEnumerator();
 		try
@@ -921,11 +923,12 @@ public class iTween : MonoBehaviour
 		}
 		finally
 		{
-			IDisposable disposable2 = enumerator1 as IDisposable;
-			if (disposable2 == null)
+			IDisposable disposable4 = enumerator1 as IDisposable;
+			IDisposable disposable5 = disposable4;
+			if (disposable4 != null)
 			{
+				disposable5.Dispose();
 			}
-			disposable2.Dispose();
 		}
 		args = hashtables1;
 		return args;
@@ -981,10 +984,11 @@ public class iTween : MonoBehaviour
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable == null)
+				IDisposable disposable1 = disposable;
+				if (disposable != null)
 				{
+					disposable1.Dispose();
 				}
-				disposable.Dispose();
 			}
 		}
 		if (!args.Contains("easetype"))
@@ -1094,10 +1098,11 @@ public class iTween : MonoBehaviour
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable == null)
+				IDisposable disposable1 = disposable;
+				if (disposable != null)
 				{
+					disposable1.Dispose();
 				}
-				disposable.Dispose();
 			}
 		}
 		if (!args.Contains("easetype"))
@@ -1128,10 +1133,11 @@ public class iTween : MonoBehaviour
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable == null)
+				IDisposable disposable1 = disposable;
+				if (disposable != null)
 				{
+					disposable1.Dispose();
 				}
-				disposable.Dispose();
 			}
 		}
 		if (!args.Contains("time"))
@@ -1267,10 +1273,11 @@ public class iTween : MonoBehaviour
 				finally
 				{
 					IDisposable disposable = enumerator as IDisposable;
-					if (disposable == null)
+					IDisposable disposable1 = disposable;
+					if (disposable != null)
 					{
+						disposable1.Dispose();
 					}
-					disposable.Dispose();
 				}
 				this.Dispose();
 			}
@@ -2073,22 +2080,18 @@ public class iTween : MonoBehaviour
 		if (base.GetComponent<GUITexture>())
 		{
 			this.colors = new Color[1, 3];
-			Color[,] colorArray = this.colors;
-			Color[,] colorArray1 = this.colors;
 			Color component = base.GetComponent<GUITexture>().color;
 			color = component;
-			colorArray1[0, 1] = component;
-			colorArray[0, 0] = color;
+			this.colors[0, 1] = component;
+			this.colors[0, 0] = color;
 		}
 		else if (base.GetComponent<GUIText>())
 		{
 			this.colors = new Color[1, 3];
-			Color[,] colorArray2 = this.colors;
-			Color[,] colorArray3 = this.colors;
 			Color component1 = base.GetComponent<GUIText>().material.color;
 			color = component1;
-			colorArray3[0, 1] = component1;
-			colorArray2[0, 0] = color;
+			this.colors[0, 1] = component1;
+			this.colors[0, 0] = color;
 		}
 		else if (base.GetComponent<Renderer>())
 		{
@@ -2106,12 +2109,10 @@ public class iTween : MonoBehaviour
 		else
 		{
 			this.colors = new Color[1, 3];
-			Color[,] colorArray4 = this.colors;
-			Color[,] colorArray5 = this.colors;
 			Color color1 = base.GetComponent<Light>().color;
 			color = color1;
-			colorArray5[0, 1] = color1;
-			colorArray4[0, 0] = color;
+			this.colors[0, 1] = color1;
+			this.colors[0, 0] = color;
 		}
 		if (!this.tweenArguments.Contains("color"))
 		{
@@ -2184,7 +2185,6 @@ public class iTween : MonoBehaviour
 
 	private void GenerateLookToTargets()
 	{
-		int num;
 		this.vector3s = new Vector3[] { this.thisTransform.eulerAngles, default(Vector3), default(Vector3) };
 		if (!this.tweenArguments.Contains("looktarget"))
 		{
@@ -2212,39 +2212,20 @@ public class iTween : MonoBehaviour
 			string str = (string)this.tweenArguments["axis"];
 			if (str != null)
 			{
-				if (iTween.<>f__switch$map1D == null)
+				if (str == "x")
 				{
-					Dictionary<string, int> strs = new Dictionary<string, int>(3)
-					{
-						{ "x", 0 },
-						{ "y", 1 },
-						{ "z", 2 }
-					};
-					iTween.<>f__switch$map1D = strs;
+					this.vector3s[1].y = this.vector3s[0].y;
+					this.vector3s[1].z = this.vector3s[0].z;
 				}
-				if (iTween.<>f__switch$map1D.TryGetValue(str, out num))
+				else if (str == "y")
 				{
-					switch (num)
-					{
-						case 0:
-						{
-							this.vector3s[1].y = this.vector3s[0].y;
-							this.vector3s[1].z = this.vector3s[0].z;
-							break;
-						}
-						case 1:
-						{
-							this.vector3s[1].x = this.vector3s[0].x;
-							this.vector3s[1].z = this.vector3s[0].z;
-							break;
-						}
-						case 2:
-						{
-							this.vector3s[1].x = this.vector3s[0].x;
-							this.vector3s[1].y = this.vector3s[0].y;
-							break;
-						}
-					}
+					this.vector3s[1].x = this.vector3s[0].x;
+					this.vector3s[1].z = this.vector3s[0].z;
+				}
+				else if (str == "z")
+				{
+					this.vector3s[1].x = this.vector3s[0].x;
+					this.vector3s[1].y = this.vector3s[0].y;
 				}
 			}
 		}
@@ -2845,16 +2826,13 @@ public class iTween : MonoBehaviour
 
 	private void GenerateTargets()
 	{
-		Dictionary<string, int> strs;
 		int num;
-		string str;
-		int num1;
-		string str1 = this.type;
-		if (str1 != null)
+		string str = this.type;
+		if (str != null)
 		{
-			if (iTween.<>f__switch$map1C == null)
+			if (iTween.<>f__switch$mapA == null)
 			{
-				strs = new Dictionary<string, int>(10)
+				Dictionary<string, int> strs = new Dictionary<string, int>(10)
 				{
 					{ "value", 0 },
 					{ "color", 1 },
@@ -2867,343 +2845,198 @@ public class iTween : MonoBehaviour
 					{ "look", 8 },
 					{ "stab", 9 }
 				};
-				iTween.<>f__switch$map1C = strs;
+				iTween.<>f__switch$mapA = strs;
 			}
-			if (iTween.<>f__switch$map1C.TryGetValue(str1, out num))
+			if (iTween.<>f__switch$mapA.TryGetValue(str, out num))
 			{
 				switch (num)
 				{
 					case 0:
 					{
-						str = this.method;
-						if (str != null)
+						string str1 = this.method;
+						if (str1 != null)
 						{
-							if (iTween.<>f__switch$map13 == null)
+							if (str1 == "float")
 							{
-								strs = new Dictionary<string, int>(5)
-								{
-									{ "float", 0 },
-									{ "vector2", 1 },
-									{ "vector3", 2 },
-									{ "color", 3 },
-									{ "rect", 4 }
-								};
-								iTween.<>f__switch$map13 = strs;
+								this.GenerateFloatTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyFloatTargets);
 							}
-							if (iTween.<>f__switch$map13.TryGetValue(str, out num1))
+							else if (str1 == "vector2")
 							{
-								switch (num1)
-								{
-									case 0:
-									{
-										this.GenerateFloatTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyFloatTargets);
-										break;
-									}
-									case 1:
-									{
-										this.GenerateVector2Targets();
-										this.apply = new iTween.ApplyTween(this.ApplyVector2Targets);
-										break;
-									}
-									case 2:
-									{
-										this.GenerateVector3Targets();
-										this.apply = new iTween.ApplyTween(this.ApplyVector3Targets);
-										break;
-									}
-									case 3:
-									{
-										this.GenerateColorTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyColorTargets);
-										break;
-									}
-									case 4:
-									{
-										this.GenerateRectTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyRectTargets);
-										break;
-									}
-								}
+								this.GenerateVector2Targets();
+								this.apply = new iTween.ApplyTween(this.ApplyVector2Targets);
+							}
+							else if (str1 == "vector3")
+							{
+								this.GenerateVector3Targets();
+								this.apply = new iTween.ApplyTween(this.ApplyVector3Targets);
+							}
+							else if (str1 == "color")
+							{
+								this.GenerateColorTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyColorTargets);
+							}
+							else if (str1 == "rect")
+							{
+								this.GenerateRectTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyRectTargets);
 							}
 						}
 						break;
 					}
 					case 1:
 					{
-						str = this.method;
-						if (str != null)
+						string str2 = this.method;
+						if (str2 != null)
 						{
-							if (iTween.<>f__switch$map14 == null)
+							if (str2 == "to")
 							{
-								strs = new Dictionary<string, int>(1)
-								{
-									{ "to", 0 }
-								};
-								iTween.<>f__switch$map14 = strs;
-							}
-							if (iTween.<>f__switch$map14.TryGetValue(str, out num1))
-							{
-								if (num1 == 0)
-								{
-									this.GenerateColorToTargets();
-									this.apply = new iTween.ApplyTween(this.ApplyColorToTargets);
-								}
+								this.GenerateColorToTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyColorToTargets);
 							}
 						}
 						break;
 					}
 					case 2:
 					{
-						str = this.method;
-						if (str != null)
+						string str3 = this.method;
+						if (str3 != null)
 						{
-							if (iTween.<>f__switch$map15 == null)
+							if (str3 == "to")
 							{
-								strs = new Dictionary<string, int>(1)
-								{
-									{ "to", 0 }
-								};
-								iTween.<>f__switch$map15 = strs;
-							}
-							if (iTween.<>f__switch$map15.TryGetValue(str, out num1))
-							{
-								if (num1 == 0)
-								{
-									this.GenerateAudioToTargets();
-									this.apply = new iTween.ApplyTween(this.ApplyAudioToTargets);
-								}
+								this.GenerateAudioToTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyAudioToTargets);
 							}
 						}
 						break;
 					}
 					case 3:
 					{
-						str = this.method;
-						if (str != null)
+						string str4 = this.method;
+						if (str4 != null)
 						{
-							if (iTween.<>f__switch$map16 == null)
+							if (str4 != "to")
 							{
-								strs = new Dictionary<string, int>(3)
+								if (str4 == "by" || str4 == "add")
 								{
-									{ "to", 0 },
-									{ "by", 1 },
-									{ "add", 1 }
-								};
-								iTween.<>f__switch$map16 = strs;
+									this.GenerateMoveByTargets();
+									this.apply = new iTween.ApplyTween(this.ApplyMoveByTargets);
+								}
 							}
-							if (iTween.<>f__switch$map16.TryGetValue(str, out num1))
+							else if (!this.tweenArguments.Contains("path"))
 							{
-								if (num1 != 0)
-								{
-									if (num1 == 1)
-									{
-										this.GenerateMoveByTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyMoveByTargets);
-									}
-								}
-								else if (!this.tweenArguments.Contains("path"))
-								{
-									this.GenerateMoveToTargets();
-									this.apply = new iTween.ApplyTween(this.ApplyMoveToTargets);
-								}
-								else
-								{
-									this.GenerateMoveToPathTargets();
-									this.apply = new iTween.ApplyTween(this.ApplyMoveToPathTargets);
-								}
+								this.GenerateMoveToTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyMoveToTargets);
+							}
+							else
+							{
+								this.GenerateMoveToPathTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyMoveToPathTargets);
 							}
 						}
 						break;
 					}
 					case 4:
 					{
-						str = this.method;
-						if (str != null)
+						string str5 = this.method;
+						if (str5 != null)
 						{
-							if (iTween.<>f__switch$map17 == null)
+							if (str5 == "to")
 							{
-								strs = new Dictionary<string, int>(3)
-								{
-									{ "to", 0 },
-									{ "by", 1 },
-									{ "add", 2 }
-								};
-								iTween.<>f__switch$map17 = strs;
+								this.GenerateScaleToTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyScaleToTargets);
 							}
-							if (iTween.<>f__switch$map17.TryGetValue(str, out num1))
+							else if (str5 == "by")
 							{
-								switch (num1)
-								{
-									case 0:
-									{
-										this.GenerateScaleToTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyScaleToTargets);
-										break;
-									}
-									case 1:
-									{
-										this.GenerateScaleByTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyScaleToTargets);
-										break;
-									}
-									case 2:
-									{
-										this.GenerateScaleAddTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyScaleToTargets);
-										break;
-									}
-								}
+								this.GenerateScaleByTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyScaleToTargets);
+							}
+							else if (str5 == "add")
+							{
+								this.GenerateScaleAddTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyScaleToTargets);
 							}
 						}
 						break;
 					}
 					case 5:
 					{
-						str = this.method;
-						if (str != null)
+						string str6 = this.method;
+						if (str6 != null)
 						{
-							if (iTween.<>f__switch$map18 == null)
+							if (str6 == "to")
 							{
-								strs = new Dictionary<string, int>(3)
-								{
-									{ "to", 0 },
-									{ "add", 1 },
-									{ "by", 2 }
-								};
-								iTween.<>f__switch$map18 = strs;
+								this.GenerateRotateToTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyRotateToTargets);
 							}
-							if (iTween.<>f__switch$map18.TryGetValue(str, out num1))
+							else if (str6 == "add")
 							{
-								switch (num1)
-								{
-									case 0:
-									{
-										this.GenerateRotateToTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyRotateToTargets);
-										break;
-									}
-									case 1:
-									{
-										this.GenerateRotateAddTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyRotateAddTargets);
-										break;
-									}
-									case 2:
-									{
-										this.GenerateRotateByTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyRotateAddTargets);
-										break;
-									}
-								}
+								this.GenerateRotateAddTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyRotateAddTargets);
+							}
+							else if (str6 == "by")
+							{
+								this.GenerateRotateByTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyRotateAddTargets);
 							}
 						}
 						break;
 					}
 					case 6:
 					{
-						str = this.method;
-						if (str != null)
+						string str7 = this.method;
+						if (str7 != null)
 						{
-							if (iTween.<>f__switch$map19 == null)
+							if (str7 == "position")
 							{
-								strs = new Dictionary<string, int>(3)
-								{
-									{ "position", 0 },
-									{ "scale", 1 },
-									{ "rotation", 2 }
-								};
-								iTween.<>f__switch$map19 = strs;
+								this.GenerateShakePositionTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyShakePositionTargets);
 							}
-							if (iTween.<>f__switch$map19.TryGetValue(str, out num1))
+							else if (str7 == "scale")
 							{
-								switch (num1)
-								{
-									case 0:
-									{
-										this.GenerateShakePositionTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyShakePositionTargets);
-										break;
-									}
-									case 1:
-									{
-										this.GenerateShakeScaleTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyShakeScaleTargets);
-										break;
-									}
-									case 2:
-									{
-										this.GenerateShakeRotationTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyShakeRotationTargets);
-										break;
-									}
-								}
+								this.GenerateShakeScaleTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyShakeScaleTargets);
+							}
+							else if (str7 == "rotation")
+							{
+								this.GenerateShakeRotationTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyShakeRotationTargets);
 							}
 						}
 						break;
 					}
 					case 7:
 					{
-						str = this.method;
-						if (str != null)
+						string str8 = this.method;
+						if (str8 != null)
 						{
-							if (iTween.<>f__switch$map1A == null)
+							if (str8 == "position")
 							{
-								strs = new Dictionary<string, int>(3)
-								{
-									{ "position", 0 },
-									{ "rotation", 1 },
-									{ "scale", 2 }
-								};
-								iTween.<>f__switch$map1A = strs;
+								this.GeneratePunchPositionTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyPunchPositionTargets);
 							}
-							if (iTween.<>f__switch$map1A.TryGetValue(str, out num1))
+							else if (str8 == "rotation")
 							{
-								switch (num1)
-								{
-									case 0:
-									{
-										this.GeneratePunchPositionTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyPunchPositionTargets);
-										break;
-									}
-									case 1:
-									{
-										this.GeneratePunchRotationTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyPunchRotationTargets);
-										break;
-									}
-									case 2:
-									{
-										this.GeneratePunchScaleTargets();
-										this.apply = new iTween.ApplyTween(this.ApplyPunchScaleTargets);
-										break;
-									}
-								}
+								this.GeneratePunchRotationTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyPunchRotationTargets);
+							}
+							else if (str8 == "scale")
+							{
+								this.GeneratePunchScaleTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyPunchScaleTargets);
 							}
 						}
 						break;
 					}
 					case 8:
 					{
-						str = this.method;
-						if (str != null)
+						string str9 = this.method;
+						if (str9 != null)
 						{
-							if (iTween.<>f__switch$map1B == null)
+							if (str9 == "to")
 							{
-								strs = new Dictionary<string, int>(1)
-								{
-									{ "to", 0 }
-								};
-								iTween.<>f__switch$map1B = strs;
-							}
-							if (iTween.<>f__switch$map1B.TryGetValue(str, out num1))
-							{
-								if (num1 == 0)
-								{
-									this.GenerateLookToTargets();
-									this.apply = new iTween.ApplyTween(this.ApplyLookToTargets);
-								}
+								this.GenerateLookToTargets();
+								this.apply = new iTween.ApplyTween(this.ApplyLookToTargets);
 							}
 						}
 						break;
@@ -3474,7 +3307,6 @@ public class iTween : MonoBehaviour
 
 	public static void LookFrom(GameObject target, Hashtable args)
 	{
-		int num;
 		args = iTween.CleanArgs(args);
 		Vector3 vector3 = target.transform.eulerAngles;
 		if (args["looktarget"].GetType() == typeof(Transform))
@@ -3497,39 +3329,20 @@ public class iTween : MonoBehaviour
 			string str = (string)args["axis"];
 			if (str != null)
 			{
-				if (iTween.<>f__switch$map12 == null)
+				if (str == "x")
 				{
-					Dictionary<string, int> strs = new Dictionary<string, int>(3)
-					{
-						{ "x", 0 },
-						{ "y", 1 },
-						{ "z", 2 }
-					};
-					iTween.<>f__switch$map12 = strs;
+					vector31.y = vector3.y;
+					vector31.z = vector3.z;
 				}
-				if (iTween.<>f__switch$map12.TryGetValue(str, out num))
+				else if (str == "y")
 				{
-					switch (num)
-					{
-						case 0:
-						{
-							vector31.y = vector3.y;
-							vector31.z = vector3.z;
-							break;
-						}
-						case 1:
-						{
-							vector31.x = vector3.x;
-							vector31.z = vector3.z;
-							break;
-						}
-						case 2:
-						{
-							vector31.x = vector3.x;
-							vector31.y = vector3.y;
-							break;
-						}
-					}
+					vector31.x = vector3.x;
+					vector31.z = vector3.z;
+				}
+				else if (str == "z")
+				{
+					vector31.x = vector3.x;
+					vector31.y = vector3.y;
 				}
 			}
 			target.transform.eulerAngles = vector31;
@@ -3568,7 +3381,6 @@ public class iTween : MonoBehaviour
 	public static void LookUpdate(GameObject target, Hashtable args)
 	{
 		float item;
-		int num;
 		iTween.CleanArgs(args);
 		Vector3[] vector3Array = new Vector3[5];
 		if (args.Contains("looktime"))
@@ -3617,39 +3429,20 @@ public class iTween : MonoBehaviour
 			string str = (string)args["axis"];
 			if (str != null)
 			{
-				if (iTween.<>f__switch$map1E == null)
+				if (str == "x")
 				{
-					Dictionary<string, int> strs = new Dictionary<string, int>(3)
-					{
-						{ "x", 0 },
-						{ "y", 1 },
-						{ "z", 2 }
-					};
-					iTween.<>f__switch$map1E = strs;
+					vector3Array[4].y = vector3Array[0].y;
+					vector3Array[4].z = vector3Array[0].z;
 				}
-				if (iTween.<>f__switch$map1E.TryGetValue(str, out num))
+				else if (str == "y")
 				{
-					switch (num)
-					{
-						case 0:
-						{
-							vector3Array[4].y = vector3Array[0].y;
-							vector3Array[4].z = vector3Array[0].z;
-							break;
-						}
-						case 1:
-						{
-							vector3Array[4].x = vector3Array[0].x;
-							vector3Array[4].z = vector3Array[0].z;
-							break;
-						}
-						case 2:
-						{
-							vector3Array[4].x = vector3Array[0].x;
-							vector3Array[4].y = vector3Array[0].y;
-							break;
-						}
-					}
+					vector3Array[4].x = vector3Array[0].x;
+					vector3Array[4].z = vector3Array[0].z;
+				}
+				else if (str == "z")
+				{
+					vector3Array[4].x = vector3Array[0].x;
+					vector3Array[4].y = vector3Array[0].y;
 				}
 			}
 			target.transform.eulerAngles = vector3Array[4];
@@ -4026,10 +3819,11 @@ public class iTween : MonoBehaviour
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable == null)
+				IDisposable disposable1 = disposable;
+				if (disposable != null)
 				{
+					disposable1.Dispose();
 				}
-				disposable.Dispose();
 			}
 		}
 	}
@@ -4085,10 +3879,11 @@ public class iTween : MonoBehaviour
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable == null)
+				IDisposable disposable1 = disposable;
+				if (disposable != null)
 				{
+					disposable1.Dispose();
 				}
-				disposable.Dispose();
 			}
 		}
 	}
@@ -4250,10 +4045,11 @@ public class iTween : MonoBehaviour
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable == null)
+				IDisposable disposable1 = disposable;
+				if (disposable != null)
 				{
+					disposable1.Dispose();
 				}
-				disposable.Dispose();
 			}
 		}
 	}
@@ -4295,10 +4091,11 @@ public class iTween : MonoBehaviour
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable == null)
+				IDisposable disposable1 = disposable;
+				if (disposable != null)
 				{
+					disposable1.Dispose();
 				}
-				disposable.Dispose();
 			}
 		}
 	}
@@ -4374,7 +4171,7 @@ public class iTween : MonoBehaviour
 		{
 			try
 			{
-				this.namedcolorvalue = (iTween.NamedValueColor)((int)Enum.Parse(typeof(iTween.NamedValueColor), (string)this.tweenArguments["namedcolorvalue"], true));
+				this.namedcolorvalue = (iTween.NamedValueColor)Enum.Parse(typeof(iTween.NamedValueColor), (string)this.tweenArguments["namedcolorvalue"], true);
 			}
 			catch
 			{
@@ -4384,7 +4181,7 @@ public class iTween : MonoBehaviour
 		}
 		else
 		{
-			this.namedcolorvalue = (iTween.NamedValueColor)((int)this.tweenArguments["namedcolorvalue"]);
+			this.namedcolorvalue = (iTween.NamedValueColor)this.tweenArguments["namedcolorvalue"];
 		}
 		if (!this.tweenArguments.Contains("looptype"))
 		{
@@ -4394,7 +4191,7 @@ public class iTween : MonoBehaviour
 		{
 			try
 			{
-				this.loopType = (iTween.LoopType)((int)Enum.Parse(typeof(iTween.LoopType), (string)this.tweenArguments["looptype"], true));
+				this.loopType = (iTween.LoopType)Enum.Parse(typeof(iTween.LoopType), (string)this.tweenArguments["looptype"], true);
 			}
 			catch
 			{
@@ -4404,7 +4201,7 @@ public class iTween : MonoBehaviour
 		}
 		else
 		{
-			this.loopType = (iTween.LoopType)((int)this.tweenArguments["looptype"]);
+			this.loopType = (iTween.LoopType)this.tweenArguments["looptype"];
 		}
 		if (!this.tweenArguments.Contains("easetype"))
 		{
@@ -4414,7 +4211,7 @@ public class iTween : MonoBehaviour
 		{
 			try
 			{
-				this.easeType = (iTween.EaseType)((int)Enum.Parse(typeof(iTween.EaseType), (string)this.tweenArguments["easetype"], true));
+				this.easeType = (iTween.EaseType)Enum.Parse(typeof(iTween.EaseType), (string)this.tweenArguments["easetype"], true);
 			}
 			catch
 			{
@@ -4424,7 +4221,7 @@ public class iTween : MonoBehaviour
 		}
 		else
 		{
-			this.easeType = (iTween.EaseType)((int)this.tweenArguments["easetype"]);
+			this.easeType = (iTween.EaseType)this.tweenArguments["easetype"];
 		}
 		if (!this.tweenArguments.Contains("space"))
 		{
@@ -4434,7 +4231,7 @@ public class iTween : MonoBehaviour
 		{
 			try
 			{
-				this.space = (Space)((int)Enum.Parse(typeof(Space), (string)this.tweenArguments["space"], true));
+				this.space = (Space)Enum.Parse(typeof(Space), (string)this.tweenArguments["space"], true);
 			}
 			catch
 			{
@@ -4444,7 +4241,7 @@ public class iTween : MonoBehaviour
 		}
 		else
 		{
-			this.space = (Space)((int)this.tweenArguments["space"]);
+			this.space = (Space)this.tweenArguments["space"];
 		}
 		if (!this.tweenArguments.Contains("islocal"))
 		{
@@ -4852,7 +4649,7 @@ public class iTween : MonoBehaviour
 	[DebuggerHidden]
 	private IEnumerator Start()
 	{
-		iTween.<Start>c__Iterator13 variable = null;
+		iTween.<Start>c__Iterator2 variable = null;
 		return variable;
 	}
 
@@ -4905,10 +4702,11 @@ public class iTween : MonoBehaviour
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable == null)
+				IDisposable disposable1 = disposable;
+				if (disposable != null)
 				{
+					disposable1.Dispose();
 				}
-				disposable.Dispose();
 			}
 		}
 	}
@@ -4950,10 +4748,11 @@ public class iTween : MonoBehaviour
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable == null)
+				IDisposable disposable1 = disposable;
+				if (disposable != null)
 				{
+					disposable1.Dispose();
 				}
-				disposable.Dispose();
 			}
 		}
 	}
@@ -5009,10 +4808,11 @@ public class iTween : MonoBehaviour
 			finally
 			{
 				IDisposable disposable = enumerator as IDisposable;
-				if (disposable == null)
+				IDisposable disposable1 = disposable;
+				if (disposable != null)
 				{
+					disposable1.Dispose();
 				}
-				disposable.Dispose();
 			}
 		}
 	}
@@ -5047,7 +4847,7 @@ public class iTween : MonoBehaviour
 	[DebuggerHidden]
 	private IEnumerator TweenDelay()
 	{
-		iTween.<TweenDelay>c__Iterator11 variable = null;
+		iTween.<TweenDelay>c__Iterator0 variable = null;
 		return variable;
 	}
 
@@ -5073,7 +4873,7 @@ public class iTween : MonoBehaviour
 	[DebuggerHidden]
 	private IEnumerator TweenRestart()
 	{
-		iTween.<TweenRestart>c__Iterator12 variable = null;
+		iTween.<TweenRestart>c__Iterator1 variable = null;
 		return variable;
 	}
 

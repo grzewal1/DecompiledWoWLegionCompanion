@@ -2,10 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace bgs
 {
-	public class Map<TKey, TValue> : IEnumerable, IEnumerable<KeyValuePair<TKey, TValue>>
+	public class Map<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>, IEnumerable
 	{
 		private const int INITIAL_SIZE = 4;
 
@@ -489,7 +490,7 @@ namespace bgs
 			return false;
 		}
 
-		public struct Enumerator : IDisposable, IEnumerator, IEnumerator<KeyValuePair<TKey, TValue>>
+		public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IEnumerator, IDisposable
 		{
 			private Map<TKey, TValue> dictionary;
 
@@ -536,8 +537,11 @@ namespace bgs
 
 			internal Enumerator(Map<TKey, TValue> dictionary)
 			{
-				this.dictionary = dictionary;
-				this.stamp = dictionary.generation;
+				this = new Map<TKey, TValue>.Enumerator()
+				{
+					dictionary = dictionary,
+					stamp = dictionary.generation
+				};
 			}
 
 			public void Dispose()
@@ -603,7 +607,7 @@ namespace bgs
 			}
 		}
 
-		public sealed class KeyCollection : IEnumerable, ICollection, ICollection<TKey>, IEnumerable<TKey>
+		public sealed class KeyCollection : ICollection<TKey>, IEnumerable<TKey>, ICollection, IEnumerable
 		{
 			private Map<TKey, TValue> dictionary;
 
@@ -701,7 +705,7 @@ namespace bgs
 				return this.GetEnumerator();
 			}
 
-			public struct Enumerator : IDisposable, IEnumerator, IEnumerator<TKey>
+			public struct Enumerator : IEnumerator<TKey>, IDisposable, IEnumerator
 			{
 				private Map<TKey, TValue>.Enumerator host_enumerator;
 
@@ -745,7 +749,7 @@ namespace bgs
 
 		private delegate TRet Transform<TRet>(TKey key, TValue value);
 
-		public sealed class ValueCollection : IEnumerable, ICollection, ICollection<TValue>, IEnumerable<TValue>
+		public sealed class ValueCollection : ICollection<TValue>, IEnumerable<TValue>, ICollection, IEnumerable
 		{
 			private Map<TKey, TValue> dictionary;
 
@@ -843,7 +847,7 @@ namespace bgs
 				return this.GetEnumerator();
 			}
 
-			public struct Enumerator : IDisposable, IEnumerator, IEnumerator<TValue>
+			public struct Enumerator : IEnumerator<TValue>, IDisposable, IEnumerator
 			{
 				private Map<TKey, TValue>.Enumerator host_enumerator;
 

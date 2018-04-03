@@ -105,8 +105,7 @@ namespace bnet.protocol.challenge
 					int num = stream.ReadByte();
 					if (num != -1)
 					{
-						int num1 = num;
-						switch (num1)
+						switch (num)
 						{
 							case 21:
 							{
@@ -120,12 +119,12 @@ namespace bnet.protocol.challenge
 							}
 							default:
 							{
-								if (num1 == 8)
+								if (num == 8)
 								{
 									instance.Id = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 34)
+								else if (num == 34)
 								{
 									instance.Answer = ProtocolParser.ReadBytes(stream);
 									continue;

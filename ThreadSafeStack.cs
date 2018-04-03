@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-public class ThreadSafeStack : IDisposable, MemoryStreamStack
+public class ThreadSafeStack : MemoryStreamStack, IDisposable
 {
 	private Stack<MemoryStream> stack = new Stack<MemoryStream>();
 
@@ -13,45 +13,45 @@ public class ThreadSafeStack : IDisposable, MemoryStreamStack
 
 	public void Dispose()
 	{
-		Stack<MemoryStream> memoryStreams = this.stack;
-		Monitor.Enter(memoryStreams);
+		object obj = this.stack;
+		Monitor.Enter(obj);
 		try
 		{
 			this.stack.Clear();
 		}
 		finally
 		{
-			Monitor.Exit(memoryStreams);
+			Monitor.Exit(obj);
 		}
 	}
 
 	public MemoryStream Pop()
 	{
 		MemoryStream memoryStream;
-		Stack<MemoryStream> memoryStreams = this.stack;
-		Monitor.Enter(memoryStreams);
+		object obj = this.stack;
+		Monitor.Enter(obj);
 		try
 		{
 			memoryStream = (this.stack.Count != 0 ? this.stack.Pop() : new MemoryStream());
 		}
 		finally
 		{
-			Monitor.Exit(memoryStreams);
+			Monitor.Exit(obj);
 		}
 		return memoryStream;
 	}
 
 	public void Push(MemoryStream stream)
 	{
-		Stack<MemoryStream> memoryStreams = this.stack;
-		Monitor.Enter(memoryStreams);
+		object obj = this.stack;
+		Monitor.Enter(obj);
 		try
 		{
 			this.stack.Push(stream);
 		}
 		finally
 		{
-			Monitor.Exit(memoryStreams);
+			Monitor.Exit(obj);
 		}
 	}
 }

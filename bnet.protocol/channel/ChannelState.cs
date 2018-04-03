@@ -357,8 +357,7 @@ namespace bnet.protocol.channel
 					int num = stream.ReadByte();
 					if (num != -1)
 					{
-						int num1 = num;
-						switch (num1)
+						switch (num)
 						{
 							case 93:
 							{
@@ -372,57 +371,57 @@ namespace bnet.protocol.channel
 							}
 							default:
 							{
-								if (num1 == 8)
+								if (num == 8)
 								{
 									instance.MaxMembers = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 16)
+								else if (num == 16)
 								{
 									instance.MinMembers = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 26)
+								else if (num == 26)
 								{
 									instance.Attribute.Add(bnet.protocol.attribute.Attribute.DeserializeLengthDelimited(stream));
 									continue;
 								}
-								else if (num1 == 34)
+								else if (num == 34)
 								{
 									instance.Invitation.Add(bnet.protocol.invitation.Invitation.DeserializeLengthDelimited(stream));
 									continue;
 								}
-								else if (num1 == 40)
+								else if (num == 40)
 								{
 									instance.MaxInvitations = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 48)
+								else if (num == 48)
 								{
 									instance.Reason = ProtocolParser.ReadUInt32(stream);
 									continue;
 								}
-								else if (num1 == 56)
+								else if (num == 56)
 								{
 									instance.PrivacyLevel = (bnet.protocol.channel.ChannelState.Types.PrivacyLevel)((int)ProtocolParser.ReadUInt64(stream));
 									continue;
 								}
-								else if (num1 == 66)
+								else if (num == 66)
 								{
 									instance.Name = ProtocolParser.ReadString(stream);
 									continue;
 								}
-								else if (num1 == 74)
+								else if (num == 74)
 								{
 									instance.DelegateName = ProtocolParser.ReadString(stream);
 									continue;
 								}
-								else if (num1 == 82)
+								else if (num == 82)
 								{
 									instance.ChannelType = ProtocolParser.ReadString(stream);
 									continue;
 								}
-								else if (num1 == 104)
+								else if (num == 104)
 								{
 									instance.SubscribeToPresence = ProtocolParser.ReadBool(stream);
 									continue;

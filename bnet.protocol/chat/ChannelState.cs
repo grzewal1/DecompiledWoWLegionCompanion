@@ -124,8 +124,7 @@ namespace bnet.protocol.chat
 					int num = stream.ReadByte();
 					if (num != -1)
 					{
-						int num1 = num;
-						switch (num1)
+						switch (num)
 						{
 							case 29:
 							{
@@ -139,17 +138,17 @@ namespace bnet.protocol.chat
 							}
 							default:
 							{
-								if (num1 == 10)
+								if (num == 10)
 								{
 									instance.Identity = ProtocolParser.ReadString(stream);
 									continue;
 								}
-								else if (num1 == 21)
+								else if (num == 21)
 								{
 									instance.Program = binaryReader.ReadUInt32();
 									continue;
 								}
-								else if (num1 == 40)
+								else if (num == 40)
 								{
 									instance.BucketIndex = ProtocolParser.ReadUInt32(stream);
 									continue;

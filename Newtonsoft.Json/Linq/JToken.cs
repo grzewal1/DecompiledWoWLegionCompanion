@@ -13,7 +13,7 @@ using System.Threading;
 
 namespace Newtonsoft.Json.Linq
 {
-	public abstract class JToken : IJsonLineInfo, IEnumerable, IEnumerable<JToken>, ICloneable, IJEnumerable<JToken>
+	public abstract class JToken : IJEnumerable<JToken>, IJsonLineInfo, ICloneable, IEnumerable<JToken>, IEnumerable
 	{
 		private JContainer _parent;
 
@@ -379,9 +379,11 @@ namespace Newtonsoft.Json.Linq
 		public static explicit operator Nullable<Decimal>(JToken value)
 		{
 			decimal? nullable;
+			decimal? nullable1;
 			if (value == null)
 			{
-				return null;
+				nullable = null;
+				return nullable;
 			}
 			JValue jValue = JToken.EnsureValue(value);
 			if (jValue == null || !JToken.ValidateFloat(jValue, true))
@@ -391,12 +393,13 @@ namespace Newtonsoft.Json.Linq
 			if (jValue.Value == null)
 			{
 				nullable = null;
+				nullable1 = nullable;
 			}
 			else
 			{
-				nullable = new decimal?(Convert.ToDecimal(jValue.Value, CultureInfo.InvariantCulture));
+				nullable1 = new decimal?(Convert.ToDecimal(jValue.Value, CultureInfo.InvariantCulture));
 			}
-			return nullable;
+			return nullable1;
 		}
 
 		public static explicit operator Nullable<Double>(JToken value)
@@ -446,9 +449,11 @@ namespace Newtonsoft.Json.Linq
 		public static explicit operator Nullable<Int32>(JToken value)
 		{
 			int? nullable;
+			int? nullable1;
 			if (value == null)
 			{
-				return null;
+				nullable = null;
+				return nullable;
 			}
 			JValue jValue = JToken.EnsureValue(value);
 			if (jValue == null || !JToken.ValidateInteger(jValue, true))
@@ -458,20 +463,23 @@ namespace Newtonsoft.Json.Linq
 			if (jValue.Value == null)
 			{
 				nullable = null;
+				nullable1 = nullable;
 			}
 			else
 			{
-				nullable = new int?(Convert.ToInt32(jValue.Value, CultureInfo.InvariantCulture));
+				nullable1 = new int?(Convert.ToInt32(jValue.Value, CultureInfo.InvariantCulture));
 			}
-			return nullable;
+			return nullable1;
 		}
 
 		public static explicit operator Nullable<Int16>(JToken value)
 		{
 			short? nullable;
+			short? nullable1;
 			if (value == null)
 			{
-				return null;
+				nullable = null;
+				return nullable;
 			}
 			JValue jValue = JToken.EnsureValue(value);
 			if (jValue == null || !JToken.ValidateInteger(jValue, true))
@@ -481,20 +489,23 @@ namespace Newtonsoft.Json.Linq
 			if (jValue.Value == null)
 			{
 				nullable = null;
+				nullable1 = nullable;
 			}
 			else
 			{
-				nullable = new short?(Convert.ToInt16(jValue.Value, CultureInfo.InvariantCulture));
+				nullable1 = new short?(Convert.ToInt16(jValue.Value, CultureInfo.InvariantCulture));
 			}
-			return nullable;
+			return nullable1;
 		}
 
 		public static explicit operator Nullable<UInt16>(JToken value)
 		{
 			ushort? nullable;
+			ushort? nullable1;
 			if (value == null)
 			{
-				return null;
+				nullable = null;
+				return nullable;
 			}
 			JValue jValue = JToken.EnsureValue(value);
 			if (jValue == null || !JToken.ValidateInteger(jValue, true))
@@ -504,12 +515,13 @@ namespace Newtonsoft.Json.Linq
 			if (jValue.Value == null)
 			{
 				nullable = null;
+				nullable1 = nullable;
 			}
 			else
 			{
-				nullable = new ushort?((ushort)Convert.ToInt16(jValue.Value, CultureInfo.InvariantCulture));
+				nullable1 = new ushort?((ushort)Convert.ToInt16(jValue.Value, CultureInfo.InvariantCulture));
 			}
-			return nullable;
+			return nullable1;
 		}
 
 		public static explicit operator DateTime(JToken value)
@@ -539,9 +551,11 @@ namespace Newtonsoft.Json.Linq
 		public static explicit operator Nullable<Single>(JToken value)
 		{
 			float? nullable;
+			float? nullable1;
 			if (value == null)
 			{
-				return null;
+				nullable = null;
+				return nullable;
 			}
 			JValue jValue = JToken.EnsureValue(value);
 			if (jValue == null || !JToken.ValidateFloat(jValue, true))
@@ -551,12 +565,13 @@ namespace Newtonsoft.Json.Linq
 			if (jValue.Value == null)
 			{
 				nullable = null;
+				nullable1 = nullable;
 			}
 			else
 			{
-				nullable = new float?(Convert.ToSingle(jValue.Value, CultureInfo.InvariantCulture));
+				nullable1 = new float?(Convert.ToSingle(jValue.Value, CultureInfo.InvariantCulture));
 			}
-			return nullable;
+			return nullable1;
 		}
 
 		public static explicit operator Decimal(JToken value)

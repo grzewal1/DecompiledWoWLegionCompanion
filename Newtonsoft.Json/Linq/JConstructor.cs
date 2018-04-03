@@ -1,7 +1,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Utilities;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
@@ -123,20 +122,9 @@ namespace Newtonsoft.Json.Linq
 		public override void WriteTo(JsonWriter writer, params JsonConverter[] converters)
 		{
 			writer.WriteStartConstructor(this._name);
-			IEnumerator<JToken> enumerator = this.Children().GetEnumerator();
-			try
+			foreach (JToken jTokens in this.Children())
 			{
-				while (enumerator.MoveNext())
-				{
-					enumerator.Current.WriteTo(writer, converters);
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				jTokens.WriteTo(writer, converters);
 			}
 			writer.WriteEndConstructor();
 		}

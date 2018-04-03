@@ -70,7 +70,7 @@ namespace bgs.RPCServices
 			}
 			finally
 			{
-				((IDisposable)(object)enumerator).Dispose();
+				((IDisposable)enumerator).Dispose();
 			}
 			return value;
 		}

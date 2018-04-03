@@ -1,6 +1,8 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Permissions;
 
 [assembly: AssemblyCompany("Blizzard Entertainment")]
 [assembly: AssemblyConfiguration("")]
@@ -12,5 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: ComVisible(false)]
+[assembly: Debuggable(DebuggableAttribute.DebuggingModes.IgnoreSymbolStoreSequencePoints)]
 [assembly: Guid("5ac1c726-5406-4d96-9483-a2bf8d0c4dae")]
 [assembly: RuntimeCompatibility(WrapNonExceptionThrows=true)]
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification=true)]

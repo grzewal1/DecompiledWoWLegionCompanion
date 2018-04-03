@@ -379,7 +379,7 @@ public class AdventureMapMissionSite : MonoBehaviour
 			this.m_missionTimeRemaining.FormatDurationString((int)mMissionDurationInSeconds, false);
 			this.m_missionTimeRemainingText.text = this.m_missionTimeRemaining.DurationString;
 		}
-		if (mMissionDurationInSeconds == 0)
+		if (mMissionDurationInSeconds == (long)0)
 		{
 			if (!this.m_isSupportMission)
 			{

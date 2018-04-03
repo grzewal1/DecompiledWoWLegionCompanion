@@ -91,7 +91,7 @@ namespace Newtonsoft.Json.Linq
 			}
 			finally
 			{
-				((IDisposable)(object)enumerator).Dispose();
+				((IDisposable)enumerator).Dispose();
 			}
 			return jTokens;
 		}
@@ -150,57 +150,57 @@ namespace Newtonsoft.Json.Linq
 					return;
 				}
 				chr = this._expression[this._currentIndex];
-				char chr1 = chr;
-				switch (chr1)
+				if (chr != '(')
 				{
-					case '[':
+					if (chr == ')')
 					{
-						if (this._currentIndex > num)
-						{
-							string str1 = this._expression.Substring(num, this._currentIndex - num);
-							this.Parts.Add(str1);
-						}
-						this.ParseIndexer(chr);
-						num = this._currentIndex + 1;
-						flag = true;
 						break;
 					}
-					case ']':
+					switch (chr)
 					{
-						throw new Exception(string.Concat("Unexpected character while parsing path: ", chr));
-					}
-					default:
-					{
-						if (chr1 == '(')
+						case '[':
 						{
-							goto case '[';
+							break;
 						}
-						if (chr1 == ')')
+						case ']':
 						{
 							throw new Exception(string.Concat("Unexpected character while parsing path: ", chr));
 						}
-						if (chr1 == '.')
+						default:
 						{
-							if (this._currentIndex > num)
+							if (chr == '.')
 							{
-								string str2 = this._expression.Substring(num, this._currentIndex - num);
-								this.Parts.Add(str2);
+								if (this._currentIndex > num)
+								{
+									string str1 = this._expression.Substring(num, this._currentIndex - num);
+									this.Parts.Add(str1);
+								}
+								num = this._currentIndex + 1;
+								flag = false;
+								goto Label1;
 							}
-							num = this._currentIndex + 1;
-							flag = false;
-							break;
-						}
-						else
-						{
-							if (flag)
+							else
 							{
-								throw new Exception(string.Concat("Unexpected character following indexer: ", chr));
+								if (flag)
+								{
+									throw new Exception(string.Concat("Unexpected character following indexer: ", chr));
+								}
+								goto Label1;
 							}
-							break;
 						}
 					}
 				}
-				this._currentIndex++;
+				if (this._currentIndex > num)
+				{
+					string str2 = this._expression.Substring(num, this._currentIndex - num);
+					this.Parts.Add(str2);
+				}
+				this.ParseIndexer(chr);
+				num = this._currentIndex + 1;
+				flag = true;
+			Label1:
+				JPath jPath = this;
+				jPath._currentIndex++;
 			}
 			throw new Exception(string.Concat("Unexpected character while parsing path: ", chr));
 		}

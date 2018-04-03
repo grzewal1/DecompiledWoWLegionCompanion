@@ -66,49 +66,45 @@ namespace bnet.protocol.invitation
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 10)
-						{
-							if (instance.AgentIdentity != null)
-							{
-								Identity.DeserializeLengthDelimited(stream, instance.AgentIdentity);
-							}
-							else
-							{
-								instance.AgentIdentity = Identity.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 17)
-						{
-							instance.InvitationId = binaryReader.ReadUInt64();
-						}
-						else if (num1 != 26)
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-						else if (instance.Params != null)
-						{
-							InvitationParams.DeserializeLengthDelimited(stream, instance.Params);
-						}
-						else
-						{
-							instance.Params = InvitationParams.DeserializeLengthDelimited(stream);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 10)
+					{
+						if (instance.AgentIdentity != null)
+						{
+							Identity.DeserializeLengthDelimited(stream, instance.AgentIdentity);
+						}
+						else
+						{
+							instance.AgentIdentity = Identity.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 17)
+					{
+						instance.InvitationId = binaryReader.ReadUInt64();
+					}
+					else if (num != 26)
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
+					}
+					else if (instance.Params != null)
+					{
+						InvitationParams.DeserializeLengthDelimited(stream, instance.Params);
+					}
+					else
+					{
+						instance.Params = InvitationParams.DeserializeLengthDelimited(stream);
 					}
 				}
 				else

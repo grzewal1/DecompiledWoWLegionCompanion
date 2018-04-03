@@ -9,8 +9,6 @@ using WowStaticData;
 
 public class AdventureMapWorldQuest : MonoBehaviour
 {
-	private const int WORLD_QUEST_TIME_LOW_MINUTES = 75;
-
 	public Image m_errorImage;
 
 	public Image m_dragonFrame;
@@ -38,6 +36,8 @@ public class AdventureMapWorldQuest : MonoBehaviour
 	private int m_questID;
 
 	private ITEM_QUALITY m_lootQuality;
+
+	private const int WORLD_QUEST_TIME_LOW_MINUTES = 75;
 
 	private long m_endTime;
 

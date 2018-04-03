@@ -58,6 +58,18 @@ public class PlayerInfoDisplay : MonoBehaviour
 		Main.instance.PlayerLeveledUpAction += new Action<int>(this.HandlePlayerLeveledUp);
 	}
 
+	private void Start()
+	{
+		if (Main.instance.IsNarrowScreen())
+		{
+			LayoutElement component = base.gameObject.GetComponent<LayoutElement>();
+			if (component != null)
+			{
+				component.minHeight = 130f;
+			}
+		}
+	}
+
 	public void ToggleRecentCharacterPanel()
 	{
 		Main.instance.m_UISound.Play_ButtonBlackClick();

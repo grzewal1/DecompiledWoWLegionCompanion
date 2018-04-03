@@ -182,10 +182,11 @@ public class TroopsListItem : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
 		return followerClassLimit;
 	}
@@ -597,6 +598,27 @@ public class TroopsListItem : MonoBehaviour
 
 	private void Start()
 	{
+		if (Main.instance.IsNarrowScreen())
+		{
+			if (this.m_troopSpecificArea != null)
+			{
+				Main.instance.NudgeX(ref this.m_troopSpecificArea, 30f);
+			}
+			if (this.m_itemSpecificArea != null)
+			{
+				Main.instance.NudgeX(ref this.m_itemSpecificArea, 30f);
+			}
+			if (this.m_troopSlotsRootObject != null)
+			{
+				GridLayoutGroup component = this.m_troopSlotsRootObject.GetComponent<GridLayoutGroup>();
+				if (component != null)
+				{
+					Vector2 vector2 = component.spacing;
+					vector2.x = 10f;
+					component.spacing = vector2;
+				}
+			}
+		}
 		Main.instance.ShipmentAddedAction += new Action<int, ulong>(this.HandleShipmentAdded);
 		this.m_troopName.font = GeneralHelpers.LoadStandardFont();
 		this.m_troopResourceCostText.font = GeneralHelpers.LoadStandardFont();
@@ -641,10 +663,11 @@ public class TroopsListItem : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
 		this.m_akResearchDisabled = true;
 		if (ArtifactKnowledgeData.s_artifactKnowledgeInfo.CurrentLevel < 25)
@@ -706,10 +729,11 @@ public class TroopsListItem : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
 		if ((num <= 0 || flag) && (!this.m_isArtifactResearch || ArtifactKnowledgeData.s_artifactKnowledgeInfo == null || ArtifactKnowledgeData.s_artifactKnowledgeInfo.CurrentLevel < ArtifactKnowledgeData.s_artifactKnowledgeInfo.MaxLevel))
 		{
@@ -755,7 +779,7 @@ public class TroopsListItem : MonoBehaviour
 		for (int l = 0; l < (int)troopSlotArray1.Length; l++)
 		{
 			TroopSlot troopSlot = troopSlotArray1[l];
-			if (troopSlot.GetDBID() != 0 && !PersistentShipmentData.shipmentDictionary.ContainsKey(troopSlot.GetDBID()))
+			if (troopSlot.GetDBID() != (long)0 && !PersistentShipmentData.shipmentDictionary.ContainsKey(troopSlot.GetDBID()))
 			{
 				troopSlot.SetCharShipment(this.m_charShipmentRec.ID, (ulong)0, 0, false, 0);
 			}
@@ -775,11 +799,12 @@ public class TroopsListItem : MonoBehaviour
 		}
 		finally
 		{
-			IDisposable disposable1 = enumerator1 as IDisposable;
-			if (disposable1 == null)
+			IDisposable disposable2 = enumerator1 as IDisposable;
+			IDisposable disposable3 = disposable2;
+			if (disposable2 != null)
 			{
+				disposable3.Dispose();
 			}
-			disposable1.Dispose();
 		}
 	}
 
@@ -922,10 +947,11 @@ public class TroopsListItem : MonoBehaviour
 		finally
 		{
 			IDisposable disposable = enumerator as IDisposable;
-			if (disposable == null)
+			IDisposable disposable1 = disposable;
+			if (disposable != null)
 			{
+				disposable1.Dispose();
 			}
-			disposable.Dispose();
 		}
 	}
 }

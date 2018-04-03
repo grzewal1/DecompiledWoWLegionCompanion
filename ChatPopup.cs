@@ -38,22 +38,5 @@ public class ChatPopup : MonoBehaviour
 
 	private void Update()
 	{
-		Vector3 vector3;
-		if (!TouchScreenKeyboard.visible)
-		{
-			base.transform.localPosition = Vector3.zero;
-		}
-		else
-		{
-			RectTransform component = this.textToSend.gameObject.GetComponent<RectTransform>();
-			Rect rect = TouchScreenKeyboard.area;
-			RectTransformUtility.ScreenPointToWorldPointInRectangle(component, rect.max, null, out vector3);
-			Transform transforms = base.transform;
-			float single = base.transform.position.x;
-			float single1 = vector3.y;
-			Vector3 vector31 = base.transform.position;
-			transforms.position = new Vector3(single, single1, vector31.z);
-		}
-		TouchScreenKeyboard.hideInput = true;
 	}
 }

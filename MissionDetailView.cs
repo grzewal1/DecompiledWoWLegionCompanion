@@ -156,6 +156,24 @@ public class MissionDetailView : MonoBehaviour
 
 	public Action FollowerSlotsChangedAction;
 
+	[Header("Notched Screen")]
+	public GameObject m_DarkBG;
+
+	public GameObject m_LevelBG;
+
+	public GameObject m_MissionTypeImage;
+
+	public GameObject m_MissionNameText;
+
+	public GameObject m_MissionLocationText;
+
+	public GameObject m_CloseButton;
+
+	[Header("Narrow Screen")]
+	public GameObject m_EnemiesGroup;
+
+	public GameObject m_FollowerSlotGroup;
+
 	static MissionDetailView()
 	{
 	}
@@ -686,12 +704,35 @@ public class MissionDetailView : MonoBehaviour
 		}
 	}
 
+	public void NarrowScreenAdjust()
+	{
+		GridLayoutGroup component = this.m_EnemiesGroup.GetComponent<GridLayoutGroup>();
+		if (component != null)
+		{
+			Vector2 vector2 = component.spacing;
+			vector2.x = 40f;
+			component.spacing = vector2;
+		}
+		component = this.m_FollowerSlotGroup.GetComponent<GridLayoutGroup>();
+		if (component != null)
+		{
+			Vector2 vector21 = component.spacing;
+			vector21.x = 40f;
+			component.spacing = vector21;
+		}
+	}
+
 	public void NotifyFollowerSlotsChanged()
 	{
 		if (this.FollowerSlotsChangedAction != null)
 		{
 			this.FollowerSlotsChangedAction();
 		}
+	}
+
+	private void OnApplicationPause(bool paused)
+	{
+		this.HideMissionDetailView();
 	}
 
 	public void OnAssetBundleManagerInitialized()
@@ -791,7 +832,7 @@ public class MissionDetailView : MonoBehaviour
 		{
 			Main.instance.m_UISound.Play_200Percent();
 		}
-		this.m_bonusLootChanceText.text = string.Concat(new object[] { "<color=#ffff00ff>", StaticDB.GetString("BONUS", "Bonus:"), " </color>\n<color=#ff8600ff>", Math.Max(0, newChance - 100), "%</color>" });
+		this.m_bonusLootChanceText.text = string.Concat("<color=#ff9600ff>", Math.Max(0, newChance - 100), "%</color>");
 		this.m_percentChance = newChance;
 	}
 
@@ -919,6 +960,10 @@ public class MissionDetailView : MonoBehaviour
 		if (this.m_partyDebuffsText != null)
 		{
 			this.m_partyDebuffsText.text = StaticDB.GetString("PARTY_DEBUFFS", null);
+		}
+		if (Main.instance.IsNarrowScreen())
+		{
+			this.NarrowScreenAdjust();
 		}
 	}
 
@@ -1123,8 +1168,28 @@ public class MissionDetailView : MonoBehaviour
 				}
 			}
 		}
+		if (length <= 8)
+		{
+			this.m_partyBuffsText.text = StaticDB.GetString("PARTY_BUFFS", null);
+		}
+		else
+		{
+			this.m_partyBuffsText.text = string.Empty;
+		}
 		if (this.m_partyBuffGroup != null)
 		{
+			HorizontalLayoutGroup component = this.m_partyBuffGroup.GetComponent<HorizontalLayoutGroup>();
+			if (component != null)
+			{
+				if (length <= 10 || !Main.instance.IsNarrowScreen())
+				{
+					component.spacing = 6f;
+				}
+				else
+				{
+					component.spacing = 3f;
+				}
+			}
 			this.m_partyBuffGroup.SetActive(length > 0);
 		}
 		if (this.m_partyDebuffGroup != null)

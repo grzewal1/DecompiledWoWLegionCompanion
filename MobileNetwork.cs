@@ -1,38 +1,30 @@
 using bgs;
 using JamLib;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using UnityEngine;
 
 public class MobileNetwork
 {
-	private const int BUFFER_SIZE = 524288;
-
 	public byte[] m_byteArray;
 
 	public BufferedStream m_bufferedStream;
 
 	private TcpConnection m_connection = new TcpConnection();
 
+	private const int BUFFER_SIZE = 524288;
+
 	public uint m_messageLength;
 
 	public int m_messageCount;
 
 	private static LogThreadHelper s_log;
-
-	private EventHandler<EventArgs> ConnectionStateChanged;
-
-	private EventHandler<EventArgs> ServerDisconnectedEventHandler;
-
-	private EventHandler<EventArgs> ServerConnectionLostEventHandler;
-
-	private EventHandler<MobileNetwork.MobileNetworkEventArgs> MessageReceivedEventHandler;
-
-	private EventHandler<EventArgs> UnknownMessageReceivedEventHandler;
 
 	public bool IsConnected
 	{
@@ -53,12 +45,12 @@ public class MobileNetwork
 
 	private void AddOutput(string text)
 	{
-		Debug.Log(text);
+		UnityEngine.Debug.Log(text);
 	}
 
 	private void AddOutput(object obj)
 	{
-		Debug.Log(obj.ToString());
+		UnityEngine.Debug.Log(obj.ToString());
 	}
 
 	public bool ConnectAsync(string serverAddress, int serverPort)
@@ -233,7 +225,7 @@ public class MobileNetwork
 				{
 					this.m_bufferedStream.Seek((long)4, SeekOrigin.Begin);
 					byte[] numArray1 = new byte[this.m_messageLength];
-					this.m_bufferedStream.Read(numArray1, 0, (int)this.m_messageLength);
+					this.m_bufferedStream.Read(numArray1, 0, (Int32)this.m_messageLength);
 					string str = Encoding.UTF8.GetString(numArray1);
 					object obj = this.Deserialize(str);
 					if (obj == null)
@@ -271,7 +263,7 @@ public class MobileNetwork
 			byte[] length = new byte[] { (byte)((int)bytes.Length >> 24 & 255), (byte)((int)bytes.Length >> 16 & 255), (byte)((int)bytes.Length >> 8 & 255), (byte)((int)bytes.Length & 255) };
 			if (!this.IsConnected)
 			{
-				Debug.Log("SendStringMessage(): Connection lost.");
+				UnityEngine.Debug.Log("SendStringMessage(): Connection lost.");
 				this.ConnectionLost();
 			}
 			else
@@ -283,10 +275,10 @@ public class MobileNetwork
 		catch (SocketException socketException1)
 		{
 			SocketException socketException = socketException1;
-			Debug.Log(string.Concat("SendStringMessage() exception: ", socketException.ToString()));
+			UnityEngine.Debug.Log(string.Concat("SendStringMessage() exception: ", socketException.ToString()));
 			if (socketException.ErrorCode != 10058)
 			{
-				Debug.Log("SendStringMessage(): Connection lost in exception.");
+				UnityEngine.Debug.Log("SendStringMessage(): Connection lost in exception.");
 				this.ConnectionLost();
 			}
 			else
@@ -330,71 +322,131 @@ public class MobileNetwork
 
 	public event EventHandler<EventArgs> ConnectionStateChanged
 	{
-		[MethodImpl(MethodImplOptions.Synchronized)]
 		add
 		{
-			this.ConnectionStateChanged += value;
+			EventHandler<EventArgs> eventHandler;
+			EventHandler<EventArgs> connectionStateChanged = this.ConnectionStateChanged;
+			do
+			{
+				eventHandler = connectionStateChanged;
+				connectionStateChanged = Interlocked.CompareExchange<EventHandler<EventArgs>>(ref this.ConnectionStateChanged, (EventHandler<EventArgs>)Delegate.Combine(eventHandler, value), connectionStateChanged);
+			}
+			while ((object)connectionStateChanged != (object)eventHandler);
 		}
-		[MethodImpl(MethodImplOptions.Synchronized)]
 		remove
 		{
-			this.ConnectionStateChanged -= value;
+			EventHandler<EventArgs> eventHandler;
+			EventHandler<EventArgs> connectionStateChanged = this.ConnectionStateChanged;
+			do
+			{
+				eventHandler = connectionStateChanged;
+				connectionStateChanged = Interlocked.CompareExchange<EventHandler<EventArgs>>(ref this.ConnectionStateChanged, (EventHandler<EventArgs>)Delegate.Remove(eventHandler, value), connectionStateChanged);
+			}
+			while ((object)connectionStateChanged != (object)eventHandler);
 		}
 	}
 
 	public event EventHandler<MobileNetwork.MobileNetworkEventArgs> MessageReceivedEventHandler
 	{
-		[MethodImpl(MethodImplOptions.Synchronized)]
 		add
 		{
-			this.MessageReceivedEventHandler += value;
+			EventHandler<MobileNetwork.MobileNetworkEventArgs> eventHandler;
+			EventHandler<MobileNetwork.MobileNetworkEventArgs> messageReceivedEventHandler = this.MessageReceivedEventHandler;
+			do
+			{
+				eventHandler = messageReceivedEventHandler;
+				messageReceivedEventHandler = Interlocked.CompareExchange<EventHandler<MobileNetwork.MobileNetworkEventArgs>>(ref this.MessageReceivedEventHandler, (EventHandler<MobileNetwork.MobileNetworkEventArgs>)Delegate.Combine(eventHandler, value), messageReceivedEventHandler);
+			}
+			while ((object)messageReceivedEventHandler != (object)eventHandler);
 		}
-		[MethodImpl(MethodImplOptions.Synchronized)]
 		remove
 		{
-			this.MessageReceivedEventHandler -= value;
+			EventHandler<MobileNetwork.MobileNetworkEventArgs> eventHandler;
+			EventHandler<MobileNetwork.MobileNetworkEventArgs> messageReceivedEventHandler = this.MessageReceivedEventHandler;
+			do
+			{
+				eventHandler = messageReceivedEventHandler;
+				messageReceivedEventHandler = Interlocked.CompareExchange<EventHandler<MobileNetwork.MobileNetworkEventArgs>>(ref this.MessageReceivedEventHandler, (EventHandler<MobileNetwork.MobileNetworkEventArgs>)Delegate.Remove(eventHandler, value), messageReceivedEventHandler);
+			}
+			while ((object)messageReceivedEventHandler != (object)eventHandler);
 		}
 	}
 
 	public event EventHandler<EventArgs> ServerConnectionLostEventHandler
 	{
-		[MethodImpl(MethodImplOptions.Synchronized)]
 		add
 		{
-			this.ServerConnectionLostEventHandler += value;
+			EventHandler<EventArgs> eventHandler;
+			EventHandler<EventArgs> serverConnectionLostEventHandler = this.ServerConnectionLostEventHandler;
+			do
+			{
+				eventHandler = serverConnectionLostEventHandler;
+				serverConnectionLostEventHandler = Interlocked.CompareExchange<EventHandler<EventArgs>>(ref this.ServerConnectionLostEventHandler, (EventHandler<EventArgs>)Delegate.Combine(eventHandler, value), serverConnectionLostEventHandler);
+			}
+			while ((object)serverConnectionLostEventHandler != (object)eventHandler);
 		}
-		[MethodImpl(MethodImplOptions.Synchronized)]
 		remove
 		{
-			this.ServerConnectionLostEventHandler -= value;
+			EventHandler<EventArgs> eventHandler;
+			EventHandler<EventArgs> serverConnectionLostEventHandler = this.ServerConnectionLostEventHandler;
+			do
+			{
+				eventHandler = serverConnectionLostEventHandler;
+				serverConnectionLostEventHandler = Interlocked.CompareExchange<EventHandler<EventArgs>>(ref this.ServerConnectionLostEventHandler, (EventHandler<EventArgs>)Delegate.Remove(eventHandler, value), serverConnectionLostEventHandler);
+			}
+			while ((object)serverConnectionLostEventHandler != (object)eventHandler);
 		}
 	}
 
 	public event EventHandler<EventArgs> ServerDisconnectedEventHandler
 	{
-		[MethodImpl(MethodImplOptions.Synchronized)]
 		add
 		{
-			this.ServerDisconnectedEventHandler += value;
+			EventHandler<EventArgs> eventHandler;
+			EventHandler<EventArgs> serverDisconnectedEventHandler = this.ServerDisconnectedEventHandler;
+			do
+			{
+				eventHandler = serverDisconnectedEventHandler;
+				serverDisconnectedEventHandler = Interlocked.CompareExchange<EventHandler<EventArgs>>(ref this.ServerDisconnectedEventHandler, (EventHandler<EventArgs>)Delegate.Combine(eventHandler, value), serverDisconnectedEventHandler);
+			}
+			while ((object)serverDisconnectedEventHandler != (object)eventHandler);
 		}
-		[MethodImpl(MethodImplOptions.Synchronized)]
 		remove
 		{
-			this.ServerDisconnectedEventHandler -= value;
+			EventHandler<EventArgs> eventHandler;
+			EventHandler<EventArgs> serverDisconnectedEventHandler = this.ServerDisconnectedEventHandler;
+			do
+			{
+				eventHandler = serverDisconnectedEventHandler;
+				serverDisconnectedEventHandler = Interlocked.CompareExchange<EventHandler<EventArgs>>(ref this.ServerDisconnectedEventHandler, (EventHandler<EventArgs>)Delegate.Remove(eventHandler, value), serverDisconnectedEventHandler);
+			}
+			while ((object)serverDisconnectedEventHandler != (object)eventHandler);
 		}
 	}
 
 	public event EventHandler<EventArgs> UnknownMessageReceivedEventHandler
 	{
-		[MethodImpl(MethodImplOptions.Synchronized)]
 		add
 		{
-			this.UnknownMessageReceivedEventHandler += value;
+			EventHandler<EventArgs> eventHandler;
+			EventHandler<EventArgs> unknownMessageReceivedEventHandler = this.UnknownMessageReceivedEventHandler;
+			do
+			{
+				eventHandler = unknownMessageReceivedEventHandler;
+				unknownMessageReceivedEventHandler = Interlocked.CompareExchange<EventHandler<EventArgs>>(ref this.UnknownMessageReceivedEventHandler, (EventHandler<EventArgs>)Delegate.Combine(eventHandler, value), unknownMessageReceivedEventHandler);
+			}
+			while ((object)unknownMessageReceivedEventHandler != (object)eventHandler);
 		}
-		[MethodImpl(MethodImplOptions.Synchronized)]
 		remove
 		{
-			this.UnknownMessageReceivedEventHandler -= value;
+			EventHandler<EventArgs> eventHandler;
+			EventHandler<EventArgs> unknownMessageReceivedEventHandler = this.UnknownMessageReceivedEventHandler;
+			do
+			{
+				eventHandler = unknownMessageReceivedEventHandler;
+				unknownMessageReceivedEventHandler = Interlocked.CompareExchange<EventHandler<EventArgs>>(ref this.UnknownMessageReceivedEventHandler, (EventHandler<EventArgs>)Delegate.Remove(eventHandler, value), unknownMessageReceivedEventHandler);
+			}
+			while ((object)unknownMessageReceivedEventHandler != (object)eventHandler);
 		}
 	}
 

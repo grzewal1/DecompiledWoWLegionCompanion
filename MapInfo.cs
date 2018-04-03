@@ -49,6 +49,10 @@ public class MapInfo : MonoBehaviour
 			Rect rect1 = AdventureMapPanel.instance.m_mapViewRT.rect;
 			this.m_viewRelativeScale = rect1.width / mMapW;
 		}
+		if (Main.instance.IsNarrowScreen() && AdventureMapPanel.instance.m_mapInfo_BrokenIsles.gameObject.activeSelf)
+		{
+			this.m_viewRelativeScale *= 0.9f;
+		}
 		this.m_fillViewSize.x = mMapW * this.m_viewRelativeScale;
 		this.m_fillViewSize.y = mMapH * this.m_viewRelativeScale;
 	}

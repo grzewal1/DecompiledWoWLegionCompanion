@@ -617,38 +617,23 @@ namespace Newtonsoft.Json
 			long javaScriptTicks = JsonConvert.ConvertDateTimeToJavaScriptTicks(value, offset);
 			writer.Write("\"\\/Date(");
 			writer.Write(javaScriptTicks);
-			switch (kind)
+			if (kind == DateTimeKind.Local || kind == DateTimeKind.Unspecified)
 			{
-				case DateTimeKind.Unspecified:
-				case DateTimeKind.Local:
+				writer.Write((offset.Ticks < (long)0 ? "-" : "+"));
+				int num = Math.Abs(offset.Hours);
+				if (num < 10)
 				{
-					writer.Write((offset.Ticks < (long)0 ? "-" : "+"));
-					int num = Math.Abs(offset.Hours);
-					if (num < 10)
-					{
-						writer.Write(0);
-					}
-					writer.Write(num);
-					int num1 = Math.Abs(offset.Minutes);
-					if (num1 < 10)
-					{
-						writer.Write(0);
-					}
-					writer.Write(num1);
-					writer.Write(")\\/\"");
-					return;
+					writer.Write(0);
 				}
-				case DateTimeKind.Utc:
+				writer.Write(num);
+				int num1 = Math.Abs(offset.Minutes);
+				if (num1 < 10)
 				{
-					writer.Write(")\\/\"");
-					return;
+					writer.Write(0);
 				}
-				default:
-				{
-					writer.Write(")\\/\"");
-					return;
-				}
+				writer.Write(num1);
 			}
+			writer.Write(")\\/\"");
 		}
 	}
 }

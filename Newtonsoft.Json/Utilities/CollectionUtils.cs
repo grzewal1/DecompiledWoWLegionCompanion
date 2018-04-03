@@ -36,20 +36,9 @@ namespace Newtonsoft.Json.Utilities
 			{
 				return;
 			}
-			IEnumerator<T> enumerator = collection.GetEnumerator();
-			try
+			foreach (T t in collection)
 			{
-				while (enumerator.MoveNext())
-				{
-					initial.Add(enumerator.Current);
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				initial.Add(t);
 			}
 		}
 
@@ -67,24 +56,13 @@ namespace Newtonsoft.Json.Utilities
 		public static bool AddRangeDistinct<T>(this IList<T> list, IEnumerable<T> values, IEqualityComparer<T> comparer)
 		{
 			bool flag = true;
-			IEnumerator<T> enumerator = values.GetEnumerator();
-			try
+			foreach (T value in values)
 			{
-				while (enumerator.MoveNext())
+				if (list.AddDistinct<T>(value, comparer))
 				{
-					if (list.AddDistinct<T>(enumerator.Current, comparer))
-					{
-						continue;
-					}
-					flag = false;
+					continue;
 				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				flag = false;
 			}
 			return flag;
 		}
@@ -93,9 +71,9 @@ namespace Newtonsoft.Json.Utilities
 		{
 			ValidationUtils.ArgumentNotNull(enumerable, "enumerable");
 			return (
-				from object  in enumerable
+				from object o in enumerable
 				where o is T
-				select ).Cast<T>();
+				select o).Cast<T>();
 		}
 
 		public static bool ContainsValue<TSource>(this IEnumerable<TSource> source, TSource value, IEqualityComparer<TSource> comparer)
@@ -109,8 +87,7 @@ namespace Newtonsoft.Json.Utilities
 			{
 				throw new ArgumentNullException("source");
 			}
-			IEnumerator<TSource> enumerator = source.GetEnumerator();
-			try
+			using (IEnumerator<TSource> enumerator = source.GetEnumerator())
 			{
 				while (enumerator.MoveNext())
 				{
@@ -122,13 +99,6 @@ namespace Newtonsoft.Json.Utilities
 					return flag;
 				}
 				return false;
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
 			}
 			return flag;
 		}
@@ -429,27 +399,15 @@ namespace Newtonsoft.Json.Utilities
 				throw new ArgumentNullException("keySelector");
 			}
 			Dictionary<K, List<V>> ks = new Dictionary<K, List<V>>();
-			IEnumerator<V> enumerator = source.GetEnumerator();
-			try
+			foreach (V v in source)
 			{
-				while (enumerator.MoveNext())
+				K k = keySelector(v);
+				if (!ks.TryGetValue(k, out vs))
 				{
-					V current = enumerator.Current;
-					K k = keySelector(current);
-					if (!ks.TryGetValue(k, out vs))
-					{
-						vs = new List<V>();
-						ks.Add(k, vs);
-					}
-					vs.Add(current);
+					vs = new List<V>();
+					ks.Add(k, vs);
 				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				vs.Add(v);
 			}
 			return ks;
 		}
@@ -458,8 +416,7 @@ namespace Newtonsoft.Json.Utilities
 		{
 			int num;
 			int num1 = 0;
-			IEnumerator<T> enumerator = collection.GetEnumerator();
-			try
+			using (IEnumerator<T> enumerator = collection.GetEnumerator())
 			{
 				while (enumerator.MoveNext())
 				{
@@ -475,13 +432,6 @@ namespace Newtonsoft.Json.Utilities
 				}
 				return -1;
 			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
-			}
 			return num;
 		}
 
@@ -495,8 +445,7 @@ namespace Newtonsoft.Json.Utilities
 		{
 			int num;
 			int num1 = 0;
-			IEnumerator<TSource> enumerator = list.GetEnumerator();
-			try
+			using (IEnumerator<TSource> enumerator = list.GetEnumerator())
 			{
 				while (enumerator.MoveNext())
 				{
@@ -511,13 +460,6 @@ namespace Newtonsoft.Json.Utilities
 					}
 				}
 				return -1;
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
 			}
 			return num;
 		}
@@ -639,25 +581,13 @@ namespace Newtonsoft.Json.Utilities
 		{
 			ValidationUtils.ArgumentNotNull(list, "list");
 			List<T> ts = new List<T>(list.Count);
-			IEnumerator<T> enumerator = list.GetEnumerator();
-			try
+			foreach (T t in list)
 			{
-				while (enumerator.MoveNext())
+				if (minus != null && minus.Contains(t))
 				{
-					T current = enumerator.Current;
-					if (minus != null && minus.Contains(current))
-					{
-						continue;
-					}
-					ts.Add(current);
+					continue;
 				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				ts.Add(t);
 			}
 			return ts;
 		}

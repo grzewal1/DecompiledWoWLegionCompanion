@@ -22,11 +22,11 @@ namespace bgs
 
 		public const int MS_PER_HOUR = 3600000;
 
-		public const string DEFAULT_TIME_UNITS_STR = "sec";
-
 		public readonly static DateTime EPOCH_TIME;
 
 		public readonly static TimeUtils.ElapsedStringSet SPLASHSCREEN_DATETIME_STRINGSET;
+
+		public const string DEFAULT_TIME_UNITS_STR = "sec";
 
 		static TimeUtils()
 		{
@@ -165,10 +165,9 @@ namespace bgs
 				return "sec";
 			}
 			unitsStr = unitsStr.ToLowerInvariant();
-			string str = unitsStr;
-			if (str != null)
+			if (unitsStr != null)
 			{
-				if (TimeUtils.<>f__switch$map11 == null)
+				if (TimeUtils.<>f__switch$map9 == null)
 				{
 					Dictionary<string, int> strs = new Dictionary<string, int>(13)
 					{
@@ -186,9 +185,9 @@ namespace bgs
 						{ "hour", 2 },
 						{ "hours", 2 }
 					};
-					TimeUtils.<>f__switch$map11 = strs;
+					TimeUtils.<>f__switch$map9 = strs;
 				}
-				if (TimeUtils.<>f__switch$map11.TryGetValue(str, out num))
+				if (TimeUtils.<>f__switch$map9.TryGetValue(unitsStr, out num))
 				{
 					switch (num)
 					{

@@ -501,60 +501,59 @@ public class WowTextParser
 	{
 		string str;
 		string str1;
-		int num;
-		int num1 = 0;
-		while (!this.CharacterIsNumeric(input[num1]) && num1 < input.Length)
+		int num = 0;
+		while (!this.CharacterIsNumeric(input[num]) && num < input.Length)
 		{
-			num1++;
+			num++;
 		}
-		if (num1 >= input.Length)
+		if (num >= input.Length)
 		{
 			return input;
 		}
 		string empty = string.Empty;
 		string empty1 = string.Empty;
-		while (num1 < input.Length && (this.CharacterIsNumeric(input[num1]) || input[num1] == ','))
+		while (num < input.Length && (this.CharacterIsNumeric(input[num]) || input[num] == ','))
 		{
-			if (input[num1] != ',')
+			if (input[num] != ',')
 			{
-				empty = string.Concat(empty, input[num1]);
+				empty = string.Concat(empty, input[num]);
 			}
-			empty1 = string.Concat(empty1, input[num1]);
-			num1++;
+			empty1 = string.Concat(empty1, input[num]);
+			num++;
 		}
 		if (empty == string.Empty)
 		{
 			return input;
 		}
-		long num2 = (long)0;
+		long num1 = (long)0;
 		try
 		{
-			num2 = long.Parse(empty);
+			num1 = long.Parse(empty);
 			goto Label0;
 		}
 		catch (Exception exception)
 		{
-			str1 = input;
+			str = input;
 		}
-		return str1;
+		return str;
 	Label0:
-		long num3 = GeneralHelpers.ApplyArtifactXPMultiplier(num2, (double)GarrisonStatus.ArtifactXpMultiplier);
-		if (num3 < (long)1000000)
+		long num2 = GeneralHelpers.ApplyArtifactXPMultiplier(num1, (double)GarrisonStatus.ArtifactXpMultiplier);
+		if (num2 < (long)1000000)
 		{
-			if (num3 <= (long)999)
+			if (num2 <= (long)999)
 			{
-				return input.Replace(empty1, num3.ToString());
+				return input.Replace(empty1, num2.ToString());
 			}
-			string str2 = string.Format("{0},{1:D3}", num3 / (long)1000, num3 % (long)1000);
+			string str2 = string.Format("{0},{1:D3}", num2 / (long)1000, num2 % (long)1000);
 			return input.Replace(empty1, str2);
 		}
-		long num4 = num3 / (long)1000000;
-		long num5 = num3 % (long)1000000 / (long)100000;
+		long num3 = num2 / (long)1000000;
+		long num4 = num2 % (long)1000000 / (long)100000;
 		string str3 = StaticDB.GetString("MILLION", "million");
-		if (num3 > (long)1000000000)
+		if (num2 > (long)1000000000)
 		{
-			num4 = num3 / (long)1000000000;
-			num5 = num3 % (long)1000000000 / (long)100000000;
+			num3 = num2 / (long)1000000000;
+			num4 = num2 % (long)1000000000 / (long)100000000;
 			str3 = StaticDB.GetString("BILLION", "billion");
 		}
 		string str4 = ".";
@@ -562,44 +561,23 @@ public class WowTextParser
 		string locale = Main.instance.GetLocale();
 		if (locale != null)
 		{
-			if (WowTextParser.<>f__switch$map7 == null)
+			if (locale == "esES" || locale == "frFR")
 			{
-				Dictionary<string, int> strs = new Dictionary<string, int>(5)
-				{
-					{ "esES", 0 },
-					{ "frFR", 0 },
-					{ "itIT", 1 },
-					{ "deDE", 2 },
-					{ "ruRU", 2 }
-				};
-				WowTextParser.<>f__switch$map7 = strs;
+				str4 = ",";
+				empty2 = " de";
 			}
-			if (WowTextParser.<>f__switch$map7.TryGetValue(locale, out num))
+			else if (locale == "itIT")
 			{
-				switch (num)
-				{
-					case 0:
-					{
-						str4 = ",";
-						empty2 = " de";
-						break;
-					}
-					case 1:
-					{
-						str4 = ",";
-						empty2 = " di";
-						break;
-					}
-					case 2:
-					{
-						str4 = ",";
-						break;
-					}
-				}
+				str4 = ",";
+				empty2 = " di";
+			}
+			else if (locale == "deDE" || locale == "ruRU")
+			{
+				str4 = ",";
 			}
 		}
-		str = (num5 <= (long)0 ? string.Format("{0:D} {3}{4}", new object[] { num4, str4, num5, str3, empty2 }) : string.Format("{0:D}{1}{2:D} {3}{4}", new object[] { num4, str4, num5, str3, empty2 }));
-		return input.Replace(empty1, str);
+		str1 = (num4 <= (long)0 ? string.Format("{0:D} {3}{4}", new object[] { num3, str4, num4, str3, empty2 }) : string.Format("{0:D}{1}{2:D} {3}{4}", new object[] { num3, str4, num4, str3, empty2 }));
+		return input.Replace(empty1, str1);
 	}
 
 	private void ParseInlineIcon()

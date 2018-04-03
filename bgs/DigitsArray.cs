@@ -201,7 +201,7 @@ namespace bgs
 					buffer[j] = (uint)(num1 & (ulong)DigitsArray.AllBits);
 					num = num1 >> (DigitsArray.DataSizeBits & 63);
 				}
-				if (num != 0)
+				if (num != (long)0)
 				{
 					if (length + 1 > (int)buffer.Length)
 					{
@@ -233,7 +233,7 @@ namespace bgs
 					nums[j] = (uint)(item & (ulong)DigitsArray.AllBits);
 					num = item >> (DigitsArray.DataSizeBits & 63);
 				}
-				if (num != 0)
+				if (num != (long)0)
 				{
 					nums.Add(0);
 					nums[nums.Count - 1] = (uint)num;

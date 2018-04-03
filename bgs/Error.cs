@@ -29,14 +29,17 @@ namespace bgs
 
 		public Error(BattleNetErrors code)
 		{
-			this.EnumVal = code;
+			this = new Error()
+			{
+				EnumVal = code
+			};
 		}
 
 		public override bool Equals(object obj)
 		{
 			if (obj is BattleNetErrors)
 			{
-				return (uint)this.EnumVal == (uint)obj;
+				return this.EnumVal == (BattleNetErrors)obj;
 			}
 			if (obj is Error)
 			{

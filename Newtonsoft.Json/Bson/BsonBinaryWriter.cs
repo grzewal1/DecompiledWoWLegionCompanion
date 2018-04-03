@@ -1,7 +1,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Utilities;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -64,23 +63,11 @@ namespace Newtonsoft.Json.Bson
 				{
 					BsonObject bsonObjects = (BsonObject)t;
 					int num = 4;
-					IEnumerator<BsonProperty> enumerator = bsonObjects.GetEnumerator();
-					try
+					foreach (BsonProperty bsonProperty in bsonObjects)
 					{
-						while (enumerator.MoveNext())
-						{
-							BsonProperty current = enumerator.Current;
-							int num1 = 1 + this.CalculateSize(current.Name);
-							num1 += this.CalculateSize(current.Value);
-							num += num1;
-						}
-					}
-					finally
-					{
-						if (enumerator == null)
-						{
-						}
-						enumerator.Dispose();
+						int num1 = 1 + this.CalculateSize(bsonProperty.Name);
+						num1 += this.CalculateSize(bsonProperty.Value);
+						num += num1;
 					}
 					num++;
 					bsonObjects.CalculatedSize = num;
@@ -91,24 +78,12 @@ namespace Newtonsoft.Json.Bson
 					BsonArray bsonArrays = (BsonArray)t;
 					int num2 = 4;
 					int num3 = 0;
-					IEnumerator<BsonToken> enumerator1 = bsonArrays.GetEnumerator();
-					try
+					foreach (BsonToken bsonToken in bsonArrays)
 					{
-						while (enumerator1.MoveNext())
-						{
-							BsonToken bsonToken = enumerator1.Current;
-							num2++;
-							num2 += this.CalculateSize(MathUtils.IntLength(num3));
-							num2 += this.CalculateSize(bsonToken);
-							num3++;
-						}
-					}
-					finally
-					{
-						if (enumerator1 == null)
-						{
-						}
-						enumerator1.Dispose();
+						num2++;
+						num2 += this.CalculateSize(MathUtils.IntLength(num3));
+						num2 += this.CalculateSize(bsonToken);
+						num3++;
 					}
 					num2++;
 					bsonArrays.CalculatedSize = num2;
@@ -230,6 +205,7 @@ namespace Newtonsoft.Json.Bson
 
 		private void WriteTokenInternal(BsonToken t)
 		{
+			int? nullable;
 			object[] type;
 			CultureInfo invariantCulture;
 			switch (t.Type)
@@ -250,24 +226,12 @@ namespace Newtonsoft.Json.Bson
 				{
 					BsonObject bsonObjects = (BsonObject)t;
 					this._writer.Write(bsonObjects.CalculatedSize);
-					IEnumerator<BsonProperty> enumerator = bsonObjects.GetEnumerator();
-					try
+					foreach (BsonProperty bsonProperty in bsonObjects)
 					{
-						while (enumerator.MoveNext())
-						{
-							BsonProperty current = enumerator.Current;
-							this._writer.Write((sbyte)current.Value.Type);
-							int? nullable = null;
-							this.WriteString((string)current.Name.Value, current.Name.ByteCount, nullable);
-							this.WriteTokenInternal(current.Value);
-						}
-					}
-					finally
-					{
-						if (enumerator == null)
-						{
-						}
-						enumerator.Dispose();
+						this._writer.Write((sbyte)bsonProperty.Value.Type);
+						nullable = null;
+						this.WriteString((string)bsonProperty.Name.Value, bsonProperty.Name.ByteCount, nullable);
+						this.WriteTokenInternal(bsonProperty.Value);
 					}
 					this._writer.Write((byte)0);
 					break;
@@ -277,25 +241,13 @@ namespace Newtonsoft.Json.Bson
 					BsonArray bsonArrays = (BsonArray)t;
 					this._writer.Write(bsonArrays.CalculatedSize);
 					int num = 0;
-					IEnumerator<BsonToken> enumerator1 = bsonArrays.GetEnumerator();
-					try
+					foreach (BsonToken bsonToken in bsonArrays)
 					{
-						while (enumerator1.MoveNext())
-						{
-							BsonToken bsonToken = enumerator1.Current;
-							this._writer.Write((sbyte)bsonToken.Type);
-							int? nullable1 = null;
-							this.WriteString(num.ToString(CultureInfo.InvariantCulture), MathUtils.IntLength(num), nullable1);
-							this.WriteTokenInternal(bsonToken);
-							num++;
-						}
-					}
-					finally
-					{
-						if (enumerator1 == null)
-						{
-						}
-						enumerator1.Dispose();
+						this._writer.Write((sbyte)bsonToken.Type);
+						nullable = null;
+						this.WriteString(num.ToString(CultureInfo.InvariantCulture), MathUtils.IntLength(num), nullable);
+						this.WriteTokenInternal(bsonToken);
+						num++;
 					}
 					this._writer.Write((byte)0);
 					break;
@@ -353,10 +305,10 @@ namespace Newtonsoft.Json.Bson
 				case BsonType.Regex:
 				{
 					BsonRegex bsonRegex = (BsonRegex)t;
-					int? nullable2 = null;
-					this.WriteString((string)bsonRegex.Pattern.Value, bsonRegex.Pattern.ByteCount, nullable2);
-					int? nullable3 = null;
-					this.WriteString((string)bsonRegex.Options.Value, bsonRegex.Options.ByteCount, nullable3);
+					nullable = null;
+					this.WriteString((string)bsonRegex.Pattern.Value, bsonRegex.Pattern.ByteCount, nullable);
+					nullable = null;
+					this.WriteString((string)bsonRegex.Options.Value, bsonRegex.Options.ByteCount, nullable);
 					break;
 				}
 				case BsonType.Reference:

@@ -145,71 +145,67 @@ namespace bnet.protocol.channel
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 10)
-						{
-							if (instance.AgentIdentity != null)
-							{
-								Identity.DeserializeLengthDelimited(stream, instance.AgentIdentity);
-							}
-							else
-							{
-								instance.AgentIdentity = Identity.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 18)
-						{
-							if (instance.MemberState != null)
-							{
-								bnet.protocol.channel.MemberState.DeserializeLengthDelimited(stream, instance.MemberState);
-							}
-							else
-							{
-								instance.MemberState = bnet.protocol.channel.MemberState.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 26)
-						{
-							if (instance.ChannelId != null)
-							{
-								EntityId.DeserializeLengthDelimited(stream, instance.ChannelId);
-							}
-							else
-							{
-								instance.ChannelId = EntityId.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 32)
-						{
-							instance.ObjectId = ProtocolParser.ReadUInt64(stream);
-						}
-						else if (num1 == 42)
-						{
-							instance.FriendAccountId.Add(EntityId.DeserializeLengthDelimited(stream));
-						}
-						else if (num1 == 48)
-						{
-							instance.LocalSubscriber = ProtocolParser.ReadBool(stream);
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 10)
+					{
+						if (instance.AgentIdentity != null)
+						{
+							Identity.DeserializeLengthDelimited(stream, instance.AgentIdentity);
+						}
+						else
+						{
+							instance.AgentIdentity = Identity.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 18)
+					{
+						if (instance.MemberState != null)
+						{
+							bnet.protocol.channel.MemberState.DeserializeLengthDelimited(stream, instance.MemberState);
+						}
+						else
+						{
+							instance.MemberState = bnet.protocol.channel.MemberState.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 26)
+					{
+						if (instance.ChannelId != null)
+						{
+							EntityId.DeserializeLengthDelimited(stream, instance.ChannelId);
+						}
+						else
+						{
+							instance.ChannelId = EntityId.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 32)
+					{
+						instance.ObjectId = ProtocolParser.ReadUInt64(stream);
+					}
+					else if (num == 42)
+					{
+						instance.FriendAccountId.Add(EntityId.DeserializeLengthDelimited(stream));
+					}
+					else if (num == 48)
+					{
+						instance.LocalSubscriber = ProtocolParser.ReadBool(stream);
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
 					}
 				}
 				else

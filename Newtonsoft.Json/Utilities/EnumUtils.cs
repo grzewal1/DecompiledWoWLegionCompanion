@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -23,25 +22,13 @@ namespace Newtonsoft.Json.Utilities
 			ulong num = Convert.ToUInt64(value, CultureInfo.InvariantCulture);
 			EnumValues<ulong> namesAndValues = EnumUtils.GetNamesAndValues<T>();
 			IList<T> ts = new List<T>();
-			IEnumerator<EnumValue<ulong>> enumerator = namesAndValues.GetEnumerator();
-			try
+			foreach (EnumValue<ulong> namesAndValue in namesAndValues)
 			{
-				while (enumerator.MoveNext())
+				if ((num & namesAndValue.Value) != namesAndValue.Value || namesAndValue.Value == (long)0)
 				{
-					EnumValue<ulong> current = enumerator.Current;
-					if ((num & current.Value) != current.Value || current.Value == 0)
-					{
-						continue;
-					}
-					ts.Add((T)Convert.ChangeType(current.Value, underlyingType, CultureInfo.CurrentCulture));
+					continue;
 				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				ts.Add((T)Convert.ChangeType(namesAndValue.Value, underlyingType, CultureInfo.CurrentCulture));
 			}
 			if (ts.Count == 0 && namesAndValues.SingleOrDefault<EnumValue<ulong>>((EnumValue<ulong> v) => v.Value == (long)0) != null)
 			{
@@ -66,43 +53,21 @@ namespace Newtonsoft.Json.Utilities
 			IList<object> values = EnumUtils.GetValues(enumType);
 			if (!enumType.IsDefined(typeof(FlagsAttribute), false))
 			{
-				IEnumerator<object> enumerator = values.GetEnumerator();
-				try
+				foreach (TEnumType value in values)
 				{
-					while (enumerator.MoveNext())
+					ulong num1 = value.ToUInt64(CultureInfo.InvariantCulture);
+					if (num.CompareTo(num1) != -1)
 					{
-						ulong num1 = ((TEnumType)enumerator.Current).ToUInt64(CultureInfo.InvariantCulture);
-						if (num.CompareTo(num1) != -1)
-						{
-							continue;
-						}
-						num = num1;
+						continue;
 					}
-				}
-				finally
-				{
-					if (enumerator == null)
-					{
-					}
-					enumerator.Dispose();
+					num = num1;
 				}
 			}
 			else
 			{
-				IEnumerator<object> enumerator1 = values.GetEnumerator();
-				try
+				foreach (TEnumType tEnumType in values)
 				{
-					while (enumerator1.MoveNext())
-					{
-						num |= ((TEnumType)enumerator1.Current).ToUInt64(CultureInfo.InvariantCulture);
-					}
-				}
-				finally
-				{
-					if (enumerator1 == null)
-					{
-					}
-					enumerator1.Dispose();
+					num |= tEnumType.ToUInt64(CultureInfo.InvariantCulture);
 				}
 			}
 			return (TEnumType)Convert.ChangeType(num, typeof(TEnumType), CultureInfo.InvariantCulture);
@@ -124,20 +89,9 @@ namespace Newtonsoft.Json.Utilities
 				from field in (IEnumerable<FieldInfo>)enumType.GetFields()
 				where field.IsLiteral
 				select field;
-			IEnumerator<FieldInfo> enumerator = fields.GetEnumerator();
-			try
+			foreach (FieldInfo fieldInfo in fields)
 			{
-				while (enumerator.MoveNext())
-				{
-					strs.Add(enumerator.Current.Name);
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				strs.Add(fieldInfo.Name);
 			}
 			return strs;
 		}
@@ -197,20 +151,9 @@ namespace Newtonsoft.Json.Utilities
 				from field in (IEnumerable<FieldInfo>)enumType.GetFields()
 				where field.IsLiteral
 				select field;
-			IEnumerator<FieldInfo> enumerator = fields.GetEnumerator();
-			try
+			foreach (FieldInfo fieldInfo in fields)
 			{
-				while (enumerator.MoveNext())
-				{
-					objs.Add(enumerator.Current.GetValue(enumType));
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				objs.Add(fieldInfo.GetValue(enumType));
 			}
 			return objs;
 		}

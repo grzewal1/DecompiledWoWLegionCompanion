@@ -106,8 +106,7 @@ namespace bnet.protocol.account
 					int num = stream.ReadByte();
 					if (num != -1)
 					{
-						int num1 = num;
-						switch (num1)
+						switch (num)
 						{
 							case 29:
 							{
@@ -121,7 +120,7 @@ namespace bnet.protocol.account
 							}
 							default:
 							{
-								if (num1 == 10)
+								if (num == 10)
 								{
 									if (instance.Account != null)
 									{
@@ -133,7 +132,7 @@ namespace bnet.protocol.account
 									}
 									continue;
 								}
-								else if (num1 == 16)
+								else if (num == 16)
 								{
 									instance.Region = ProtocolParser.ReadUInt32(stream);
 									continue;

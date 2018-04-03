@@ -416,8 +416,7 @@ namespace bnet.protocol.account
 					int num = stream.ReadByte();
 					if (num != -1)
 					{
-						int num1 = num;
-						switch (num1)
+						switch (num)
 						{
 							case 21:
 							{
@@ -431,32 +430,32 @@ namespace bnet.protocol.account
 							}
 							default:
 							{
-								if (num1 == 34)
+								if (num == 34)
 								{
 									instance.Email.Add(ProtocolParser.ReadString(stream));
 									continue;
 								}
-								else if (num1 == 40)
+								else if (num == 40)
 								{
 									instance.Flags = ProtocolParser.ReadUInt64(stream);
 									continue;
 								}
-								else if (num1 == 48)
+								else if (num == 48)
 								{
 									instance.SecureRelease = ProtocolParser.ReadUInt64(stream);
 									continue;
 								}
-								else if (num1 == 56)
+								else if (num == 56)
 								{
 									instance.WhitelistStart = ProtocolParser.ReadUInt64(stream);
 									continue;
 								}
-								else if (num1 == 64)
+								else if (num == 64)
 								{
 									instance.WhitelistEnd = ProtocolParser.ReadUInt64(stream);
 									continue;
 								}
-								else if (num1 == 82)
+								else if (num == 82)
 								{
 									instance.FullName = ProtocolParser.ReadString(stream);
 									continue;

@@ -85,38 +85,34 @@ namespace bnet.protocol.challenge
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 10)
-						{
-							instance.Data = ProtocolParser.ReadBytes(stream);
-						}
-						else if (num1 == 16)
-						{
-							instance.DoRetry = ProtocolParser.ReadBool(stream);
-						}
-						else if (num1 == 24)
-						{
-							instance.RecordNotFound = ProtocolParser.ReadBool(stream);
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 10)
+					{
+						instance.Data = ProtocolParser.ReadBytes(stream);
+					}
+					else if (num == 16)
+					{
+						instance.DoRetry = ProtocolParser.ReadBool(stream);
+					}
+					else if (num == 24)
+					{
+						instance.RecordNotFound = ProtocolParser.ReadBool(stream);
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
 					}
 				}
 				else

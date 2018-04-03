@@ -3,9 +3,11 @@ using bnet.protocol.attribute;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace bgs
 {
@@ -251,16 +253,19 @@ namespace bgs
 
 		public static long? GetPartyAttributeLong(PartyId partyId, string attributeKey)
 		{
+			long? nullable;
 			long num;
 			if (partyId == null)
 			{
-				return null;
+				nullable = null;
+				return nullable;
 			}
 			if (BattleNet.GetPartyAttributeLong(partyId.ToEntityId(), attributeKey, out num))
 			{
 				return new long?(num);
 			}
-			return null;
+			nullable = null;
+			return nullable;
 		}
 
 		public static string GetPartyAttributeString(PartyId partyId, string attributeKey)
@@ -459,6 +464,8 @@ namespace bgs
 		public static void Process()
 		{
 			PartyListenerEvent[] partyListenerEventArray;
+			LeaveReason? nullable;
+			InviteRemoveReason? nullable1;
 			List<BnetParty.PartyAttributeChangedHandler> partyAttributeChangedHandlers;
 			BattleNet.GetPartyListenerEvents(out partyListenerEventArray);
 			BattleNet.ClearPartyListenerEvents();
@@ -526,7 +533,8 @@ namespace bgs
 						}
 						if (BnetParty.OnJoined != null)
 						{
-							BnetParty.OnJoined(0, new bgs.PartyInfo(partyId, partyTypeFromString), null);
+							nullable = null;
+							BnetParty.OnJoined(0, new bgs.PartyInfo(partyId, partyTypeFromString), nullable);
 						}
 						break;
 					}
@@ -557,12 +565,13 @@ namespace bgs
 						if (BnetParty.OnMemberEvent != null)
 						{
 							OnlineEventType onlineEventType = (partyListenerEvent.Type != PartyListenerEventType.MEMBER_JOINED ? OnlineEventType.REMOVED : OnlineEventType.ADDED);
-							LeaveReason? nullable = null;
+							nullable = null;
+							LeaveReason? nullable2 = nullable;
 							if (partyListenerEvent.Type == PartyListenerEventType.MEMBER_LEFT)
 							{
-								nullable = new LeaveReason?((LeaveReason)partyListenerEvent.UintData);
+								nullable2 = new LeaveReason?((LeaveReason)partyListenerEvent.UintData);
 							}
-							BnetParty.OnMemberEvent(onlineEventType, BnetParty.GetJoinedParty(partyId), partyListenerEvent.SubjectMemberId, false, nullable);
+							BnetParty.OnMemberEvent(onlineEventType, BnetParty.GetJoinedParty(partyId), partyListenerEvent.SubjectMemberId, false, nullable2);
 						}
 						break;
 					}
@@ -570,8 +579,8 @@ namespace bgs
 					{
 						if (BnetParty.OnMemberEvent != null)
 						{
-							LeaveReason? nullable1 = null;
-							BnetParty.OnMemberEvent(2, BnetParty.GetJoinedParty(partyId), partyListenerEvent.SubjectMemberId, true, nullable1);
+							nullable = null;
+							BnetParty.OnMemberEvent(2, BnetParty.GetJoinedParty(partyId), partyListenerEvent.SubjectMemberId, true, nullable);
 						}
 						break;
 					}
@@ -587,12 +596,13 @@ namespace bgs
 								EnumUtils.TryGetEnum<PartyType>(partyListenerEvent.StringData, out partyType1);
 							}
 							bgs.PartyInfo partyInfo = new bgs.PartyInfo(partyId, partyType1);
-							InviteRemoveReason? nullable2 = null;
+							nullable1 = null;
+							InviteRemoveReason? nullable3 = nullable1;
 							if (partyListenerEvent.Type == PartyListenerEventType.RECEIVED_INVITE_REMOVED)
 							{
-								nullable2 = new InviteRemoveReason?((InviteRemoveReason)partyListenerEvent.UintData);
+								nullable3 = new InviteRemoveReason?((InviteRemoveReason)partyListenerEvent.UintData);
 							}
-							BnetParty.OnReceivedInvite(onlineEventType1, partyInfo, partyListenerEvent.UlongData, nullable2);
+							BnetParty.OnReceivedInvite(onlineEventType1, partyInfo, partyListenerEvent.UlongData, nullable3);
 						}
 						break;
 					}
@@ -609,12 +619,13 @@ namespace bgs
 								EnumUtils.TryGetEnum<PartyType>(partyListenerEvent.StringData, out partyType2);
 							}
 							bgs.PartyInfo partyInfo1 = new bgs.PartyInfo(partyId, partyType2);
-							InviteRemoveReason? nullable3 = null;
+							nullable1 = null;
+							InviteRemoveReason? nullable4 = nullable1;
 							if (partyListenerEvent.Type == PartyListenerEventType.PARTY_INVITE_REMOVED)
 							{
-								nullable3 = new InviteRemoveReason?((InviteRemoveReason)partyListenerEvent.UintData);
+								nullable4 = new InviteRemoveReason?((InviteRemoveReason)partyListenerEvent.UintData);
 							}
-							BnetParty.OnSentInvite(onlineEventType2, partyInfo1, partyListenerEvent.UlongData, subjectMemberId, nullable3);
+							BnetParty.OnSentInvite(onlineEventType2, partyInfo1, partyListenerEvent.UlongData, subjectMemberId, nullable4);
 						}
 						break;
 					}
@@ -625,10 +636,10 @@ namespace bgs
 						{
 							OnlineEventType onlineEventType3 = (partyListenerEvent.Type != PartyListenerEventType.INVITE_REQUEST_ADDED ? OnlineEventType.REMOVED : OnlineEventType.ADDED);
 							bgs.PartyInfo joinedParty = BnetParty.GetJoinedParty(partyId);
-							InviteRequestRemovedReason? nullable4 = null;
+							InviteRequestRemovedReason? nullable5 = null;
 							if (partyListenerEvent.Type == PartyListenerEventType.INVITE_REQUEST_REMOVED)
 							{
-								nullable4 = new InviteRequestRemovedReason?((InviteRequestRemovedReason)partyListenerEvent.UintData);
+								nullable5 = new InviteRequestRemovedReason?((InviteRequestRemovedReason)partyListenerEvent.UintData);
 							}
 							InviteRequest inviteRequest = new InviteRequest()
 							{
@@ -637,7 +648,7 @@ namespace bgs
 								RequesterId = partyListenerEvent.SubjectMemberId,
 								RequesterName = partyListenerEvent.StringData
 							};
-							BnetParty.OnReceivedInviteRequest(onlineEventType3, joinedParty, inviteRequest, nullable4);
+							BnetParty.OnReceivedInviteRequest(onlineEventType3, joinedParty, inviteRequest, nullable5);
 						}
 						break;
 					}
@@ -806,16 +817,17 @@ namespace bgs
 						{
 							continue;
 						}
-						BnetParty.OnError = (BnetParty.PartyErrorHandler)Delegate.Remove(BnetParty.OnError, (BnetParty.PartyErrorHandler)current);
+						BnetParty.OnError -= (BnetParty.PartyErrorHandler)current;
 					}
 				}
 				finally
 				{
 					IDisposable disposable = enumerator as IDisposable;
-					if (disposable == null)
+					IDisposable disposable1 = disposable;
+					if (disposable != null)
 					{
+						disposable1.Dispose();
 					}
-					disposable.Dispose();
 				}
 			}
 			if (BnetParty.OnJoined != null)
@@ -830,16 +842,17 @@ namespace bgs
 						{
 							continue;
 						}
-						BnetParty.OnJoined = (BnetParty.JoinedHandler)Delegate.Remove(BnetParty.OnJoined, (BnetParty.JoinedHandler)@delegate);
+						BnetParty.OnJoined -= (BnetParty.JoinedHandler)@delegate;
 					}
 				}
 				finally
 				{
-					IDisposable disposable1 = enumerator1 as IDisposable;
-					if (disposable1 == null)
+					IDisposable disposable2 = enumerator1 as IDisposable;
+					IDisposable disposable3 = disposable2;
+					if (disposable2 != null)
 					{
+						disposable3.Dispose();
 					}
-					disposable1.Dispose();
 				}
 			}
 			if (BnetParty.OnPrivacyLevelChanged != null)
@@ -854,16 +867,17 @@ namespace bgs
 						{
 							continue;
 						}
-						BnetParty.OnPrivacyLevelChanged = (BnetParty.PrivacyLevelChangedHandler)Delegate.Remove(BnetParty.OnPrivacyLevelChanged, (BnetParty.PrivacyLevelChangedHandler)current1);
+						BnetParty.OnPrivacyLevelChanged -= (BnetParty.PrivacyLevelChangedHandler)current1;
 					}
 				}
 				finally
 				{
-					IDisposable disposable2 = enumerator2 as IDisposable;
-					if (disposable2 == null)
+					IDisposable disposable4 = enumerator2 as IDisposable;
+					IDisposable disposable5 = disposable4;
+					if (disposable4 != null)
 					{
+						disposable5.Dispose();
 					}
-					disposable2.Dispose();
 				}
 			}
 			if (BnetParty.OnMemberEvent != null)
@@ -878,16 +892,17 @@ namespace bgs
 						{
 							continue;
 						}
-						BnetParty.OnMemberEvent = (BnetParty.MemberEventHandler)Delegate.Remove(BnetParty.OnMemberEvent, (BnetParty.MemberEventHandler)delegate1);
+						BnetParty.OnMemberEvent -= (BnetParty.MemberEventHandler)delegate1;
 					}
 				}
 				finally
 				{
-					IDisposable disposable3 = enumerator3 as IDisposable;
-					if (disposable3 == null)
+					IDisposable disposable6 = enumerator3 as IDisposable;
+					IDisposable disposable7 = disposable6;
+					if (disposable6 != null)
 					{
+						disposable7.Dispose();
 					}
-					disposable3.Dispose();
 				}
 			}
 			if (BnetParty.OnReceivedInvite != null)
@@ -902,16 +917,17 @@ namespace bgs
 						{
 							continue;
 						}
-						BnetParty.OnReceivedInvite = (BnetParty.ReceivedInviteHandler)Delegate.Remove(BnetParty.OnReceivedInvite, (BnetParty.ReceivedInviteHandler)current2);
+						BnetParty.OnReceivedInvite -= (BnetParty.ReceivedInviteHandler)current2;
 					}
 				}
 				finally
 				{
-					IDisposable disposable4 = enumerator4 as IDisposable;
-					if (disposable4 == null)
+					IDisposable disposable8 = enumerator4 as IDisposable;
+					IDisposable disposable9 = disposable8;
+					if (disposable8 != null)
 					{
+						disposable9.Dispose();
 					}
-					disposable4.Dispose();
 				}
 			}
 			if (BnetParty.OnSentInvite != null)
@@ -926,16 +942,17 @@ namespace bgs
 						{
 							continue;
 						}
-						BnetParty.OnSentInvite = (BnetParty.SentInviteHandler)Delegate.Remove(BnetParty.OnSentInvite, (BnetParty.SentInviteHandler)delegate2);
+						BnetParty.OnSentInvite -= (BnetParty.SentInviteHandler)delegate2;
 					}
 				}
 				finally
 				{
-					IDisposable disposable5 = enumerator5 as IDisposable;
-					if (disposable5 == null)
+					IDisposable disposable10 = enumerator5 as IDisposable;
+					IDisposable disposable11 = disposable10;
+					if (disposable10 != null)
 					{
+						disposable11.Dispose();
 					}
-					disposable5.Dispose();
 				}
 			}
 			if (BnetParty.OnReceivedInviteRequest != null)
@@ -950,16 +967,17 @@ namespace bgs
 						{
 							continue;
 						}
-						BnetParty.OnReceivedInviteRequest = (BnetParty.ReceivedInviteRequestHandler)Delegate.Remove(BnetParty.OnReceivedInviteRequest, (BnetParty.ReceivedInviteRequestHandler)current3);
+						BnetParty.OnReceivedInviteRequest -= (BnetParty.ReceivedInviteRequestHandler)current3;
 					}
 				}
 				finally
 				{
-					IDisposable disposable6 = enumerator6 as IDisposable;
-					if (disposable6 == null)
+					IDisposable disposable12 = enumerator6 as IDisposable;
+					IDisposable disposable13 = disposable12;
+					if (disposable12 != null)
 					{
+						disposable13.Dispose();
 					}
-					disposable6.Dispose();
 				}
 			}
 			if (BnetParty.OnChatMessage != null)
@@ -974,16 +992,17 @@ namespace bgs
 						{
 							continue;
 						}
-						BnetParty.OnChatMessage = (BnetParty.ChatMessageHandler)Delegate.Remove(BnetParty.OnChatMessage, (BnetParty.ChatMessageHandler)delegate3);
+						BnetParty.OnChatMessage -= (BnetParty.ChatMessageHandler)delegate3;
 					}
 				}
 				finally
 				{
-					IDisposable disposable7 = enumerator7 as IDisposable;
-					if (disposable7 == null)
+					IDisposable disposable14 = enumerator7 as IDisposable;
+					IDisposable disposable15 = disposable14;
+					if (disposable14 != null)
 					{
+						disposable15.Dispose();
 					}
-					disposable7.Dispose();
 				}
 			}
 			if (BnetParty.OnPartyAttributeChanged != null)
@@ -998,16 +1017,17 @@ namespace bgs
 						{
 							continue;
 						}
-						BnetParty.OnPartyAttributeChanged = (BnetParty.PartyAttributeChangedHandler)Delegate.Remove(BnetParty.OnPartyAttributeChanged, (BnetParty.PartyAttributeChangedHandler)current4);
+						BnetParty.OnPartyAttributeChanged -= (BnetParty.PartyAttributeChangedHandler)current4;
 					}
 				}
 				finally
 				{
-					IDisposable disposable8 = enumerator8 as IDisposable;
-					if (disposable8 == null)
+					IDisposable disposable16 = enumerator8 as IDisposable;
+					IDisposable disposable17 = disposable16;
+					if (disposable16 != null)
 					{
+						disposable17.Dispose();
 					}
-					disposable8.Dispose();
 				}
 			}
 			if (BnetParty.s_attributeChangedSubscribers != null)
@@ -1133,23 +1153,239 @@ namespace bgs
 			return partyAttributeChangedHandlers.Remove(handler);
 		}
 
-		public static event BnetParty.ChatMessageHandler OnChatMessage;
+		public static event BnetParty.ChatMessageHandler OnChatMessage
+		{
+			add
+			{
+				BnetParty.ChatMessageHandler chatMessageHandler;
+				BnetParty.ChatMessageHandler onChatMessage = BnetParty.OnChatMessage;
+				do
+				{
+					chatMessageHandler = onChatMessage;
+					onChatMessage = Interlocked.CompareExchange<BnetParty.ChatMessageHandler>(ref BnetParty.OnChatMessage, (BnetParty.ChatMessageHandler)Delegate.Combine(chatMessageHandler, value), onChatMessage);
+				}
+				while ((object)onChatMessage != (object)chatMessageHandler);
+			}
+			remove
+			{
+				BnetParty.ChatMessageHandler chatMessageHandler;
+				BnetParty.ChatMessageHandler onChatMessage = BnetParty.OnChatMessage;
+				do
+				{
+					chatMessageHandler = onChatMessage;
+					onChatMessage = Interlocked.CompareExchange<BnetParty.ChatMessageHandler>(ref BnetParty.OnChatMessage, (BnetParty.ChatMessageHandler)Delegate.Remove(chatMessageHandler, value), onChatMessage);
+				}
+				while ((object)onChatMessage != (object)chatMessageHandler);
+			}
+		}
 
-		public static event BnetParty.PartyErrorHandler OnError;
+		public static event BnetParty.PartyErrorHandler OnError
+		{
+			add
+			{
+				BnetParty.PartyErrorHandler partyErrorHandler;
+				BnetParty.PartyErrorHandler onError = BnetParty.OnError;
+				do
+				{
+					partyErrorHandler = onError;
+					onError = Interlocked.CompareExchange<BnetParty.PartyErrorHandler>(ref BnetParty.OnError, (BnetParty.PartyErrorHandler)Delegate.Combine(partyErrorHandler, value), onError);
+				}
+				while ((object)onError != (object)partyErrorHandler);
+			}
+			remove
+			{
+				BnetParty.PartyErrorHandler partyErrorHandler;
+				BnetParty.PartyErrorHandler onError = BnetParty.OnError;
+				do
+				{
+					partyErrorHandler = onError;
+					onError = Interlocked.CompareExchange<BnetParty.PartyErrorHandler>(ref BnetParty.OnError, (BnetParty.PartyErrorHandler)Delegate.Remove(partyErrorHandler, value), onError);
+				}
+				while ((object)onError != (object)partyErrorHandler);
+			}
+		}
 
-		public static event BnetParty.JoinedHandler OnJoined;
+		public static event BnetParty.JoinedHandler OnJoined
+		{
+			add
+			{
+				BnetParty.JoinedHandler joinedHandler;
+				BnetParty.JoinedHandler onJoined = BnetParty.OnJoined;
+				do
+				{
+					joinedHandler = onJoined;
+					onJoined = Interlocked.CompareExchange<BnetParty.JoinedHandler>(ref BnetParty.OnJoined, (BnetParty.JoinedHandler)Delegate.Combine(joinedHandler, value), onJoined);
+				}
+				while ((object)onJoined != (object)joinedHandler);
+			}
+			remove
+			{
+				BnetParty.JoinedHandler joinedHandler;
+				BnetParty.JoinedHandler onJoined = BnetParty.OnJoined;
+				do
+				{
+					joinedHandler = onJoined;
+					onJoined = Interlocked.CompareExchange<BnetParty.JoinedHandler>(ref BnetParty.OnJoined, (BnetParty.JoinedHandler)Delegate.Remove(joinedHandler, value), onJoined);
+				}
+				while ((object)onJoined != (object)joinedHandler);
+			}
+		}
 
-		public static event BnetParty.MemberEventHandler OnMemberEvent;
+		public static event BnetParty.MemberEventHandler OnMemberEvent
+		{
+			add
+			{
+				BnetParty.MemberEventHandler memberEventHandler;
+				BnetParty.MemberEventHandler onMemberEvent = BnetParty.OnMemberEvent;
+				do
+				{
+					memberEventHandler = onMemberEvent;
+					onMemberEvent = Interlocked.CompareExchange<BnetParty.MemberEventHandler>(ref BnetParty.OnMemberEvent, (BnetParty.MemberEventHandler)Delegate.Combine(memberEventHandler, value), onMemberEvent);
+				}
+				while ((object)onMemberEvent != (object)memberEventHandler);
+			}
+			remove
+			{
+				BnetParty.MemberEventHandler memberEventHandler;
+				BnetParty.MemberEventHandler onMemberEvent = BnetParty.OnMemberEvent;
+				do
+				{
+					memberEventHandler = onMemberEvent;
+					onMemberEvent = Interlocked.CompareExchange<BnetParty.MemberEventHandler>(ref BnetParty.OnMemberEvent, (BnetParty.MemberEventHandler)Delegate.Remove(memberEventHandler, value), onMemberEvent);
+				}
+				while ((object)onMemberEvent != (object)memberEventHandler);
+			}
+		}
 
-		public static event BnetParty.PartyAttributeChangedHandler OnPartyAttributeChanged;
+		public static event BnetParty.PartyAttributeChangedHandler OnPartyAttributeChanged
+		{
+			add
+			{
+				BnetParty.PartyAttributeChangedHandler partyAttributeChangedHandler;
+				BnetParty.PartyAttributeChangedHandler onPartyAttributeChanged = BnetParty.OnPartyAttributeChanged;
+				do
+				{
+					partyAttributeChangedHandler = onPartyAttributeChanged;
+					onPartyAttributeChanged = Interlocked.CompareExchange<BnetParty.PartyAttributeChangedHandler>(ref BnetParty.OnPartyAttributeChanged, (BnetParty.PartyAttributeChangedHandler)Delegate.Combine(partyAttributeChangedHandler, value), onPartyAttributeChanged);
+				}
+				while ((object)onPartyAttributeChanged != (object)partyAttributeChangedHandler);
+			}
+			remove
+			{
+				BnetParty.PartyAttributeChangedHandler partyAttributeChangedHandler;
+				BnetParty.PartyAttributeChangedHandler onPartyAttributeChanged = BnetParty.OnPartyAttributeChanged;
+				do
+				{
+					partyAttributeChangedHandler = onPartyAttributeChanged;
+					onPartyAttributeChanged = Interlocked.CompareExchange<BnetParty.PartyAttributeChangedHandler>(ref BnetParty.OnPartyAttributeChanged, (BnetParty.PartyAttributeChangedHandler)Delegate.Remove(partyAttributeChangedHandler, value), onPartyAttributeChanged);
+				}
+				while ((object)onPartyAttributeChanged != (object)partyAttributeChangedHandler);
+			}
+		}
 
-		public static event BnetParty.PrivacyLevelChangedHandler OnPrivacyLevelChanged;
+		public static event BnetParty.PrivacyLevelChangedHandler OnPrivacyLevelChanged
+		{
+			add
+			{
+				BnetParty.PrivacyLevelChangedHandler privacyLevelChangedHandler;
+				BnetParty.PrivacyLevelChangedHandler onPrivacyLevelChanged = BnetParty.OnPrivacyLevelChanged;
+				do
+				{
+					privacyLevelChangedHandler = onPrivacyLevelChanged;
+					onPrivacyLevelChanged = Interlocked.CompareExchange<BnetParty.PrivacyLevelChangedHandler>(ref BnetParty.OnPrivacyLevelChanged, (BnetParty.PrivacyLevelChangedHandler)Delegate.Combine(privacyLevelChangedHandler, value), onPrivacyLevelChanged);
+				}
+				while ((object)onPrivacyLevelChanged != (object)privacyLevelChangedHandler);
+			}
+			remove
+			{
+				BnetParty.PrivacyLevelChangedHandler privacyLevelChangedHandler;
+				BnetParty.PrivacyLevelChangedHandler onPrivacyLevelChanged = BnetParty.OnPrivacyLevelChanged;
+				do
+				{
+					privacyLevelChangedHandler = onPrivacyLevelChanged;
+					onPrivacyLevelChanged = Interlocked.CompareExchange<BnetParty.PrivacyLevelChangedHandler>(ref BnetParty.OnPrivacyLevelChanged, (BnetParty.PrivacyLevelChangedHandler)Delegate.Remove(privacyLevelChangedHandler, value), onPrivacyLevelChanged);
+				}
+				while ((object)onPrivacyLevelChanged != (object)privacyLevelChangedHandler);
+			}
+		}
 
-		public static event BnetParty.ReceivedInviteHandler OnReceivedInvite;
+		public static event BnetParty.ReceivedInviteHandler OnReceivedInvite
+		{
+			add
+			{
+				BnetParty.ReceivedInviteHandler receivedInviteHandler;
+				BnetParty.ReceivedInviteHandler onReceivedInvite = BnetParty.OnReceivedInvite;
+				do
+				{
+					receivedInviteHandler = onReceivedInvite;
+					onReceivedInvite = Interlocked.CompareExchange<BnetParty.ReceivedInviteHandler>(ref BnetParty.OnReceivedInvite, (BnetParty.ReceivedInviteHandler)Delegate.Combine(receivedInviteHandler, value), onReceivedInvite);
+				}
+				while ((object)onReceivedInvite != (object)receivedInviteHandler);
+			}
+			remove
+			{
+				BnetParty.ReceivedInviteHandler receivedInviteHandler;
+				BnetParty.ReceivedInviteHandler onReceivedInvite = BnetParty.OnReceivedInvite;
+				do
+				{
+					receivedInviteHandler = onReceivedInvite;
+					onReceivedInvite = Interlocked.CompareExchange<BnetParty.ReceivedInviteHandler>(ref BnetParty.OnReceivedInvite, (BnetParty.ReceivedInviteHandler)Delegate.Remove(receivedInviteHandler, value), onReceivedInvite);
+				}
+				while ((object)onReceivedInvite != (object)receivedInviteHandler);
+			}
+		}
 
-		public static event BnetParty.ReceivedInviteRequestHandler OnReceivedInviteRequest;
+		public static event BnetParty.ReceivedInviteRequestHandler OnReceivedInviteRequest
+		{
+			add
+			{
+				BnetParty.ReceivedInviteRequestHandler receivedInviteRequestHandler;
+				BnetParty.ReceivedInviteRequestHandler onReceivedInviteRequest = BnetParty.OnReceivedInviteRequest;
+				do
+				{
+					receivedInviteRequestHandler = onReceivedInviteRequest;
+					onReceivedInviteRequest = Interlocked.CompareExchange<BnetParty.ReceivedInviteRequestHandler>(ref BnetParty.OnReceivedInviteRequest, (BnetParty.ReceivedInviteRequestHandler)Delegate.Combine(receivedInviteRequestHandler, value), onReceivedInviteRequest);
+				}
+				while ((object)onReceivedInviteRequest != (object)receivedInviteRequestHandler);
+			}
+			remove
+			{
+				BnetParty.ReceivedInviteRequestHandler receivedInviteRequestHandler;
+				BnetParty.ReceivedInviteRequestHandler onReceivedInviteRequest = BnetParty.OnReceivedInviteRequest;
+				do
+				{
+					receivedInviteRequestHandler = onReceivedInviteRequest;
+					onReceivedInviteRequest = Interlocked.CompareExchange<BnetParty.ReceivedInviteRequestHandler>(ref BnetParty.OnReceivedInviteRequest, (BnetParty.ReceivedInviteRequestHandler)Delegate.Remove(receivedInviteRequestHandler, value), onReceivedInviteRequest);
+				}
+				while ((object)onReceivedInviteRequest != (object)receivedInviteRequestHandler);
+			}
+		}
 
-		public static event BnetParty.SentInviteHandler OnSentInvite;
+		public static event BnetParty.SentInviteHandler OnSentInvite
+		{
+			add
+			{
+				BnetParty.SentInviteHandler sentInviteHandler;
+				BnetParty.SentInviteHandler onSentInvite = BnetParty.OnSentInvite;
+				do
+				{
+					sentInviteHandler = onSentInvite;
+					onSentInvite = Interlocked.CompareExchange<BnetParty.SentInviteHandler>(ref BnetParty.OnSentInvite, (BnetParty.SentInviteHandler)Delegate.Combine(sentInviteHandler, value), onSentInvite);
+				}
+				while ((object)onSentInvite != (object)sentInviteHandler);
+			}
+			remove
+			{
+				BnetParty.SentInviteHandler sentInviteHandler;
+				BnetParty.SentInviteHandler onSentInvite = BnetParty.OnSentInvite;
+				do
+				{
+					sentInviteHandler = onSentInvite;
+					onSentInvite = Interlocked.CompareExchange<BnetParty.SentInviteHandler>(ref BnetParty.OnSentInvite, (BnetParty.SentInviteHandler)Delegate.Remove(sentInviteHandler, value), onSentInvite);
+				}
+				while ((object)onSentInvite != (object)sentInviteHandler);
+			}
+		}
 
 		public delegate void ChatMessageHandler(bgs.PartyInfo party, BnetGameAccountId speakerId, string chatMessage);
 

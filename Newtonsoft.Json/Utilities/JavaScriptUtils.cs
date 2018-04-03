@@ -40,8 +40,7 @@ namespace Newtonsoft.Json.Utilities
 				for (int i = 0; i < value.Length; i++)
 				{
 					char chr = value[i];
-					char chr1 = chr;
-					switch (chr1)
+					switch (chr)
 					{
 						case '\b':
 						{
@@ -70,17 +69,17 @@ namespace Newtonsoft.Json.Utilities
 						}
 						default:
 						{
-							if (chr1 == '\u2028')
+							if (chr == '\u2028')
 							{
 								str = "\\u2028";
 								break;
 							}
-							else if (chr1 == '\u2029')
+							else if (chr == '\u2029')
 							{
 								str = "\\u2029";
 								break;
 							}
-							else if (chr1 == '\"')
+							else if (chr == '\"')
 							{
 								if (delimiter != '\"')
 								{
@@ -93,7 +92,7 @@ namespace Newtonsoft.Json.Utilities
 								str = str1;
 								break;
 							}
-							else if (chr1 == '\'')
+							else if (chr == '\'')
 							{
 								if (delimiter != '\'')
 								{
@@ -106,12 +105,12 @@ namespace Newtonsoft.Json.Utilities
 								str = str2;
 								break;
 							}
-							else if (chr1 == '\\')
+							else if (chr == '\\')
 							{
 								str = "\\\\";
 								break;
 							}
-							else if (chr1 == '\u0085')
+							else if (chr == '\u0085')
 							{
 								str = "\\u0085";
 								break;

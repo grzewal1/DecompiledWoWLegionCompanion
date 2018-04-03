@@ -164,32 +164,19 @@ namespace Newtonsoft.Json.Utilities
 			for (int i = 0; i < fullyQualifiedTypeName.Length; i++)
 			{
 				char chr = fullyQualifiedTypeName[i];
-				switch (chr)
+				if (chr == '[')
 				{
-					case '[':
+					num++;
+				}
+				else if (chr == ']')
+				{
+					num--;
+				}
+				else if (chr == ',')
+				{
+					if (num == 0)
 					{
-						num++;
-						break;
-					}
-					case ']':
-					{
-						num--;
-						break;
-					}
-					default:
-					{
-						if (chr == ',')
-						{
-							if (num == 0)
-							{
-								return new int?(i);
-							}
-							break;
-						}
-						else
-						{
-							break;
-						}
+						return new int?(i);
 					}
 				}
 			}
@@ -387,32 +374,20 @@ namespace Newtonsoft.Json.Utilities
 				from m in memberInfos
 				group m by m.Name into g
 				select new { Count = g.Count<MemberInfo>(), Members = g.Cast<MemberInfo>() };
-			var enumerator = name.GetEnumerator();
-			try
+			foreach (var variable in name)
 			{
-				while (enumerator.MoveNext())
+				if (variable.Count != 1)
 				{
-					var current = enumerator.Current;
-					if (current.Count != 1)
-					{
-						IEnumerable<MemberInfo> members = 
-							from m in current.Members
-							where (!ReflectionUtils.IsOverridenGenericMember(m, bindingAttr) ? true : m.Name == "Item")
-							select m;
-						memberInfos1.AddRange(members);
-					}
-					else
-					{
-						memberInfos1.Add(current.Members.First<MemberInfo>());
-					}
+					IEnumerable<MemberInfo> members = 
+						from m in variable.Members
+						where (!ReflectionUtils.IsOverridenGenericMember(m, bindingAttr) ? true : m.Name == "Item")
+						select m;
+					memberInfos1.AddRange(members);
 				}
-			}
-			finally
-			{
-				if (enumerator == null)
+				else
 				{
+					memberInfos1.Add(variable.Members.First<MemberInfo>());
 				}
-				enumerator.Dispose();
 			}
 			return memberInfos1;
 		}
@@ -531,12 +506,11 @@ namespace Newtonsoft.Json.Utilities
 		public static string GetTypeName(Type t, FormatterAssemblyStyle assemblyFormat, SerializationBinder binder)
 		{
 			string assemblyQualifiedName = t.AssemblyQualifiedName;
-			FormatterAssemblyStyle formatterAssemblyStyle = assemblyFormat;
-			if (formatterAssemblyStyle == FormatterAssemblyStyle.Simple)
+			if (assemblyFormat == FormatterAssemblyStyle.Simple)
 			{
 				return ReflectionUtils.RemoveAssemblyDetails(assemblyQualifiedName);
 			}
-			if (formatterAssemblyStyle != FormatterAssemblyStyle.Full)
+			if (assemblyFormat != FormatterAssemblyStyle.Full)
 			{
 				throw new ArgumentOutOfRangeException();
 			}
@@ -790,8 +764,7 @@ namespace Newtonsoft.Json.Utilities
 			for (int i = 0; i < fullyQualifiedTypeName.Length; i++)
 			{
 				char chr = fullyQualifiedTypeName[i];
-				char chr1 = chr;
-				switch (chr1)
+				switch (chr)
 				{
 					case '[':
 					{
@@ -809,7 +782,7 @@ namespace Newtonsoft.Json.Utilities
 					}
 					default:
 					{
-						if (chr1 == ',')
+						if (chr == ',')
 						{
 							if (flag)
 							{

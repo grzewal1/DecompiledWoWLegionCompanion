@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace Newtonsoft.Json.Serialization
@@ -25,11 +26,11 @@ namespace Newtonsoft.Json.Serialization
 
 		public const string SpecifiedPostfix = "Specified";
 
-		private const string MetadataTypeAttributeTypeName = "System.ComponentModel.DataAnnotations.MetadataTypeAttribute, System.ComponentModel.DataAnnotations, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
-
 		private readonly static ThreadSafeStore<ICustomAttributeProvider, Type> JsonConverterTypeCache;
 
 		private readonly static ThreadSafeStore<Type, Type> AssociatedMetadataTypesCache;
+
+		private const string MetadataTypeAttributeTypeName = "System.ComponentModel.DataAnnotations.MetadataTypeAttribute, System.ComponentModel.DataAnnotations, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
 
 		private static Type _cachedMetadataTypeAttributeType;
 

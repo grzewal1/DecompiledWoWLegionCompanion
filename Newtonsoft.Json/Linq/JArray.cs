@@ -9,7 +9,7 @@ using System.Reflection;
 
 namespace Newtonsoft.Json.Linq
 {
-	public class JArray : JContainer, IEnumerable, IEnumerable<JToken>, ICollection<JToken>, IList<JToken>
+	public class JArray : JContainer, IList<JToken>, ICollection<JToken>, IEnumerable<JToken>, IEnumerable
 	{
 		private IList<JToken> _values = new List<JToken>();
 
@@ -183,20 +183,9 @@ namespace Newtonsoft.Json.Linq
 		public override void WriteTo(JsonWriter writer, params JsonConverter[] converters)
 		{
 			writer.WriteStartArray();
-			IEnumerator<JToken> enumerator = this.ChildrenTokens.GetEnumerator();
-			try
+			foreach (JToken childrenToken in this.ChildrenTokens)
 			{
-				while (enumerator.MoveNext())
-				{
-					enumerator.Current.WriteTo(writer, converters);
-				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				childrenToken.WriteTo(writer, converters);
 			}
 			writer.WriteEndArray();
 		}

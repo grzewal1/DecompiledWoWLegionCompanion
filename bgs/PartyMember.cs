@@ -12,13 +12,12 @@ namespace bgs
 
 		public static uint GetLeaderRoleId(PartyType partyType)
 		{
-			PartyType partyType1 = partyType;
-			if (partyType1 != PartyType.FRIENDLY_CHALLENGE)
+			if (partyType == PartyType.SPECTATOR_PARTY)
 			{
-				if (partyType1 == PartyType.SPECTATOR_PARTY)
-				{
-					return Convert.ToUInt32(BnetParty.SpectatorPartyRoleSet.Leader);
-				}
+				return Convert.ToUInt32(BnetParty.SpectatorPartyRoleSet.Leader);
+			}
+			if (partyType != PartyType.FRIENDLY_CHALLENGE)
+			{
 			}
 			return Convert.ToUInt32(BnetParty.FriendlyGameRoleSet.Inviter);
 		}

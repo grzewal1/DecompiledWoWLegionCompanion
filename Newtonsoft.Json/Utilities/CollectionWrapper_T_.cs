@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace Newtonsoft.Json.Utilities
 {
-	internal class CollectionWrapper<T> : IEnumerable, IWrappedCollection, IList, ICollection, ICollection<T>, IEnumerable<T>
+	internal class CollectionWrapper<T> : ICollection<T>, IWrappedCollection, IEnumerable<T>, IEnumerable, IList, ICollection
 	{
 		private readonly IList _list;
 

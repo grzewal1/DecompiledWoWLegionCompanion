@@ -103,42 +103,38 @@ namespace bnet.protocol.account
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 32)
-						{
-							instance.IsSuspended = ProtocolParser.ReadBool(stream);
-						}
-						else if (num1 == 40)
-						{
-							instance.IsBanned = ProtocolParser.ReadBool(stream);
-						}
-						else if (num1 == 48)
-						{
-							instance.SuspensionExpires = ProtocolParser.ReadUInt64(stream);
-						}
-						else if (num1 == 61)
-						{
-							instance.Program = binaryReader.ReadUInt32();
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 32)
+					{
+						instance.IsSuspended = ProtocolParser.ReadBool(stream);
+					}
+					else if (num == 40)
+					{
+						instance.IsBanned = ProtocolParser.ReadBool(stream);
+					}
+					else if (num == 48)
+					{
+						instance.SuspensionExpires = ProtocolParser.ReadUInt64(stream);
+					}
+					else if (num == 61)
+					{
+						instance.Program = binaryReader.ReadUInt32();
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
 					}
 				}
 				else

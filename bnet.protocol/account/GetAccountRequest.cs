@@ -195,78 +195,74 @@ namespace bnet.protocol.account
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 10)
-						{
-							if (instance.Ref != null)
-							{
-								AccountReference.DeserializeLengthDelimited(stream, instance.Ref);
-							}
-							else
-							{
-								instance.Ref = AccountReference.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 80)
-						{
-							instance.FetchAll = ProtocolParser.ReadBool(stream);
-						}
-						else if (num1 == 88)
-						{
-							instance.FetchBlob = ProtocolParser.ReadBool(stream);
-						}
-						else if (num1 == 96)
-						{
-							instance.FetchId = ProtocolParser.ReadBool(stream);
-						}
-						else if (num1 == 104)
-						{
-							instance.FetchEmail = ProtocolParser.ReadBool(stream);
-						}
-						else if (num1 == 112)
-						{
-							instance.FetchBattleTag = ProtocolParser.ReadBool(stream);
-						}
-						else if (num1 == 120)
-						{
-							instance.FetchFullName = ProtocolParser.ReadBool(stream);
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							uint field = key.Field;
-							if (field == 16)
-							{
-								if (key.WireType == Wire.Varint)
-								{
-									instance.FetchLinks = ProtocolParser.ReadBool(stream);
-									continue;
-								}
-							}
-							else if (field != 17)
-							{
-								if (field == 0)
-								{
-									throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-								}
-								ProtocolParser.SkipKey(stream, key);
-							}
-							else if (key.WireType == Wire.Varint)
-							{
-								instance.FetchParentalControls = ProtocolParser.ReadBool(stream);
-								continue;
-							}
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 10)
+					{
+						if (instance.Ref != null)
+						{
+							AccountReference.DeserializeLengthDelimited(stream, instance.Ref);
+						}
+						else
+						{
+							instance.Ref = AccountReference.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 80)
+					{
+						instance.FetchAll = ProtocolParser.ReadBool(stream);
+					}
+					else if (num == 88)
+					{
+						instance.FetchBlob = ProtocolParser.ReadBool(stream);
+					}
+					else if (num == 96)
+					{
+						instance.FetchId = ProtocolParser.ReadBool(stream);
+					}
+					else if (num == 104)
+					{
+						instance.FetchEmail = ProtocolParser.ReadBool(stream);
+					}
+					else if (num == 112)
+					{
+						instance.FetchBattleTag = ProtocolParser.ReadBool(stream);
+					}
+					else if (num == 120)
+					{
+						instance.FetchFullName = ProtocolParser.ReadBool(stream);
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						uint field = key.Field;
+						if (field == 16)
+						{
+							if (key.WireType == Wire.Varint)
+							{
+								instance.FetchLinks = ProtocolParser.ReadBool(stream);
+								continue;
+							}
+						}
+						else if (field != 17)
+						{
+							if (field == 0)
+							{
+								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+							}
+							ProtocolParser.SkipKey(stream, key);
+						}
+						else if (key.WireType == Wire.Varint)
+						{
+							instance.FetchParentalControls = ProtocolParser.ReadBool(stream);
+							continue;
+						}
 					}
 				}
 				else

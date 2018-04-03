@@ -101,7 +101,6 @@ public class TitlePanel : MonoBehaviour
 
 	private void OnEnable()
 	{
-		int num;
 		this.m_legionLogo.SetActive(false);
 		this.m_legionLogo_CN.SetActive(false);
 		this.m_legionLogo_TW.SetActive(false);
@@ -120,72 +119,48 @@ public class TitlePanel : MonoBehaviour
 		}
 		if (!Login.instance.IsDevRegionList())
 		{
-			int num1 = 0;
+			int num = 0;
 			string bnPortal = Login.instance.GetBnPortal();
 			if (bnPortal != null)
 			{
-				if (TitlePanel.<>f__switch$mapB == null)
+				if (bnPortal == "us")
 				{
-					Dictionary<string, int> strs = new Dictionary<string, int>(6)
-					{
-						{ "us", 0 },
-						{ "eu", 1 },
-						{ "kr", 2 },
-						{ "cn", 3 },
-						{ "beta", 4 },
-						{ "test", 4 }
-					};
-					TitlePanel.<>f__switch$mapB = strs;
+					num = 0;
 				}
-				if (TitlePanel.<>f__switch$mapB.TryGetValue(bnPortal, out num))
+				else if (bnPortal == "eu")
 				{
-					switch (num)
-					{
-						case 0:
-						{
-							num1 = 0;
-							break;
-						}
-						case 1:
-						{
-							num1 = 1;
-							break;
-						}
-						case 2:
-						{
-							num1 = 2;
-							break;
-						}
-						case 3:
-						{
-							num1 = 3;
-							break;
-						}
-						case 4:
-						{
-							num1 = 4;
-							break;
-						}
-					}
+					num = 1;
+				}
+				else if (bnPortal == "kr")
+				{
+					num = 2;
+				}
+				else if (bnPortal == "cn")
+				{
+					num = 3;
+				}
+				else if (bnPortal == "beta" || bnPortal == "test")
+				{
+					num = 4;
 				}
 			}
 			this.m_showDialog = false;
-			this.m_portalDropdown.@value = num1;
+			this.m_portalDropdown.@value = num;
 			this.m_showDialog = true;
 		}
 		else
 		{
-			int num2 = 0;
-			while (num2 < this.m_portalDropdown.options.Count)
+			int num1 = 0;
+			while (num1 < this.m_portalDropdown.options.Count)
 			{
-				if (this.m_portalDropdown.options.ToArray()[num2].text.ToLower() != Login.instance.GetBnPortal())
+				if (this.m_portalDropdown.options.ToArray()[num1].text.ToLower() != Login.instance.GetBnPortal())
 				{
-					num2++;
+					num1++;
 				}
 				else
 				{
 					this.m_showDialog = false;
-					this.m_portalDropdown.@value = num2;
+					this.m_portalDropdown.@value = num1;
 					this.m_showDialog = true;
 					break;
 				}
@@ -222,7 +197,7 @@ public class TitlePanel : MonoBehaviour
 	{
 		DateTime today = DateTime.Today;
 		Debug.Log(string.Concat(new object[] { "Date: ", today.Month, "/", today.Day, "/", today.Year }));
-		if (today.Year > 2017 || today.Month > 8 || today.Day > 28)
+		if (today.Year > 2018 || today.Month > 1 || today.Day > 15)
 		{
 			this.m_showPTR = false;
 		}

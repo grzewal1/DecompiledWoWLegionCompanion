@@ -9,7 +9,6 @@ using bnet.protocol.connection;
 using bnet.protocol.game_utilities;
 using bnet.protocol.notification;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -18,10 +17,6 @@ namespace bgs
 {
 	public class BattleNetCSharp : IBattleNet
 	{
-		private const int DEFAULT_PORT = 1119;
-
-		public const string s_programName = "WoW";
-
 		private BattleNetLogSource m_logSource = new BattleNetLogSource("Main");
 
 		private FriendsAPI m_friendAPI;
@@ -97,6 +92,10 @@ namespace bgs
 		public BattleNetCSharp.ConnectionState m_connectionState;
 
 		private List<BnetErrorInfo> m_errorEvents = new List<BnetErrorInfo>();
+
+		private const int DEFAULT_PORT = 1119;
+
+		public const string s_programName = "WoW";
 
 		private ServiceDescriptor m_connectionService = new ConnectionService();
 
@@ -1068,25 +1067,13 @@ namespace bgs
 
 		public void OnBroadcastReceived(IList<bnet.protocol.attribute.Attribute> AttributeList)
 		{
-			IEnumerator<bnet.protocol.attribute.Attribute> enumerator = AttributeList.GetEnumerator();
-			try
+			foreach (bnet.protocol.attribute.Attribute attributeList in AttributeList)
 			{
-				while (enumerator.MoveNext())
+				if (attributeList.Name != "shutdown")
 				{
-					bnet.protocol.attribute.Attribute current = enumerator.Current;
-					if (current.Name != "shutdown")
-					{
-						continue;
-					}
-					this.m_shutdownInMinutes = (int)current.Value.IntValue;
+					continue;
 				}
-			}
-			finally
-			{
-				if (enumerator == null)
-				{
-				}
-				enumerator.Dispose();
+				this.m_shutdownInMinutes = (int)attributeList.Value.IntValue;
 			}
 		}
 

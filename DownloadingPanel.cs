@@ -21,7 +21,7 @@ public class DownloadingPanel : MonoBehaviour
 		string locale = Main.instance.GetLocale();
 		if (locale != null)
 		{
-			if (DownloadingPanel.<>f__switch$map4 == null)
+			if (DownloadingPanel.<>f__switch$map1 == null)
 			{
 				Dictionary<string, int> strs = new Dictionary<string, int>(10)
 				{
@@ -36,9 +36,9 @@ public class DownloadingPanel : MonoBehaviour
 					{ "ptBR", 8 },
 					{ "itIT", 9 }
 				};
-				DownloadingPanel.<>f__switch$map4 = strs;
+				DownloadingPanel.<>f__switch$map1 = strs;
 			}
-			if (DownloadingPanel.<>f__switch$map4.TryGetValue(locale, out num))
+			if (DownloadingPanel.<>f__switch$map1.TryGetValue(locale, out num))
 			{
 				switch (num)
 				{

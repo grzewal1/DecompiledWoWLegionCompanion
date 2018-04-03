@@ -61,9 +61,9 @@ namespace bgs
 		{
 			// 
 			// Current member / type: System.Void bgs.DotNetUrlDownloader::FinishDownload(bgs.DotNetUrlDownloader/DownloadState)
-			// File path: C:\apktool\wow_v1.3.20_com.blizzard.wowcompanion\assets\bin\Data\Managed\Assembly-CSharp.dll
+			// File path: C:\apktool\wow\assets\bin\Data\Managed\Assembly-CSharp.dll
 			// 
-			// Product version: 2017.3.1005.3
+			// Product version: 2018.1.123.0
 			// Exception in: System.Void FinishDownload(bgs.DotNetUrlDownloader/DownloadState)
 			// 
 			// La référence d'objet n'est pas définie à une instance d'un objet.
@@ -83,7 +83,7 @@ namespace bgs
 
 		public void Process()
 		{
-			List<DotNetUrlDownloader.DownloadResult> mCompletedDownloads = this.m_completedDownloads;
+			object mCompletedDownloads = this.m_completedDownloads;
 			Monitor.Enter(mCompletedDownloads);
 			try
 			{
@@ -170,8 +170,6 @@ namespace bgs
 
 		internal class DownloadState
 		{
-			private const int bufferSize = 1024;
-
 			public DotNetUrlDownloader downloader;
 
 			public string host;
@@ -187,6 +185,8 @@ namespace bgs
 			public RegisteredWaitHandle timeoutWaitHandle;
 
 			public WaitHandle timeoutWatchHandle;
+
+			private const int bufferSize = 1024;
 
 			public byte[] readBuffer;
 

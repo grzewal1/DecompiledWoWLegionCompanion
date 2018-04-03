@@ -177,118 +177,114 @@ namespace bnet.protocol.invitation
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 9)
-						{
-							instance.Id = binaryReader.ReadUInt64();
-						}
-						else if (num1 == 18)
-						{
-							if (instance.InviterIdentity != null)
-							{
-								Identity.DeserializeLengthDelimited(stream, instance.InviterIdentity);
-							}
-							else
-							{
-								instance.InviterIdentity = Identity.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 26)
-						{
-							if (instance.InviteeIdentity != null)
-							{
-								Identity.DeserializeLengthDelimited(stream, instance.InviteeIdentity);
-							}
-							else
-							{
-								instance.InviteeIdentity = Identity.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 34)
-						{
-							instance.InviterName = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 42)
-						{
-							instance.InviteeName = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 50)
-						{
-							instance.InvitationMessage = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 56)
-						{
-							instance.CreationTime = ProtocolParser.ReadUInt64(stream);
-						}
-						else if (num1 == 64)
-						{
-							instance.ExpirationTime = ProtocolParser.ReadUInt64(stream);
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							uint field = key.Field;
-							switch (field)
-							{
-								case 103:
-								{
-									if (key.WireType == Wire.LengthDelimited)
-									{
-										if (instance.FriendInvite != null)
-										{
-											FriendInvitation.DeserializeLengthDelimited(stream, instance.FriendInvite);
-										}
-										else
-										{
-											instance.FriendInvite = FriendInvitation.DeserializeLengthDelimited(stream);
-										}
-										continue;
-									}
-									else
-									{
-										break;
-									}
-								}
-								case 105:
-								{
-									if (key.WireType == Wire.LengthDelimited)
-									{
-										if (instance.ChannelInvitation != null)
-										{
-											bnet.protocol.channel_invitation.ChannelInvitation.DeserializeLengthDelimited(stream, instance.ChannelInvitation);
-										}
-										else
-										{
-											instance.ChannelInvitation = bnet.protocol.channel_invitation.ChannelInvitation.DeserializeLengthDelimited(stream);
-										}
-										continue;
-									}
-									else
-									{
-										break;
-									}
-								}
-								default:
-								{
-									if (field == 0)
-									{
-										throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-									}
-									ProtocolParser.SkipKey(stream, key);
-									break;
-								}
-							}
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 9)
+					{
+						instance.Id = binaryReader.ReadUInt64();
+					}
+					else if (num == 18)
+					{
+						if (instance.InviterIdentity != null)
+						{
+							Identity.DeserializeLengthDelimited(stream, instance.InviterIdentity);
+						}
+						else
+						{
+							instance.InviterIdentity = Identity.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 26)
+					{
+						if (instance.InviteeIdentity != null)
+						{
+							Identity.DeserializeLengthDelimited(stream, instance.InviteeIdentity);
+						}
+						else
+						{
+							instance.InviteeIdentity = Identity.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 34)
+					{
+						instance.InviterName = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 42)
+					{
+						instance.InviteeName = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 50)
+					{
+						instance.InvitationMessage = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 56)
+					{
+						instance.CreationTime = ProtocolParser.ReadUInt64(stream);
+					}
+					else if (num == 64)
+					{
+						instance.ExpirationTime = ProtocolParser.ReadUInt64(stream);
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						uint field = key.Field;
+						switch (field)
+						{
+							case 103:
+							{
+								if (key.WireType == Wire.LengthDelimited)
+								{
+									if (instance.FriendInvite != null)
+									{
+										FriendInvitation.DeserializeLengthDelimited(stream, instance.FriendInvite);
+									}
+									else
+									{
+										instance.FriendInvite = FriendInvitation.DeserializeLengthDelimited(stream);
+									}
+									continue;
+								}
+								else
+								{
+									break;
+								}
+							}
+							case 105:
+							{
+								if (key.WireType == Wire.LengthDelimited)
+								{
+									if (instance.ChannelInvitation != null)
+									{
+										bnet.protocol.channel_invitation.ChannelInvitation.DeserializeLengthDelimited(stream, instance.ChannelInvitation);
+									}
+									else
+									{
+										instance.ChannelInvitation = bnet.protocol.channel_invitation.ChannelInvitation.DeserializeLengthDelimited(stream);
+									}
+									continue;
+								}
+								else
+								{
+									break;
+								}
+							}
+							default:
+							{
+								if (field == 0)
+								{
+									throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+								}
+								ProtocolParser.SkipKey(stream, key);
+								break;
+							}
+						}
 					}
 				}
 				else

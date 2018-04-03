@@ -266,15 +266,15 @@ namespace bgs
 
 		public void PacketReceived(BattleNetPacket p, object state)
 		{
-			Queue<BattleNetPacket> battleNetPackets = this.incomingPackets;
-			Monitor.Enter(battleNetPackets);
+			object obj = this.incomingPackets;
+			Monitor.Enter(obj);
 			try
 			{
 				this.incomingPackets.Enqueue(p);
 			}
 			finally
 			{
-				Monitor.Exit(battleNetPackets);
+				Monitor.Exit(obj);
 			}
 		}
 
@@ -326,8 +326,8 @@ namespace bgs
 		protected void QueuePacket(BattleNetPacket packet)
 		{
 			this.LogOutgoingPacket(packet, false);
-			Queue<BattleNetPacket> battleNetPackets = this.outBoundPackets;
-			Monitor.Enter(battleNetPackets);
+			object obj = this.outBoundPackets;
+			Monitor.Enter(obj);
 			try
 			{
 				this.outBoundPackets.Enqueue(packet);
@@ -336,7 +336,7 @@ namespace bgs
 			}
 			finally
 			{
-				Monitor.Exit(battleNetPackets);
+				Monitor.Exit(obj);
 			}
 		}
 
@@ -344,9 +344,9 @@ namespace bgs
 		{
 			// 
 			// Current member / type: bgs.RPCContext bgs.RPCConnection::QueueRequest(System.UInt32,System.UInt32,IProtoBuf,bgs.RPCContextDelegate,System.UInt32)
-			// File path: C:\apktool\wow_v1.3.20_com.blizzard.wowcompanion\assets\bin\Data\Managed\Assembly-CSharp.dll
+			// File path: C:\apktool\wow\assets\bin\Data\Managed\Assembly-CSharp.dll
 			// 
-			// Product version: 2017.3.1005.3
+			// Product version: 2018.1.123.0
 			// Exception in: bgs.RPCContext QueueRequest(System.UInt32,System.UInt32,IProtoBuf,bgs.RPCContextDelegate,System.UInt32)
 			// 
 			// La référence d'objet n'est pas définie à une instance d'un objet.
@@ -435,8 +435,8 @@ namespace bgs
 			this.ProcessPendingOutboundPackets();
 			if (this.outBoundPackets.Count > 0)
 			{
-				Queue<BattleNetPacket> battleNetPackets2 = this.outBoundPackets;
-				Monitor.Enter(battleNetPackets2);
+				object obj = this.outBoundPackets;
+				Monitor.Enter(obj);
 				try
 				{
 					battleNetPackets = new Queue<BattleNetPacket>(this.outBoundPackets.ToArray());
@@ -444,7 +444,7 @@ namespace bgs
 				}
 				finally
 				{
-					Monitor.Exit(battleNetPackets2);
+					Monitor.Exit(obj);
 				}
 				while (battleNetPackets.Count > 0)
 				{
@@ -465,8 +465,8 @@ namespace bgs
 			}
 			if (this.incomingPackets.Count > 0)
 			{
-				Queue<BattleNetPacket> battleNetPackets3 = this.incomingPackets;
-				Monitor.Enter(battleNetPackets3);
+				object obj1 = this.incomingPackets;
+				Monitor.Enter(obj1);
 				try
 				{
 					battleNetPackets1 = new Queue<BattleNetPacket>(this.incomingPackets.ToArray());
@@ -474,7 +474,7 @@ namespace bgs
 				}
 				finally
 				{
-					Monitor.Exit(battleNetPackets3);
+					Monitor.Exit(obj1);
 				}
 				while (battleNetPackets1.Count > 0)
 				{

@@ -70,6 +70,8 @@ public class OrderHallMultiPanel : MonoBehaviour
 
 	public GameObject m_navBarArea;
 
+	public GameObject m_navBarLayout;
+
 	private bool m_actuallyDisablePanels;
 
 	public OrderHallMultiPanel()
@@ -257,5 +259,13 @@ public class OrderHallMultiPanel : MonoBehaviour
 			}
 		}
 		this.m_defaultNavButton.SelectMe();
+		if (Main.instance.IsNarrowScreen() && this.m_navBarLayout != null)
+		{
+			HorizontalLayoutGroup component = this.m_navBarLayout.GetComponent<HorizontalLayoutGroup>();
+			if (component != null)
+			{
+				component.spacing = 0f;
+			}
+		}
 	}
 }

@@ -131,7 +131,7 @@ public class TroopSlot : MonoBehaviour
 		{
 			return;
 		}
-		if (this.m_shipmentDBID != 0 && !this.m_collected)
+		if (this.m_shipmentDBID != (long)0 && !this.m_collected)
 		{
 			this.m_collected = true;
 			this.m_collectingSpinner.SetActive(true);

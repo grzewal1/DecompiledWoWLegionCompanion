@@ -106,45 +106,41 @@ namespace bnet.protocol.game_master
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 10)
-						{
-							instance.Attribute.Add(bnet.protocol.attribute.Attribute.DeserializeLengthDelimited(stream));
-						}
-						else if (num1 != 18)
-						{
-							if (num1 == 29)
-							{
-								instance.ProgramId = binaryReader.ReadUInt32();
-							}
-							else
-							{
-								Key key = ProtocolParser.ReadKey((byte)num, stream);
-								if (key.Field == 0)
-								{
-									throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-								}
-								ProtocolParser.SkipKey(stream, key);
-							}
-						}
-						else if (instance.State != null)
-						{
-							ServerState.DeserializeLengthDelimited(stream, instance.State);
-						}
-						else
-						{
-							instance.State = ServerState.DeserializeLengthDelimited(stream);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 10)
+					{
+						instance.Attribute.Add(bnet.protocol.attribute.Attribute.DeserializeLengthDelimited(stream));
+					}
+					else if (num != 18)
+					{
+						if (num == 29)
+						{
+							instance.ProgramId = binaryReader.ReadUInt32();
+						}
+						else
+						{
+							Key key = ProtocolParser.ReadKey((byte)num, stream);
+							if (key.Field == 0)
+							{
+								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+							}
+							ProtocolParser.SkipKey(stream, key);
+						}
+					}
+					else if (instance.State != null)
+					{
+						ServerState.DeserializeLengthDelimited(stream, instance.State);
+					}
+					else
+					{
+						instance.State = ServerState.DeserializeLengthDelimited(stream);
 					}
 				}
 				else

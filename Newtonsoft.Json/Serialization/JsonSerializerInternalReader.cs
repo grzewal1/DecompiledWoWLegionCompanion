@@ -194,6 +194,7 @@ namespace Newtonsoft.Json.Serialization
 		private object CreateObject(JsonReader reader, Type objectType, JsonContract contract, JsonProperty member, object existingValue)
 		{
 			bool flag;
+			TypeNameHandling? nullable;
 			string str;
 			string str1;
 			Type type;
@@ -241,13 +242,14 @@ namespace Newtonsoft.Json.Serialization
 						this.CheckedRead(reader);
 						if (member == null)
 						{
-							typeNameHandling = null;
+							nullable = null;
+							typeNameHandling = nullable;
 						}
 						else
 						{
 							typeNameHandling = member.TypeNameHandling;
 						}
-						TypeNameHandling? nullable = typeNameHandling;
+						nullable = typeNameHandling;
 						if ((!nullable.HasValue ? base.Serializer.TypeNameHandling : nullable.Value))
 						{
 							ReflectionUtils.SplitFullyQualifiedTypeName(str7, out str, out str1);
@@ -352,30 +354,18 @@ namespace Newtonsoft.Json.Serialization
 			Func<ParameterInfo, ParameterInfo> func = (ParameterInfo p) => p;
 			IDictionary<ParameterInfo, object> dictionary = ((IEnumerable<ParameterInfo>)parameters).ToDictionary<ParameterInfo, ParameterInfo, object>(func, (ParameterInfo p) => null);
 			IDictionary<JsonProperty, object> jsonProperties1 = new Dictionary<JsonProperty, object>();
-			IEnumerator<KeyValuePair<JsonProperty, object>> enumerator = jsonProperties.GetEnumerator();
-			try
+			foreach (KeyValuePair<JsonProperty, object> keyValuePair in jsonProperties)
 			{
-				while (enumerator.MoveNext())
+				KeyValuePair<ParameterInfo, object> keyValuePair1 = dictionary.ForgivingCaseSensitiveFind<KeyValuePair<ParameterInfo, object>>((KeyValuePair<ParameterInfo, object> kv) => kv.Key.Name, keyValuePair.Key.UnderlyingName);
+				ParameterInfo key = keyValuePair1.Key;
+				if (key == null)
 				{
-					KeyValuePair<JsonProperty, object> current = enumerator.Current;
-					KeyValuePair<ParameterInfo, object> keyValuePair = dictionary.ForgivingCaseSensitiveFind<KeyValuePair<ParameterInfo, object>>((KeyValuePair<ParameterInfo, object> kv) => kv.Key.Name, current.Key.UnderlyingName);
-					ParameterInfo key = keyValuePair.Key;
-					if (key == null)
-					{
-						jsonProperties1.Add(current);
-					}
-					else
-					{
-						dictionary[key] = current.Value;
-					}
+					jsonProperties1.Add(keyValuePair);
 				}
-			}
-			finally
-			{
-				if (enumerator == null)
+				else
 				{
+					dictionary[key] = keyValuePair.Value;
 				}
-				enumerator.Dispose();
 			}
 			object obj = constructorInfo.Invoke(dictionary.Values.ToArray<object>());
 			if (id != null)
@@ -383,90 +373,80 @@ namespace Newtonsoft.Json.Serialization
 				base.Serializer.ReferenceResolver.AddReference(this, id, obj);
 			}
 			contract.InvokeOnDeserializing(obj, base.Serializer.Context);
-			IEnumerator<KeyValuePair<JsonProperty, object>> enumerator1 = jsonProperties1.GetEnumerator();
-			try
+			foreach (KeyValuePair<JsonProperty, object> jsonProperty in jsonProperties1)
 			{
-				while (enumerator1.MoveNext())
+				JsonProperty key1 = jsonProperty.Key;
+				object value = jsonProperty.Value;
+				if (!this.ShouldSetPropertyValue(jsonProperty.Key, jsonProperty.Value))
 				{
-					KeyValuePair<JsonProperty, object> current1 = enumerator1.Current;
-					JsonProperty jsonProperty = current1.Key;
-					object value = current1.Value;
-					if (!this.ShouldSetPropertyValue(current1.Key, current1.Value))
+					if (key1.Writable || value == null)
 					{
-						if (jsonProperty.Writable || value == null)
+						continue;
+					}
+					JsonContract jsonContract = base.Serializer.ContractResolver.ResolveContract(key1.PropertyType);
+					if (!(jsonContract is JsonArrayContract))
+					{
+						if (!(jsonContract is JsonDictionaryContract))
 						{
 							continue;
 						}
-						JsonContract jsonContract = base.Serializer.ContractResolver.ResolveContract(jsonProperty.PropertyType);
-						if (!(jsonContract is JsonArrayContract))
+						JsonDictionaryContract jsonDictionaryContract = jsonContract as JsonDictionaryContract;
+						object value1 = key1.ValueProvider.GetValue(obj);
+						if (value1 == null)
 						{
-							if (!(jsonContract is JsonDictionaryContract))
+							continue;
+						}
+						IWrappedDictionary wrappedDictionaries = jsonDictionaryContract.CreateWrapper(value1);
+						IDictionaryEnumerator enumerator = jsonDictionaryContract.CreateWrapper(value).GetEnumerator();
+						try
+						{
+							while (enumerator.MoveNext())
 							{
-								continue;
-							}
-							JsonDictionaryContract jsonDictionaryContract = jsonContract as JsonDictionaryContract;
-							object value1 = jsonProperty.ValueProvider.GetValue(obj);
-							if (value1 == null)
-							{
-								continue;
-							}
-							IWrappedDictionary wrappedDictionaries = jsonDictionaryContract.CreateWrapper(value1);
-							IEnumerator enumerator2 = jsonDictionaryContract.CreateWrapper(value).GetEnumerator();
-							try
-							{
-								while (enumerator2.MoveNext())
-								{
-									DictionaryEntry dictionaryEntry = (DictionaryEntry)enumerator2.Current;
-									wrappedDictionaries.Add(dictionaryEntry.Key, dictionaryEntry.Value);
-								}
-							}
-							finally
-							{
-								IDisposable disposable = enumerator2 as IDisposable;
-								if (disposable == null)
-								{
-								}
-								disposable.Dispose();
+								DictionaryEntry current = (DictionaryEntry)enumerator.Current;
+								wrappedDictionaries.Add(current.Key, current.Value);
 							}
 						}
-						else
+						finally
 						{
-							JsonArrayContract jsonArrayContract = jsonContract as JsonArrayContract;
-							object obj1 = jsonProperty.ValueProvider.GetValue(obj);
-							if (obj1 != null)
+							IDisposable disposable = enumerator as IDisposable;
+							IDisposable disposable1 = disposable;
+							if (disposable != null)
 							{
-								IWrappedCollection wrappedCollections = jsonArrayContract.CreateWrapper(obj1);
-								IEnumerator enumerator3 = jsonArrayContract.CreateWrapper(value).GetEnumerator();
-								try
-								{
-									while (enumerator3.MoveNext())
-									{
-										wrappedCollections.Add(enumerator3.Current);
-									}
-								}
-								finally
-								{
-									IDisposable disposable1 = enumerator3 as IDisposable;
-									if (disposable1 == null)
-									{
-									}
-									disposable1.Dispose();
-								}
+								disposable1.Dispose();
 							}
 						}
 					}
 					else
 					{
-						jsonProperty.ValueProvider.SetValue(obj, value);
+						JsonArrayContract jsonArrayContract = jsonContract as JsonArrayContract;
+						object obj1 = key1.ValueProvider.GetValue(obj);
+						if (obj1 != null)
+						{
+							IWrappedCollection wrappedCollections = jsonArrayContract.CreateWrapper(obj1);
+							IEnumerator enumerator1 = jsonArrayContract.CreateWrapper(value).GetEnumerator();
+							try
+							{
+								while (enumerator1.MoveNext())
+								{
+									wrappedCollections.Add(enumerator1.Current);
+								}
+							}
+							finally
+							{
+								IDisposable disposable2 = enumerator1 as IDisposable;
+								IDisposable disposable3 = disposable2;
+								if (disposable2 != null)
+								{
+									disposable3.Dispose();
+								}
+							}
+						}
 					}
 				}
-			}
-			finally
-			{
-				if (enumerator1 == null)
+				else
 				{
+					key1.ValueProvider.SetValue(obj, value);
 				}
-				enumerator1.Dispose();
 			}
 			contract.InvokeOnDeserialized(obj, base.Serializer.Context);
 			return obj;
@@ -852,13 +832,13 @@ namespace Newtonsoft.Json.Serialization
 			while (this.ReadForTypeArrayHack(reader, contract.CollectionItemType))
 			{
 				JsonToken tokenType = reader.TokenType;
+				if (tokenType == JsonToken.EndArray)
+				{
+					contract.InvokeOnDeserialized(underlyingCollection, base.Serializer.Context);
+					return wrappedList.UnderlyingCollection;
+				}
 				if (tokenType != JsonToken.Comment)
 				{
-					if (tokenType == JsonToken.EndArray)
-					{
-						contract.InvokeOnDeserialized(underlyingCollection, base.Serializer.Context);
-						return wrappedList.UnderlyingCollection;
-					}
 					try
 					{
 						object obj = this.CreateValueNonProperty(reader, contract.CollectionItemType, this.GetContractSafe(contract.CollectionItemType));
@@ -882,7 +862,6 @@ namespace Newtonsoft.Json.Serialization
 
 		private object PopulateMultidimensionalArray(IList list, JsonReader reader, string reference, JsonArrayContract contract)
 		{
-			JsonToken tokenType;
 			int arrayRank = contract.UnderlyingType.GetArrayRank();
 			if (reference != null)
 			{
@@ -904,31 +883,28 @@ namespace Newtonsoft.Json.Serialization
 					}
 					else
 					{
-						tokenType = reader.TokenType;
-						if (tokenType != JsonToken.Comment)
+						JsonToken tokenType = reader.TokenType;
+						if (tokenType == JsonToken.EndArray)
 						{
-							if (tokenType == JsonToken.EndArray)
+							lists.Pop();
+							lists1 = lists.Peek();
+						}
+						else if (tokenType != JsonToken.Comment)
+						{
+							try
 							{
-								lists.Pop();
-								lists1 = lists.Peek();
+								object obj = this.CreateValueNonProperty(reader, contract.CollectionItemType, this.GetContractSafe(contract.CollectionItemType));
+								lists1.Add(obj);
 							}
-							else
+							catch (Exception exception)
 							{
-								try
+								if (!base.IsErrorHandled(list, contract, lists1.Count, exception))
 								{
-									object obj = this.CreateValueNonProperty(reader, contract.CollectionItemType, this.GetContractSafe(contract.CollectionItemType));
-									lists1.Add(obj);
+									throw;
 								}
-								catch (Exception exception)
+								else
 								{
-									if (!base.IsErrorHandled(list, contract, lists1.Count, exception))
-									{
-										throw;
-									}
-									else
-									{
-										this.HandleError(reader, depth);
-									}
+									this.HandleError(reader, depth);
 								}
 							}
 						}
@@ -940,8 +916,8 @@ namespace Newtonsoft.Json.Serialization
 				}
 				else
 				{
-					tokenType = reader.TokenType;
-					switch (tokenType)
+					JsonToken jsonToken = reader.TokenType;
+					switch (jsonToken)
 					{
 						case JsonToken.StartArray:
 						{
@@ -957,7 +933,7 @@ namespace Newtonsoft.Json.Serialization
 						}
 						default:
 						{
-							if (tokenType != JsonToken.EndArray)
+							if (jsonToken != JsonToken.EndArray)
 							{
 								throw new JsonSerializationException(string.Concat("Unexpected token when deserializing multidimensional array: ", reader.TokenType));
 							}

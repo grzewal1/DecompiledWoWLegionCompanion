@@ -239,19 +239,19 @@ public class UiAnimation : MonoBehaviour
 				}
 				finally
 				{
-					((IDisposable)(object)enumerator1).Dispose();
+					((IDisposable)enumerator1).Dispose();
 				}
 			}
 			return false;
 		}
 		finally
 		{
-			((IDisposable)(object)enumerator).Dispose();
+			((IDisposable)enumerator).Dispose();
 		}
 		return flag;
 	}
 
-	public void Play(float fadeTime = 0)
+	public void Play(float fadeTime = 0f)
 	{
 		switch (this.m_state)
 		{
@@ -292,7 +292,7 @@ public class UiAnimation : MonoBehaviour
 	{
 	}
 
-	public void Stop(float fadeTime = 0)
+	public void Stop(float fadeTime = 0f)
 	{
 		if (fadeTime <= Mathf.Epsilon)
 		{

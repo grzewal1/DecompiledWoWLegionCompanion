@@ -202,70 +202,66 @@ namespace bnet.protocol.friends
 				if (limit < (long)0 || stream.Position < limit)
 				{
 					int num = stream.ReadByte();
-					if (num != -1)
-					{
-						int num1 = num;
-						if (num1 == 10)
-						{
-							if (instance.Id != null)
-							{
-								EntityId.DeserializeLengthDelimited(stream, instance.Id);
-							}
-							else
-							{
-								instance.Id = EntityId.DeserializeLengthDelimited(stream);
-							}
-						}
-						else if (num1 == 18)
-						{
-							instance.Attribute.Add(bnet.protocol.attribute.Attribute.DeserializeLengthDelimited(stream));
-						}
-						else if (num1 == 26)
-						{
-							long position = (long)ProtocolParser.ReadUInt32(stream);
-							position += stream.Position;
-							while (stream.Position < position)
-							{
-								instance.Role.Add(ProtocolParser.ReadUInt32(stream));
-							}
-							if (stream.Position != position)
-							{
-								throw new ProtocolBufferException("Read too many bytes in packed data");
-							}
-						}
-						else if (num1 == 32)
-						{
-							instance.Privileges = ProtocolParser.ReadUInt64(stream);
-						}
-						else if (num1 == 40)
-						{
-							instance.AttributesEpoch = ProtocolParser.ReadUInt64(stream);
-						}
-						else if (num1 == 50)
-						{
-							instance.FullName = ProtocolParser.ReadString(stream);
-						}
-						else if (num1 == 58)
-						{
-							instance.BattleTag = ProtocolParser.ReadString(stream);
-						}
-						else
-						{
-							Key key = ProtocolParser.ReadKey((byte)num, stream);
-							if (key.Field == 0)
-							{
-								throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
-							}
-							ProtocolParser.SkipKey(stream, key);
-						}
-					}
-					else
+					if (num == -1)
 					{
 						if (limit >= (long)0)
 						{
 							throw new EndOfStreamException();
 						}
 						break;
+					}
+					else if (num == 10)
+					{
+						if (instance.Id != null)
+						{
+							EntityId.DeserializeLengthDelimited(stream, instance.Id);
+						}
+						else
+						{
+							instance.Id = EntityId.DeserializeLengthDelimited(stream);
+						}
+					}
+					else if (num == 18)
+					{
+						instance.Attribute.Add(bnet.protocol.attribute.Attribute.DeserializeLengthDelimited(stream));
+					}
+					else if (num == 26)
+					{
+						long position = (long)ProtocolParser.ReadUInt32(stream);
+						position += stream.Position;
+						while (stream.Position < position)
+						{
+							instance.Role.Add(ProtocolParser.ReadUInt32(stream));
+						}
+						if (stream.Position != position)
+						{
+							throw new ProtocolBufferException("Read too many bytes in packed data");
+						}
+					}
+					else if (num == 32)
+					{
+						instance.Privileges = ProtocolParser.ReadUInt64(stream);
+					}
+					else if (num == 40)
+					{
+						instance.AttributesEpoch = ProtocolParser.ReadUInt64(stream);
+					}
+					else if (num == 50)
+					{
+						instance.FullName = ProtocolParser.ReadString(stream);
+					}
+					else if (num == 58)
+					{
+						instance.BattleTag = ProtocolParser.ReadString(stream);
+					}
+					else
+					{
+						Key key = ProtocolParser.ReadKey((byte)num, stream);
+						if (key.Field == 0)
+						{
+							throw new ProtocolBufferException("Invalid field id: 0, something went wrong in the stream");
+						}
+						ProtocolParser.SkipKey(stream, key);
 					}
 				}
 				else

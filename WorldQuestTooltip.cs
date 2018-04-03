@@ -10,8 +10,6 @@ using WowStaticData;
 
 public class WorldQuestTooltip : MonoBehaviour
 {
-	private const int WORLD_QUEST_TIME_LOW_MINUTES = 75;
-
 	[Header("World Quest Icon Layers")]
 	public Image m_dragonFrame;
 
@@ -40,6 +38,8 @@ public class WorldQuestTooltip : MonoBehaviour
 	public Text m_rewardsLabel;
 
 	private int m_questID;
+
+	private const int WORLD_QUEST_TIME_LOW_MINUTES = 75;
 
 	private long m_endTime;
 
@@ -192,10 +192,11 @@ public class WorldQuestTooltip : MonoBehaviour
 				finally
 				{
 					IDisposable disposable = enumerator as IDisposable;
-					if (disposable == null)
+					IDisposable disposable1 = disposable;
+					if (disposable != null)
 					{
+						disposable1.Dispose();
 					}
-					disposable.Dispose();
 				}
 			}
 		}
@@ -204,24 +205,12 @@ public class WorldQuestTooltip : MonoBehaviour
 		this.m_worldQuestTimeText = gameObject2.GetComponent<Text>();
 		this.m_worldQuestTimeText.text = item.QuestTitle;
 		this.m_worldQuestTimeText.color = new Color(1f, 0.773f, 0f, 1f);
-		IEnumerator<MobileWorldQuestObjective> enumerator1 = item.Objective.AsEnumerable<MobileWorldQuestObjective>().GetEnumerator();
-		try
+		foreach (MobileWorldQuestObjective mobileWorldQuestObjective in item.Objective.AsEnumerable<MobileWorldQuestObjective>())
 		{
-			while (enumerator1.MoveNext())
-			{
-				MobileWorldQuestObjective mobileWorldQuestObjective = enumerator1.Current;
-				GameObject gameObject3 = UnityEngine.Object.Instantiate<GameObject>(this.m_worldQuestObjectiveDisplayPrefab);
-				gameObject3.transform.SetParent(this.m_worldQuestObjectiveRoot.transform, false);
-				Text text = gameObject3.GetComponent<Text>();
-				text.text = string.Concat("- ", mobileWorldQuestObjective.Text);
-			}
-		}
-		finally
-		{
-			if (enumerator1 == null)
-			{
-			}
-			enumerator1.Dispose();
+			GameObject gameObject3 = UnityEngine.Object.Instantiate<GameObject>(this.m_worldQuestObjectiveDisplayPrefab);
+			gameObject3.transform.SetParent(this.m_worldQuestObjectiveRoot.transform, false);
+			Text text = gameObject3.GetComponent<Text>();
+			text.text = string.Concat("- ", mobileWorldQuestObjective.Text);
 		}
 		this.InitRewardInfoDisplay(item);
 		this.m_endTime = (long)item.EndTime;

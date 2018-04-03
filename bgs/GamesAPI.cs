@@ -103,7 +103,7 @@ namespace bgs
 		private void AddQueueEvent(QueueEvent.Type queueType, int minSeconds = 0, int maxSeconds = 0, int bnetError = 0, GameServerInfo gsInfo = null)
 		{
 			QueueEvent queueEvent = new QueueEvent(queueType, minSeconds, maxSeconds, bnetError, gsInfo);
-			Queue<QueueEvent> mQueueEvents = this.m_queueEvents;
+			object mQueueEvents = this.m_queueEvents;
 			Monitor.Enter(mQueueEvents);
 			try
 			{
@@ -169,7 +169,7 @@ namespace bgs
 			{
 				clientRequest.AddAttribute(ProtocolHelper.CreateAttribute("v", string.Concat(BattleNet.GetVersion(), (sys != 0 ? "b" : "c"))));
 			}
-			if (route != 0)
+			if (route != (long)0)
 			{
 				clientRequest.AddAttribute(ProtocolHelper.CreateAttribute("r", route));
 			}
@@ -226,7 +226,7 @@ namespace bgs
 
 		public void FindGame(byte[] requestGuid, int gameType, int scenario, long deckId, long aiDeckId, bool setScenarioIdAttr)
 		{
-			if (this.s_gameRequest != 0)
+			if (this.s_gameRequest != (long)0)
 			{
 				LogAdapter.Log(LogLevel.Warning, "WARNING: FindGame called with an active game");
 				this.CancelFindGame(this.s_gameRequest);
@@ -373,7 +373,7 @@ namespace bgs
 		public void GameLeft(ChannelAPI.ChannelReferenceObject channelRefObject, RemoveNotification notification)
 		{
 			base.ApiLog.LogDebug(string.Concat(new object[] { "GameLeft ChannelID: ", channelRefObject.m_channelData.m_channelId, " notification: ", notification }));
-			if (this.s_gameRequest != 0)
+			if (this.s_gameRequest != (long)0)
 			{
 				this.s_gameRequest = (ulong)0;
 			}
@@ -414,7 +414,7 @@ namespace bgs
 		public QueueEvent GetQueueEvent()
 		{
 			QueueEvent queueEvent = null;
-			Queue<QueueEvent> mQueueEvents = this.m_queueEvents;
+			object mQueueEvents = this.m_queueEvents;
 			Monitor.Enter(mQueueEvents);
 			try
 			{
@@ -775,7 +775,7 @@ namespace bgs
 				{
 					battleNetCSharp.EnqueueErrorInfo(BnetFeature.Games, BnetFeatureEvent.Games_OnCancelGame, status, 0);
 				}
-				else if (battleNetCSharp.Games.IsFindGamePending || battleNetCSharp.Games.CurrentGameRequest != 0 && battleNetCSharp.Games.CurrentGameRequest != this.m_gameRequestId)
+				else if (battleNetCSharp.Games.IsFindGamePending || battleNetCSharp.Games.CurrentGameRequest != (long)0 && battleNetCSharp.Games.CurrentGameRequest != this.m_gameRequestId)
 				{
 					battleNetCSharp.Games.ApiLog.LogDebug("CancelGameCallback received for id={0} but is not the current gameRequest={1}, ignoring it.", new object[] { this.m_gameRequestId, battleNetCSharp.Games.CurrentGameRequest });
 				}

@@ -24,7 +24,7 @@ namespace JamLib
 		static MessageFactory()
 		{
 			IEnumerable<Type> types = 
-				from t in (IEnumerable<Type>)Assembly.GetExecutingAssembly().GetTypes()
+				from t in Assembly.GetExecutingAssembly().GetTypes()
 				where (t.Namespace == null || !t.Namespace.StartsWith("WowJamMessages") ? false : t.IsClass)
 				select t;
 			MessageFactory.s_messageDictionary = types.ToDictionary<Type, string>((Type t) => t.Name);
