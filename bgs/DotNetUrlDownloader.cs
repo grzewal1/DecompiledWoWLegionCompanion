@@ -61,7 +61,7 @@ namespace bgs
 		{
 			// 
 			// Current member / type: System.Void bgs.DotNetUrlDownloader::FinishDownload(bgs.DotNetUrlDownloader/DownloadState)
-			// File path: C:\Users\Selenium\Downloads\WoW_2.0.3 - Copie\assets\bin\Data\Managed\Assembly-CSharp.dll
+			// File path: C:\Users\Selenium\Downloads\WoW_2.0.4 - Copie\assets\bin\Data\Managed\Assembly-CSharp.dll
 			// 
 			// Product version: 2018.2.605.0
 			// Exception in: System.Void FinishDownload(bgs.DotNetUrlDownloader/DownloadState)

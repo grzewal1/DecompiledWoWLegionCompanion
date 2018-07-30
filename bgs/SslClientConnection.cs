@@ -268,7 +268,7 @@ namespace bgs
 		{
 			// 
 			// Current member / type: System.Void bgs.SslClientConnection::SendBytes(System.Byte[])
-			// File path: C:\Users\Selenium\Downloads\WoW_2.0.3 - Copie\assets\bin\Data\Managed\Assembly-CSharp.dll
+			// File path: C:\Users\Selenium\Downloads\WoW_2.0.4 - Copie\assets\bin\Data\Managed\Assembly-CSharp.dll
 			// 
 			// Product version: 2018.2.605.0
 			// Exception in: System.Void SendBytes(System.Byte[])

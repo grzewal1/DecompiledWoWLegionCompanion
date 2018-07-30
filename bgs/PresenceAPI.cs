@@ -84,7 +84,7 @@ namespace bgs
 		{
 			// 
 			// Current member / type: System.Void bgs.PresenceAPI::DownloadCompletedCallback(System.Byte[],System.Object)
-			// File path: C:\Users\Selenium\Downloads\WoW_2.0.3 - Copie\assets\bin\Data\Managed\Assembly-CSharp.dll
+			// File path: C:\Users\Selenium\Downloads\WoW_2.0.4 - Copie\assets\bin\Data\Managed\Assembly-CSharp.dll
 			// 
 			// Product version: 2018.2.605.0
 			// Exception in: System.Void DownloadCompletedCallback(System.Byte[],System.Object)

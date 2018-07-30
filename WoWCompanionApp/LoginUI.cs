@@ -186,6 +186,7 @@ namespace WoWCompanionApp
 
 		public void ReturnToTitleScene()
 		{
+			Singleton<Login>.Instance.ReturnToCharacterList = true;
 			Singleton<Login>.Instance.ReturnToTitleScene();
 		}
 

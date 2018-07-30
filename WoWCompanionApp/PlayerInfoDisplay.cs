@@ -41,7 +41,7 @@ namespace WoWCompanionApp
 			{
 				this.m_characterClassName.text = string.Concat(new string[] { GarrisonStatus.CharacterClassName(), " ", StaticDB.GetString("LEVEL", null), " ", playerLevel.ToString() });
 			}
-			this.m_characterListButton.text = StaticDB.GetString("LOG_OUT", null);
+			this.m_characterListButton.text = StaticDB.GetString("CHARACTER_LIST", null);
 			Sprite sprite = GeneralHelpers.LoadClassIcon(GarrisonStatus.CharacterClassID());
 			if (sprite != null)
 			{

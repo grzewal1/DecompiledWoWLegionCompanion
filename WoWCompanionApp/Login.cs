@@ -106,6 +106,8 @@ namespace WoWCompanionApp
 
 		private float m_bnLoginStartTime;
 
+		private bool m_retryWebAuthOnce;
+
 		private int m_battlenetFailures;
 
 		private bool m_initialUnpause = true;
@@ -128,6 +130,12 @@ namespace WoWCompanionApp
 				}
 				return this.m_loginUI;
 			}
+		}
+
+		public bool ReturnToCharacterList
+		{
+			get;
+			set;
 		}
 
 		public bool ReturnToRecentCharacter
@@ -422,8 +430,16 @@ namespace WoWCompanionApp
 			this.BnErrorsUpdate();
 			if (BattleNet.CheckWebAuth(out this.m_webAuthUrl))
 			{
-				this.LoginLog("CheckWebAuth was true in BnLoginUpdate, starting WebAuth.");
-				this.SetLoginState(Login.eLoginState.WEB_AUTH_START);
+				if (this.m_retryWebAuthOnce)
+				{
+					this.LoginLog("Retrying cached web token!");
+					this.m_retryWebAuthOnce = false;
+				}
+				else
+				{
+					this.LoginLog("CheckWebAuth was true in BnLoginUpdate, starting WebAuth.");
+					this.SetLoginState(Login.eLoginState.WEB_AUTH_START);
+				}
 				return;
 			}
 			switch (BattleNet.BattleNetStatus())
@@ -1414,13 +1430,19 @@ namespace WoWCompanionApp
 			{
 				this.InitiateMobileDisconnect();
 			}
-			if (!goToWebAuth)
+			if (goToWebAuth)
+			{
+				this.StartNewLogin();
+			}
+			else if (!this.ReturnToCharacterList)
 			{
 				this.BackToAccountSelect();
 			}
 			else
 			{
-				this.StartNewLogin();
+				this.m_retryWebAuthOnce = true;
+				this.StartCachedLogin(true, false);
+				this.ReturnToCharacterList = false;
 			}
 		}
 
