@@ -1,0 +1,169 @@
+2	Blood Death Knight	Blood Death Knight		3487	6	0	0	X 
+3	Frost Death Knight	Frost Death Knight		3487	7	0	0	X 
+4	Unholy Death Knight	Unholy Death Knight		3487	8	0	0	X 
+5	Balance Druid	Balance Druid		3485	9	0	0	X 
+7	Feral Druid	Feral Druid		3485	10	0	0	X 
+8	Guardian Druid	Guardian Druid		3485	11	0	0	X 
+9	Restoration Druid	Restoration Druid		3485	12	0	0	X 
+10	Beast Master Hunter	Beast Master Hunter		3477	13	0	0	X 
+12	Marksmanship Hunter	Marksmanship Hunter		3477	14	0	0	X 
+13	Survival Hunter	Survival Hunter		3477	15	0	0	X 
+14	Arcane Mage	Arcane Mage		3482	16	0	0	X 
+15	Fire Mage	Fire Mage		3482	17	0	0	X 
+16	Frost Mage	Frost Mage		3482	18	0	0	X 
+17	Brewmaster Monk	Brewmaster Monk		3480	19	0	0	X 
+18	Mistweaver Monk	Mistweaver Monk		3480	20	0	0	X 
+19	Windwalker Monk	Windwalker Monk		3480	21	0	0	X 
+20	Holy Paladin	Holy Paladin		3486	22	0	0	X 
+21	Protection Paladin	Protection Paladin		3486	23	0	0	X 
+22	Retribution Paladin	Retribution Paladin		3486	24	0	0	X 
+23	Discipline Priest	Discipline Priest		3479	25	0	0	X 
+24	Holy Priest	Holy Priest		3479	26	0	0	X 
+25	Shadow Priest	Shadow Priest		3479	27	0	0	X 
+26	Assassination Rogue	Assassination Rogue		3481	28	0	0	X 
+27	Combat Rogue	Combat Rogue		3481	29	0	0	X 
+28	Subtlety Rogue	Subtlety Rogue		3481	30	0	0	X 
+29	Elemental Shaman	Elemental Shaman		3484	31	0	0	X 
+30	Enhancement Shaman	Enhancement Shaman		3484	32	0	0	X 
+31	Restoration Shaman	Restoration Shaman		3484	33	0	0	X 
+32	Affliction Warlock	Affliction Warlock		3483	34	0	0	X 
+33	Demonology Warlock	Demonology Warlock		3483	35	0	0	X 
+34	Destruction Warlock	Destruction Warlock		3483	36	0	0	X 
+35	Arms Warrior	Arms Warrior		3478	37	0	0	X 
+37	Fury Warrior	Fury Warrior		3478	38	0	0	X 
+38	Protection Warrior	Protection Warrior		3478	39	0	0	X 
+53	Transport	Transport		4597	0	0	0	X 
+54	Destroyer	Destroyer		4620	0	0	0	X 
+55	Carrier	Carrier		4838	0	0	0	X 
+56	Battleship	Battleship		4601	0	0	0	X 
+57	Submarine	Submarine		4609	0	0	0	X 
+58	Transport	Transport		4597	0	0	0	X 
+59	Destroyer	Destroyer		4568	0	0	0	X 
+60	Carrier	Carrier		4842	0	0	0	X 
+61	Battleship	Battleship		4601	0	0	0	X 
+62	Submarine	Submarine		4605	0	0	0	X 
+63	Havoc Demon Hunter	Havoc Demon Hunter		5939	0	0	0	X 
+64	Vengeance Demon Hunter	Vengeance Demon Hunter		5940	0	0	0	X 
+65	Student of The Crane	Student of The Crane		3480	0	3	4	X 
+66	Student of The Tiger	Student of The Tiger		3480	0	3	2	X 
+67	Student of The Ox	Student of The Ox		3480	0	3	3	X 
+68	Brewmaster Monk	Brewmaster Monk		5951	0	0	0	X 
+69	Mistweaver Monk	Mistweaver Monk		5952	0	0	0	X 
+70	Windwalker Monk	Windwalker Monk		5953	0	0	0	X 
+72	Arcanists	Arcanists		3482	0	3	2	X 
+73	Elementals	Elementals		3482	0	3	3	X 
+74	Mage C Troop	Mage C Troop		3482	0	3	4	X 
+75	Risen Horde	Risen Horde		3487	0	3	3	X 
+76	Soldiers of the Ebon Blade	Soldiers of the Ebon Blade		3487	0	3	2	X 
+77	Abomination	Abomination		3487	0	3	1	X 
+79	The Broken	The Broken		5940	0	3	3	X 
+80	Illidari Warriors	Illidari Warriors		5940	0	3	2	X 
+81	Forest Friends	Forest Friends		3485	0	3	3	X 
+82	Grove Wardens	Grove Wardens		3485	0	3	2	X 
+84	Hunter C Troop	Hunter C Troop		3477	0	3	4	X 
+85	Woodsmen	Woodsmen		3477	0	3	2	X 
+86	Bowmen	Bowmen		3477	0	3	3	X 
+87	Silver Hand Recruits	Silver Hand Recruits		3486	0	3	3	X 
+88	Silver Hand Officers	Silver Hand Officers		3486	0	3	2	X 
+89	Paladin C Troop	Paladin C Troop		3486	0	3	4	X 
+90	Priest C Troop	Priest C Troop		3479	0	3	4	X 
+91	Acolytes	Acolytes		3479	0	3	3	X 
+92	Zealots	Zealots		3479	0	3	2	X 
+93	Brigands	Brigands		3481	0	3	3	X 
+94	Buccaneers	Buccaneers		3481	0	3	2	X 
+95	Rogue C Troop	Rogue C Troop		3481	0	3	4	X 
+96	Ancient of War	Ancient of War		3485	0	3	1	X 
+97	Elementals	Elementals		3484	0	3	3	X 
+98	Earthcallers	Earthcallers		3484	0	3	2	X 
+99	Valarjar	Valarjar		3478	0	3	3	X 
+100	Shieldmaidens	Shieldmaidens		3478	0	3	2	X 
+101	Warrior C Troop	Warrior C Troop		3478	0	3	4	X 
+102	Demonic Horde	Demonic Horde		3483	0	3	3	X 
+103	Black Harvest Servants	Black Harvest Servants		3483	0	3	2	X 
+104	Felguard	Felguard		3483	0	3	1	X 
+105	Celestial	Celestial		3480	0	3	1	X 
+108	Blood Death Knight	Blood Death Knight		5936	6	0	0	X 
+109	Frost Death Knight	Frost Death Knight		5937	7	0	0	X 
+110	Unholy Death Knight	Unholy Death Knight		5938	8	0	0	X 
+111	Balance Druid	Balance Druid		5941	0	0	0	X 
+112	Feral Druid	Feral Druid		5942	0	0	0	X 
+113	Guardian Druid	Guardian Druid		5943	0	0	0	X 
+114	Restoration Druid	Restoration Druid		5944	0	0	0	X 
+115	Beast Mastery Hunter	Beast Mastery Hunter		5945	0	0	0	X 
+116	Marksmanship Hunter	Marksmanship Hunter		5946	0	0	0	X 
+117	Survival Hunter	Survival Hunter		5947	0	0	0	X 
+118	Arcane Mage	Arcane Mage		5948	0	0	0	X 
+119	Fire Mage	Fire Mage		5949	0	0	0	X 
+120	Frost Mage	Frost Mage		5950	0	0	0	X 
+121	Holy Paladin	Holy Paladin		5954	0	0	0	X 
+122	Protection Paladin	Protection Paladin		5955	0	0	0	X 
+123	Retribution Paladin	Retribution Paladin		5956	0	0	0	X 
+124	Discipline Priest	Discipline Priest		5957	0	0	0	X 
+125	Holy Priest	Holy Priest		5958	0	0	0	X 
+126	Shadow Priest	Shadow Priest		5959	0	0	0	X 
+127	Assassination Rogue	Assassination Rogue		5960	0	0	0	X 
+128	Outlaw Rogue	Outlaw Rogue		5961	0	0	0	X 
+129	Subtlety Rogue	Subtlety Rogue		5962	0	0	0	X 
+130	Elemental Shaman	Elemental Shaman		5963	0	0	0	X 
+131	Enhancement Shaman	Enhancement Shaman		5964	0	0	0	X 
+132	Restoration Shaman	Restoration Shaman		5965	0	0	0	X 
+133	Affliction Warlock	Affliction Warlock		5966	0	0	0	X 
+134	Demonology Warlock	Demonology Warlock		5967	0	0	0	X 
+135	Destruction Warlock	Destruction Warlock		5968	0	0	0	X 
+136	Arms Warrior	Arms Warrior		5969	0	0	0	X 
+137	Fury Warrior	Fury Warrior		5970	0	0	0	X 
+138	Protection Warrior	Protection Warrior		5971	0	0	0	X 
+139	Ascendants	Ascendants		3484	0	3	1	X 
+140	Outcast	Outcast		6163	0	0	0	X 
+141	Tower Steward	Tower Steward		6219	0	0	0	X 
+142	Dinner Guest	Dinner Guest		6219	0	1	1	X 
+143	Brawler	Brawler		6219	0	0	0	X 
+144	Coilskar Brute	Coilskar Brute		5940	0	3	1	X 
+145	Grimtotem Warriors	Grimtotem Warriors		3484	0	3	1	X 
+146	avagner - test			6159	0	1	0	X 
+147	Kirin Tor Guardians	Elementals		3482	0	3	2	X 
+148	Ebon Knight Frostreavers	Elementals		3487	0	3	2	X 
+149	Shock Force	Elementals		3478	0	3	2	X 
+150	Dreamgrove Wardens	Elementals		3485	0	3	2	X 
+151	Shivarra	Elementals		5940	0	3	2	X 
+152	Earthen Ring Protectors	Elementals		3484	0	3	2	X 
+153	Masters of Serenity	Elementals		3480	0	3	2	X 
+154	Felguard Brutes	Elementals		3483	0	3	2	X 
+155	Hooded Priests	Elementals		3479	0	3	2	X 
+156	Silver Hand Crusaders	Elementals		3486	0	3	2	X 
+157	Ravenholdt Assassins	Elementals		3481	0	3	2	X 
+158	Nightborne Hunters			3477	0	1	2	X 
+160	Krokul Ridgestalker			6817	0	3	2	X 
+161	Void-Purged Krokul			6816	0	3	2	X 
+162	Lightforged Bulwark			6818	0	3	2	X 
+164	Technician			3581	0	0	0	X 
+165	Rifleman			5946	278	3	1	X 
+166	Operative			3481	0	0	0	X 
+167	Scout			3481	0	0	0	X 
+168	Sentinel			5947	277	3	1	X 
+169	Operative			5962	279	3	1	X 
+170	Infiltrator			3481	280	0	0	X 
+171	Technician			3581	282	3	1	X 
+172	Combat Specialist			5947	281	0	0	X 
+173	Peacekeeper			5956	283	3	1	X 
+174	Stalker			5960	0	3	1	X 
+175	Elemental Shaman	Elemental Shaman		5963	0	1	0	X 
+176	Specialist			5960	290	1	1	X 
+177	Shaman			5963	291	3	1	X 
+178	Dreadguard			3487	0	1	0	X 
+179	Sorceress			5949	0	3	1	X 
+180	Sapper			3581	0	3	1	X 
+181	Monk			5953	0	3	1	X 
+182	Arcanist			5948	0	0	0	X 
+183	Engineer			8390	0	0	0	X 
+184	Subtlety Rogue	Subtlety Rogue		5962	0	0	0	X 
+185	Survival Hunter	Survival Hunter		5947	0	0	0	X 
+186	Shadow Hunter			5946	0	0	0	X 
+187	High Thane of Aerie Peak			5964	0	0	0	X 
+188	Lone Wolf			5947	281	0	0	X 
+189	Magister			5959	0	0	0	X 
+190	Covert Ops Technician			8390	0	0	0	X 
+191	Pilot			3581	0	3	0	X 
+192	General of the Sentinel Army			5946	0	0	0	X 
+193	Alliance Division			7709	0	7	4	X 
+194	Horde Division			7710	0	7	4	X 

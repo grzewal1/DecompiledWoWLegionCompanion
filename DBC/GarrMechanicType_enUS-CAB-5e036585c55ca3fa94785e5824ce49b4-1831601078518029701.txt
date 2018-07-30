@@ -1,0 +1,73 @@
+1	2	Wild Aggression	An unpredictable enemy whose aggression should be controlled.	136080	X 
+2	2	Massive Strike	An ability that deals massive damage.	132355	X 
+3	2	Group Damage	An ability that deals damage to multiple party members.	135826	X 
+4	2	Magic Debuff	A dangerous harmful effect that should be dispelled.	136207	X 
+6	2	Danger Zones	An ability that affects a target area and must be avoided or escaped.	451165	X 
+7	2	Minion Swarms	An enemy with many allies.  Susceptible to area-of-effect damage.	237511	X 
+8	2	Powerful Spell	A dangerous spell that should be interrupted.	136197	X 
+9	2	Deadly Minions	An enemy with powerful allies that should be neutralized.	1035504	X 
+10	2	Timed Battle	An enemy that must be dealt with quickly.	237538	X 
+11	1	Orc	Lok'tar ogar!	897144	X 
+12	1	Ogre	What you looking at.	236695	X 
+13	1	Undead	Brainnnnssss...	236458	X 
+14	1	Arakkoa	An ancient and dangerous species.	236435	X 
+15	1	Beast	Rawrrrrr.	298659	X 
+16	1	Demon	The end is nigh.	254651	X 
+17	1	Breaker	Colossal and destructive giants of Draenor.	236412	X 
+18	1	Fury	The elemental entities of Draenor.	254652	X 
+19	1	Aberration	Creatures of the Void.	298680	X 
+20	1	Primal	Ancient creatures of primeval Draenor.	254105	X 
+21	0	Mountains	A mountainous region.	236848	X 
+22	0	Desert	A harsh and dry landscape.	236846	X 
+23	0	Snow	An arctic region.	236833	X 
+24	0	Underground	The dark below.	409595	X 
+25	0	Jungle	An area with heavy plant and tree cover.	236850	X 
+26	0	Forest	Wooded lands.	236830	X 
+27	0	Town	A smaller urban area.	462338	X 
+28	0	Swamp	A lousy place you'd rather not be.	236819	X 
+29	0	Plains	The open and rolling green hills and flatlands.	236712	X 
+58	0	Hearthstone Table	Pull up a chair by the hearth!	136247	X 
+60	0	Alchemy	This mission involves the Alchemy profession.	136240	X 
+61	0	Blacksmithing	This mission involves the Blacksmithing profession.	136241	X 
+62	0	Enchanting	This mission involves the Enchanting profession.	136244	X 
+63	0	Engineering	This mission involves the Engineering profession.	136243	X 
+64	0	Jewelcrafting	This mission involves the Jewelcrafting profession.	134071	X 
+65	0	Leatherworking	This mission involves the Leatherworking profession.	133611	X 
+66	0	Tailoring	This mission involves the Tailoring profession.	136249	X 
+67	0	Inscription	This mission involves the Inscription profession.	237171	X 
+73	2	Submarine	Submarines move silently under water, sneaking up on unsuspecting ships.    |cffb2f0ffCountered by: |r  |TInterface\ICONS\Ships_ABILITY_DepthCharges.blp:24:24:0:0|t |cffffffff Destroyer|r	1141396	X 
+74	2	Carrier	Carriers are outfitted with a squadron of ace bomber pilots.    |cffb2f0ffCountered by: |r  |TInterface\ICONS\Ships_ABILITY_Stealth.blp:24:24:0:0|t |cffffffff Submarine|r	1141394	X 
+75	2	Destroyer	Destroyers are quick, heavily armored ships known for hunting Submarines.    |cffb2f0ffCountered by: |r  |TInterface\ICONS\Ships_ABILITY_ArmorPiercingAmmo.blp:24:24:0:0|t |cffffffff Battleship|r	1141395	X 
+76	2	Battleship	Feared for its devastating long-range artillery cannons, Battleships are unmatched in the open sea.    |cffb2f0ffCountered by: |r  |TInterface\ICONS\Ships_ABILITY_Bombers.blp:24:24:0:0|t |cffffffff Carrier|r	1141390	X 
+77	2	Icy Water	Massive frozen ice chunks float on the surface of the water.  Navigating through the maze of ice leaves your ships vulnerable to attack.	236794	X 
+78	2	Stormy Weather	Powerful wind gusts, violent lightning strikes, and rogue waves are just three concerns when sailing through Stormy Weather.	463562	X 
+79	2	Dense Fog	A Dense Fog coats this location in absolute darkness.	132331	X 
+80	2	Chaotic Whirlpools	Chaotic Whirlpools appear without reason or warning, causing havoc on any vessel trying to pass through.	892446	X 
+81	2	Swift	Accelerates through water with reckless power, half of the battle is just keeping up. The other half is physical.	132120	X 
+82	2	Evasive	Capable of making abrupt turns without warning, this is a difficult target to hit.	136205	X 
+83	2	Minelayer	As a minelayer, this ship dispenses proximity mines behind it, leaving a treacherous trail to follow.	133710	X 
+84	2	First Strike	A quick opening attack that can end a battle before it begins.	132212	X 
+85	2	Expert Captain	A ship run by a veteran captain, well versed in nuanced naval combat.  Expert Captains cannot be countered directly, but must be accounted for to succeed.	133168	X 
+86	2	Ground Objective		132296	X 
+87	2	Land Objective	An objective that requires moving goods or troops to locations on land.    |cffb2f0ffCountered by: |r  |TInterface\ICONS\Ships_ABILITY_BoardingPartyALLIANCE.blp:24:24:0:0|t |cffffffff Transport|r	132296	X 
+88	2	Cursed Crew	Crewed by cursed sailors.	135974	X 
+89	0	Cliffs	An unforgiving, precarious land.	409549	X 
+109	2	Boss	|CFFFFFFF0Boss|R  Reduces mission success chance if not countered.	1357797	X 
+110	2	Hazard	|CFFFFFFF0Hazard|R  Mission duration is increased if not countered.	1357798	X 
+111	2	Whirlwind		132369	X 
+112	2	Warrior		132347	X 
+113	2	Boss	|CFFFFFFF0Boss|R  Reduces mission success chance if not countered.	1357797	X 
+114	2	Boss	|CFFFFFFF0Boss|R  Reduces mission success chance if not countered.	1357797	X 
+115	2	Minions	|CFFFFFFF0Army|R  This army has powerful armor.  Mission duration increased if not countered.	1357814	X 
+121	2	Spell	|CFFFFFFF0Spell|R  A high damaging spell which causes increased damage to troops if not countered.	1357804	X 
+122	2	Ambush	Chance of mission success reduced.  Cannot be countered.	1357812	X 
+124	2	Boss	|CFFFFFFF0Boss|R  Reduces mission success chance if not countered.	1357797	X 
+125	2	Boss	|CFFFFFFF0Boss|R  Reduces mission success chance if not countered.	1357797	X 
+126	2	Brutal	Success chance reduced by ${$a910}%.	311232	X 
+127	2	Easy	Success chance reduced by ${$a909}%.	311236	X 
+128	2	Hard	Success chance reduced by ${$a907}%.	311237	X 
+129	2	Very Hard	Success chance reduced by ${$a908}%.	311238	X 
+130	2	Elite	Chance of mission success reduced.  Cannot be countered.	1357812	X 
+131	2	Dungeon	Chance of mission success reduced.  Cannot be countered.	1357812	X 
+132	2	Raid	Chance of mission success reduced.  Cannot be countered.	1357812	X 
+135	2	Argus Elite	|CFFFFFFF0Argus Elite|R  Reduces mission success chance if not countered.	1113433	X 

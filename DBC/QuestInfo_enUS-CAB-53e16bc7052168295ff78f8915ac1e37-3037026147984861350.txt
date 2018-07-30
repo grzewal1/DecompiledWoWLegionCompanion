@@ -1,0 +1,56 @@
+1	Group	0	0	0	X 
+21	Class	0	0	0	X 
+41	PvP	0	0	0	X 
+62	Raid	0	0	0	X 
+81	Dungeon	0	0	0	X 
+82	World Event	0	0	0	X 
+83	Legendary	0	0	0	X 
+84	Escort	0	0	0	X 
+85	Heroic	0	0	0	X 
+88	Raid (10)	0	0	0	X 
+89	Raid (25)	0	0	0	X 
+98	Scenario	0	0	0	X 
+102	Account	0	0	0	X 
+104	Side Quest	0	0	0	X 
+107	Artifact	0	0	0	X 
+109	World Quest	2	0	0	X 
+110	Epic World Quest	2	12	0	X 
+111	Elite World Quest	2	2	0	X 
+112	Epic Elite World Quest	2	14	0	X 
+113	PvP World Quest	3	0	0	X 
+114	First Aid World Quest	1	0	129	X 
+115	Battle Pet World Quest	4	0	0	X 
+116	Blacksmithing World Quest	1	0	164	X 
+117	Leatherworking World Quest	1	0	165	X 
+118	Alchemy World Quest	1	0	171	X 
+119	Herbalism World Quest	1	0	182	X 
+120	Mining World Quest	1	0	186	X 
+121	Tailoring World Quest	1	0	197	X 
+122	Engineering World Quest	1	0	202	X 
+123	Enchanting World Quest	1	0	333	X 
+124	Skinning World Quest	1	0	393	X 
+125	Jewelcrafting World Quest	1	0	755	X 
+126	Inscription World Quest	1	0	773	X 
+128	Emissary Quest	5	16	0	X 
+129	Archaeology World Quest	1	0	794	X 
+130	Fishing World Quest	1	0	356	X 
+131	Cooking World Quest	1	0	185	X 
+135	Rare World Quest	2	1	0	X 
+136	Rare Elite World Quest	2	11	0	X 
+137	Dungeon World Quest	6	11	0	X 
+139	Legion Invasion World Quest	7	40	0	X 
+140	Rated Reward	3	16	0	X 
+141	Raid World Quest	8	10	0	X 
+142	Legion Invasion Elite World Quest	7	10	0	X 
+143	Legionfall Contribution	9	16	0	X 
+144	Legionfall World Quest	2	78	0	X 
+145	Legionfall Dungeon World Quest	6	75	0	X 
+146	Legion Invasion World Quest Wrapper	11	0	0	X 
+147	Warfront - Barrens	0	0	0	X 
+148	Pickpocketing	0	0	0	X 
+151	Magni World Quest - Azerite	2	0	0	X 
+152	Tortollan World Quest - 8.0	2	0	0	X 
+153	Warfront Contribution	9	16	0	X 
+254	Island Quest	0	0	0	X 
+255	War Mode PvP	0	0	0	X 
+256	PvP Conquest	10	16	0	X 

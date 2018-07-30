@@ -1,0 +1,36 @@
+67	1118	Horde	0	0	X 
+469	1118	Alliance	0	0	X 
+609	1118	Cenarion Circle	0	0	X 
+749	1118	Hydraxian Waterlords	0	0	X 
+910	1118	Brood of Nozdormu	0	0	X 
+1090	1097	Kirin Tor	0	0	X 
+1445	1444	Frostwolf Orcs	0	0	X 
+1515	1444	Arakkoa Outcasts	0	0	X 
+1681	1444	Vol'jin's Spear	0	0	X 
+1682	1444	Wrynn's Vanguard	0	0	X 
+1712	1444	GarInvasion_IronHorde	0	0	X 
+1713	1444	GarInvasion_ShadowCouncil	0	0	X 
+1714	1444	GarInvasion_Ogres	0	0	X 
+1716	1444	GarInvasion_Breakers	0	0	X 
+1718	1444	GarInvasion_Shadowmoon	0	0	X 
+1731	1444	Council of Exarchs	0	0	X 
+1828	1834	Highmountain Tribe	0	0	X 
+1859	1834	The Nightfallen	0	0	X 
+1883	1834	Dreamweavers	0	0	X 
+1894	1834	The Wardens	0	0	X 
+1900	1834	Court of Farondis	0	0	X 
+1930	0	Sira Moonwarden	0	0	X 
+1948	1834	Valarjar	0	0	X 
+2045	1834	Armies of Legionfall	0	0	X 
+2103	2104	Zandalari Empire	0	0	X 
+2156	2104	Talanji's Expedition	0	0	X 
+2157	2104	The Honorbound	0	0	X 
+2158	2104	Voldunai	0	0	X 
+2159	2104	7th Legion	0	0	X 
+2160	2104	Proudmoore Admiralty	0	0	X 
+2161	2104	Order of Embers	0	0	X 
+2162	2104	Storm's Wake	0	0	X 
+2163	2104	Tortollan Seekers	0	0	X 
+2164	2104	Champions of Azeroth	0	0	X 
+2165	1834	Army of the Light	0	0	X 
+2170	1834	Argussian Reach	0	0	X 

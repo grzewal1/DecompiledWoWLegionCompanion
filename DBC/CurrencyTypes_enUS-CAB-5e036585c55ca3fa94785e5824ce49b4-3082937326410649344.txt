@@ -1,0 +1,105 @@
+1	71682	Currency Token Test Token 4	Text that describes this item can be found here.	X 
+2	12297	Currency Token Test Token 2		X 
+4	1	Currency Token Test Token 5		X 
+22	0	Birmingham Test Item 3		X 
+42	0	Badge of Justice		X 
+61	0	Dalaran Jewelcrafter's Token	Tiffany Cartier's shop in Dalaran will gladly accept these tokens for unique jewelcrafting recipes.	X 
+81	0	Epicurean's Award	Visit special cooking vendors in Dalaran and the capital cities to to purchase unusual cooking recipes, spices, and even a fine hat!	X 
+101	0	Emblem of Heroism		X 
+102	0	Emblem of Valor		X 
+103	0	Arena Points		X 
+104	0	Honor Points DEPRECATED	If you can read this, you've found a bug. REPORT IT!	X 
+121	0	Alterac Valley Mark of Honor		X 
+122	0	Arathi Basin Mark of Honor		X 
+123	0	Eye of the Storm Mark of Honor		X 
+124	0	Strand of the Ancients Mark of Honor		X 
+125	0	Warsong Gulch Mark of Honor		X 
+126	0	Wintergrasp Mark of Honor		X 
+161	0	Stone Keeper's Shard		X 
+181	0	Honor Points DEPRECATED2	If you can read this, you've found a bug. REPORT IT!	X 
+201	0	Venture Coin		X 
+221	0	Emblem of Conquest		X 
+241	0	Champion's Seal	Awarded for valiant acts in the Crusader's Coliseum.	X 
+301	0	Emblem of Triumph		X 
+321	0	Isle of Conquest Mark of Honor		X 
+341	0	Emblem of Frost		X 
+361	0	Illustrious Jewelcrafter's Token	Awarded for demonstrating great skill in jewelcrafting, these tokens can be used to purchase unique jewelcrafting plans and the fabulous Chimera's Eye.	X 
+384	34	Dwarf Archaeology Fragment		X 
+385	34	Troll Archaeology Fragment		X 
+391	2	Tol Barad Commendation	Awarded for brave deeds performed on Tol Barad.	X 
+393	34	Fossil Archaeology Fragment		X 
+394	34	Night Elf Archaeology Fragment		X 
+395	8280	Justice Points	Used to purchase less-powerful armor and weapons.	X 
+396	8264	Valor Points	Used to purchase powerful PvE armor and weapons.	X 
+397	34	Orc Archaeology Fragment		X 
+398	34	Draenei Archaeology Fragment		X 
+399	34	Vrykul Archaeology Fragment		X 
+400	34	Nerubian Archaeology Fragment		X 
+401	34	Tol'vir Archaeology Fragment		X 
+402	0	Ironpaw Token	Represents your credit with the Ironpaw family of cooks. Can be redeemed for Cooking ingredients and other things at the Stockmaster in Halfhill Market.	X 
+416	1024	Mark of the World Tree	Granted by the Guardians of Hyjal. Can be used to purchase reinforcements for the Invasion of the Firelands.	X 
+483	1484	Conquest Arena Meta		X 
+484	1484	Conquest Rated BG Meta		X 
+515	2	Darkmoon Prize Ticket	Awarded for winning games or doing favors at the Darkmoon Faire.	X 
+614	1024	Mote of Darkness	Extracted from the forces of Deathwing, this dark energy can be used to power amazing magics.	X 
+615	1024	Essence of Corrupted Deathwing	Extracted from Deathwing himself, this dark energy powers the most fearsome of incantations.	X 
+676	34	Pandaren Archaeology Fragment		X 
+677	34	Mogu Archaeology Fragment		X 
+692	1484	Conquest Random BG Meta		X 
+697	2114	Elder Charm of Good Fortune	Possession of the Elder Charm of Good Fortune allows its lucky owner to risk a coin to receive a bonus reward from Mogu'shan Vaults, Heart of Fear, Terrace of Endless Spring, Sha of Anger, or Salyis' Warband.	X 
+698	0	Zen Jewelcrafter's Token	Awarded for demonstrating great skill in jewelcrafting, these tokens can be used to purchase unique jewelcrafting plans and the beautiful Serpent's Eye.	X 
+738	64	Lesser Charm of Good Fortune	Possession of the Lesser Charms of Good Fortune will result in great happiness and the eventual conversion into Warforged Seals, which allow players to risk a coin to receive a bonus reward from raid encounters.	X 
+752	2	Mogu Rune of Fate	Possession of the Mogu Rune of Fate allows its lucky owner to risk a rune to receive a bonus reward from the Throne of Thunder, Nalak or Oondasta.	X 
+754	34	Mantid Archaeology Fragment		X 
+776	2	Warforged Seal	Possession of the Warforged Seal allows its lucky owner to risk a seal to receive a bonus reward from the Siege of Orgrimmar, the Celestial Trials, and Ordos.	X 
+777	66	Timeless Coin	You feel the shadowy fingers of previous and future owners of this coin playing across your hand, as if time itself blurs. Spend upon the Timeless Isle to earn powerful and fluid rewards.	X 
+789	66	Bloody Coin	Pulled from the steaming corpses of foes vanquished in the mists of the Timeless Isle.	X 
+810	66	Black Iron Fragment	Scavenged from the shattered armor and weapons of Iron Horde invaders.	X 
+821	34	Draenor Clans Archaeology Fragment		X 
+823	8194	Apexis Crystal	The enduring legacy of a lost civilization, Apexis crystals contain untold reserves of magical power.	X 
+824	2	Garrison Resources	Earn resources to build-up and expand your garrison.	X 
+828	34	Ogre Archaeology Fragment		X 
+829	34	Arakkoa Archaeology Fragment		X 
+830	34	n/a		X 
+897	8194	UNUSED		X 
+910	0	Secret of Draenor Alchemy	Allows you to obtain new Alchemy recipes from the Alchemist's Lab.	X 
+944	8202	Artifact Fragment	A tiny fragment of an Ashran lost artifact, treasured by the Highmaul Ogres.	X 
+980	8	Dingy Iron Coins	Perhaps they're more valuable than they appear on the surface.	X 
+994	2	Seal of Tempered Fate	Twists fate to provide an opportunity for additional treasure in Highmaul or Blackrock Foundry raids.	X 
+999	0	Secret of Draenor Tailoring	Allows you to obtain Tailoring recipes from the Tailoring Emporium.	X 
+1008	0	Secret of Draenor Jewelcrafting	Allows you to obtain new Jewelcrafting recipes.	X 
+1017	0	Secret of Draenor Leatherworking	Allows you to obtain Leatherworking recipes from the Tannery.	X 
+1020	0	Secret of Draenor Blacksmithing	Allows you to obtain new Blacksmithing recipes.	X 
+1101	66	Oil	Found primarily in Tanaan Jungle, Oil is used to fuel naval missions.	X 
+1129	2	Seal of Inevitable Fate	Twists fate to provide an opportunity for additional treasure in Hellfire Citadel or Draenor Mythic Dungeons.	X 
+1149	2	Sightless Eye	A rough, hand-minted coin. It bears a symbol similar to that of the Kirin Tor, with one key difference: the eye is closed.	X 
+1154	0	Shadowy Coins	Prized by pickpockets and marks alike. Can be spent in the Underbelly below Dalaran.	X 
+1155	2359298	Ancient Mana	Concentrated magic from the ancient leylines beneath Suramar.	X 
+1166	8194	Timewarped Badge	Earned in Timewalking dungeons. Exchanged for goods from Timewalking Vendors in capitol cities.	X 
+1171	525376	Artifact Knowledge	Increases the rate at which you earn Artifact Power.	X 
+1172	34	Highborne Archaeology Fragment		X 
+1173	34	Highmountain Tauren Archaeology Fragment		X 
+1174	34	Demonic Archaeology Fragment		X 
+1191	66	Valor	A currency used to increase the power of items from Hellfire Citadel, Tanaan Jungle, Draenor Dungeons, and powerful crafted items.	X 
+1220	2	Order Resources	Used to recruit troops, run missions, and research upgrades for your order hall.	X 
+1226	2	Nethershard	A fragment of crystallized nether brought to Azeroth by the Legion.	X 
+1268	8202	Timeworn Artifact	A mysterious naga artifact from the depths of the Great Sea. King Mrgl-Mrgl is looking for these at Timeworn Strand.	X 
+1273	2	Seal of Broken Fate	Twists fate to provide an opportunity for additional treasure from Legion raid and Mythic dungeon bosses.	X 
+1275	2	Curious Coin	This unusual coin is warm to the touch and vibrates gently in your hand. Used to procure items from Xur'ios in Dalaran.	X 
+1299	2	Brawler's Gold	Awarded to victors of the Brawler's Guild. Use it to purchase Rumble Cards and other world-altering items at the Brawler's Gold Exchange vendor.	X 
+1314	2097218	Lingering Soul Fragment	Soul fragment once belonging to a powerful enemy.	X 
+1324	1638400	Horde Qiraji Commendation	Completing this quest will grant the Horde credit in the Call of the Scarab event.    The faction which earns the most credit today may hang their banners by the Scarab Gong for the rest of the year.	X 
+1325	1638400	Alliance Qiraji Commendation	Completing this quest will grant the Alliance credit in the Call of the Scarab event.    The faction which earns the most credit today may hang their banners by the Scarab Gong for the rest of the year.	X 
+1342	2	Legionfall War Supplies	Used to further the construction of valuable structures on the Broken Shore.	X 
+1347	1572864	Legionfall Building - Personal Tracker - Mage Tower (Hidden)		X 
+1349	1572864	Legionfall Building - Personal Tracker - Command Tower (Hidden)		X 
+1350	1572864	Legionfall Building - Personal Tracker - Nether Tower (Hidden)		X 
+1355	0	Felessence	Concentrated demonic essence which can be captured and used to create armor of great power.	X 
+1356	384	Echoes of Battle	Used to purchase powerful PvP armor. At the end of the season, this currency converts to gold.	X 
+1357	384	Echoes of Domination	Used to purchase elite PvP armor. At the end of the season, this currency converts to gold.	X 
+1379	0	Trial of Style Token	Earned by participating in the Trial of Style. Can be exchanged for transmoggable gear in most major cities.	X 
+1416	0	Coins of Air	Evaporate into mist after a while.	X 
+1501	2	Writhing Essence	Used to upgrade Legion Legendary items to item level 970.	X 
+1506	0	Argus Waystone	Used by the minions of Sargeras to force open portals from Argus to other Legion-controlled worlds.	X 
+1508	2	Veiled Argunite	This dull-colored crystal is highly valued by ethereal traders, especially Thaumaturge Vashreen aboard the Vindicaar.	X 
+1533	2	Wakening Essence	Used by Arcanomancer Vridiel in Dalaran above the Broken Isles to create or upgrade Legion Legendary items.	X 

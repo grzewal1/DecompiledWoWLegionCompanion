@@ -1,0 +1,1170 @@
+77321	52490	Kal'gor the Honorable	X 
+78008	54077	Draenei Male	X 
+78009	54150	Orc Male	X 
+78010	53964	Goblin Female	X 
+78012	53652	Human Male	X 
+78013	42090	Pandaren Female	X 
+78031	55543	Blook	X 
+78052	54263	Rangari Kaalya	X 
+78638	19078	Image of Archmage Vargoth	X 
+79230	54968	Gronnstalker Rokash	X 
+79233	53371	Lokra	X 
+79265	54373	Mulverick	X 
+79357	54921	Goblin Male	X 
+79358	54581	Draenei Female	X 
+79359	54396	Orc Female	X 
+79360	51465	Pandaren Male	X 
+79361	47835	Undead Male	X 
+79362	39296	Undead Female	X 
+79363	48774	Gnome Male	X 
+79364	45230	Gnome Female	X 
+79365	40553	Night Elf Male	X 
+79366	47075	Night Elf Female	X 
+79367	47880	Dwarf Female	X 
+79368	48200	Dwarf Male	X 
+79369	39820	Worgen Male	X 
+79370	37446	Worgen Female	X 
+79371	45379	Tauren Male	X 
+79372	49781	Tauren Female	X 
+79373	48810	Troll Male	X 
+79374	47345	Troll Female	X 
+79375	47519	Blood Elf Male	X 
+79376	47508	Blood Elf Female	X 
+79378	55064	Ogre	X 
+79599	55046	Olin Umberhide	X 
+79601	52397	Weaponsmith Na'Shra	X 
+79602	54367	Shadow Hunter Rala	X 
+79607	55124	Dagg	X 
+79611	55047	Qiana Moonshadow	X 
+80590	61553	Aknor Steelbringer	X 
+80732	55069	Magister Krelas	X 
+80733	55068	Magister Serena	X 
+81042	61582	Croman	X 
+81070	54905	Miall	X 
+81073	54952	Morketh Bladehowl	X 
+81265	55056	Pitfighter Vaandaam	X 
+81334	1474	Human Female	X 
+81372	52202	Bruto	X 
+81450	56513	Baron Deathshot	X 
+81451	56514	Vala Kaliraan	X 
+81465	57156	Sul'aka	X 
+81475	57077	Matthew Younglove	X 
+81477	57102	Kablouie One-Eye	X 
+81478	57286	Garag Earthtongue	X 
+81482	57342	Vera Voidheart	X 
+81494	56419	Ka'la	X 
+81569	56438	Daleera Moonfang	X 
+81758	57057	Pleasure-Bot 8000	X 
+81792	56659	Lantresor of the Blade	X 
+81857	52195	Kaz the Shrieker	X 
+82122	58876	Ziri'ak	X 
+82453	55515	Goldmane the Skinner	X 
+82479	52508	Artificer Romuul	X 
+82481	34450	Fiona	X 
+82485	54782	Roona	X 
+82487	60121	Shelly Hamby	X 
+82489	56236	Apprentice Artificer Andren	X 
+82490	57037	Matthew Younglove	X 
+82491	57053	Rangari Chel	X 
+82492	57717	Vindicator Onaala	X 
+82495	53097	Rulkan	X 
+82577	57119	Nihil Tel'alara	X 
+82595	57134	Azereki Ashenblade	X 
+82630	57155	Sylalleas Frostwind	X 
+82633	57158	Theo'drosh Blindseyed	X 
+82634	57157	Delaras Moonshadow	X 
+82637	57301	Hayli Hallowsend	X 
+82639	57160	Imme Ironheart	X 
+82641	57161	Olren Sternbeard	X 
+82642	57162	Grinfel Frostfinger	X 
+82652	57170	Alessia D'Nara	X 
+82653	57172	Artemisia Azuregaze	X 
+82656	57173	Tormmok	X 
+82657	57174	Vyse Jin'kala	X 
+82659	57175	Sylva Darkhowl	X 
+82661	57176	Va'zik	X 
+82663	57178	Renthal Bloodfang	X 
+82665	57179	Sa'vi	X 
+82666	57180	Rin Starsong	X 
+82672	57185	Genah Brawnhoof	X 
+82674	57186	Nuria Thornstorm	X 
+82678	57189	Lucia Nightbane	X 
+82679	57191	Magrum Mistrunner	X 
+82689	57197	Vulric Fangborne	X 
+82693	57195	Rizei Stormhoof	X 
+82696	57199	Vella A'nar	X 
+82703	57202	Shoka	X 
+82710	57207	Araspeth	X 
+82717	57211	Soulare of Andorhal	X 
+82736	57246	Myra Hackenslash	X 
+82737	57228	Flurga	X 
+82738	57229	Gazra	X 
+82739	57230	Ashlen Swordbreaker	X 
+82743	57236	Scrapsy Fibblepop	X 
+82747	57238	Seleria Dawncaller	X 
+82751	57242	Bemora	X 
+82752	57243	Joachim Demonsbane	X 
+82756	57227	Leeroy Jenkins	X 
+82760	57249	Len-Shu	X 
+82761	57250	Zance Silverfury	X 
+82763	57252	Lazrek	X 
+82765	57255	Su-Lai Snowpetal	X 
+82772	57260	Ginnwin Grindspinner	X 
+82773	57261	Gwinolen Stormgrip	X 
+82781	57267	Haomi	X 
+82784	57269	Morticia Crowley	X 
+82787	57271	Mirran Lichbane	X 
+82793	57274	Zaelatha	X 
+82794	57276	Fink Fastneedle	X 
+82796	57277	Arachni Bloodseeker	X 
+82807	57283	Beezle Boomsticks	X 
+82808	57284	Dramnur Doombrow	X 
+82810	57285	Grum Boarsbane	X 
+82824	57294	Kariel Whisperwind	X 
+82830	57298	Nudan	X 
+82835	57305	Shade Plagueheart	X 
+82853	57329	Marguun	X 
+82855	57328	Lucretia Ainsworth	X 
+82859	57335	Lamontague Ford	X 
+82862	57339	Ulna Thresher	X 
+82863	57338	Lamontague Ford	X 
+82865	57340	Bruma Swiftstone	X 
+82868	57344	Wolfgrimm Blackmantle	X 
+82955	57417	Kilga Mourningsong	X 
+82956	57418	Raevyn Sorrowblade	X 
+82961	57421	Olaf Blightbearer	X 
+82965	57424	Peter Toulios	X 
+82970	57427	Zen'tenbi	X 
+82977	57429	Sarah Schnau	X 
+82978	57430	Karn Steelhoof	X 
+82979	57431	Salanar Mourningsun	X 
+82980	57432	Galadran Gath	X 
+82984	57437	Zen'tiki	X 
+82986	57438	Illu'mina	X 
+82987	57439	Verroak Greenheart	X 
+83007	57458	Zen'tika	X 
+83009	57460	Ilaniel Pine	X 
+83010	59264	Cadi Grasshoof	X 
+83012	59263	Celadina	X 
+83947	56213	Kimzee Pinchwhistle	X 
+84123	58138	Tapa Swiftpaw	X 
+84124	58139	Kage Satsuke	X 
+84126	58140	Zen'kili	X 
+84127	58141	Scarletleaf	X 
+84128	58142	Zen'taki	X 
+84130	58143	Bryan Schnau	X 
+84271	58239	Moxy Mistbargain	X 
+84273	58241	Leena	X 
+84274	58242	Reena Waterrites	X 
+84280	58246	Keema	X 
+84295	58259	Utona Wolfeye	X 
+84296	58261	Navea the Purifier	X 
+84297	58262	Heallix Skatterstorm	X 
+84299	58264	Zian	X 
+84300	58265	Rakkaha	X 
+84302	58266	Belouran	X 
+84304	58268	Fazerra	X 
+84305	58269	Galestriker Halanai	X 
+84317	58274	Aesin Sunstalker	X 
+84318	58275	Erohaan	X 
+84323	58280	Hara'len	X 
+84324	58281	Vidar Goldaim	X 
+84325	58282	Mokuja	X 
+84326	58283	Dana Crockett	X 
+84380	58322	Fawne	X 
+84381	58325	Noreen Trueflint	X 
+84437	58337	Rongar	X 
+84438	58338	Conall Rainsinger	X 
+84439	58339	Yepa	X 
+84440	58340	Fern Greenfoot	X 
+84476	58360	Faal	X 
+84477	58362	Besandran Shatterfury	X 
+84478	58363	Syverandin Yewshade	X 
+84479	31626	Matoclaw	X 
+84480	58364	Ellington Moonheart	X 
+84481	58365	Tama Skyhoof	X 
+84482	58366	Gorandir Wildsong	X 
+84484	58368	Goahn	X 
+84486	58369	Mojo'kai	X 
+84487	58372	Ruvan Hornsby	X 
+84665	58420	Xeranitas	X 
+84667	58421	Muaha Stonehide	X 
+84668	31777	Tholo Whitehoof	X 
+84669	58423	Daven Kessler	X 
+84671	58424	Kuma Thunderhide	X 
+84672	58425	Guardian Atohi	X 
+84673	58427	Kirandros Galeheart	X 
+84674	58428	Haumeja	X 
+84676	58430	Ursila Hudsen	X 
+84678	58432	Iye	X 
+84679	58434	Thaal'kos Thundersong	X 
+84699	58453	Ilspeth Hollander	X 
+84701	58456	Neejala	X 
+84703	58457	Kihra	X 
+84704	58458	Kaluaka	X 
+84707	58459	Jakama	X 
+84710	58461	Seline Keihl	X 
+84711	58462	Sulaka	X 
+84715	58464	Randee Wallyce	X 
+84721	58466	Humak the Verdant	X 
+84723	58467	Ramall Trueoak	X 
+84772	58488	Merhean Sunfall	X 
+84786	58498	Ruthia the Unchaste	X 
+84788	58500	Kinndy Brightsocket	X 
+84789	58502	Arctic Whitemace	X 
+84790	58503	Phaedra Heartbinder	X 
+84889	58429	Phylarch the Evergreen	X 
+85081	60858	Admiral Taylor	X 
+85153	58676	Dekland Strange	X 
+85154	58677	Ja'kala	X 
+85159	59266	Permelia	X 
+85160	58680	Pinkee Rizzo	X 
+85161	58682	Zelena Moonbreak	X 
+85163	58683	Skalliz Skullslice	X 
+85166	58685	Jephet Nighthowler	X 
+85167	58687	Arienne Black	X 
+85171	58690	Ciarra Neil	X 
+85175	58692	Magistrix Soulblaze	X 
+85179	58694	Amie Chambers	X 
+85292	58773	Murgtar	X 
+85293	58774	Stigander Ironsnare	X 
+85295	58775	Mychele Morrowsong	X 
+85296	58776	Kendall Covington	X 
+85297	58777	Samantha Thornton	X 
+85298	29172	Kathrena Winterwisp	X 
+85300	58780	Rumelda Bloodslur	X 
+85301	58781	Anaeli	X 
+85305	57434	Halsteth Ravenwood	X 
+85306	58784	Glaiveweaver Xuan	X 
+85311	58786	Audra Stoneshield	X 
+85413	10457	Weldon Barov	X 
+85414	10456	Alexi Barov	X 
+85578	58985	Shieldmaster Daeun	X 
+85581	58987	Walsh Atkins	X 
+85582	58988	Ailsa Thundersong	X 
+85583	58989	Unkala Stormgrinder	X 
+85584	58990	Kiruud the Relentless	X 
+85585	58991	Leoneras Sunrage	X 
+85759	54040	Soulbinder Tuulani	X 
+85768	59874	Aeda Brightdawn	X 
+85772	59839	Defender Illona	X 
+85776	60860	Ahm	X 
+85860	59183	Lok'rig Felthrall	X 
+85861	59184	Cinad Darksummit	X 
+85862	59185	Nor'gruk Rotskull	X 
+85865	59186	Caleb Weber	X 
+85866	59187	Brother Zuo	X 
+85867	60011	Noxiia Atoh	X 
+85868	59189	Alasdair Whitepeak	X 
+85869	59190	Tak'moa	X 
+85870	59191	Draeken Nightspear	X 
+85871	30823	Calder Gray	X 
+85989	13099	Nat Pagle	X 
+86152	37621	Meatball	X 
+86160	36699	Burghy Blackheart	X 
+86162	34116	Fargo Flintlocke	X 
+86164	36767	"Doc" Schweitzer	X 
+86165	61189	Bloodrose	X 
+86167	61196	Lowping	X 
+86169	61228	Cheri	X 
+86171	61197	Gravy	X 
+86173	59404	Fo Sho Knucklebump	X 
+86174	59405	Fo Sho Knucklebump	X 
+86270	41719	Ken-Ken	X 
+86274	42475	Lin Tenderpaw	X 
+86277	40028	Kang Bramblestaff	X 
+86278	39715	Xiao	X 
+86280	34848	Rok'tar	X 
+86281	41721	Clever Ashyo	X 
+86284	59433	Dilben Ironshot	X 
+86293	57237	Abu'gar	X 
+86459	58501	Penny Clobberbottom	X 
+86484	58509	Glirin	X 
+86510	59265	Spirit of Bony Xuk	X 
+86514	57151	Rangari Erdanii	X 
+86588	59710	Benjamin Gibb	X 
+86709	32254	Thisalee Crow	X 
+86711	32253	Choluna	X 
+86760	59461	Talonpriest Ishaal	X 
+86782	59929	Rike Stillbreath	X 
+86784	59930	Adelaide Kane	X 
+86786	59932	Heyzzle Veinripp	X 
+86787	59933	Mina Harken	X 
+86788	59934	Cyril Fogus	X 
+86790	59935	Torin Coalheart	X 
+86805	59949	Mukkral Blackvein	X 
+86812	59959	Bodrin Bloodhowl	X 
+86814	59961	Deneezo Hailstrike	X 
+86816	59965	Lukain Chillborne	X 
+86817	59966	Singe Starkblast	X 
+86821	59971	Fen Cinderpaw	X 
+86822	59972	Taela Shatterborne	X 
+86824	59973	Reina Morningchill	X 
+86825	59974	Mau'iti	X 
+86827	59976	Ranni Flagdabble	X 
+86828	59977	Gerard Loom	X 
+86830	59980	Garvan Bitterstone	X 
+86831	59981	Simone Baloy	X 
+86836	59986	Kayt Miccoats	X 
+86837	59987	Allison Calla	X 
+86840	59989	Innes Shieldshatter	X 
+86841	59991	Kanuama	X 
+86856	59995	Dessee Crashcrank	X 
+86857	59998	Vol'motu	X 
+86858	60005	Brother Boshi	X 
+86865	60006	Sister Xue	X 
+86866	60008	Gwynlan Rainglow	X 
+86867	60009	Auriel Brightsong	X 
+86870	59188	Haagios	X 
+86871	60012	Layla	X 
+86876	60014	Elva Stonechapel	X 
+86877	60015	Kenzi Solo	X 
+86878	60017	Fasani	X 
+86880	60018	Archibald Arlison	X 
+86881	61057	"Doc" Schweitzer	X 
+86887	61487	Leorajh	X 
+86892	60031	Kral'girz	X 
+86893	60032	Mysandra Swiftarc	X 
+86895	60033	Robin Fredericksen	X 
+86896	60034	Henry Wall	X 
+86897	60035	Kristian Nairn	X 
+86898	60036	Aila Dourblade	X 
+86901	60041	Kymba Quickwidget	X 
+86903	60042	Soozee	X 
+86905	60043	Ebba Stormfist	X 
+86907	60044	Raitea	X 
+86909	60045	Roshene Stonewhisper	X 
+86942	60069	Naana	X 
+86943	60070	Lightshielder Baetrix	X 
+86944	60073	Shappa	X 
+86948	60075	Stormsinger Taalos	X 
+86950	60077	Nance Doubleblade	X 
+86952	60078	Olivia Logan	X 
+87233	60206	Harley Soubrette	X 
+87531	59484	Talon Guard Kurekk	X 
+87596	27417	Orin Grimblade	X 
+87598	27530	Filmore Patricks	X 
+87603	25910	Tigar Frosthoof	X 
+87605	60237	Maul Dethwidget	X 
+87606	61312	Ton'raro	X 
+87607	61313	Sever Frostsprocket	X 
+87608	61495	Sylvie Fallensong	X 
+87609	61496	Bitterwalker Pikrea	X 
+87611	60392	Tipa Rimehorn	X 
+87612	61311	Hildr Helhammer	X 
+87613	61309	Torwa Rimeheart	X 
+87614	61310	Arebia Wintercall	X 
+87616	61317	Gravewalker Gie	X 
+87623	60400	Orog	X 
+87625	60402	Daniel Montoy	X 
+87627	60403	Orrelleon Searingstrike	X 
+87628	60405	Karyn Whitmoor	X 
+87629	60406	Annix Strifesprocket	X 
+87631	60407	Kalandra Starhelm	X 
+87632	60408	Motina	X 
+87633	60409	Bridgette Hicks	X 
+87634	60410	Lurst Ragebreak	X 
+87635	60411	Tell'machrim Stormvigil	X 
+87636	60412	Neth'raza Doomrend	X 
+87643	60414	Iven Page	X 
+87673	60438	Opheron	X 
+87674	61490	Makaaria the Cursed	X 
+87675	61314	Nerwalla Malword	X 
+87676	61315	Yvette Blackheart	X 
+87677	61329	Enoch Fuller	X 
+87678	61330	Tavid Blightsteel	X 
+87679	61533	Lono'tai	X 
+87680	60443	Ultan Blackgorge	X 
+87681	61318	Kaasa Blighthoof	X 
+87682	61320	Lleanya Mourningsong	X 
+87686	60449	Handel Shadereaver	X 
+87708	60461	Enola	X 
+87709	60462	Honora Keystone	X 
+87710	60463	Pikake	X 
+87711	60464	Songla	X 
+87712	60465	Yaalo	X 
+87713	60466	Doc Lightspanner	X 
+87714	60467	Ahote	X 
+87715	60468	Truman Weaver	X 
+87716	60469	Marara	X 
+87717	60470	Ingrid Darkplait	X 
+87718	60471	Grelwaz Redknife	X 
+87720	60472	Justine DeGroot	X 
+87721	60473	Ariiya Sunblood	X 
+87722	60474	Claire "the Fox"	X 
+87723	60475	Vaal'kelthos Dawngrief	X 
+87724	60476	Kilandric Hawkstrike	X 
+87726	60478	Lawrence Sharp	X 
+87728	60479	Vaz'rek	X 
+87730	60480	Peng Stealthpaw	X 
+87731	60481	Lai	X 
+87733	60483	Syndee Sparkblade	X 
+87734	60484	Vivalia Sundagger	X 
+87735	60485	Corene Caldwell	X 
+87736	60486	Omril Keenedge	X 
+87737	60487	Antone Sula	X 
+87738	60488	Qwilla Bloodedge	X 
+87739	60489	Caelvana Duskwalker	X 
+87740	60490	Rendrol Goreslash	X 
+87741	60491	Ella Driver	X 
+87743	60492	Brula Brandykeg	X 
+87744	60493	Vera Haelyn	X 
+87745	60494	Margo Steelfinger	X 
+87746	60495	Zelaztro	X 
+87748	60496	Jen'thael Darkcloak	X 
+87749	60497	Temanu	X 
+87752	60498	Lorcan Flintedge	X 
+87753	60499	Mograg	X 
+87754	60500	Dag Stonecircle	X 
+87755	60501	Tadi	X 
+87756	60502	Orvar	X 
+87757	60503	Kieu	X 
+87758	60504	Dordra Talusfall	X 
+87759	60505	Colm Breakstorm	X 
+87767	60516	Kel'rikor	X 
+87769	60517	Kai Earthwhisper	X 
+87770	60518	Lonan	X 
+87772	60519	Fingall Flamehammer	X 
+87773	60520	Kerraelon Sunhunger	X 
+87776	60522	Eli Cannon	X 
+87777	60523	Arga Demonbreak	X 
+87778	60524	Mia Linn	X 
+87779	60525	Humbolt Briarblack	X 
+87781	60526	Hester Blackember	X 
+87782	60527	Veka'kai	X 
+87783	60528	Rykki Lyndgarf	X 
+87784	61333	Orgriz Crookmaw	X 
+87785	33754	Kris Rey	X 
+87786	60541	Nathaniel Beastbreaker	X 
+87787	60530	Gabriel Bybee	X 
+87789	60529	Deena Feltalker	X 
+87790	60531	Mizzy Bobble	X 
+87791	60532	Killix Zombroski	X 
+87792	36301	Abigail Wilson	X 
+87793	36629	Catherine Magruder	X 
+87794	60533	Aerik Matthews	X 
+87795	60534	Natalie Sparks	X 
+87797	60537	Caeris Felwalker	X 
+87798	60538	Vol'zaku	X 
+87799	60536	Kew Wyldheart	X 
+87800	60539	Lylnleath Featherfoot	X 
+87801	60540	Nevil Darkstride	X 
+87802	60542	John Greer	X 
+87803	60544	Edmund Duskrend	X 
+87804	60543	Rorin Rivershade	X 
+87805	60545	Nadia Darksun	X 
+87806	60546	Leena Guant	X 
+87807	60547	Isabella Jean	X 
+87808	60548	Kil'weh	X 
+87809	60549	Maska	X 
+87811	35818	Karga Quickshot	X 
+87812	33753	Lee Olesky	X 
+87813	60552	Yumanis Oakengrip	X 
+87814	60553	Kwahu Fiendtamer	X 
+87816	60551	Ilyanna Talongrasp	X 
+87817	60554	Bim'ini	X 
+87825	60555	Suna "Sunnie" Steelpaw	X 
+87826	60556	Gaho	X 
+87828	60557	Larry Copeland	X 
+87829	60558	Rizza Brassrokkit	X 
+87830	60560	Eunna Young	X 
+87831	60561	Brakk Shattershield	X 
+87832	60567	Eula Clay	X 
+87833	60568	Selis	X 
+87842	60576	Rangiro	X 
+87850	60591	Bren Swiftshot	X 
+87851	60593	Coggeye Aimbot	X 
+87852	60592	Bastiana Moran	X 
+87853	60595	Zap Snaresizzle	X 
+87855	60594	Trapper Huong	X 
+87858	61342	Kaama Arrowspring	X 
+87860	61343	Leonard Schrick	X 
+87862	61344	Jukke Deathward	X 
+87863	61345	Becky Dawson	X 
+87864	61351	Noel Harrison	X 
+87865	61349	Herschel Welch	X 
+87866	61350	Esmund Brightshield	X 
+87867	61347	Magister Tuan	X 
+87872	61348	Nordaerin Silverbeam	X 
+87873	61346	Arcanist Druk'rog	X 
+87877	25807	Tessa Wybroff	X 
+87878	61357	Kaz'hiki	X 
+87879	61358	Skip Burnbright	X 
+87880	60598	Tigowa	X 
+87881	60597	Harry Lawson	X 
+87883	61353	Dawn Mercurus	X 
+87884	61353	Caerania the Tempering	X 
+87888	61355	Awarri Blazecall	X 
+87889	61356	Seona Fireweaver	X 
+87890	28187	Pele'zol	X 
+87891	61360	Danaeris Amberstar	X 
+87892	61367	Magistrix Chillbreeze	X 
+87893	61368	Frostlighter Hanaa	X 
+87894	61374	Candice Morey	X 
+87895	61375	Rebecca Stirling	X 
+87896	61372	Nuku'te	X 
+87897	61369	Marius Sunshard	X 
+87898	61370	Matthew Deyling	X 
+87899	61373	Domnall Icecrag	X 
+87900	39850	Gakkiz Blusterblast	X 
+87901	61371	Niall Frostdrift	X 
+87903	39850	Gakkiz Blusterblast	X 
+87904	60601	Saul Lee	X 
+87905	60602	Lara Pearson	X 
+87906	60603	Maeve Hopwash	X 
+87911	60606	Yu'un Tigersbite	X 
+87914	60607	Mina Kunis	X 
+87915	42481	Xen Barleystrike	X 
+87916	61377	Orrindis Raindrinker	X 
+87918	61382	Yiska	X 
+87919	61383	Edith Shareflagon	X 
+87921	61378	Velandros Sunblessing	X 
+87922	61392	Kitara Mae	X 
+87923	61391	Tizare	X 
+87924	61379	Miiraxa the Renewer	X 
+87925	61380	Favra Bearhide	X 
+87926	61381	Master Tengbai	X 
+87927	61389	Toega	X 
+87928	61390	Thurman Belva	X 
+87929	61397	Charles Norris	X 
+87930	61399	Brogan Threepints	X 
+87931	61400	Lucy Keller	X 
+87932	61402	Evanra Cloudchant	X 
+87933	61393	Nuan Skydream	X 
+87934	61394	Tylee Hackspring	X 
+87935	61395	Kana'tin	X 
+87936	61396	Sprynt Starkflange	X 
+87937	61488	Ariia	X 
+87938	61489	Raquel Deyling	X 
+87939	61515	Lusio	X 
+87940	61516	Osgar Smitehammer	X 
+87941	61517	Skah	X 
+87942	61518	Bernhard Hammerdown	X 
+87943	61519	Sahale	X 
+87944	61520	Noah Munck	X 
+87945	61507	Kaiel	X 
+87948	61508	Faala	X 
+87949	61509	Delma Ironsafe	X 
+87950	61505	Tawa	X 
+87951	61506	Hereward Stonecleave	X 
+87953	26186	Temura Ence	X 
+87954	61404	Tas'ril Imturematril	X 
+87955	61405	Nicholas Divide	X 
+87956	61500	Lan'veros Furybrand	X 
+87957	61502	Loranea	X 
+87958	61503	Argonis Solheart	X 
+87959	61504	Voraatios the Benedictive	X 
+87960	61406	Hannya	X 
+87961	61407	Neve Axeblow	X 
+87962	61408	Priscilla Shadowsun	X 
+87963	61409	Linda Meier	X 
+87964	61497	Ahaxxa	X 
+87965	61498	Herrathos Starstaff	X 
+88011	49772	Karg Bloodfury	X 
+88012	60947	Cleric Maluuf	X 
+88014	57097	Dawnseeker Rukaryx	X 
+88015	60952	Professor Felblast	X 
+88016	60944	Cacklebone	X 
+88018	60959	Vindicator Heluun	X 
+88098	60731	Hestiah Ravenwood	X 
+88165	57772	Dark Ranger Velonara	X 
+88166	57783	Hulda Shadowblade	X 
+88424	60701	Millhouse Manastorm	X 
+88516	60940	Malden	X 
+88526	60945	Su'tila	X 
+89075	59353	Delvar Ironfist	X 
+89092	60995	Greatmother Geyah	X 
+89133	56610	Vivianne	X 
+90475	61879	Garona Halforcen	X 
+90793	22354	Harrison Jones	X 
+91479	62467	Fen Tao	X 
+92228	62854	Oronok Torn-heart	X 
+92622	63894	Ram's Belly	X 
+92927	63466	Ariok	X 
+93144	63474	Durotan's Pride	X 
+93200	63476	Tyrande's Prayer	X 
+93201	64388	Spirit of Auberdine	X 
+93202	64375	Light of the Naaru	X 
+93437	30869	Highlord Darion Mograine	X 
+93555	25468	Amal'thazad	X 
+93705	63647	Eversong	X 
+93929	61971	Lady Liadrin	X 
+94036	62305	Aponi Brightmane	X 
+94037	63504	Vindicator Boros	X 
+94141	69541	Garona Halforcen	X 
+94174	66765	Lord Maxwell Tyrosus	X 
+94178	63895	Moira's Hammer	X 
+94775	63647	The Dealmaker	X 
+94776	63647	The Loan Shark	X 
+94778	63647	The Briny Expedition	X 
+94780	63475	Hoard of Gallywix	X 
+94781	64388	Maiev's Blade	X 
+94782	64388	Theramore's Revenge	X 
+94783	63474	The Dawnchaser	X 
+94784	63474	Lor'themar's Arrow	X 
+94785	63647	Echo Hunter	X 
+94786	63895	Yrel's Command	X 
+94787	63895	Rage of the Storm	X 
+94788	63895	Greymane's Pride	X 
+94790	63894	Chen's Favorite Brew	X 
+94791	63894	Kobold's Candle	X 
+94792	63894	Acheon Kor	X 
+94793	64375	Falstad's Return	X 
+94794	64375	Protector of the Pack	X 
+94795	64375	Varian's Blade	X 
+94797	63476	Gnomercy	X 
+94798	63476	Mekkatorque's Secret	X 
+94799	63476	The Briny Expedition	X 
+94931	63894	Lumbering Kodo	X 
+94932	63894	The Abomination	X 
+94933	63894	Chen's Favorite Brew	X 
+94934	63894	Razormane's Dread	X 
+94935	64376	Wail of the Banshee Queen	X 
+94936	63474	Vol'jin's Glaive	X 
+94937	64376	Strength and Honor	X 
+94938	64376	Baine's Vengeance	X 
+94939	63475	Slice of Undeath	X 
+94940	63475	Rommath's Fire	X 
+94941	64388	Fizzcrank's Launching	X 
+94942	63475	Liadrin's Shield	X 
+95096	60079	Allari the Souleater	X 
+95330	64388	Memory of Magni	X 
+95331	64388	Ysera's Dream	X 
+95332	64388	Light's Hope	X 
+95333	64388	Master's Call	X 
+95334	63475	The Blightcaller	X 
+95335	63475	Ysera's Dream	X 
+95336	63475	Light's Hope	X 
+95337	63475	Master's Call	X 
+95338	64388	The Counterspell	X 
+95339	64388	Hammer of Justice	X 
+95340	63475	The Counterspell	X 
+95341	63475	Hammer of Justice	X 
+95342	63895	The Surging Mist	X 
+95343	63895	Tiger's Palm	X 
+95344	63895	Ra-Den's Lightning	X 
+95345	63895	Tyr's Hand	X 
+95346	63895	Tortolla's Shield	X 
+95347	63895	Bladefist's Undoing	X 
+95348	63474	The Surging Mist	X 
+95349	63474	Tiger's Palm	X 
+95350	63474	Ra-den's Lightning	X 
+95351	63474	Tyr's Hand	X 
+95352	63474	Tortolla's Shield	X 
+95353	63474	Bladefist's Undoing	X 
+95354	64375	Algalon's Watch	X 
+95355	64375	Mimiron's Folly	X 
+95356	64375	Thorim's Hammer	X 
+95357	64375	Arthas's Downfall	X 
+95358	64375	Soul Reaper	X 
+95359	64375	The Spellweaver	X 
+95360	64376	Algalon's Watch	X 
+95361	64376	Mimiron's Folly	X 
+95362	64376	Thorim's Hammer	X 
+95363	64376	Arthas's Downfall	X 
+95364	64376	Soul Reaper	X 
+95365	64376	The Spellweaver	X 
+95366	63476	Aviana's Feather	X 
+95367	63476	Xuen's Paw	X 
+95368	63476	Neltharion's Madness	X 
+95369	63476	Cheap Shot	X 
+95370	63476	Golin's Bane	X 
+95371	63476	The Prowler	X 
+95372	63647	Aviana's Feather	X 
+95373	63647	Xuen's Paw	X 
+95374	63647	Neltharion's Madness	X 
+95375	63647	Cheap Shot	X 
+95376	63647	Golin's Bane	X 
+95377	63647	The Prowler	X 
+95379	63894	Unwashed Yak	X 
+95380	63894	The Libation	X 
+95381	63894	The Cloud Serpent	X 
+95382	63894	Trick of the Trade	X 
+95383	63894	The Sea Foam	X 
+95384	63894	The Hungry Riverbeast	X 
+95385	63894	Unwashed Yak	X 
+95386	63894	The Libation	X 
+95387	63894	The Cloud Serpent	X 
+95388	63894	Trick of the Trade	X 
+95389	63894	The Sea Foam	X 
+95390	63894	The Hungry Riverbeast	X 
+95472	64388	Victory Rush	X 
+95473	64388	The Jade Wisdom	X 
+95474	64388	Light of Elune	X 
+95475	64388	Pride of Ironforge	X 
+95476	64388	Alleria's Valor	X 
+95477	64388	The Lesson of Southshore	X 
+95478	64388	Menethil March	X 
+95479	64388	Anduin's Prayer	X 
+95480	64388	The Lion of Azeroth	X 
+95481	64388	Lin's Undying Will	X 
+95482	63475	Victory Rush	X 
+95483	63475	The Jade Wisdom	X 
+95484	63475	Savagery	X 
+95485	63475	Nazgrim's Fist	X 
+95486	63475	Zalazane's Fall	X 
+95487	63475	Might of Grom'gol	X 
+95488	63475	The Bilgewater Bargain	X 
+95489	63475	Pact of the Val'kyr	X 
+95490	63475	Lok'tar Ogar	X 
+95491	63475	Lin's Undying Will	X 
+95492	63895	Leap of Faith	X 
+95493	63895	Ursoc's Roar	X 
+95494	63895	Thaurissan's Reach	X 
+95495	63895	Tempest's Wake	X 
+95496	63895	Turalyon's Hope	X 
+95497	63895	Ursol's Bite	X 
+95498	63895	Whisperwind	X 
+95499	63895	The Cutting Edge	X 
+95500	63895	Loken's Bargain	X 
+95501	63895	Mrgrggrgl Mark III	X 
+95502	63474	Leap of Faith	X 
+95503	63474	Ursoc's Roar	X 
+95504	63474	Thaurissan's Reach	X 
+95505	63474	Tempest's Wake	X 
+95506	63474	Bad Juju	X 
+95507	63474	Ursol's Bite	X 
+95508	63474	The Shadow Hunter	X 
+95509	63474	The Shattered Sun	X 
+95510	63474	Loken's Bargain	X 
+95511	63474	Mrgrggrgl Mark III	X 
+95512	64375	The Flame of Hope	X 
+95513	64375	Freya's Compassion	X 
+95514	64375	Doomhammer's Legacy	X 
+95515	64375	Heroism	X 
+95516	64375	The Stonemother	X 
+95517	64375	Boughs of Cenarius	X 
+95518	64375	The Indomitable	X 
+95519	64375	Full Judgment	X 
+95520	64375	Watkins's Relentless Assault	X 
+95521	64375	The Core Hammer	X 
+95522	64376	The Flame of Hope	X 
+95523	64376	Freya's Compassion	X 
+95524	64376	Doomhammer's Legacy	X 
+95525	64376	Bloodlust	X 
+95526	64376	The Stonemother	X 
+95527	64376	Boughs of Cenarius	X 
+95528	64376	Nemesis of the Scourge	X 
+95529	64376	Full Judgment	X 
+95530	64376	Watkins's Relentless Assault	X 
+95531	64376	The Core Hammer	X 
+95532	63476	Eye of Kilrogg	X 
+95533	63476	Shadowmeld	X 
+95534	63476	Akama's Scythe	X 
+95535	63476	Scarlet Raven	X 
+95536	63476	The Crimson Harvest	X 
+95537	63476	Terokk's Terror	X 
+95538	63476	The Starlight Endurance	X 
+95539	63476	Terror of the Deeps	X 
+95540	63476	Deep Sea Nine	X 
+95541	63476	Brgrggrgl Mark II	X 
+95542	63647	Eye of Kilrogg	X 
+95543	63647	Will of the Forsaken	X 
+95544	64376	The Dark Defiance	X 
+95545	63647	Scarlet Raven	X 
+95546	63647	The Crimson Harvest	X 
+95547	63647	Terokk's Terror	X 
+95548	63647	The Starlight Endurance	X 
+95549	63647	Terror of the Deeps	X 
+95550	63647	Deep Sea Nine	X 
+95551	63647	Brgrggrgl Mark II	X 
+95552	63894	The Emerald Turtle	X 
+95553	63894	The Rolling Barrel	X 
+95554	63894	Screeching Harpy	X 
+95555	63894	Old Blanchy	X 
+95556	63894	The Explorer	X 
+95557	63894	Booty Bay's Bounty	X 
+95558	63894	The Slash Dance	X 
+95559	63894	Master Looter	X 
+95560	63894	Bonus Roll	X 
+95561	63894	A Free Kill	X 
+95562	63894	The Emerald Turtle	X 
+95563	63894	The Rolling Barrel	X 
+95564	63894	Screeching Harpy	X 
+95565	63894	Lazy Tallstrider	X 
+95566	63894	Snickering Hyena	X 
+95567	63894	Booty Bay's Bounty	X 
+95568	63894	The Slash Dance	X 
+95569	63894	Master Looter	X 
+95570	63894	Bonus Roll	X 
+95571	63894	A Free Kill	X 
+96086	57912	Solar Priest Vayx	X 
+96087	64715	Dowser Bigspark	X 
+96088	64703	Pallas	X 
+96114	64716	Dowser Goodwell	X 
+96136	63474	The Awakener	X 
+96137	63895	The Awakener	X 
+97313	24349	Commander Lynore Windstryke	X 
+97314	64784	Nazgrel	X 
+97426	23920	Koltira Deathweaver	X 
+97428	33911	Thassarian	X 
+99995	23035	Justicar Julia Celeste	X 
+99997	16624	Arator the Redeemer	X 
+100653	65757	Eitrigg	X 
+101316	44514	Li Li Stormstout	X 
+101985	67425	Lulubelle Fizzlebang	X 
+101986	65975	Ritssyn Flamescowl	X 
+102550	67671	Vanessa VanCleef	X 
+102649	67721	Lilian Voss	X 
+102914	66672	Emmarel Shadewarden	X 
+103092	68004	The Great Akazamzarak	X 
+103138	39698	Chen Stormstout	X 
+103345	37872	Mog'dorg the Wizened	X 
+103823	62317	Druid Champion 1	X 
+103824	31605	Druid Champion 2	X 
+103825	26364	Druid Champion 3	X 
+103826	46707	The Monkey King	X 
+104622	41827	Taran Zhu	X 
+104623	68650	Sylara Steelsong	X 
+104631	68654	Angus Ironfist	X 
+104632	68655	Hiro	X 
+104633	68959	Aegira	X 
+104647	33020	Stormcaller Mylra	X 
+104648	58870	Duke Hydraxis	X 
+104649	47254	Consular Celestos	X 
+104651	17600	Farseer Nobundo	X 
+104652	64946	Rehgar Earthfury	X 
+104653	69829	Baron Scaldius	X 
+104654	38658	Muln Earthfury	X 
+104655	64289	Avalanchion the Unbroken	X 
+104669	64476	Calydus	X 
+104670	68731	Kira Iresoul	X 
+104671	65985	Zinnin Smythe	X 
+104672	46572	Jubeka Shadowbreaker	X 
+104673	65979	Shinfel Blightsworn	X 
+104674	23177	Eredar Twins	X 
+104759	68997	Ox Initiates	X 
+104957	65747	Tiger Initates	X 
+104960	70217	Crane Initate	X 
+104961	45003	Crane Adept	X 
+104962	45003	Crane Master	X 
+105929	68026	Naralex	X 
+105930	68419	Zen'tabra	X 
+105931	65529	Broll Bearmantle	X 
+105934	69425	Sylendra Gladesong	X 
+105935	31605	Archdruid Hamuul Runetotem	X 
+105937	72120	Mylune	X 
+105939	65526	Brightwing	X 
+105940	11906	Keeper Remulos	X 
+106279	72532	Black Harvest Acolytes	X 
+106281	5049	Felguard Demons	X 
+106386	64601	Water Elemental	X 
+106387	45003	Mage Troop C	X 
+106400	45003	Hunter Troop C	X 
+106403	45003	Paladin Troop C	X 
+106406	72412	Band of Zealots	X 
+106411	42854	Water Ascendants	X 
+106536	73023	Echo of Xuen	X 
+107984	72036	Ragnvald Drakeborn	X 
+107985	67923	Finna Bjornsdottir	X 
+107986	67925	Svergan Stormcloak	X 
+107987	67773	Hymdall	X 
+107989	28019	King Ymiron	X 
+107991	71648	Thorim	X 
+107992	25754	Dvalen Ironrune	X 
+107993	71647	Hodir	X 
+108247	38491	Archmage Kalec	X 
+108248	63776	Archmage Modera	X 
+108249	71591	Akama	X 
+108250	70473	Shade of Akama	X 
+108311	66159	Kor'vas Bloodthorn	X 
+108326	64447	Asha Ravensong	X 
+108342	60701	Millhouse Manastorm	X 
+108368	48197	Arcane Destroyer	X 
+108377	69642	Ravandwyr	X 
+108380	69626	Esara Verrinde	X 
+108571	63985	Altruis the Sufferer	X 
+108572	61698	Kayn Sunfury	X 
+108621	70159	Fel Wrathguard Demons	X 
+108782	60090	Belath Dawnblade	X 
+108784	64013	Matron Mother Malevolence	X 
+109031	19707	Halduron Brightwing	X 
+109032	60766	Rexxar	X 
+109034	69918	Loren Stormhoof	X 
+109035	29960	Huntsman Blake	X 
+109036	63995	Hemet Nesingwary	X 
+109037	69138	Beastmaster Hilaire	X 
+109039	64010	Addie Fizzlebog	X 
+109078	38215	Greater Fire Elementals	X 
+109085	42853	Fire Ascendants	X 
+109086	42851	Air Ascendants	X 
+109102	71930	Delas Moonfang	X 
+109105	71813	Lothraxion	X 
+109222	67760	Meryl Felstorm	X 
+109226	62303	Archmage Vargoth	X 
+109290	72550	Black Harvest Invokers	X 
+109369	67053	Arcane Golems	X 
+109375	69717	Dreamgrove Treants	X 
+109676	42853	Ascendant	X 
+109861	60791	Jace Darkweaver	X 
+109886	70436	Nazgrim	X 
+109899	70807	Thoras Trollbane	X 
+109900	71257	High Inquisitor Whitemane	X 
+109909	12819	Rottgut	X 
+110172	69542	Lord Jorach Ravenholdt	X 
+110173	67215	Fleet Admiral Tethys	X 
+110175	26365	Valeera Sanguinar	X 
+110176	41792	Taoshi	X 
+110177	83274	Master Mathias Shaw	X 
+110405	69902	Echo of Chi-Ji	X 
+110406	70208	Echo of Niuzao	X 
+110457	70162	Sol	X 
+110458	67797	Calia Menethil	X 
+110459	17882	High Priestess Ishanah	X 
+110460	71567	Zabra Hexx	X 
+110461	41874	Yalia Sagewhisper	X 
+110462	71952	Mariella Ward	X 
+110463	71568	Natalie Seline	X 
+110464	67043	Alonsus Faol	X 
+110782	41765	Mission McSmartypants	X 
+111783	28505	Ancient of War	X 
+111926	67712	Marin Noggenfogger	X 
+112960	31006	Abomination	X 
+112961	31005	Abomination	X 
+112997	72564	Black Harvest Invokers	X 
+112998	72553	Black Harvest Invokers	X 
+112999	72561	Black Harvest Invokers	X 
+113279	42851	Ascendants	X 
+113989	71426	Gang of Bandits	X 
+113990	72453	Gang of Bandits	X 
+113991	72456	Gang of Bandits	X 
+113992	72462	Gang of Bandits	X 
+113993	71448	Defias Thieves	X 
+113994	72470	Defias Thieves	X 
+113995	72480	Defias Thieves	X 
+113996	72477	Defias Thieves	X 
+114000	72485	Crew of Pirates	X 
+114001	72662	Crew of Pirates	X 
+114002	71472	Crew of Pirates	X 
+114003	72491	Crew of Pirates	X 
+114004	71461	Uncrowned Duelists	X 
+114005	72498	Uncrowned Duelists	X 
+114006	72501	Uncrowned Duelists	X 
+114007	72502	Uncrowned Duelists	X 
+114008	67885	Ashtongue Warriors	X 
+114009	67884	Ashtongue Warriors	X 
+114010	67883	Ashtongue Warriors	X 
+114011	73030	Naga Myrmidons	X 
+114012	73031	Naga Myrmidons	X 
+114013	71274	Naga Myrmidons	X 
+114014	73032	Naga Myrmidons	X 
+114015	61909	Illidari Adepts	X 
+114016	61910	Illidari Adepts	X 
+114017	60087	Illidari Adepts	X 
+114018	60087	Illidari Adepts	X 
+114019	71074	Transformed Illidari Adepts	X 
+114020	66611	Transformed Illidari Adepts	X 
+114021	67675	Transformed Illidari Adepts	X 
+114022	67673	Transformed Illidari Adepts	X 
+114023	1109	Lesser Elementals	X 
+114024	1070	Lesser Elementals	X 
+114025	5561	Lesser Elementals	X 
+114026	73034	Greater Elementals	X 
+114027	35681	Greater Elementals	X 
+114028	35044	Greater Elementals	X 
+114029	72682	Circle of Earthcallers	X 
+114030	73035	Circle of Earthcallers	X 
+114031	72507	Circle of Earthcallers	X 
+114033	72517	Circle of Earthcallers	X 
+114034	72519	Earthen Ring Geomancers	X 
+114035	72522	Earthen Ring Geomancers	X 
+114036	72531	Earthen Ring Geomancers	X 
+114037	72529	Earthen Ring Geomancers	X 
+114038	70984	Tirisgarde Apprentices	X 
+114039	72348	Tirisgarde Apprentices	X 
+114040	72349	Tirisgarde Apprentices	X 
+114041	70983	Tirisgarde Apprentices	X 
+114042	70422	Kirin Tor Invokers	X 
+114043	70992	Kirin Tor Invokers	X 
+114044	72353	Kirin Tor Invokers	X 
+114045	72362	Kirin Tor Invokers	X 
+114046	71234	Squad of Archers	X 
+114047	72286	Squad of Archers	X 
+114048	73041	Squad of Archers	X 
+114049	72298	Squad of Archers	X 
+114050	71238	Unseen Marksmen	X 
+114051	71241	Unseen Marksmen	X 
+114052	72308	Unseen Marksmen	X 
+114053	72311	Unseen Marksmen	X 
+114054	71242	Band of Trackers	X 
+114055	72313	Band of Trackers	X 
+114056	72319	Band of Trackers	X 
+114057	72320	Band of Trackers	X 
+114058	71246	Pathfinders	X 
+114059	72336	Pathfinders	X 
+114060	71249	Pathfinders	X 
+114061	72332	Pathfinders	X 
+114072	67801	Pack of Imps	X 
+114073	67724	Pack of Imps	X 
+114074	67727	Pack of Imps	X 
+114075	67733	Pack of Imps	X 
+114076	70345	Swarm of Wild Imps	X 
+114077	70857	Swarm of Wild Imps	X 
+114078	70157	Swarm of Wild Imps	X 
+114079	72533	Black Harvest Acolytes	X 
+114080	73096	Black Harvest Acolytes	X 
+114081	72536	Black Harvest Acolytes	X 
+114082	72534	Black Harvest Acolytes	X 
+114083	65678	Valarjar Aspirants	X 
+114084	65679	Valarjar Aspirants	X 
+114085	65680	Valarjar Aspirants	X 
+114086	65681	Valarjar Aspirants	X 
+114087	67361	Stormforged Valarjar	X 
+114088	67937	Stormforged Valarjar	X 
+114089	67938	Stormforged Valarjar	X 
+114090	70110	Stormforged Valarjar	X 
+114091	25801	Shieldmaiden Warband	X 
+114092	71252	Shieldmaiden Warband	X 
+114093	25800	Shieldmaiden Warband	X 
+114094	71251	Valkyra Shieldmaidens	X 
+114095	68954	Valkyra Shieldmaidens	X 
+114096	69637	Valkyra Shieldmaidens	X 
+114115	72620	Tiger Masters	X 
+114116	69181	Tiger Masters	X 
+114117	69183	Tiger Masters	X 
+114118	68996	Tiger Masters	X 
+114119	72609	Tiger Adepts	X 
+114120	69017	Tiger Adepts	X 
+114121	69025	Tiger Adepts	X 
+114122	69007	Tiger Adepts	X 
+114123	72603	Tiger Initates	X 
+114124	72599	Tiger Initates	X 
+114125	72604	Tiger Initates	X 
+114126	65747	Tiger Initates	X 
+114127	72594	Ox Masters	X 
+114128	72592	Ox Masters	X 
+114129	73130	Ox Masters	X 
+114130	69000	Ox Masters	X 
+114138	72587	Ox Adepts	X 
+114139	72581	Ox Adepts	X 
+114140	69020	Ox Adepts	X 
+114141	69009	Ox Adepts	X 
+114142	69168	Ox Initiates	X 
+114143	72575	Ox Initiates	X 
+114144	72572	Ox Initiates	X 
+114145	72577	Ox Initiates	X 
+114146	67939	Keepers of the Grove	X 
+114147	66130	Keepers of the Grove	X 
+114148	7618	Keepers of the Grove	X 
+114149	73134	Druids of the Claw	X 
+114150	73135	Druids of the Claw	X 
+114151	73132	Druids of the Claw	X 
+114152	73133	Druids of the Claw	X 
+114153	13672	Daughters of Cenarius	X 
+114154	13673	Daughters of Cenarius	X 
+114155	71008	Squad of Squires	X 
+114156	72222	Squad of Squires	X 
+114157	72220	Squad of Squires	X 
+114158	72671	Squad of Squires	X 
+114159	72194	Shieldbearer Phalanx	X 
+114160	72202	Shieldbearer Phalanx	X 
+114161	72205	Shieldbearer Phalanx	X 
+114162	71011	Shieldbearer Phalanx	X 
+114163	72209	Silver Hand Knights	X 
+114164	72212	Silver Hand Knights	X 
+114165	72208	Silver Hand Knights	X 
+114166	72214	Silver Hand Knights	X 
+114167	71014	Silver Hand Templar	X 
+114168	72188	Silver Hand Templar	X 
+114169	72176	Silver Hand Templar	X 
+114170	71015	Silver Hand Templar	X 
+114172	72369	Group of Acolytes	X 
+114173	72375	Group of Acolytes	X 
+114174	72715	Group of Acolytes	X 
+114175	72382	Group of Acolytes	X 
+114176	72400	Netherlight Paragons	X 
+114177	72399	Netherlight Paragons	X 
+114178	72403	Netherlight Paragons	X 
+114179	72407	Netherlight Paragons	X 
+114180	72412	Band of Zealots	X 
+114181	72717	Band of Zealots	X 
+114182	72417	Band of Zealots	X 
+114183	72421	Band of Zealots	X 
+114184	72433	Dark Zealots	X 
+114185	72443	Dark Zealots	X 
+114186	72442	Dark Zealots	X 
+114187	72436	Dark Zealots	X 
+114188	37302	Geist Swarm	X 
+114189	37301	Geist Swarm	X 
+114190	25327	Geist Swarm	X 
+114191	25170	Geist Swarm	X 
+114192	519	Pack of Ghouls	X 
+114193	570	Pack of Ghouls	X 
+114194	547	Pack of Ghouls	X 
+114195	559	Pack of Ghouls	X 
+114196	63575	Ebon Knights	X 
+114197	72258	Ebon Knights	X 
+114198	72265	Ebon Knights	X 
+114199	63578	Ebon Knights	X 
+114200	25999	Ebon Ravagers	X 
+114201	72269	Ebon Ravagers	X 
+114202	72274	Ebon Ravagers	X 
+114203	72275	Ebon Ravagers	X 
+115262	73731	Moroes	X 
+115293	73813	Baroness Dorothea Millstipe	X 
+115298	73812	Baron Rafe Dreuger	X 
+115299	73814	Lord Crispin Ference	X 
+116354	501	Meatball	X 
+116724	60790	Lady S'theno	X 
+117313	70208	Celestial	X 
+117477	67721	Lilian Voss	X 
+117478	53598	Princess Tess Greymane	X 
+117479	65757	Eitrigg	X 
+117480	34161	Lord Darius Crowley	X 
+117481	60790	Lady S'theno	X 
+117483	66814	Coilskar Brute	X 
+117488	74531	Magatha Grimtotem	X 
+117493	32457	Grimtotem Warrior	X 
+117497	26770	Aethas Sunreaver	X 
+117499	68004	The Great Akazamzarak	X 
+117500	66261	Nighthuntress Syrenne	X 
+117503	46573	Kanrethad Ebonlocke	X 
+117504	43408	Brewer Almai	X 
+117508	32254	Thisalee Crow	X 
+117524	60700	Maximillian of Northshire	X 
+117525	10723	Aelthalyste	X 
+117535	64614	Minerva Ravensorrow	X 
+119069	74218	Nerus Moonfang	X 
+119090	68480	Kirin Tor Guardians	X 
+119268	75638	Ebon Knight Frostreavers	X 
+119271	62743	7th Legion Shock Force	X 
+119273	76330	Kor'kron Shock Force	X 
+119274	43787	Dreamgrove Wardens	X 
+119998	66261	Nightborne Hunters	X 
+120000	22596	Shivarra	X 
+120001	69153	Earthen Ring Protectors	X 
+120005	7970	Felguard Brutes	X 
+120006	67598	Hooded Priests	X 
+120007	62942	Silver Hand Crusaders	X 
+120008	76323	Ravenholdt Assassins	X 
+120010	76320	Masters of Serenity	X 
+121361	76292	Ebon Knight Frostreavers	X 
+121362	76293	Ebon Knight Frostreavers	X 
+121363	76295	Ebon Knight Frostreavers	X 
+121366	47997	Kirin Tor Guardians	X 
+121367	47999	Kirin Tor Guardians	X 
+121368	48153	Kirin Tor Guardians	X 
+121369	76319	Masters of Serenity	X 
+121370	76321	Masters of Serenity	X 
+121371	76322	Masters of Serenity	X 
+121372	62151	Silver Hand Crusaders	X 
+121373	62811	Silver Hand Crusaders	X 
+121374	62326	Silver Hand Crusaders	X 
+121375	67599	Hooded Priests	X 
+121376	67600	Hooded Priests	X 
+121377	67601	Hooded Priests	X 
+121378	76324	Ravenholdt Assassins	X 
+121379	76325	Ravenholdt Assassins	X 
+121380	76326	Ravenholdt Assassins	X 
+121381	69154	Earthen Ring Protectors	X 
+121382	69152	Earthen Ring Protectors	X 
+121383	76328	Earthen Ring Protectors	X 
+121386	76331	Kor'kron Shock Force	X 
+121387	76332	Kor'kron Shock Force	X 
+121388	76333	Kor'kron Shock Force	X 
+121389	62744	7th Legion Shock Force	X 
+121390	76335	7th Legion Shock Force	X 
+121391	76335	7th Legion Shock Force	X 
+125442	76336	Lightforged Bulwark	X 
+127009	78395	Krokul Ridgestalker	X 
+127039	76236	Void-Purged Krokul	X 

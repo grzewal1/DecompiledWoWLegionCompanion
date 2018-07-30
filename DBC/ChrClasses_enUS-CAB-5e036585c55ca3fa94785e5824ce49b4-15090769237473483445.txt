@@ -1,0 +1,12 @@
+1	Warrior	X 
+2	Paladin	X 
+3	Hunter	X 
+4	Rogue	X 
+5	Priest	X 
+6	Death Knight	X 
+7	Shaman	X 
+8	Mage	X 
+9	Warlock	X 
+10	Monk	X 
+11	Druid	X 
+12	Demon Hunter	X 

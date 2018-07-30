@@ -1,0 +1,102 @@
+122	24	Test Kitchen Results	Nomi will research new recipes for you.	X 
+124	4	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+125	3	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+126	2	Troop Shipment	Requisition a squad of Crane Initiates which can accompany followers on missions to increase chance at a bonus reward.    |cFFFFD200Build Time: 30m|r	X 
+128	3	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+129	4	Troops Training	Summon a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+130	1	Felguard Demons	Requisition a host of Felguard Demons to fight on missions for you.    |cFFFFD200Build Time: 1hr|r	X 
+131	4	Troops Training	Summon a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+132	3	Troop Shipment	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+133	1	Troop Shipment	Requisition a squad of [units] to fight on missions for you.    |cFFFFD200Build Time: 30m|r	X 
+134	4	Troops Training	Raise a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+135	3	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+136	1	Troop Shipment	Requisition a squad of troops which can accompany Champions on missions to increase chance of success.  |cFFFFD200Build Time: 30m|r	X 
+137	4	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+138	3	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+139	1	Troop Shipment	Requisition a squad of troops which can accompany Champions on missions to increase chance of success.    |cFFFFD200Build Time: 30m|r	X 
+140	4	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+141	3	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+142	1	Troop Shipment	Requisition a squad of Keepers of the Grove to fight on missions for you.    |cFFFFD200Build Time: 30m|r	X 
+143	4	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+144	3	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+145	1	Troop Shipment	Requisition a squad of [units] to fight on missions for you.    |cFFFFD200Build Time: 30m|r	X 
+146	4	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+147	3	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+148	1	Troop Shipment	Requisition a squad of [units] to fight on missions for you.    |cFFFFD200Build Time: 30m|r	X 
+149	4	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+150	3	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+151	1	Troop Shipment	Requisition a squad of troops which can accompany Champions on missions to increase chance of success.    |cFFFFD200Build Time: 30m|r	X 
+152	4	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+153	3	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+154	1	Troop Shipment	Requisition a squad of troops which can accompany Champions on missions to increase chance of success.    |cFFFFD200Build Time: 30m|r	X 
+155	3	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+156	4	Troops Training	Summon a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+157	1	Troops Training	Summon a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+158	4	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+159	3	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+160	1	Troop Shipment	Requisition a squad of troops which can accompany Champions on missions to increase chance of success.  |cFFFFD200Build Time: 30m|r	X 
+161	2	Troop Shipment	Requisition a squad of Crane Adepts which can accompany followers on missions to increase chance at a bonus reward.    |cFFFFD200Build Time: 30m|r	X 
+163	2	Troop Shipment	Requisition a squad of Tiger Adepts which can accompany followers on missions to increase chance of success.    |cFFFFD200Build Time: 30m|r	X 
+164	1	Troops Training	Summon a powerful ally which can accompany Champions on missions to increase chance of success.	X 
+165	4	Troop Shipment	Requisition a squad of Ox Adepts which can accompany followers on missions to increase chance of success.    |cFFFFD200Build Time: 30m|r	X 
+166	4	Pack of Wild Imps	Requisition a Pack of Wild Imps to fight on missions for you.    |cFFFFD200Build Time: 15m|r	X 
+167	1	Fel Wrathguard Demons	Requisition a host of Fel Wrathguard Demons to fight on missions for you.    |cFFFFD200Build Time: 1hr|r	X 
+168	2	Black Harvest Invokers	Requisition a mob of Black Harvest Invokers to fight on missions for you.    |cFFFFD200Build Time: 30m|r	X 
+171	4	Troop Shipment	Requisition a shipment of Champion Armaments and Equipment.	X 
+173	2	Pending Research Notes	Begin additional research on your artifact weapons. Resulting knowledge will increase the rate at which you gain Artifact Power.	X 
+177	1	Seal of Broken Fate Shipment	Requisition a Seal of Broken Fate.	X 
+178	1	Summoning Frost Wyrm	Requisition a Frost Wyrm to unleash.	X 
+179	1	Enslaving Infernal	Summon an Infernal and contain it within a Demonic Phylactery, which can be unleashed to complete a World Quest.	X 
+180	1	Channelling the power of Dalaran.	Channel the power of order into the Focusing Crystal, allowing you to unleash the Might of Dalaran and complete a World Quest.	X 
+181	2	Pending Research Notes	Begin additional research on your artifact weapons. Resulting knowledge will increase the rate at which you gain Artifact Power.	X 
+182	2	Pending Research Notes	Begin additional research on your artifact weapons. Resulting knowledge will increase the rate at which you gain Artifact Power.	X 
+183	2	Pending Research Notes	Begin additional research on your artifact weapons. Resulting knowledge will increase the rate at which you gain Artifact Power.	X 
+184	2	Pending Research Notes	Begin additional research on your artifact weapons. Resulting knowledge will increase the rate at which you gain Artifact Power.	X 
+185	2	Pending Research Notes	Begin additional research on your artifact weapons. Resulting knowledge will increase the rate at which you gain Artifact Power.	X 
+186	2	Pending Research Notes	Begin additional research on your artifact weapons. Resulting knowledge will increase the rate at which you gain Artifact Power.	X 
+187	2	Pending Research Notes	Begin additional research on your artifact weapons. Resulting knowledge will increase the rate at which you gain Artifact Power.	X 
+188	2	Pending Research Notes	Begin additional research on your artifact weapons. Resulting knowledge will increase the rate at which you gain Artifact Power.	X 
+189	2	Pending Research Notes	Begin additional research on your artifact weapons. Resulting knowledge will increase the rate at which you gain Artifact Power.	X 
+190	2	Pending Research Notes	Begin additional research on your artifact weapons. Resulting knowledge will increase the rate at which you gain Artifact Power.	X 
+191	2	Pending Research Notes	Begin additional research on your artifact weapons. Resulting knowledge will increase the rate at which you gain Artifact Power.	X 
+192	1	Raising the Vanguard	Begin the recruitment of the Vanguard of the Silver Hand, to unleash them on a World Quest.	X 
+193	1	Ritual of Blessings	Call upon the prayers of the order to bless your Champions, increasing their chance of success on missions.	X 
+194	1	Calling the Val'kyr	Begin calling the Val'kyr, allowing you to deploy them to complete a World Quest.	X 
+195	1	Channel the wrath of the order.	Channel the wrath of the order to empower the Rift Core, allowing you to deploy the Rift Cannon to complete a World Quest.	X 
+196	1	Troop Shipment	Summon a powerful ally which can accompany Champions on missions to increase chance of success.	X 
+197	4	Troop Shipment	Requisition a shipment of Champion armaments and equipment.	X 
+198	4	Troop Shipment	Requisition a shipment of Champion armaments and equipment.	X 
+199	4	Troop Shipment	Requisition a shipment of Champion armaments and equipment.	X 
+200	4	Troop Shipment	Requisition a shipment of Champion armaments and equipment.	X 
+201	4	Troop Shipment	Requisition a shipment of Champion armaments and equipment.	X 
+202	4	Troop Shipment	Requisition a shipment of Champion armaments and equipment.	X 
+203	4	Troop Shipment	Requisition a shipment of Champion armaments and equipment.	X 
+204	4	Troop Shipment	Requisition a shipment of Champion armaments and equipment.	X 
+205	4	Troop Shipment	Requisition a shipment of Champion armaments and equipment.	X 
+206	4	Troop Shipment	Requisition a shipment of Champion armaments and equipment.	X 
+207	4	Troop Shipment	Requisition a shipment of Champion armaments and equipment.	X 
+208	4	Troop Shipment	Requisition a shipment of Champion armaments and equipment.	X 
+209	1	Seal of Broken Fate Shipment	Requisition a Seal of Broken Fate.	X 
+210	1	Seal of Broken Fate Shipment	Requisition a Seal of Broken Fate.	X 
+211	1	Seal of Broken Fate Shipment	Requisition a Seal of Broken Fate.	X 
+212	1	Seal of Broken Fate Shipment	Requisition a Seal of Broken Fate.	X 
+213	1	Seal of Broken Fate Shipment	Requisition a Seal of Broken Fate.	X 
+214	1	Seal of Broken Fate Shipment	Requisition a Seal of Broken Fate.	X 
+215	1	Seal of Broken Fate Shipment	Requisition a Seal of Broken Fate.	X 
+216	1	Seal of Broken Fate Shipment	Requisition a Seal of Broken Fate.	X 
+217	1	Seal of Broken Fate Shipment	Requisition a Seal of Broken Fate.	X 
+218	1	Seal of Broken Fate Shipment	Requisition a Seal of Broken Fate.	X 
+219	1	Seal of Broken Fate Shipment	Requisition a Seal of Broken Fate.	X 
+220	1	Seal of Broken Fate Shipment	Requisition a Seal of Broken Fate.	X 
+223	2	Troop Shipment	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+224	2	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+225	2	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+226	2	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+227	2	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+228	2	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+229	2	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+230	2	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+231	2	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+232	2	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+233	2	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
+234	2	Troops Training	Train a squad of troops which can accompany Champions on missions to increase chance of success.	X 
