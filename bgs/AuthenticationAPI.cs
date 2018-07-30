@@ -22,6 +22,8 @@ namespace bgs
 
 		private bnet.protocol.EntityId m_gameAccount;
 
+		private string m_battleTag;
+
 		private byte[] m_sessionKey;
 
 		private bool m_authenticationFailure;
@@ -47,6 +49,14 @@ namespace bgs
 			get
 			{
 				return this.m_authServerService;
+			}
+		}
+
+		public string BattleTag
+		{
+			get
+			{
+				return this.m_battleTag;
 			}
 		}
 
@@ -117,6 +127,10 @@ namespace bgs
 			{
 				this.m_gameAccounts.Add(gameAccountList);
 				this.m_battleNet.Presence.PresenceSubscribe(gameAccountList);
+			}
+			if (logonResult.HasBattleTag)
+			{
+				this.m_battleTag = logonResult.BattleTag;
 			}
 			if (this.m_gameAccounts.Count > 0)
 			{

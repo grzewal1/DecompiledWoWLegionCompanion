@@ -344,9 +344,9 @@ namespace bgs
 		{
 			// 
 			// Current member / type: bgs.RPCContext bgs.RPCConnection::QueueRequest(System.UInt32,System.UInt32,IProtoBuf,bgs.RPCContextDelegate,System.UInt32)
-			// File path: C:\apktool\wow\assets\bin\Data\Managed\Assembly-CSharp.dll
+			// File path: C:\Users\Selenium\Downloads\WoW_2.0.3 - Copie\assets\bin\Data\Managed\Assembly-CSharp.dll
 			// 
-			// Product version: 2018.1.123.0
+			// Product version: 2018.2.605.0
 			// Exception in: bgs.RPCContext QueueRequest(System.UInt32,System.UInt32,IProtoBuf,bgs.RPCContextDelegate,System.UInt32)
 			// 
 			// La référence d'objet n'est pas définie à une instance d'un objet.

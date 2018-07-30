@@ -1,51 +1,46 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace WowStaticData
 {
 	public class QuestV2DB
 	{
-		private Hashtable m_records;
+		private Dictionary<int, QuestV2Rec> m_records = new Dictionary<int, QuestV2Rec>();
 
 		public QuestV2DB()
 		{
 		}
 
-		public void EnumRecords(Predicate<QuestV2Rec> callback)
-		{
-			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					if (callback((QuestV2Rec)enumerator.Current))
-					{
-						continue;
-					}
-					break;
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				IDisposable disposable1 = disposable;
-				if (disposable != null)
-				{
-					disposable1.Dispose();
-				}
-			}
-		}
-
 		public QuestV2Rec GetRecord(int id)
 		{
-			return (QuestV2Rec)this.m_records[id];
+			QuestV2Rec item;
+			if (!this.m_records.ContainsKey(id))
+			{
+				item = null;
+			}
+			else
+			{
+				item = this.m_records[id];
+			}
+			return item;
+		}
+
+		public QuestV2Rec GetRecordFirstOrDefault(Func<QuestV2Rec, bool> matcher)
+		{
+			return this.m_records.Values.FirstOrDefault<QuestV2Rec>(matcher);
+		}
+
+		public IEnumerable<QuestV2Rec> GetRecordsWhere(Func<QuestV2Rec, bool> matcher)
+		{
+			return this.m_records.Values.Where<QuestV2Rec>(matcher);
 		}
 
 		public bool Load(string path, AssetBundle nonLocalizedBundle, AssetBundle localizedBundle, string locale)
 		{
 			string str = string.Concat(new string[] { path, locale, "/QuestV2_", locale, ".txt" });
-			if (this.m_records != null)
+			if (this.m_records.Count > 0)
 			{
 				Debug.Log(string.Concat("Already loaded static db ", str));
 				return false;
@@ -57,7 +52,6 @@ namespace WowStaticData
 				return false;
 			}
 			string str1 = textAsset.ToString();
-			this.m_records = new Hashtable();
 			int num = 0;
 			int num1 = 0;
 			do

@@ -1,77 +1,55 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace WowStaticData
 {
 	public class GarrEncounterSetXEncounterDB
 	{
-		private Hashtable m_records;
+		private Dictionary<int, GarrEncounterSetXEncounterRec> m_records = new Dictionary<int, GarrEncounterSetXEncounterRec>();
 
 		public GarrEncounterSetXEncounterDB()
 		{
 		}
 
-		public void EnumRecords(Predicate<GarrEncounterSetXEncounterRec> callback)
-		{
-			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					if (callback((GarrEncounterSetXEncounterRec)enumerator.Current))
-					{
-						continue;
-					}
-					break;
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				IDisposable disposable1 = disposable;
-				if (disposable != null)
-				{
-					disposable1.Dispose();
-				}
-			}
-		}
-
-		public void EnumRecordsByParentID(int parentID, Predicate<GarrEncounterSetXEncounterRec> callback)
-		{
-			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					GarrEncounterSetXEncounterRec current = (GarrEncounterSetXEncounterRec)enumerator.Current;
-					if (current.GarrEncounterSetID != parentID || callback(current))
-					{
-						continue;
-					}
-					break;
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				IDisposable disposable1 = disposable;
-				if (disposable != null)
-				{
-					disposable1.Dispose();
-				}
-			}
-		}
-
 		public GarrEncounterSetXEncounterRec GetRecord(int id)
 		{
-			return (GarrEncounterSetXEncounterRec)this.m_records[id];
+			GarrEncounterSetXEncounterRec item;
+			if (!this.m_records.ContainsKey(id))
+			{
+				item = null;
+			}
+			else
+			{
+				item = this.m_records[id];
+			}
+			return item;
+		}
+
+		public GarrEncounterSetXEncounterRec GetRecordFirstOrDefault(Func<GarrEncounterSetXEncounterRec, bool> matcher)
+		{
+			return this.m_records.Values.FirstOrDefault<GarrEncounterSetXEncounterRec>(matcher);
+		}
+
+		public IEnumerable<GarrEncounterSetXEncounterRec> GetRecordsByParentID(int parentID)
+		{
+			return 
+				from rec in this.m_records.Values
+				where rec.GarrEncounterSetID == parentID
+				select rec;
+		}
+
+		public IEnumerable<GarrEncounterSetXEncounterRec> GetRecordsWhere(Func<GarrEncounterSetXEncounterRec, bool> matcher)
+		{
+			return this.m_records.Values.Where<GarrEncounterSetXEncounterRec>(matcher);
 		}
 
 		public bool Load(string path, AssetBundle nonLocalizedBundle, AssetBundle localizedBundle, string locale)
 		{
 			string str = string.Concat(path, "NonLocalized/GarrEncounterSetXEncounter.txt");
-			if (this.m_records != null)
+			if (this.m_records.Count > 0)
 			{
 				Debug.Log(string.Concat("Already loaded static db ", str));
 				return false;
@@ -83,7 +61,6 @@ namespace WowStaticData
 				return false;
 			}
 			string str1 = textAsset.ToString();
-			this.m_records = new Hashtable();
 			int num = 0;
 			int num1 = 0;
 			do

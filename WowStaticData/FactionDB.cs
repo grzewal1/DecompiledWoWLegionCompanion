@@ -1,51 +1,46 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace WowStaticData
 {
 	public class FactionDB
 	{
-		private Hashtable m_records;
+		private Dictionary<int, FactionRec> m_records = new Dictionary<int, FactionRec>();
 
 		public FactionDB()
 		{
 		}
 
-		public void EnumRecords(Predicate<FactionRec> callback)
-		{
-			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					if (callback((FactionRec)enumerator.Current))
-					{
-						continue;
-					}
-					break;
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				IDisposable disposable1 = disposable;
-				if (disposable != null)
-				{
-					disposable1.Dispose();
-				}
-			}
-		}
-
 		public FactionRec GetRecord(int id)
 		{
-			return (FactionRec)this.m_records[id];
+			FactionRec item;
+			if (!this.m_records.ContainsKey(id))
+			{
+				item = null;
+			}
+			else
+			{
+				item = this.m_records[id];
+			}
+			return item;
+		}
+
+		public FactionRec GetRecordFirstOrDefault(Func<FactionRec, bool> matcher)
+		{
+			return this.m_records.Values.FirstOrDefault<FactionRec>(matcher);
+		}
+
+		public IEnumerable<FactionRec> GetRecordsWhere(Func<FactionRec, bool> matcher)
+		{
+			return this.m_records.Values.Where<FactionRec>(matcher);
 		}
 
 		public bool Load(string path, AssetBundle nonLocalizedBundle, AssetBundle localizedBundle, string locale)
 		{
 			string str = string.Concat(new string[] { path, locale, "/Faction_", locale, ".txt" });
-			if (this.m_records != null)
+			if (this.m_records.Count > 0)
 			{
 				Debug.Log(string.Concat("Already loaded static db ", str));
 				return false;
@@ -57,7 +52,6 @@ namespace WowStaticData
 				return false;
 			}
 			string str1 = textAsset.ToString();
-			this.m_records = new Hashtable();
 			int num = 0;
 			int num1 = 0;
 			do

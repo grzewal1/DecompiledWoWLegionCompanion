@@ -6,12 +6,20 @@ using System.Runtime.Serialization;
 namespace WowJamMessages.JSONRealmList
 {
 	[DataContract]
-	[FlexJamStruct(Name="JamJSONCharacterEntry", Version=28333852)]
+	[FlexJamStruct(Name="JamJSONCharacterEntry", Version=47212487)]
 	public class JamJSONCharacterEntry
 	{
 		[DataMember(Name="classID")]
 		[FlexJamMember(Name="classID", Type=FlexJamType.UInt8)]
 		public byte ClassID
+		{
+			get;
+			set;
+		}
+
+		[DataMember(Name="communityID")]
+		[FlexJamMember(Name="communityID", Type=FlexJamType.UInt64)]
+		public ulong CommunityID
 		{
 			get;
 			set;

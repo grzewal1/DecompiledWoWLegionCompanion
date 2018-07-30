@@ -773,6 +773,11 @@ namespace bgs
 			return entityId;
 		}
 
+		public string GetMyBattleTag()
+		{
+			return this.m_authenticationAPI.BattleTag;
+		}
+
 		public bgs.types.EntityId GetMyGameAccountId()
 		{
 			bgs.types.EntityId entityId = new bgs.types.EntityId()

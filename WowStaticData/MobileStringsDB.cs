@@ -1,51 +1,46 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace WowStaticData
 {
 	public class MobileStringsDB
 	{
-		private Hashtable m_records;
+		private Dictionary<string, MobileStringsRec> m_records = new Dictionary<string, MobileStringsRec>();
 
 		public MobileStringsDB()
 		{
 		}
 
-		public void EnumRecords(Predicate<MobileStringsRec> callback)
-		{
-			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					if (callback((MobileStringsRec)enumerator.Current))
-					{
-						continue;
-					}
-					break;
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				IDisposable disposable1 = disposable;
-				if (disposable != null)
-				{
-					disposable1.Dispose();
-				}
-			}
-		}
-
 		public MobileStringsRec GetRecord(string baseTag)
 		{
-			return (MobileStringsRec)this.m_records[baseTag];
+			MobileStringsRec item;
+			if (!this.m_records.ContainsKey(baseTag))
+			{
+				item = null;
+			}
+			else
+			{
+				item = this.m_records[baseTag];
+			}
+			return item;
+		}
+
+		public MobileStringsRec GetRecordFirstOrDefault(Func<MobileStringsRec, bool> matcher)
+		{
+			return this.m_records.Values.FirstOrDefault<MobileStringsRec>(matcher);
+		}
+
+		public IEnumerable<MobileStringsRec> GetRecordsWhere(Func<MobileStringsRec, bool> matcher)
+		{
+			return this.m_records.Values.Where<MobileStringsRec>(matcher);
 		}
 
 		public bool Load(string path, AssetBundle nonLocalizedBundle, AssetBundle localizedBundle, string locale)
 		{
 			string str = string.Concat(new string[] { path, locale, "/MobileStrings_", locale, ".txt" });
-			if (this.m_records != null)
+			if (this.m_records.Count > 0)
 			{
 				Debug.Log(string.Concat("Already loaded static db ", str));
 				return false;
@@ -57,7 +52,6 @@ namespace WowStaticData
 				return false;
 			}
 			string str1 = textAsset.ToString();
-			this.m_records = new Hashtable();
 			int num = 0;
 			int num1 = 0;
 			do

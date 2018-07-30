@@ -31,7 +31,7 @@ public class DelayedObjectEnable : MonoBehaviour
 			if (this.m_timeRemaining <= 0f)
 			{
 				this.m_objectToEnable.SetActive(true);
-				UnityEngine.Object.DestroyImmediate(this);
+				UnityEngine.Object.Destroy(this);
 			}
 		}
 	}

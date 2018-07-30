@@ -167,7 +167,7 @@ namespace bgs
 			unitsStr = unitsStr.ToLowerInvariant();
 			if (unitsStr != null)
 			{
-				if (TimeUtils.<>f__switch$map9 == null)
+				if (TimeUtils.<>f__switch$map2 == null)
 				{
 					Dictionary<string, int> strs = new Dictionary<string, int>(13)
 					{
@@ -185,9 +185,9 @@ namespace bgs
 						{ "hour", 2 },
 						{ "hours", 2 }
 					};
-					TimeUtils.<>f__switch$map9 = strs;
+					TimeUtils.<>f__switch$map2 = strs;
 				}
-				if (TimeUtils.<>f__switch$map9.TryGetValue(unitsStr, out num))
+				if (TimeUtils.<>f__switch$map2.TryGetValue(unitsStr, out num))
 				{
 					switch (num)
 					{

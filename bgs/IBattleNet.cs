@@ -109,6 +109,8 @@ namespace bgs
 
 		bgs.types.EntityId GetMyAccountId();
 
+		string GetMyBattleTag();
+
 		bgs.types.EntityId GetMyGameAccountId();
 
 		int GetNotificationCount();

@@ -2,11 +2,12 @@ using JamLib;
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using WowJamMessages;
 
 namespace WowJamMessages.JSONRealmList
 {
 	[DataContract]
-	[FlexJamMessage(Id=15035, Name="JSONRealmListTicketClientInformation", Version=28333852)]
+	[FlexJamMessage(Id=15035, Name="JSONRealmListTicketClientInformation", Version=47212487)]
 	public class JSONRealmListTicketClientInformation
 	{
 		[DataMember(Name="info")]

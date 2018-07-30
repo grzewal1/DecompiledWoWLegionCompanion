@@ -1,51 +1,46 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace WowStaticData
 {
 	public class CurrencyTypesDB
 	{
-		private Hashtable m_records;
+		private Dictionary<int, CurrencyTypesRec> m_records = new Dictionary<int, CurrencyTypesRec>();
 
 		public CurrencyTypesDB()
 		{
 		}
 
-		public void EnumRecords(Predicate<CurrencyTypesRec> callback)
-		{
-			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					if (callback((CurrencyTypesRec)enumerator.Current))
-					{
-						continue;
-					}
-					break;
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				IDisposable disposable1 = disposable;
-				if (disposable != null)
-				{
-					disposable1.Dispose();
-				}
-			}
-		}
-
 		public CurrencyTypesRec GetRecord(int id)
 		{
-			return (CurrencyTypesRec)this.m_records[id];
+			CurrencyTypesRec item;
+			if (!this.m_records.ContainsKey(id))
+			{
+				item = null;
+			}
+			else
+			{
+				item = this.m_records[id];
+			}
+			return item;
+		}
+
+		public CurrencyTypesRec GetRecordFirstOrDefault(Func<CurrencyTypesRec, bool> matcher)
+		{
+			return this.m_records.Values.FirstOrDefault<CurrencyTypesRec>(matcher);
+		}
+
+		public IEnumerable<CurrencyTypesRec> GetRecordsWhere(Func<CurrencyTypesRec, bool> matcher)
+		{
+			return this.m_records.Values.Where<CurrencyTypesRec>(matcher);
 		}
 
 		public bool Load(string path, AssetBundle nonLocalizedBundle, AssetBundle localizedBundle, string locale)
 		{
 			string str = string.Concat(new string[] { path, locale, "/CurrencyTypes_", locale, ".txt" });
-			if (this.m_records != null)
+			if (this.m_records.Count > 0)
 			{
 				Debug.Log(string.Concat("Already loaded static db ", str));
 				return false;
@@ -57,7 +52,6 @@ namespace WowStaticData
 				return false;
 			}
 			string str1 = textAsset.ToString();
-			this.m_records = new Hashtable();
 			int num = 0;
 			int num1 = 0;
 			do

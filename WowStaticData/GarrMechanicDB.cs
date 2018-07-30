@@ -1,51 +1,46 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace WowStaticData
 {
 	public class GarrMechanicDB
 	{
-		private Hashtable m_records;
+		private Dictionary<int, GarrMechanicRec> m_records = new Dictionary<int, GarrMechanicRec>();
 
 		public GarrMechanicDB()
 		{
 		}
 
-		public void EnumRecords(Predicate<GarrMechanicRec> callback)
-		{
-			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					if (callback((GarrMechanicRec)enumerator.Current))
-					{
-						continue;
-					}
-					break;
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				IDisposable disposable1 = disposable;
-				if (disposable != null)
-				{
-					disposable1.Dispose();
-				}
-			}
-		}
-
 		public GarrMechanicRec GetRecord(int id)
 		{
-			return (GarrMechanicRec)this.m_records[id];
+			GarrMechanicRec item;
+			if (!this.m_records.ContainsKey(id))
+			{
+				item = null;
+			}
+			else
+			{
+				item = this.m_records[id];
+			}
+			return item;
+		}
+
+		public GarrMechanicRec GetRecordFirstOrDefault(Func<GarrMechanicRec, bool> matcher)
+		{
+			return this.m_records.Values.FirstOrDefault<GarrMechanicRec>(matcher);
+		}
+
+		public IEnumerable<GarrMechanicRec> GetRecordsWhere(Func<GarrMechanicRec, bool> matcher)
+		{
+			return this.m_records.Values.Where<GarrMechanicRec>(matcher);
 		}
 
 		public bool Load(string path, AssetBundle nonLocalizedBundle, AssetBundle localizedBundle, string locale)
 		{
 			string str = string.Concat(path, "NonLocalized/GarrMechanic.txt");
-			if (this.m_records != null)
+			if (this.m_records.Count > 0)
 			{
 				Debug.Log(string.Concat("Already loaded static db ", str));
 				return false;
@@ -57,7 +52,6 @@ namespace WowStaticData
 				return false;
 			}
 			string str1 = textAsset.ToString();
-			this.m_records = new Hashtable();
 			int num = 0;
 			int num1 = 0;
 			do

@@ -1,77 +1,55 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace WowStaticData
 {
 	public class UiTextureAtlasMemberDB
 	{
-		private Hashtable m_records;
+		private Dictionary<int, UiTextureAtlasMemberRec> m_records = new Dictionary<int, UiTextureAtlasMemberRec>();
 
 		public UiTextureAtlasMemberDB()
 		{
 		}
 
-		public void EnumRecords(Predicate<UiTextureAtlasMemberRec> callback)
-		{
-			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					if (callback((UiTextureAtlasMemberRec)enumerator.Current))
-					{
-						continue;
-					}
-					break;
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				IDisposable disposable1 = disposable;
-				if (disposable != null)
-				{
-					disposable1.Dispose();
-				}
-			}
-		}
-
-		public void EnumRecordsByParentID(int parentID, Predicate<UiTextureAtlasMemberRec> callback)
-		{
-			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					UiTextureAtlasMemberRec current = (UiTextureAtlasMemberRec)enumerator.Current;
-					if ((ulong)current.UiTextureAtlasID != (long)parentID || callback(current))
-					{
-						continue;
-					}
-					break;
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				IDisposable disposable1 = disposable;
-				if (disposable != null)
-				{
-					disposable1.Dispose();
-				}
-			}
-		}
-
 		public UiTextureAtlasMemberRec GetRecord(int id)
 		{
-			return (UiTextureAtlasMemberRec)this.m_records[id];
+			UiTextureAtlasMemberRec item;
+			if (!this.m_records.ContainsKey(id))
+			{
+				item = null;
+			}
+			else
+			{
+				item = this.m_records[id];
+			}
+			return item;
+		}
+
+		public UiTextureAtlasMemberRec GetRecordFirstOrDefault(Func<UiTextureAtlasMemberRec, bool> matcher)
+		{
+			return this.m_records.Values.FirstOrDefault<UiTextureAtlasMemberRec>(matcher);
+		}
+
+		public IEnumerable<UiTextureAtlasMemberRec> GetRecordsByParentID(int parentID)
+		{
+			return 
+				from rec in this.m_records.Values
+				where (ulong)rec.UiTextureAtlasID == (long)parentID
+				select rec;
+		}
+
+		public IEnumerable<UiTextureAtlasMemberRec> GetRecordsWhere(Func<UiTextureAtlasMemberRec, bool> matcher)
+		{
+			return this.m_records.Values.Where<UiTextureAtlasMemberRec>(matcher);
 		}
 
 		public bool Load(string path, AssetBundle nonLocalizedBundle, AssetBundle localizedBundle, string locale)
 		{
 			string str = string.Concat(path, "NonLocalized/UiTextureAtlasMember.txt");
-			if (this.m_records != null)
+			if (this.m_records.Count > 0)
 			{
 				Debug.Log(string.Concat("Already loaded static db ", str));
 				return false;
@@ -83,7 +61,6 @@ namespace WowStaticData
 				return false;
 			}
 			string str1 = textAsset.ToString();
-			this.m_records = new Hashtable();
 			int num = 0;
 			int num1 = 0;
 			do

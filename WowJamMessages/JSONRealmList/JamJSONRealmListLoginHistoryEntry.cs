@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace WowJamMessages.JSONRealmList
 {
 	[DataContract]
-	[FlexJamStruct(Name="JamJSONRealmListLoginHistoryEntry", Version=28333852)]
+	[FlexJamStruct(Name="JamJSONRealmListLoginHistoryEntry", Version=47212487)]
 	public class JamJSONRealmListLoginHistoryEntry
 	{
 		[DataMember(Name="characterGUID")]

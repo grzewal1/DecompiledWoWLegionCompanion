@@ -1,77 +1,55 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace WowStaticData
 {
 	public class ItemEffectDB
 	{
-		private Hashtable m_records;
+		private Dictionary<int, ItemEffectRec> m_records = new Dictionary<int, ItemEffectRec>();
 
 		public ItemEffectDB()
 		{
 		}
 
-		public void EnumRecords(Predicate<ItemEffectRec> callback)
-		{
-			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					if (callback((ItemEffectRec)enumerator.Current))
-					{
-						continue;
-					}
-					break;
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				IDisposable disposable1 = disposable;
-				if (disposable != null)
-				{
-					disposable1.Dispose();
-				}
-			}
-		}
-
-		public void EnumRecordsByParentID(int parentID, Predicate<ItemEffectRec> callback)
-		{
-			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					ItemEffectRec current = (ItemEffectRec)enumerator.Current;
-					if (current.ParentItemID != parentID || callback(current))
-					{
-						continue;
-					}
-					break;
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				IDisposable disposable1 = disposable;
-				if (disposable != null)
-				{
-					disposable1.Dispose();
-				}
-			}
-		}
-
 		public ItemEffectRec GetRecord(int id)
 		{
-			return (ItemEffectRec)this.m_records[id];
+			ItemEffectRec item;
+			if (!this.m_records.ContainsKey(id))
+			{
+				item = null;
+			}
+			else
+			{
+				item = this.m_records[id];
+			}
+			return item;
+		}
+
+		public ItemEffectRec GetRecordFirstOrDefault(Func<ItemEffectRec, bool> matcher)
+		{
+			return this.m_records.Values.FirstOrDefault<ItemEffectRec>(matcher);
+		}
+
+		public IEnumerable<ItemEffectRec> GetRecordsByParentID(int parentID)
+		{
+			return 
+				from rec in this.m_records.Values
+				where rec.ParentItemID == parentID
+				select rec;
+		}
+
+		public IEnumerable<ItemEffectRec> GetRecordsWhere(Func<ItemEffectRec, bool> matcher)
+		{
+			return this.m_records.Values.Where<ItemEffectRec>(matcher);
 		}
 
 		public bool Load(string path, AssetBundle nonLocalizedBundle, AssetBundle localizedBundle, string locale)
 		{
 			string str = string.Concat(path, "NonLocalized/ItemEffect.txt");
-			if (this.m_records != null)
+			if (this.m_records.Count > 0)
 			{
 				Debug.Log(string.Concat("Already loaded static db ", str));
 				return false;
@@ -83,7 +61,6 @@ namespace WowStaticData
 				return false;
 			}
 			string str1 = textAsset.ToString();
-			this.m_records = new Hashtable();
 			int num = 0;
 			int num1 = 0;
 			do

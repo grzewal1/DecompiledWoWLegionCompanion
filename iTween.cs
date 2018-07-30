@@ -2830,7 +2830,7 @@ public class iTween : MonoBehaviour
 		string str = this.type;
 		if (str != null)
 		{
-			if (iTween.<>f__switch$mapA == null)
+			if (iTween.<>f__switch$map4 == null)
 			{
 				Dictionary<string, int> strs = new Dictionary<string, int>(10)
 				{
@@ -2845,9 +2845,9 @@ public class iTween : MonoBehaviour
 					{ "look", 8 },
 					{ "stab", 9 }
 				};
-				iTween.<>f__switch$mapA = strs;
+				iTween.<>f__switch$map4 = strs;
 			}
-			if (iTween.<>f__switch$mapA.TryGetValue(str, out num))
+			if (iTween.<>f__switch$map4.TryGetValue(str, out num))
 			{
 				switch (num)
 				{

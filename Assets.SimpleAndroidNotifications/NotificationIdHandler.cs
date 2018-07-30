@@ -40,6 +40,11 @@ namespace Assets.SimpleAndroidNotifications
 				select i).Select<string, int>(new Func<string, int>(int.Parse)).ToList<int>());
 		}
 
+		public static void RemoveAllScheduledNotificaions()
+		{
+			NotificationIdHandler.SetScheduledNotificaions(new List<int>());
+		}
+
 		public static void RemoveScheduledNotificaion(int id)
 		{
 			List<int> scheduledNotificaions = NotificationIdHandler.GetScheduledNotificaions();

@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace WowJamMessages.JSONRealmList
 {
 	[DataContract]
-	[FlexJamStruct(Name="JamJSONRealmListServerIPFamily", Version=28333852)]
+	[FlexJamStruct(Name="JamJSONRealmListServerIPFamily", Version=47212487)]
 	public class JamJSONRealmListServerIPFamily
 	{
 		[DataMember(Name="addresses")]

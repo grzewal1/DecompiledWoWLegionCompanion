@@ -2,11 +2,12 @@ using JamLib;
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using WowJamMessages;
 
 namespace WowJamMessages.JSONRealmList
 {
 	[DataContract]
-	[FlexJamStruct(Name="JamJSONRealmEntry", Version=28333852)]
+	[FlexJamStruct(Name="JamJSONRealmEntry", Version=47212487)]
 	public class JamJSONRealmEntry
 	{
 		[DataMember(Name="cfgCategoriesID")]

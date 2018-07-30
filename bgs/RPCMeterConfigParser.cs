@@ -77,7 +77,7 @@ namespace bgs
 				}
 				if (str != null)
 				{
-					if (RPCMeterConfigParser.<>f__switch$map8 == null)
+					if (RPCMeterConfigParser.<>f__switch$map1 == null)
 					{
 						Dictionary<string, int> strs = new Dictionary<string, int>(11)
 						{
@@ -93,9 +93,9 @@ namespace bgs
 							{ "max_encoded_size:", 9 },
 							{ "timeout:", 10 }
 						};
-						RPCMeterConfigParser.<>f__switch$map8 = strs;
+						RPCMeterConfigParser.<>f__switch$map1 = strs;
 					}
-					if (RPCMeterConfigParser.<>f__switch$map8.TryGetValue(str, out num))
+					if (RPCMeterConfigParser.<>f__switch$map1.TryGetValue(str, out num))
 					{
 						switch (num)
 						{

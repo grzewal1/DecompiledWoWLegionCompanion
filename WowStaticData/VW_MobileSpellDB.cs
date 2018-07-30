@@ -1,51 +1,46 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace WowStaticData
 {
 	public class VW_MobileSpellDB
 	{
-		private Hashtable m_records;
+		private Dictionary<int, VW_MobileSpellRec> m_records = new Dictionary<int, VW_MobileSpellRec>();
 
 		public VW_MobileSpellDB()
 		{
 		}
 
-		public void EnumRecords(Predicate<VW_MobileSpellRec> callback)
-		{
-			IEnumerator enumerator = this.m_records.Values.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					if (callback((VW_MobileSpellRec)enumerator.Current))
-					{
-						continue;
-					}
-					break;
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				IDisposable disposable1 = disposable;
-				if (disposable != null)
-				{
-					disposable1.Dispose();
-				}
-			}
-		}
-
 		public VW_MobileSpellRec GetRecord(int id)
 		{
-			return (VW_MobileSpellRec)this.m_records[id];
+			VW_MobileSpellRec item;
+			if (!this.m_records.ContainsKey(id))
+			{
+				item = null;
+			}
+			else
+			{
+				item = this.m_records[id];
+			}
+			return item;
+		}
+
+		public VW_MobileSpellRec GetRecordFirstOrDefault(Func<VW_MobileSpellRec, bool> matcher)
+		{
+			return this.m_records.Values.FirstOrDefault<VW_MobileSpellRec>(matcher);
+		}
+
+		public IEnumerable<VW_MobileSpellRec> GetRecordsWhere(Func<VW_MobileSpellRec, bool> matcher)
+		{
+			return this.m_records.Values.Where<VW_MobileSpellRec>(matcher);
 		}
 
 		public bool Load(string path, AssetBundle nonLocalizedBundle, AssetBundle localizedBundle, string locale)
 		{
 			string str = string.Concat(new string[] { path, locale, "/VW_MobileSpell_", locale, ".txt" });
-			if (this.m_records != null)
+			if (this.m_records.Count > 0)
 			{
 				Debug.Log(string.Concat("Already loaded static db ", str));
 				return false;
@@ -57,7 +52,6 @@ namespace WowStaticData
 				return false;
 			}
 			string str1 = textAsset.ToString();
-			this.m_records = new Hashtable();
 			int num = 0;
 			int num1 = 0;
 			do
