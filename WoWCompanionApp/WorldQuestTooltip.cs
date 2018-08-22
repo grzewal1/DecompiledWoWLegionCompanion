@@ -20,6 +20,8 @@ namespace WoWCompanionApp
 		public Image m_expiringSoon;
 
 		[Header("World Quest Info")]
+		public Text m_worldQuestNameText;
+
 		private Text m_worldQuestTimeText;
 
 		public MissionRewardDisplay m_missionRewardDisplayPrefab;
@@ -31,6 +33,10 @@ namespace WoWCompanionApp
 		public GameObject m_bountyLogoRoot;
 
 		public BountySite m_bountyLogoPrefab;
+
+		public GameObject m_singleEmissaryFiligree;
+
+		public GameObject m_doubleEmissaryFiligree;
 
 		[Header("Misc")]
 		public RewardInfoPopup[] m_rewardInfo;
@@ -55,8 +61,16 @@ namespace WoWCompanionApp
 			this.m_rewardInfo[2].gameObject.SetActive(highestActiveIndex >= 2);
 		}
 
+		private void EnableBountyFiligree(int activeBounties)
+		{
+			this.m_singleEmissaryFiligree.SetActive(activeBounties == 1);
+			this.m_doubleEmissaryFiligree.SetActive(activeBounties == 2);
+		}
+
 		private void InitRewardInfoDisplay(WrapperWorldQuest worldQuest)
 		{
+			Sprite sprite;
+			int quantity;
 			int num = 0;
 			this.m_rewardInfo[0].gameObject.SetActive(true);
 			this.m_rewardInfo[1].gameObject.SetActive(false);
@@ -65,8 +79,8 @@ namespace WoWCompanionApp
 			{
 				foreach (WrapperWorldQuestReward item in worldQuest.Items)
 				{
-					Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, item.FileDataID);
-					this.m_rewardInfo[num].SetReward(MissionRewardDisplay.RewardType.item, item.RecordID, item.Quantity, sprite, item.ItemContext);
+					Sprite sprite1 = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, item.FileDataID);
+					this.m_rewardInfo[num].SetReward(MissionRewardDisplay.RewardType.item, item.RecordID, item.Quantity, sprite1, item.ItemContext);
 					int num1 = num;
 					num = num1 + 1;
 					this.EnableAdditionalRewardDisplays(num1);
@@ -81,27 +95,43 @@ namespace WoWCompanionApp
 			{
 				foreach (WrapperWorldQuestReward currency in worldQuest.Currencies)
 				{
-					Sprite sprite1 = GeneralHelpers.LoadCurrencyIcon(currency.RecordID);
 					CurrencyTypesRec record = StaticDB.currencyTypesDB.GetRecord(currency.RecordID);
-					int quantity = currency.Quantity / ((record.Flags & 8) == 0 ? 1 : 100);
-					this.m_rewardInfo[num].SetCurrency(currency.RecordID, quantity, sprite1);
-					int num2 = num;
-					num = num2 + 1;
-					this.EnableAdditionalRewardDisplays(num2);
-					if (num < 3)
+					if (CurrencyContainerDB.CheckAndGetValidCurrencyContainer(currency.RecordID, currency.Quantity) == null)
 					{
-						continue;
+						sprite = GeneralHelpers.LoadCurrencyIcon(currency.RecordID);
+						quantity = currency.Quantity / ((record.Flags & 8) == 0 ? 1 : 100);
+						this.m_rewardInfo[num].SetCurrency(currency.RecordID, quantity, sprite);
+						int num2 = num;
+						num = num2 + 1;
+						this.EnableAdditionalRewardDisplays(num2);
+						if (num < 3)
+						{
+							continue;
+						}
+						return;
 					}
-					return;
+					else
+					{
+						sprite = CurrencyContainerDB.LoadCurrencyContainerIcon(currency.RecordID, currency.Quantity);
+						quantity = currency.Quantity / ((record.Flags & 8) == 0 ? 1 : 100);
+						this.m_rewardInfo[num].SetCurrency(currency.RecordID, quantity, sprite);
+						int num3 = num;
+						num = num3 + 1;
+						this.EnableAdditionalRewardDisplays(num3);
+						if (num >= 3)
+						{
+							return;
+						}
+					}
 				}
 			}
 			else if (worldQuest.Money > 0)
 			{
 				Sprite sprite2 = Resources.Load<Sprite>("MiscIcons/INV_Misc_Coin_01");
 				this.m_rewardInfo[num].SetGold(worldQuest.Money / 10000, sprite2);
-				int num3 = num;
-				num = num3 + 1;
-				this.EnableAdditionalRewardDisplays(num3);
+				int num4 = num;
+				num = num4 + 1;
+				this.EnableAdditionalRewardDisplays(num4);
 				if (num >= 3)
 				{
 					return;
@@ -111,9 +141,9 @@ namespace WoWCompanionApp
 			{
 				Sprite localizedFollowerXpIcon = GeneralHelpers.GetLocalizedFollowerXpIcon();
 				this.m_rewardInfo[num].SetFollowerXP(worldQuest.Experience, localizedFollowerXpIcon);
-				int num4 = num;
-				num = num4 + 1;
-				this.EnableAdditionalRewardDisplays(num4);
+				int num5 = num;
+				num = num5 + 1;
+				this.EnableAdditionalRewardDisplays(num5);
 				if (num >= 3)
 				{
 					return;
@@ -143,20 +173,20 @@ namespace WoWCompanionApp
 				Transform transforms = componentsInChildren[i];
 				if (transforms != null && transforms != this.m_worldQuestObjectiveRoot.transform)
 				{
+					transforms.SetParent(null);
 					UnityEngine.Object.Destroy(transforms.gameObject);
 				}
 			}
 			WrapperWorldQuest item = WorldQuestData.WorldQuestDictionary[this.m_questID];
-			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_worldQuestObjectiveDisplayPrefab);
-			gameObject.transform.SetParent(this.m_worldQuestObjectiveRoot.transform, false);
-			Text component = gameObject.GetComponent<Text>();
-			component.text = item.QuestTitle;
-			component.resizeTextMaxSize = 26;
+			this.m_worldQuestNameText.text = item.QuestTitle;
 			BountySite[] bountySiteArray = this.m_bountyLogoRoot.transform.GetComponentsInChildren<BountySite>(true);
 			for (int j = 0; j < (int)bountySiteArray.Length; j++)
 			{
-				UnityEngine.Object.Destroy(bountySiteArray[j].gameObject);
+				BountySite bountySite = bountySiteArray[j];
+				bountySite.transform.SetParent(null);
+				UnityEngine.Object.Destroy(bountySite.gameObject);
 			}
+			int num = 0;
 			if (PersistentBountyData.bountiesByWorldQuestDictionary.ContainsKey(item.QuestID))
 			{
 				WrapperBountiesByWorldQuest wrapperBountiesByWorldQuest = PersistentBountyData.bountiesByWorldQuestDictionary[item.QuestID];
@@ -173,27 +203,29 @@ namespace WoWCompanionApp
 						{
 							continue;
 						}
-						GameObject gameObject1 = UnityEngine.Object.Instantiate<GameObject>(this.m_worldQuestObjectiveDisplayPrefab);
-						gameObject1.transform.SetParent(this.m_worldQuestObjectiveRoot.transform, false);
-						Text questTitle = gameObject1.GetComponent<Text>();
-						questTitle.text = record.QuestTitle;
-						questTitle.color = new Color(1f, 0.773f, 0f, 1f);
-						BountySite bountySite = UnityEngine.Object.Instantiate<BountySite>(this.m_bountyLogoPrefab);
-						bountySite.SetBounty(value);
-						bountySite.transform.SetParent(this.m_bountyLogoRoot.transform, false);
+						GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.m_worldQuestObjectiveDisplayPrefab);
+						gameObject.transform.SetParent(this.m_worldQuestObjectiveRoot.transform, false);
+						Text component = gameObject.GetComponent<Text>();
+						component.text = record.QuestTitle;
+						component.color = new Color(1f, 0.773f, 0f, 1f);
+						BountySite bountySite1 = UnityEngine.Object.Instantiate<BountySite>(this.m_bountyLogoPrefab);
+						bountySite1.SetBounty(value);
+						bountySite1.transform.SetParent(this.m_bountyLogoRoot.transform, false);
+						num++;
 					}
 				}
 			}
-			GameObject gameObject2 = UnityEngine.Object.Instantiate<GameObject>(this.m_worldQuestObjectiveDisplayPrefab);
-			gameObject2.transform.SetParent(this.m_worldQuestObjectiveRoot.transform, false);
-			this.m_worldQuestTimeText = gameObject2.GetComponent<Text>();
+			this.EnableBountyFiligree(num);
+			GameObject gameObject1 = UnityEngine.Object.Instantiate<GameObject>(this.m_worldQuestObjectiveDisplayPrefab);
+			gameObject1.transform.SetParent(this.m_worldQuestObjectiveRoot.transform, false);
+			this.m_worldQuestTimeText = gameObject1.GetComponent<Text>();
 			this.m_worldQuestTimeText.text = item.QuestTitle;
 			this.m_worldQuestTimeText.color = new Color(1f, 0.773f, 0f, 1f);
 			foreach (WrapperWorldQuestObjective objective in item.Objectives)
 			{
-				GameObject gameObject3 = UnityEngine.Object.Instantiate<GameObject>(this.m_worldQuestObjectiveDisplayPrefab);
-				gameObject3.transform.SetParent(this.m_worldQuestObjectiveRoot.transform, false);
-				Text text = gameObject3.GetComponent<Text>();
+				GameObject gameObject2 = UnityEngine.Object.Instantiate<GameObject>(this.m_worldQuestObjectiveDisplayPrefab);
+				gameObject2.transform.SetParent(this.m_worldQuestObjectiveRoot.transform, false);
+				Text text = gameObject2.GetComponent<Text>();
 				text.text = string.Concat("- ", objective.Text);
 			}
 			this.InitRewardInfoDisplay(item);

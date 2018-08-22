@@ -1,4 +1,6 @@
 using System;
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 using WowStatConstants;
@@ -52,6 +54,40 @@ namespace WoWCompanionApp
 			this.m_garrTalentRec = StaticDB.garrTalentDB.GetRecord(abilityButton.GetTalentID());
 			this.m_talentName.text = this.m_garrTalentRec.Name;
 			this.m_talentDescription.text = WowTextParser.parser.Parse(this.m_garrTalentRec.Description, 0);
+			if (MobileDeviceLocale.GetLanguageCode().StartsWith("ru", StringComparison.OrdinalIgnoreCase) && (this.m_garrTalentRec.ID == 548 || this.m_garrTalentRec.ID == 552))
+			{
+				try
+				{
+					Regex regex = new Regex("(?<quantity>\\d+)\\s+4(?<singular>[\\p{L}\\d\\s]+):(?<plural1>[\\p{L}\\d\\s]+):(?<plural2>[\\p{L}\\d\\s]+);");
+					if (regex.Match(this.m_talentDescription.text).Success)
+					{
+						try
+						{
+							this.m_talentDescription.text = regex.Replace(this.m_talentDescription.text, (Match m) => {
+								int num = int.Parse(m.Groups["quantity"].Value);
+								int russianPluralIndex = GeneralHelpers.GetRussianPluralIndex(num);
+								if (russianPluralIndex == 0)
+								{
+									return string.Concat(num, " ", m.Groups["singular"].Value);
+								}
+								if (russianPluralIndex == 1)
+								{
+									return string.Concat(num, " ", m.Groups["plural1"].Value);
+								}
+								return string.Concat(num, " ", m.Groups["plural2"].Value);
+							});
+						}
+						catch (Exception exception)
+						{
+							Debug.LogException(exception);
+						}
+					}
+				}
+				catch (Exception exception1)
+				{
+					Debug.LogException(exception1);
+				}
+			}
 			this.m_talentDescription.supportRichText = WowTextParser.parser.IsRichText();
 			Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, this.m_garrTalentRec.IconFileDataID);
 			if (sprite != null)
@@ -59,8 +95,8 @@ namespace WoWCompanionApp
 				this.m_abilityIcon.sprite = sprite;
 			}
 			this.m_researchTimeAndCostSection.SetActive(true);
-			int num = (!abilityButton.CanRespec() ? this.m_garrTalentRec.ResearchCost : this.m_garrTalentRec.RespecCost);
-			this.m_resourceCostText.text = string.Concat((GarrisonStatus.Resources() >= num ? "<color=#ffffffff>" : "<color=#FF0000FF>"), (!abilityButton.CanRespec() ? this.m_garrTalentRec.ResearchCost : this.m_garrTalentRec.RespecCost), "</color>");
+			int num1 = (!abilityButton.CanRespec() ? this.m_garrTalentRec.ResearchCost : this.m_garrTalentRec.RespecCost);
+			this.m_resourceCostText.text = string.Concat((GarrisonStatus.WarResources() >= num1 ? "<color=#ffffffff>" : "<color=#FF0000FF>"), (!abilityButton.CanRespec() ? this.m_garrTalentRec.ResearchCost : this.m_garrTalentRec.RespecCost), "</color>");
 			Sprite sprite1 = GeneralHelpers.LoadCurrencyIcon((int)this.m_garrTalentRec.ResearchCostCurrencyTypesID);
 			if (sprite1 != null)
 			{
@@ -98,7 +134,7 @@ namespace WoWCompanionApp
 					TimeSpan timeSpan1 = (!abilityButton.IsRespec() ? this.m_abilityButton.GetRemainingResearchTime() : this.m_abilityButton.GetRemainingRespecTime());
 					this.m_statusText.text = string.Concat(new string[] { "<color=#FFC600FF>", StaticDB.GetString("TIME_LEFT", null), "</color> <color=#ffffffff>", timeSpan1.GetDurationString(false), "</color>" });
 				}
-				else if (GarrisonStatus.Resources() < num)
+				else if (GarrisonStatus.WarResources() < num1)
 				{
 					this.m_yourResourcesDisplayObj.SetActive(true);
 					this.m_statusText.text = string.Concat("<color=#FF0000FF>", StaticDB.GetString("NEED_MORE_RESOURCES", null), "</color>");

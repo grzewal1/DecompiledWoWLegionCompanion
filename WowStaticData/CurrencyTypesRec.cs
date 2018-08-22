@@ -11,6 +11,12 @@ namespace WowStaticData
 			private set;
 		}
 
+		public uint FactionID
+		{
+			get;
+			private set;
+		}
+
 		public uint Flags
 		{
 			get;
@@ -74,6 +80,11 @@ namespace WowStaticData
 				case 3:
 				{
 					this.Description = valueText;
+					break;
+				}
+				case 4:
+				{
+					this.FactionID = Convert.ToUInt32(valueText);
 					break;
 				}
 			}

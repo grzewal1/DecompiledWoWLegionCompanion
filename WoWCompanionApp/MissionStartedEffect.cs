@@ -20,6 +20,8 @@ namespace WoWCompanionApp
 
 		public Image m_glowImage;
 
+		public bool m_ComingSoonToast;
+
 		public MissionStartedEffect()
 		{
 		}
@@ -33,7 +35,10 @@ namespace WoWCompanionApp
 			this.m_glowCanvasGroup.blocksRaycasts = false;
 			this.m_glowCanvasGroup.interactable = false;
 			this.m_missionStartedLabel.font = GeneralHelpers.LoadFancyFont();
-			this.m_missionStartedLabel.text = StaticDB.GetString("MISSION_STARTED", "Mission Started PH");
+			if (!this.m_ComingSoonToast)
+			{
+				this.m_missionStartedLabel.text = StaticDB.GetString("MISSION_STARTED", "Mission Started PH");
+			}
 		}
 
 		private void OnApplicationPause(bool paused)
@@ -87,7 +92,10 @@ namespace WoWCompanionApp
 
 		private void Phase3Update(float val)
 		{
-			this.m_glowCanvasGroup.alpha = Mathf.Sin(val);
+			if (!this.m_ComingSoonToast)
+			{
+				this.m_glowCanvasGroup.alpha = Mathf.Sin(val);
+			}
 		}
 
 		private void Start()

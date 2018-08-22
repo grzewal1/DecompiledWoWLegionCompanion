@@ -32,7 +32,7 @@ namespace WoWCompanionApp
 		private void Start()
 		{
 			this.UpdateCurrencyDisplayAmount();
-			Sprite sprite = GeneralHelpers.LoadCurrencyIcon(1220);
+			Sprite sprite = GeneralHelpers.LoadCurrencyIcon(1560);
 			if (sprite != null)
 			{
 				this.m_currencyIcon.sprite = sprite;
@@ -49,7 +49,9 @@ namespace WoWCompanionApp
 
 		private void UpdateCurrencyDisplayAmount()
 		{
-			this.m_currencyAmountText.text = GarrisonStatus.Resources().ToString("N0");
+			Text mCurrencyAmountText = this.m_currencyAmountText;
+			int num = GarrisonStatus.WarResources();
+			mCurrencyAmountText.text = num.ToString("N0", MobileDeviceLocale.GetCultureInfoLocale());
 		}
 	}
 }

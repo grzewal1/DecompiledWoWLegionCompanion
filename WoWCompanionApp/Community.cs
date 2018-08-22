@@ -16,6 +16,14 @@ namespace WoWCompanionApp
 
 		private ClubPrivilegeInfo m_clubPrivilegeInfo;
 
+		public uint AvatarId
+		{
+			get
+			{
+				return this.m_clubInfo.avatarId;
+			}
+		}
+
 		public ulong ClubId
 		{
 			get
@@ -189,6 +197,11 @@ namespace WoWCompanionApp
 				((IDisposable)enumerator).Dispose();
 			}
 			return flag;
+		}
+
+		public bool IsGuild()
+		{
+			return this.m_clubInfo.clubType == ClubType.Guild;
 		}
 
 		public void LeaveClub()

@@ -62,6 +62,11 @@ public class SlidingPanel : MonoBehaviour
 		return (this.m_slideDirection == SlidingPanel.SlideDirection.FromLeft ? true : this.m_slideDirection == SlidingPanel.SlideDirection.FromRight);
 	}
 
+	public bool IsSliding()
+	{
+		return this.m_sliding;
+	}
+
 	private bool IsVerticalSlide()
 	{
 		return (this.m_slideDirection == SlidingPanel.SlideDirection.FromTop ? true : this.m_slideDirection == SlidingPanel.SlideDirection.FromBottom);

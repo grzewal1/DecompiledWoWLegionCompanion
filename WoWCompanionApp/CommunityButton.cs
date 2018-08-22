@@ -2,6 +2,8 @@ using System;
 using System.Collections.ObjectModel;
 using UnityEngine;
 using UnityEngine.UI;
+using WowStatConstants;
+using WowStaticData;
 
 namespace WoWCompanionApp
 {
@@ -14,6 +16,8 @@ namespace WoWCompanionApp
 		public GameObject m_communitySettingsDialogPrefab;
 
 		public GameObject m_notificationImage;
+
+		public Image m_communityIcon;
 
 		public CommunityButton()
 		{
@@ -64,6 +68,7 @@ namespace WoWCompanionApp
 		{
 			this.m_community = community;
 			this.m_communityName.text = community.Name.ToUpper();
+			this.m_communityIcon.sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, (this.m_community.AvatarId != 0 ? (int)this.m_community.AvatarId : StaticDB.communityIconDB.GetRecord(1).IconFileID));
 			this.UpdateNotifications();
 		}
 

@@ -377,7 +377,7 @@ namespace WoWCompanionApp
 			Text mCombatAllyName = this.m_combatAllyName;
 			WrapperGarrisonFollower value = this.m_combatAllyChampion.Value;
 			mCombatAllyName.color = GeneralHelpers.GetQualityColor(value.Quality);
-			if (missionCost > GarrisonStatus.Resources())
+			if (missionCost > GarrisonStatus.WarResources())
 			{
 				this.m_useItemButtonLabel.text = StaticDB.GetString("CANT_AFFORD", "Can't Afford");
 				this.m_useItemButtonLabel.color = Color.red;
@@ -395,7 +395,7 @@ namespace WoWCompanionApp
 			{
 				this.m_isOverMaxChampionSoftCap = true;
 			}
-			if (GarrisonStatus.Resources() < missionCost)
+			if (GarrisonStatus.WarResources() < missionCost)
 			{
 				this.m_needMoreResources = true;
 			}

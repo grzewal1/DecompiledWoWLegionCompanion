@@ -12,8 +12,6 @@ namespace WoWCompanionApp
 
 		public GameObject m_treasureChestHorde;
 
-		public GameObject m_numReadyTroopsTextBG;
-
 		public Text m_numReadyTroopsText;
 
 		public GameObject m_theActualButton;
@@ -43,8 +41,6 @@ namespace WoWCompanionApp
 			iTween.StopByName(this.m_theActualButton, "RecruitButtonSwing");
 			this.m_theActualButton.transform.localScale = Vector3.one;
 			this.m_theActualButton.transform.localRotation = Quaternion.identity;
-			iTween.StopByName(this.m_numReadyTroopsTextBG, "RecruitNumSwing");
-			this.m_numReadyTroopsTextBG.transform.localRotation = Quaternion.identity;
 			if (this.m_glowHandle != null)
 			{
 				UiAnimation anim = this.m_glowHandle.GetAnim();
@@ -68,7 +64,6 @@ namespace WoWCompanionApp
 			this.m_theActualButton.SetActive(false);
 			this.m_numReadyTroops = 0;
 			this.m_numReadyTroopsText.text = string.Empty;
-			this.m_numReadyTroopsTextBG.SetActive(false);
 			if (this.m_treasureChestHorde != null && this.m_treasureChestAlliance != null)
 			{
 				if (GarrisonStatus.Faction() != PVP_FACTION.HORDE)
@@ -102,12 +97,10 @@ namespace WoWCompanionApp
 					iTween.PunchScale(this.m_theActualButton, iTween.Hash(new object[] { "name", "RecruitWobble", "x", this.amount, "y", this.amount, "time", this.duration, "delay", 0.1f, "looptype", iTween.LoopType.none }));
 					iTween.PunchScale(this.m_theActualButton, iTween.Hash(new object[] { "name", "RecruitWobbleL", "x", this.amount, "y", this.amount, "time", this.duration, "delay", this.delay, "looptype", iTween.LoopType.loop }));
 					iTween.PunchRotation(this.m_theActualButton, iTween.Hash(new object[] { "name", "RecruitButtonSwing", "z", -30f, "time", 2f }));
-					iTween.PunchRotation(this.m_numReadyTroopsTextBG, iTween.Hash(new object[] { "name", "RecruitNumSwing", "z", -50f, "time", 3f }));
 					Main.instance.m_UISound.Play_LootReady();
 				}
 				this.m_numReadyTroops = numCompletedMissions;
 				this.m_numReadyTroopsText.text = string.Concat(string.Empty, (this.m_numReadyTroops <= 0 ? string.Empty : string.Concat(string.Empty, this.m_numReadyTroops)));
-				this.m_numReadyTroopsTextBG.SetActive(this.m_numReadyTroops > 0);
 			}
 		}
 

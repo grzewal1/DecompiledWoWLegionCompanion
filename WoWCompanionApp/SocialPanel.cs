@@ -26,8 +26,6 @@ namespace WoWCompanionApp
 
 		private void Awake()
 		{
-			CommunityData.Instance.RefreshCommunities();
-			CommunityData.Instance.RefreshInvitations();
 			CommunityData.OnCommunityRefresh += new CommunityData.RefreshHandler(this.RefreshScrollingContent);
 			CommunityData.OnInviteRefresh += new CommunityData.RefreshHandler(this.RefreshScrollingContent);
 		}

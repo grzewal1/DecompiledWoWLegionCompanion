@@ -9,7 +9,7 @@ namespace WoWCompanionApp
 	{
 		public GARR_TYPE m_garrisonType;
 
-		public GARR_FOLLOWER_TYPE m_garrrisonFollowerType;
+		public GARR_FOLLOWER_TYPE m_garrisonFollowerType;
 
 		public GarrisonConfig()
 		{

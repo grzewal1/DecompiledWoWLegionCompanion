@@ -18,6 +18,8 @@ namespace WoWCompanionApp
 
 		private List<RandomTexture> textures;
 
+		private int updateCounter;
+
 		public TiledRandomTexture()
 		{
 		}
@@ -38,7 +40,7 @@ namespace WoWCompanionApp
 			}
 			int num = Mathf.CeilToInt(single / single1);
 			this.textures = base.GetComponentsInChildren<RandomTexture>().ToList<RandomTexture>();
-			for (int i = num; i < this.textures.Count; i++)
+			for (int i = this.textures.Count - 1; i >= num && i >= 0; i--)
 			{
 				UnityEngine.Object.Destroy(this.textures[i].gameObject);
 			}
@@ -73,7 +75,9 @@ namespace WoWCompanionApp
 				{
 					component = base.gameObject.AddComponent<VerticalLayoutGroup>();
 				}
-				component.childAlignment = TextAnchor.UpperCenter;
+				LayoutGroup layoutGroup = component;
+				layoutGroup.childAlignment = TextAnchor.UpperCenter;
+				layoutGroup.enabled = true;
 			}
 			else
 			{
@@ -85,18 +89,25 @@ namespace WoWCompanionApp
 				{
 					vector2.y = vector21.y;
 				}
-				LayoutGroup layoutGroup = base.gameObject.GetComponent<LayoutGroup>();
-				if (layoutGroup == null)
+				LayoutGroup component1 = base.gameObject.GetComponent<LayoutGroup>();
+				if (component1 == null)
 				{
-					layoutGroup = base.gameObject.AddComponent<HorizontalLayoutGroup>();
+					component1 = base.gameObject.AddComponent<HorizontalLayoutGroup>();
 				}
-				layoutGroup.childAlignment = TextAnchor.MiddleLeft;
+				LayoutGroup layoutGroup1 = component1;
+				layoutGroup1.childAlignment = TextAnchor.MiddleLeft;
+				layoutGroup1.enabled = true;
 			}
 			(base.transform as RectTransform).sizeDelta = vector2;
 		}
 
 		private void Update()
 		{
+			if (this.updateCounter < 5)
+			{
+				this.OnRectTransformDimensionsChange();
+				this.updateCounter++;
+			}
 		}
 
 		public enum Rotation

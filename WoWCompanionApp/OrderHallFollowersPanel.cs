@@ -28,12 +28,6 @@ namespace WoWCompanionApp
 
 		private float m_scrollListToOffset;
 
-		private FollowerListHeader m_championsHeader;
-
-		private FollowerListHeader m_troopsHeader;
-
-		private FollowerListHeader m_inactiveHeader;
-
 		public OrderHallFollowersPanel()
 		{
 		}
@@ -78,24 +72,6 @@ namespace WoWCompanionApp
 				}
 			}
 			this.SortFollowerListData();
-			if (this.m_championsHeader == null)
-			{
-				this.m_championsHeader = UnityEngine.Object.Instantiate<FollowerListHeader>(this.m_followerListHeaderPrefab);
-			}
-			this.m_championsHeader.transform.SetParent(this.m_followerDetailListContent.transform, false);
-			this.m_championsHeader.m_title.font = GeneralHelpers.LoadStandardFont();
-			this.m_championsHeader.m_count.font = GeneralHelpers.LoadStandardFont();
-			this.m_championsHeader.m_title.text = string.Concat(StaticDB.GetString("CHAMPIONS", null), ": ");
-			int numActiveChampions = GeneralHelpers.GetNumActiveChampions();
-			int maxActiveFollowers = GarrisonStatus.GetMaxActiveFollowers();
-			if (numActiveChampions > maxActiveFollowers)
-			{
-				this.m_championsHeader.m_count.text = string.Concat(new object[] { "<color=#ff0000ff>", numActiveChampions, "/", maxActiveFollowers, "</color>" });
-			}
-			else
-			{
-				this.m_championsHeader.m_count.text = string.Concat(new object[] { string.Empty, numActiveChampions, "/", maxActiveFollowers });
-			}
 			foreach (KeyValuePair<int, WrapperGarrisonFollower> mSortedFollowerList in this.m_sortedFollowerList)
 			{
 				bool flag = false;
@@ -118,16 +94,6 @@ namespace WoWCompanionApp
 					this.InsertFollowerIntoListView(mSortedFollowerList.Value, FollowerCategory.ActiveChampion);
 				}
 			}
-			int numTroops = GeneralHelpers.GetNumTroops();
-			if (this.m_troopsHeader == null)
-			{
-				this.m_troopsHeader = UnityEngine.Object.Instantiate<FollowerListHeader>(this.m_followerListHeaderPrefab);
-			}
-			this.m_troopsHeader.transform.SetParent(this.m_followerDetailListContent.transform, false);
-			this.m_troopsHeader.m_title.font = GeneralHelpers.LoadStandardFont();
-			this.m_troopsHeader.m_title.text = string.Concat(StaticDB.GetString("TROOPS", null), ": ");
-			this.m_troopsHeader.m_count.font = GeneralHelpers.LoadStandardFont();
-			this.m_troopsHeader.m_count.text = string.Concat(string.Empty, numTroops);
 			foreach (KeyValuePair<int, WrapperGarrisonFollower> keyValuePair in this.m_sortedFollowerList)
 			{
 				bool flag1 = false;
@@ -150,16 +116,6 @@ namespace WoWCompanionApp
 					this.InsertFollowerIntoListView(keyValuePair.Value, FollowerCategory.Troop);
 				}
 			}
-			int numInactiveChampions = GeneralHelpers.GetNumInactiveChampions();
-			if (this.m_inactiveHeader == null)
-			{
-				this.m_inactiveHeader = UnityEngine.Object.Instantiate<FollowerListHeader>(this.m_followerListHeaderPrefab);
-			}
-			this.m_inactiveHeader.transform.SetParent(this.m_followerDetailListContent.transform, false);
-			this.m_inactiveHeader.m_title.font = GeneralHelpers.LoadStandardFont();
-			this.m_inactiveHeader.m_title.text = string.Concat(StaticDB.GetString("INACTIVE", null), ": ");
-			this.m_inactiveHeader.m_count.font = GeneralHelpers.LoadStandardFont();
-			this.m_inactiveHeader.m_count.text = string.Concat(string.Empty, numInactiveChampions);
 			foreach (KeyValuePair<int, WrapperGarrisonFollower> mSortedFollowerList1 in this.m_sortedFollowerList)
 			{
 				bool flag2 = false;
@@ -183,12 +139,6 @@ namespace WoWCompanionApp
 				}
 			}
 			this.SyncVisibleListOrderToSortedFollowerList();
-			this.m_championsHeader.gameObject.SetActive(numActiveChampions > 0);
-			this.m_troopsHeader.gameObject.SetActive(numTroops > 0);
-			this.m_inactiveHeader.gameObject.SetActive(numInactiveChampions > 0);
-			this.m_championsHeader.transform.SetSiblingIndex(0);
-			this.m_troopsHeader.transform.SetSiblingIndex(numActiveChampions + 1);
-			this.m_inactiveHeader.transform.SetSiblingIndex(numActiveChampions + numTroops + 2);
 		}
 
 		private void InsertFollowerIntoListView(WrapperGarrisonFollower follower, FollowerCategory followerCategory)
@@ -244,7 +194,6 @@ namespace WoWCompanionApp
 		public void ScrollListTo(float offsetY)
 		{
 			this.m_scrollListToOffset = offsetY;
-			this.m_listScrollRect.enabled = false;
 			iTween.StopByName(base.gameObject, "ScrollListTo");
 			GameObject gameObject = base.gameObject;
 			object[] objArray = new object[14];
@@ -271,7 +220,6 @@ namespace WoWCompanionApp
 			Vector3 mFollowerDetailListContent = this.m_followerDetailListContent.transform.localPosition;
 			mFollowerDetailListContent.y = this.m_scrollListToOffset;
 			this.m_followerDetailListContent.transform.localPosition = mFollowerDetailListContent;
-			this.m_listScrollRect.enabled = true;
 		}
 
 		private void ScrollListTo_Update(float offsetY)

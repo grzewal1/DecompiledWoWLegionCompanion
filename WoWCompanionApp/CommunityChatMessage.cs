@@ -16,6 +16,24 @@ namespace WoWCompanionApp
 			}
 		}
 
+		public uint ClassID
+		{
+			get
+			{
+				uint value;
+				uint? mMessageInfo = this.m_messageInfo.author.classID;
+				if (!mMessageInfo.HasValue)
+				{
+					value = 0;
+				}
+				else
+				{
+					value = mMessageInfo.Value;
+				}
+				return value;
+			}
+		}
+
 		public string Message
 		{
 			get

@@ -168,7 +168,6 @@ namespace WoWCompanionApp
 		{
 			this.HideAllPopups();
 			this.m_emissaryPopup.gameObject.SetActive(true);
-			Main.instance.RequestEmissaryFactions();
 		}
 
 		public void ShowEncounterPopup(int garrEncounterID, int garrMechanicID)

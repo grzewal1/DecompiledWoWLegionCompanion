@@ -40,24 +40,9 @@ namespace WoWCompanionApp
 		{
 		}
 
-		private void HandleInvasionPOIChanged()
-		{
-			if (!LegionfallData.HasCurrentInvasionPOI() || LegionfallData.GetCurrentInvasionPOI().AreaPoiID != this.m_invasionPOIID)
-			{
-				this.m_invasionZoneNameArea.SetActive(false);
-				this.m_zoneNameArea.SetActive(this.zoneNameTag.Length > 0);
-			}
-			else
-			{
-				this.m_invasionZoneNameArea.SetActive(true);
-				this.m_zoneNameArea.SetActive(false);
-			}
-		}
-
 		private void OnDisable()
 		{
 			ZoneMissionOverview.m_pinchZoomManager.ZoomFactorChanged -= new Action<bool>(this.OnZoomChanged);
-			Main.instance.InvasionPOIChangedAction -= new Action(this.HandleInvasionPOIChanged);
 		}
 
 		private void OnEnable()
@@ -67,7 +52,6 @@ namespace WoWCompanionApp
 				ZoneMissionOverview.m_pinchZoomManager = base.gameObject.GetComponentInParent<PinchZoomContentManager>();
 			}
 			ZoneMissionOverview.m_pinchZoomManager.ZoomFactorChanged += new Action<bool>(this.OnZoomChanged);
-			Main.instance.InvasionPOIChangedAction += new Action(this.HandleInvasionPOIChanged);
 		}
 
 		private void OnZoomChanged(bool force)
@@ -98,7 +82,8 @@ namespace WoWCompanionApp
 				this.m_zoneNameArea.SetActive(this.zoneNameTag.Length > 0);
 				this.zoneNameText.text = StaticDB.GetString(this.zoneNameTag, null);
 				this.m_invasionZoneNameText.text = StaticDB.GetString(this.zoneNameTag, null);
-				this.HandleInvasionPOIChanged();
+				this.m_invasionZoneNameArea.SetActive(false);
+				this.m_zoneNameArea.SetActive(this.zoneNameTag.Length > 0);
 			}
 		}
 
@@ -111,7 +96,7 @@ namespace WoWCompanionApp
 				if (currentInvasionExpirationTime.TotalSeconds <= 0)
 				{
 					this.m_invasionZoneNameArea.SetActive(false);
-					this.m_zoneNameArea.SetActive(this.zoneNameTag.Length > 0);
+					this.m_zoneNameArea.SetActive(!string.IsNullOrEmpty(this.zoneNameTag));
 				}
 			}
 		}

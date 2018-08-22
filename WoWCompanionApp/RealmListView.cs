@@ -73,13 +73,11 @@ namespace WoWCompanionApp
 			BnLoginButton[] componentsInChildren = this.loginListContents.transform.GetComponentsInChildren<BnLoginButton>(true);
 			for (int i = 0; i < (int)componentsInChildren.Length; i++)
 			{
-				componentsInChildren[i].gameObject.transform.SetParent(null);
 				UnityEngine.Object.Destroy(componentsInChildren[i].gameObject);
 			}
 			BnGameAccountButton[] bnGameAccountButtonArray = this.loginListContents.transform.GetComponentsInChildren<BnGameAccountButton>(true);
 			for (int j = 0; j < (int)bnGameAccountButtonArray.Length; j++)
 			{
-				bnGameAccountButtonArray[j].gameObject.transform.SetParent(null);
 				UnityEngine.Object.Destroy(bnGameAccountButtonArray[j].gameObject);
 			}
 		}

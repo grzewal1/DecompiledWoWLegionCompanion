@@ -14,9 +14,9 @@ namespace WoWCompanionApp
 
 		public RectTransform m_glintRT;
 
-		public LocalizedText m_level;
+		public Text m_level;
 
-		public LocalizedText m_levelUpLabel;
+		public Text m_levelUpLabel;
 
 		public float m_initialFadeInDuration;
 

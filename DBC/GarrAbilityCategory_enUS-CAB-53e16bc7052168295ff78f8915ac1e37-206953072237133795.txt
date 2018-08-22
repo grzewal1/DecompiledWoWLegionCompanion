@@ -1,9 +1,0 @@
-1	Slayer	X 
-4	Racial Preference	X 
-5	Profession	X 
-6	Environment Preference	X 
-7	Increased Rewards	X 
-8	Mission Duration	X 
-9	Other	X 
-11	Mission Success	X 
-12	Threat Counter	X 

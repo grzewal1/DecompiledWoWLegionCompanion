@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using WowStatConstants;
 using WowStaticData;
@@ -631,7 +632,7 @@ namespace WoWCompanionApp
 
 		public static uint GetMaxFollowerItemLevel()
 		{
-			return StaticDB.garrFollowerTypeDB.GetRecord(4).MaxItemLevel;
+			return StaticDB.garrFollowerTypeDB.GetRecord((int)GarrisonStatus.GarrisonFollowerType).MaxItemLevel;
 		}
 
 		public static float GetMissionDurationTalentMultiplier()
@@ -753,7 +754,7 @@ namespace WoWCompanionApp
 
 		public static Color GetQualityColor(int quality)
 		{
-			Color color = Color.gray;
+			Color color = Color.white;
 			Color color1 = Color.green;
 			Color color2 = new Color(0.34f, 0.49f, 1f, 1f);
 			Color color3 = new Color(0.58f, 0f, 1f, 1f);
@@ -788,18 +789,46 @@ namespace WoWCompanionApp
 			return Color.gray;
 		}
 
+		public static int GetRussianPluralIndex(int quantity)
+		{
+			switch (quantity % 100)
+			{
+				case 11:
+				case 12:
+				case 13:
+				case 14:
+				{
+					return 2;
+				}
+			}
+			switch (quantity % 10)
+			{
+				case 1:
+				{
+					return 0;
+				}
+				case 2:
+				case 3:
+				case 4:
+				{
+					return 1;
+				}
+			}
+			return 2;
+		}
+
 		public static void GetXpCapInfo(int followerLevel, int followerQuality, out uint xpToNextLevelOrQuality, out bool isQuality, out bool isMaxLevelAndMaxQuality)
 		{
 			isMaxLevelAndMaxQuality = false;
 			isQuality = false;
-			GarrFollowerLevelXPRec garrFollowerLevelXPRec = StaticDB.garrFollowerLevelXPDB.GetRecordsByParentID(followerLevel).First<GarrFollowerLevelXPRec>((GarrFollowerLevelXPRec rec) => StaticDB.garrFollowerTypeDB.GetRecord((int)rec.GarrFollowerTypeID).GarrTypeID == 3);
+			GarrFollowerLevelXPRec garrFollowerLevelXPRec = StaticDB.garrFollowerLevelXPDB.GetRecordsByParentID(followerLevel).First<GarrFollowerLevelXPRec>((GarrFollowerLevelXPRec rec) => StaticDB.garrFollowerTypeDB.GetRecord((int)rec.GarrFollowerTypeID).GarrTypeID == (uint)GarrisonStatus.GarrisonType);
 			if (garrFollowerLevelXPRec.XpToNextLevel > 0)
 			{
 				xpToNextLevelOrQuality = garrFollowerLevelXPRec.XpToNextLevel;
 				return;
 			}
 			isQuality = true;
-			GarrFollowerQualityRec garrFollowerQualityRec = StaticDB.garrFollowerQualityDB.GetRecordsByParentID(followerQuality).First<GarrFollowerQualityRec>((GarrFollowerQualityRec rec) => rec.GarrFollowerTypeID == 4);
+			GarrFollowerQualityRec garrFollowerQualityRec = StaticDB.garrFollowerQualityDB.GetRecordsByParentID(followerQuality).First<GarrFollowerQualityRec>((GarrFollowerQualityRec rec) => rec.GarrFollowerTypeID == (uint)GarrisonStatus.GarrisonFollowerType);
 			xpToNextLevelOrQuality = garrFollowerQualityRec.XpToNextQuality;
 			if (garrFollowerQualityRec.XpToNextQuality == 0)
 			{
@@ -1048,6 +1077,21 @@ namespace WoWCompanionApp
 				from mechanic in (IEnumerable<MissionMechanic>)enemyPortraitsGroup.GetComponentsInChildren<MissionMechanic>(true)
 				where (mechanic.IsCountered() ? false : mechanic.AbilityID() != 0)
 				select mechanic).SelectMany<MissionMechanic, GarrAbilityEffectRec>((MissionMechanic mechanic) => StaticDB.garrAbilityEffectDB.GetRecordsByParentID(mechanic.AbilityID())).Any<GarrAbilityEffectRec>((GarrAbilityEffectRec garrAbilityEffectRec) => garrAbilityEffectRec.AbilityAction == 27);
+		}
+
+		public static string QuantityRule(string formatString, int quantity)
+		{
+			formatString = formatString.Replace("%d", quantity.ToString());
+			Regex regex = new Regex("\\|4(?<singular>[\\p{L}\\d\\s]+):(?<plural>[\\p{L}\\d\\s]+);");
+			if (regex.Match(formatString).Success)
+			{
+				return regex.Replace(formatString, (Match m) => (quantity <= 1 ? m.Groups["singular"].Value : m.Groups["plural"].Value));
+			}
+			if (formatString.Contains("|4"))
+			{
+				Debug.LogError(string.Concat("Error parsing string for quantity rule: ", formatString));
+			}
+			return formatString;
 		}
 
 		public static bool SpellGrantsArtifactXP(int spellID)

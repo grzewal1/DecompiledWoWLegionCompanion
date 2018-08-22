@@ -91,7 +91,7 @@ namespace WoWCompanionApp
 		private void DataErrorPopupDisabled()
 		{
 			GenericPopup.DisabledAction -= new Action(this.DataErrorPopupDisabled);
-			Main.instance.OnQuitButton();
+			Application.Quit();
 		}
 
 		[DebuggerHidden]
@@ -266,7 +266,7 @@ namespace WoWCompanionApp
 		{
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.Append("http://").Append((Singleton<Login>.instance.GetBnPortal() != "cn" ? this.m_assetServerIpAddress : this.m_assetServerIpAddress_CN)).Append("/falcon/");
-			stringBuilder.Append("d").Append(string.Format("{0:D5}", 204));
+			stringBuilder.Append("d").Append(string.Format("{0:D5}", MobileBuild.GetBuildNum()));
 			stringBuilder.Append("/").Append(this.m_assetBundleDirectory).Append("/");
 			stringBuilder.Append(this.m_platform).Append("/");
 			return stringBuilder.ToString();
@@ -362,7 +362,7 @@ namespace WoWCompanionApp
 
 		public void UpdateVersion()
 		{
-			string str = string.Concat(this.GetRemoteAssetPath(), "update.txt");
+			string str = string.Concat(this.m_assetServerURL, "update.txt");
 			UnityEngine.Debug.Log(string.Concat("Fetching latest version of ", str));
 			this.LatestVersion = new Version();
 			this.ForceUpgrade = false;

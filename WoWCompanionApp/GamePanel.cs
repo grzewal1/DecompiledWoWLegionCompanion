@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace WoWCompanionApp
 {
@@ -21,6 +20,8 @@ namespace WoWCompanionApp
 		public Action<OrderHallNavButton> OrderHallNavButtonSelectedAction;
 
 		public GameObject m_navBarLayout;
+
+		public GameObject m_birdEagleThings;
 
 		public GamePanel()
 		{
@@ -75,12 +76,16 @@ namespace WoWCompanionApp
 			{
 				this.m_currentPanel = this.m_troopsPanel.gameObject;
 			}
-			if (Main.instance.IsNarrowScreen() && this.m_navBarLayout != null)
+			if (this.m_birdEagleThings != null)
 			{
-				HorizontalLayoutGroup component = this.m_navBarLayout.GetComponent<HorizontalLayoutGroup>();
+				this.m_birdEagleThings.SetActive(!Main.instance.IsNarrowScreen());
+			}
+			if (this.m_mapPanel != null)
+			{
+				AdventureMapPanel component = this.m_mapPanel.GetComponent<AdventureMapPanel>();
 				if (component != null)
 				{
-					component.spacing = 0f;
+					component.SetStartingMapByFaction();
 				}
 			}
 		}

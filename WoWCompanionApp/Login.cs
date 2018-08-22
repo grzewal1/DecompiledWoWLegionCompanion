@@ -114,6 +114,8 @@ namespace WoWCompanionApp
 
 		private bool m_loggingIn;
 
+		private Dictionary<uint, string> m_realmNames = new Dictionary<uint, string>();
+
 		private WoWCompanionApp.LoginUI m_loginUI;
 
 		public static string m_portal;
@@ -601,6 +603,52 @@ namespace WoWCompanionApp
 			}
 		}
 
+		public bool CanCancelNow()
+		{
+			switch (this.GetLoginState())
+			{
+				case Login.eLoginState.IDLE:
+				case Login.eLoginState.WAIT_FOR_ASSET_BUNDLES:
+				case Login.eLoginState.WEB_AUTH_START:
+				case Login.eLoginState.WEB_AUTH_LOADING:
+				case Login.eLoginState.WEB_AUTH_IN_PROGRESS:
+				case Login.eLoginState.WEB_AUTH_FAILED:
+				case Login.eLoginState.BN_LOGIN_START:
+				case Login.eLoginState.BN_LOGIN_WAIT_FOR_LOGON:
+				case Login.eLoginState.BN_LOGIN_PROVIDE_TOKEN:
+				case Login.eLoginState.BN_LOGGING_IN:
+				case Login.eLoginState.BN_ACCOUNT_NAME_WAIT:
+				case Login.eLoginState.BN_TICKET_WAIT:
+				case Login.eLoginState.BN_SUBREGION_LIST_WAIT:
+				case Login.eLoginState.BN_CHARACTER_LIST_WAIT:
+				case Login.eLoginState.BN_LOGIN_UNKNOWN:
+				case Login.eLoginState.UPDATE_REQUIRED_START:
+				case Login.eLoginState.UPDATE_REQUIRED_IDLE:
+				{
+					return true;
+				}
+				case Login.eLoginState.BN_REALM_JOIN_WAIT:
+				case Login.eLoginState.MOBILE_CONNECT:
+				case Login.eLoginState.MOBILE_CONNECTING:
+				case Login.eLoginState.MOBILE_CONNECT_FAILED:
+				case Login.eLoginState.MOBILE_DISCONNECTING:
+				case Login.eLoginState.MOBILE_DISCONNECTED:
+				case Login.eLoginState.MOBILE_DISCONNECTED_BY_SERVER:
+				case Login.eLoginState.MOBILE_DISCONNECTED_IDLE:
+				case Login.eLoginState.MOBILE_LOGGING_IN:
+				case Login.eLoginState.MOBILE_LOGGED_IN:
+				case Login.eLoginState.MOBILE_LOGGED_IN_IDLE:
+				case Login.eLoginState.MOBILE_LOGGED_IN_DATA_COMPLETE:
+				{
+					return false;
+				}
+				default:
+				{
+					return false;
+				}
+			}
+		}
+
 		public void CancelLogin()
 		{
 			switch (this.m_loginState)
@@ -839,6 +887,11 @@ namespace WoWCompanionApp
 			return this.m_loginState;
 		}
 
+		public string GetRealmName(uint virtualAddress)
+		{
+			return (!this.m_realmNames.ContainsKey(virtualAddress) ? string.Empty : this.m_realmNames[virtualAddress]);
+		}
+
 		public bool HaveCachedWebToken()
 		{
 			string str = SecurePlayerPrefs.GetString("WebToken", Main.uniqueIdentifier);
@@ -976,6 +1029,7 @@ namespace WoWCompanionApp
 
 		public void LoginLog(string message)
 		{
+			DebugPrinter.Log(string.Concat(">>>>>> ", message), null, DebugPrinter.LogLevel.Info);
 		}
 
 		private void MobileConnect()
@@ -1440,7 +1494,6 @@ namespace WoWCompanionApp
 			}
 			else
 			{
-				this.m_retryWebAuthOnce = true;
 				this.StartCachedLogin(true, false);
 				this.ReturnToCharacterList = false;
 			}
@@ -2421,6 +2474,15 @@ namespace WoWCompanionApp
 								Singleton<Login>.instance.LoginUI.AddCharacterButton(jamJSONCharacterEntry, this.SubRegion, name, populationState);
 								flag = true;
 								break;
+							}
+						}
+						JamJSONRealmListUpdatePart[] jamJSONRealmListUpdatePartArray = this.m_updates.Updates;
+						for (int j = 0; j < (int)jamJSONRealmListUpdatePartArray.Length; j++)
+						{
+							JamJSONRealmListUpdatePart jamJSONRealmListUpdatePart1 = jamJSONRealmListUpdatePartArray[j];
+							if (!Singleton<Login>.Instance.m_realmNames.ContainsKey(jamJSONRealmListUpdatePart1.Update.WowRealmAddress))
+							{
+								Singleton<Login>.Instance.m_realmNames.Add(jamJSONRealmListUpdatePart1.Update.WowRealmAddress, jamJSONRealmListUpdatePart1.Update.Name);
 							}
 						}
 						flag;

@@ -24,6 +24,8 @@ namespace WoWCompanionApp
 
 		public Text missionTypeText;
 
+		public Image m_missionTypeIcon;
+
 		public Text missionDescriptionText;
 
 		public GameObject missionFollowerSlotGroup;
@@ -41,8 +43,6 @@ namespace WoWCompanionApp
 		public GameObject treasureChestHorde;
 
 		public GameObject treasureChestAlliance;
-
-		public Text missionPercentChanceLabel;
 
 		public Text missionPercentChanceText;
 
@@ -73,10 +73,6 @@ namespace WoWCompanionApp
 		public GameObject m_partyBuffGroup;
 
 		public GameObject m_partyDebuffGroup;
-
-		public GameObject m_lootBorderNormal;
-
-		public GameObject m_lootBorderLitUp;
 
 		public Image m_resourceIcon_MissionCost;
 
@@ -157,7 +153,7 @@ namespace WoWCompanionApp
 		public Action FollowerSlotsChangedAction;
 
 		[Header("Notched Screen")]
-		public GameObject m_DarkBG;
+		public RectTransform m_DarkBG;
 
 		public GameObject m_LevelBG;
 
@@ -168,6 +164,8 @@ namespace WoWCompanionApp
 		public GameObject m_MissionLocationText;
 
 		public GameObject m_CloseButton;
+
+		public GameObject m_bottomBar;
 
 		[Header("Narrow Screen")]
 		public GameObject m_EnemiesGroup;
@@ -470,20 +468,22 @@ namespace WoWCompanionApp
 					}
 				}
 			}
+			this.missionTypeText.gameObject.SetActive(false);
 			if (this.missionTypeText != null)
 			{
-				GarrMechanicTypeRec garrMechanicTypeRec = StaticDB.garrMechanicTypeDB.GetRecord((int)record.EnvGarrMechanicTypeID);
-				if (garrMechanicTypeRec == null)
+				GarrMechanicRec garrMechanicRec1 = StaticDB.garrMechanicDB.GetRecord(record.EnvGarrMechanicID);
+				if (garrMechanicRec1 != null)
 				{
-					this.missionTypeText.gameObject.SetActive(false);
-				}
-				else
-				{
-					this.missionTypeText.gameObject.SetActive(true);
-					this.missionTypeText.text = string.Concat(new string[] { "<color=#ffff00ff>", MissionDetailView.m_typeText, ": </color><color=#ffffffff>", garrMechanicTypeRec.Name, "</color>" });
+					GarrAbilityRec garrAbilityRec = StaticDB.garrAbilityDB.GetRecord(garrMechanicRec1.GarrAbilityID);
+					if (garrAbilityRec != null)
+					{
+						this.missionTypeText.gameObject.SetActive(true);
+						this.m_missionTypeIcon.sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, garrAbilityRec.IconFileDataID);
+						this.missionTypeText.text = string.Concat(new string[] { "<color=#ffff00ff>", MissionDetailView.m_typeText, ": </color><color=#ffffffff>", garrAbilityRec.Name, "</color>" });
+					}
 				}
 			}
-			Sprite sprite = GeneralHelpers.LoadCurrencyIcon(1220);
+			Sprite sprite = GeneralHelpers.LoadCurrencyIcon(1560);
 			if (sprite != null)
 			{
 				this.m_resourceIcon_MissionCost.sprite = sprite;
@@ -513,7 +513,12 @@ namespace WoWCompanionApp
 				if (uITextureAtlasMemberID > 0)
 				{
 					Sprite atlasSprite = TextureAtlas.instance.GetAtlasSprite(uITextureAtlasMemberID);
-					if (atlasSprite != null)
+					if (atlasSprite == null)
+					{
+						uint uiTextureKitID = record.UiTextureKitID;
+						Debug.Log(string.Concat("Missing expected Back sprite from UiTextureKitID: [", uiTextureKitID.ToString(), "]"));
+					}
+					else
 					{
 						this.m_scrollingEnvironment_Back.enabled = true;
 						this.m_scrollingEnvironment_Back.sprite = atlasSprite;
@@ -523,7 +528,12 @@ namespace WoWCompanionApp
 				if (uITextureAtlasMemberID1 > 0)
 				{
 					Sprite atlasSprite1 = TextureAtlas.instance.GetAtlasSprite(uITextureAtlasMemberID1);
-					if (atlasSprite1 != null)
+					if (atlasSprite1 == null)
+					{
+						uint uiTextureKitID1 = record.UiTextureKitID;
+						Debug.Log(string.Concat("Missing expected Mid sprite from UiTextureKitID: [", uiTextureKitID1.ToString(), "]"));
+					}
+					else
 					{
 						this.m_scrollingEnvironment_Mid.enabled = true;
 						this.m_scrollingEnvironment_Mid.sprite = atlasSprite1;
@@ -533,7 +543,12 @@ namespace WoWCompanionApp
 				if (num1 > 0)
 				{
 					Sprite sprite1 = TextureAtlas.instance.GetAtlasSprite(num1);
-					if (sprite1 != null)
+					if (sprite1 == null)
+					{
+						uint uiTextureKitID2 = record.UiTextureKitID;
+						Debug.Log(string.Concat("Missing expected Fore sprite from UiTextureKitID: [", uiTextureKitID2.ToString(), "]"));
+					}
+					else
 					{
 						this.m_scrollingEnvironment_Fore.enabled = true;
 						this.m_scrollingEnvironment_Fore.sprite = sprite1;
@@ -635,14 +650,14 @@ namespace WoWCompanionApp
 			if (component != null)
 			{
 				Vector2 vector2 = component.spacing;
-				vector2.x = 40f;
+				vector2.x = 20f;
 				component.spacing = vector2;
 			}
 			component = this.m_FollowerSlotGroup.GetComponent<GridLayoutGroup>();
 			if (component != null)
 			{
 				Vector2 vector21 = component.spacing;
-				vector21.x = 40f;
+				vector21.x = 20f;
 				component.spacing = vector21;
 			}
 		}
@@ -727,17 +742,15 @@ namespace WoWCompanionApp
 			}
 			this.m_missionChanceSpinner.SetActive(false);
 			this.missionPercentChanceText.text = string.Concat(newChance, "%");
-			this.m_lootBorderNormal.SetActive(newChance < 100);
-			this.m_lootBorderLitUp.SetActive(newChance >= 100);
 			if (newChance >= 0)
 			{
 				this.missionPercentChanceText.color = Color.green;
-				this.missionPercentChanceLabel.color = Color.green;
+				this.missionPercentChanceText.GetComponentInParent<MeshGradient>().enabled = true;
 			}
 			else
 			{
 				this.missionPercentChanceText.color = Color.red;
-				this.missionPercentChanceLabel.color = Color.red;
+				this.missionPercentChanceText.GetComponentInParent<MeshGradient>().enabled = false;
 			}
 			if (this.m_percentChance < 100 && newChance >= 100)
 			{
@@ -789,6 +802,11 @@ namespace WoWCompanionApp
 				}
 			}
 			AllPopups.instance.ShowPartyBuffsPopup(nums.ToArray());
+		}
+
+		public void OpenMissionTypeDialog()
+		{
+			Singleton<DialogFactory>.instance.CreateMissionTypeDialog().InitializeMissionDialog(this.m_currentGarrMissionID);
 		}
 
 		public void SetCombatAllyMissionState(CombatAllyMissionState state)
@@ -1055,7 +1073,7 @@ namespace WoWCompanionApp
 						gameObject.transform.SetParent(this.m_partyBuffGroup.transform, false);
 						gameObject.GetComponent<AbilityDisplay>().SetAbility(num4, false, false, null);
 					}
-					if (PersistentFollowerData.followerDictionary.ContainsKey(currentGarrFollowerID2) && (PersistentFollowerData.followerDictionary[currentGarrFollowerID2].Flags & 8) == 0)
+					if ((PersistentFollowerData.followerDictionary[currentGarrFollowerID2].Flags & 8) == 0)
 					{
 						num3++;
 					}
@@ -1091,8 +1109,8 @@ namespace WoWCompanionApp
 			}
 			int trueMissionCost = this.GetTrueMissionCost(record, nums);
 			Text text = this.missionCostText;
-			int num5 = GarrisonStatus.Resources();
-			text.text = string.Concat(num5.ToString("N0"), " / ", trueMissionCost.ToString("N0"));
+			int num5 = GarrisonStatus.WarResources();
+			text.text = string.Concat(num5.ToString("N0", MobileDeviceLocale.GetCultureInfoLocale()), " / ", trueMissionCost.ToString("N0", MobileDeviceLocale.GetCultureInfoLocale()));
 			int numActiveChampions = GeneralHelpers.GetNumActiveChampions();
 			int maxActiveFollowers = GarrisonStatus.GetMaxActiveFollowers();
 			this.m_isOverMaxChampionSoftCap = false;
@@ -1102,7 +1120,7 @@ namespace WoWCompanionApp
 			{
 				this.m_isOverMaxChampionSoftCap = true;
 			}
-			if (GarrisonStatus.Resources() < trueMissionCost)
+			if (GarrisonStatus.WarResources() < trueMissionCost)
 			{
 				this.m_needMoreResources = true;
 			}
@@ -1122,13 +1140,13 @@ namespace WoWCompanionApp
 			{
 				this.m_startMissionButton.material.SetFloat("_GrayscaleAmount", 1f);
 				this.m_startMissionButtonText.color = Color.gray;
-				this.m_startMissionButtonText.GetComponent<Shadow>().enabled = false;
+				this.m_startMissionButtonText.GetComponent<MeshGradient>().enabled = false;
 			}
 			else
 			{
 				this.m_startMissionButton.material.SetFloat("_GrayscaleAmount", 0f);
 				this.m_startMissionButtonText.color = new Color(1f, 0.8588f, 0f, 1f);
-				this.m_startMissionButtonText.GetComponent<Shadow>().enabled = true;
+				this.m_startMissionButtonText.GetComponent<MeshGradient>().enabled = true;
 			}
 			TimeSpan timeSpan = TimeSpan.FromSeconds((double)adjustedMissionDuration);
 			if (this.missionLocationText != null)

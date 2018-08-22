@@ -3,19 +3,24 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
+using WowStatConstants;
 using WowStaticData;
 
 namespace WoWCompanionApp
 {
 	public class TalentTreePanel : MonoBehaviour
 	{
-		public Image m_classBG;
+		public Image m_allianceBG;
+
+		public Image m_hordeBG;
 
 		public GameObject m_talentTreeItemRoot;
 
 		public GameObject m_talentTreeItemPrefab;
 
 		public GameObject m_romanNumeralRoot;
+
+		public OrderHallNavButton m_talentNavButton;
 
 		private Vector2 m_multiPanelViewSizeDelta;
 
@@ -70,23 +75,33 @@ namespace WoWCompanionApp
 		private void InitTalentTree()
 		{
 			this.m_needsFullInit = false;
-			Sprite sprite = this.LoadTalengBGForClass(GarrisonStatus.CharacterClassID());
-			if (sprite != null)
+			if (GarrisonStatus.Faction() == PVP_FACTION.HORDE)
 			{
-				this.m_classBG.sprite = sprite;
+				this.m_hordeBG.gameObject.SetActive(true);
+				this.m_allianceBG.gameObject.SetActive(false);
+			}
+			else if (GarrisonStatus.Faction() == PVP_FACTION.ALLIANCE)
+			{
+				this.m_hordeBG.gameObject.SetActive(false);
+				this.m_allianceBG.gameObject.SetActive(true);
 			}
 			TalentTreeItem[] componentsInChildren = this.m_talentTreeItemRoot.GetComponentsInChildren<TalentTreeItem>(true);
 			for (int i = 0; i < (int)componentsInChildren.Length; i++)
 			{
-				UnityEngine.Object.Destroy(componentsInChildren[i].gameObject);
+				TalentTreeItem talentTreeItem = componentsInChildren[i];
+				talentTreeItem.transform.SetParent(null);
+				UnityEngine.Object.Destroy(talentTreeItem.gameObject);
 			}
 			Image[] imageArray = this.m_romanNumeralRoot.GetComponentsInChildren<Image>(true);
 			for (int j = 0; j < (int)imageArray.Length; j++)
 			{
-				UnityEngine.Object.Destroy(imageArray[j].gameObject);
+				Image image = imageArray[j];
+				image.transform.SetParent(null);
+				UnityEngine.Object.Destroy(image.gameObject);
 			}
 			this.m_talentTreeItems.Clear();
-			GarrTalentTreeRec recordFirstOrDefault = StaticDB.garrTalentTreeDB.GetRecordFirstOrDefault((GarrTalentTreeRec garrTalentTreeRec) => garrTalentTreeRec.ClassID == GarrisonStatus.CharacterClassID());
+			int num = (GarrisonStatus.Faction() != PVP_FACTION.HORDE ? 153 : 152);
+			GarrTalentTreeRec recordFirstOrDefault = StaticDB.garrTalentTreeDB.GetRecordFirstOrDefault((GarrTalentTreeRec garrTalentTreeRec) => garrTalentTreeRec.ID == num);
 			if (recordFirstOrDefault == null)
 			{
 				Debug.LogError(string.Concat("No GarrTalentTree record found for class ", GarrisonStatus.CharacterClassID()));

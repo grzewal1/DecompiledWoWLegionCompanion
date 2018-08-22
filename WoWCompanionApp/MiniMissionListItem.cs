@@ -14,13 +14,19 @@ namespace WoWCompanionApp
 
 		public Image m_missionTypeIcon;
 
-		public Image m_rareMissionHighlight;
-
 		public Image m_missionTypeBG;
 
 		public Image m_missionLocation;
 
-		public Image m_statusDarkener;
+		public Sprite m_starSprite;
+
+		public Sprite m_swordSprite;
+
+		public Sprite m_bootSprite;
+
+		public Sprite m_stealthSprite;
+
+		public Sprite m_scrollSprite;
 
 		public Text m_missionLevel;
 
@@ -29,8 +35,6 @@ namespace WoWCompanionApp
 		public Text m_rareMissionLabel;
 
 		public Text m_statusText;
-
-		public Text m_expirationText;
 
 		public MissionRewardDisplay m_missionRewardDisplayPrefab;
 
@@ -41,6 +45,16 @@ namespace WoWCompanionApp
 		public GameObject m_previewMechanicsGroup;
 
 		private WrapperGarrisonMission m_mission;
+
+		private int m_starIconId = 7746;
+
+		private int m_swordIconID = 7747;
+
+		private int m_bootIconId = 7748;
+
+		private int m_stealthIconId = 7749;
+
+		private int m_scrollIconId = 8046;
 
 		private int[] m_previewAbilityID;
 
@@ -55,9 +69,7 @@ namespace WoWCompanionApp
 			this.m_missionName.font = GeneralHelpers.LoadFancyFont();
 			this.m_missionLevel.font = GeneralHelpers.LoadStandardFont();
 			this.m_missionTime.font = GeneralHelpers.LoadStandardFont();
-			this.m_rareMissionLabel.font = GeneralHelpers.LoadFancyFont();
 			this.m_statusText.font = GeneralHelpers.LoadStandardFont();
-			this.m_rareMissionLabel.text = StaticDB.GetString("RARE", "Rare!");
 			this.m_previewAbilityID = new int[3];
 			this.m_previewCanCounterStatus = new FollowerCanCounterMechanic[3];
 		}
@@ -122,7 +134,6 @@ namespace WoWCompanionApp
 
 		public void SetMission(WrapperGarrisonMission mission)
 		{
-			this.m_statusDarkener.gameObject.SetActive(false);
 			this.m_statusText.gameObject.SetActive(false);
 			this.m_mission = mission;
 			GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(mission.MissionRecID);
@@ -133,14 +144,31 @@ namespace WoWCompanionApp
 			if (this.m_missionTypeIcon != null)
 			{
 				GarrMissionTypeRec garrMissionTypeRec = StaticDB.garrMissionTypeDB.GetRecord((int)record.GarrMissionTypeID);
-				this.m_missionTypeIcon.sprite = TextureAtlas.instance.GetAtlasSprite((int)garrMissionTypeRec.UiTextureAtlasMemberID);
+				if ((ulong)garrMissionTypeRec.UiTextureAtlasMemberID == (long)this.m_starIconId)
+				{
+					this.m_missionTypeIcon.sprite = this.m_starSprite;
+				}
+				if ((ulong)garrMissionTypeRec.UiTextureAtlasMemberID == (long)this.m_swordIconID)
+				{
+					this.m_missionTypeIcon.sprite = this.m_swordSprite;
+				}
+				if ((ulong)garrMissionTypeRec.UiTextureAtlasMemberID == (long)this.m_bootIconId)
+				{
+					this.m_missionTypeIcon.sprite = this.m_bootSprite;
+				}
+				if ((ulong)garrMissionTypeRec.UiTextureAtlasMemberID == (long)this.m_stealthIconId)
+				{
+					this.m_missionTypeIcon.sprite = this.m_stealthSprite;
+				}
+				if ((ulong)garrMissionTypeRec.UiTextureAtlasMemberID == (long)this.m_scrollIconId)
+				{
+					this.m_missionTypeIcon.sprite = this.m_scrollSprite;
+				}
 			}
 			bool flag = false;
 			if (mission.MissionState == 1)
 			{
 				flag = true;
-				this.m_statusDarkener.gameObject.SetActive(true);
-				this.m_statusDarkener.color = new Color(0f, 0f, 0f, 0.3529412f);
 				this.m_statusText.gameObject.SetActive(true);
 				this.m_missionTime.gameObject.SetActive(false);
 			}
@@ -162,9 +190,7 @@ namespace WoWCompanionApp
 				}
 			}
 			bool flags = (record.Flags & 1) != 0;
-			this.m_expirationText.gameObject.SetActive(flags);
 			this.m_rareMissionLabel.gameObject.SetActive(flags);
-			this.m_rareMissionHighlight.gameObject.SetActive(flags);
 			if (!flags)
 			{
 				this.m_missionTypeBG.color = new Color(0f, 0f, 0f, 0.478f);
@@ -194,7 +220,6 @@ namespace WoWCompanionApp
 			{
 				if (componentsInChildren[i] != null)
 				{
-					componentsInChildren[i].gameObject.transform.SetParent(null);
 					UnityEngine.Object.Destroy(componentsInChildren[i].gameObject);
 				}
 			}
@@ -222,10 +247,7 @@ namespace WoWCompanionApp
 			missionDuration = (missionDuration.TotalSeconds <= 0 ? TimeSpan.Zero : missionDuration);
 			if (missionDuration.TotalSeconds > 0)
 			{
-				if (this.m_expirationText.gameObject.activeSelf)
-				{
-					this.m_expirationText.text = missionDuration.GetDurationString(false);
-				}
+				missionDuration.GetDurationString(false);
 			}
 			else if (this.m_mission.MissionState == 0 && this.m_mission.OfferDuration.TotalSeconds > 0)
 			{
@@ -291,7 +313,6 @@ namespace WoWCompanionApp
 					{
 						if (componentsInChildren[j] != null)
 						{
-							componentsInChildren[j].gameObject.transform.SetParent(null);
 							UnityEngine.Object.Destroy(componentsInChildren[j].gameObject);
 						}
 					}

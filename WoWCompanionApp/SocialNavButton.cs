@@ -31,7 +31,7 @@ namespace WoWCompanionApp
 
 		protected override void UpdateNotificationState()
 		{
-			this.m_notificationImage.SetActive(CommunityData.Instance.HasUnreadCommunityMessages(null));
+			this.m_notificationImage.SetActive(false);
 		}
 	}
 }

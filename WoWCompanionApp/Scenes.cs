@@ -15,7 +15,7 @@ namespace WoWCompanionApp
 		static Scenes()
 		{
 			Scenes.TitleSceneName = "TitleScene";
-			Scenes.MainSceneName = "LegionMainScene";
+			Scenes.MainSceneName = "CompanionMainScene";
 		}
 	}
 }

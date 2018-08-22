@@ -11,6 +11,12 @@ namespace WoWCompanionApp
 
 		public CanvasGroup[] m_fadeCanvasGroups;
 
+		public GameObject m_bfaLogo;
+
+		public GameObject m_bfaLogo_CN;
+
+		public GameObject m_bfaLogo_TW;
+
 		private bool m_isFadingIn;
 
 		private bool m_isFadingOut;
@@ -39,6 +45,22 @@ namespace WoWCompanionApp
 			for (int i = 0; i < (int)mFadeCanvasGroups.Length; i++)
 			{
 				mFadeCanvasGroups[i].alpha = 0f;
+			}
+			this.m_bfaLogo.SetActive(false);
+			this.m_bfaLogo_CN.SetActive(false);
+			this.m_bfaLogo_TW.SetActive(false);
+			string locale = Main.instance.GetLocale();
+			if (locale == "zhCN")
+			{
+				this.m_bfaLogo_CN.SetActive(true);
+			}
+			else if (locale != "zhTW")
+			{
+				this.m_bfaLogo.SetActive(true);
+			}
+			else
+			{
+				this.m_bfaLogo_TW.SetActive(true);
 			}
 		}
 

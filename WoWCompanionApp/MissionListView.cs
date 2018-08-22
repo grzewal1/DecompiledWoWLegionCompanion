@@ -32,7 +32,6 @@ namespace WoWCompanionApp
 			{
 				if (componentsInChildren[i] != null && componentsInChildren[i] != this.missionListViewContents.transform)
 				{
-					componentsInChildren[i].gameObject.transform.SetParent(null);
 					UnityEngine.Object.Destroy(componentsInChildren[i].gameObject);
 				}
 			}

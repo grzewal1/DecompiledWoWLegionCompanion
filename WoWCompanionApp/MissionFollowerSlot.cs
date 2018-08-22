@@ -17,8 +17,6 @@ namespace WoWCompanionApp
 
 		public Image m_qualityColorImage;
 
-		public Image m_qualityColorImage_TitleQuality;
-
 		public Image m_portraitRingImage;
 
 		public Image m_levelBorderImage;
@@ -187,8 +185,6 @@ namespace WoWCompanionApp
 				this.m_levelBorderImage_TitleQuality.gameObject.SetActive(false);
 				this.m_portraitImage.gameObject.SetActive(false);
 				this.m_qualityColorImage.gameObject.SetActive(false);
-				this.m_qualityColorImage_TitleQuality.gameObject.SetActive(false);
-				this.m_levelBorderImage.color = Color.white;
 				this.m_levelText.gameObject.SetActive(false);
 				this.isOccupied = false;
 				this.m_portraitFrameImage.enabled = true;
@@ -219,7 +215,7 @@ namespace WoWCompanionApp
 			{
 				return;
 			}
-			if (garrFollowerRec.GarrFollowerTypeID != 4)
+			if (garrFollowerRec.GarrFollowerTypeID != (uint)GarrisonStatus.GarrisonFollowerType)
 			{
 				return;
 			}
@@ -281,17 +277,7 @@ namespace WoWCompanionApp
 				}
 			}
 			this.m_levelText.gameObject.SetActive(true);
-			if (item.FollowerLevel >= 110)
-			{
-				Text mLevelText = this.m_levelText;
-				string str = StaticDB.GetString("ILVL", null);
-				int itemLevelArmor = (item.ItemLevelArmor + item.ItemLevelWeapon) / 2;
-				mLevelText.text = GeneralHelpers.TextOrderString(str, itemLevelArmor.ToString());
-			}
-			else
-			{
-				this.m_levelText.text = GeneralHelpers.TextOrderString(StaticDB.GetString("LEVEL", null), item.FollowerLevel.ToString());
-			}
+			this.m_levelText.text = item.FollowerLevel.ToString();
 			this.m_portraitImage.gameObject.SetActive(true);
 			Sprite sprite1 = GeneralHelpers.LoadIconAsset(AssetBundleType.PortraitIcons, (GarrisonStatus.Faction() != PVP_FACTION.HORDE ? garrFollowerRec.AllianceIconFileDataID : garrFollowerRec.HordeIconFileDataID));
 			if (sprite1 != null)
@@ -300,17 +286,14 @@ namespace WoWCompanionApp
 			}
 			if (item.Quality != 6)
 			{
-				this.m_qualityColorImage_TitleQuality.gameObject.SetActive(false);
 				this.m_levelBorderImage_TitleQuality.gameObject.SetActive(false);
 				this.m_qualityColorImage.gameObject.SetActive(true);
 				this.m_levelBorderImage.gameObject.SetActive(true);
 				Color qualityColor = GeneralHelpers.GetQualityColor(item.Quality);
 				this.m_qualityColorImage.color = qualityColor;
-				this.m_levelBorderImage.color = qualityColor;
 			}
 			else
 			{
-				this.m_qualityColorImage_TitleQuality.gameObject.SetActive(true);
 				this.m_levelBorderImage_TitleQuality.gameObject.SetActive(true);
 				this.m_qualityColorImage.gameObject.SetActive(false);
 				this.m_levelBorderImage.gameObject.SetActive(false);

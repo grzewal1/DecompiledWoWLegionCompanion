@@ -1,12 +1,14 @@
 using System;
 using UnityEngine;
-using UnityEngine.UI;
+using WowStatConstants;
 
 namespace WoWCompanionApp
 {
 	public class MissionTreasureView : MonoBehaviour
 	{
-		public Text m_chanceText;
+		public GameObject m_hordeChest;
+
+		public GameObject m_allianceChest;
 
 		public MissionTreasureView()
 		{
@@ -14,11 +16,16 @@ namespace WoWCompanionApp
 
 		private void Start()
 		{
-			this.m_chanceText.text = StaticDB.GetString("CHANCE", null);
-		}
-
-		private void Update()
-		{
+			if (GarrisonStatus.Faction() == PVP_FACTION.HORDE)
+			{
+				this.m_hordeChest.SetActive(true);
+				this.m_allianceChest.SetActive(false);
+			}
+			else if (GarrisonStatus.Faction() == PVP_FACTION.ALLIANCE)
+			{
+				this.m_hordeChest.SetActive(false);
+				this.m_allianceChest.SetActive(true);
+			}
 		}
 	}
 }

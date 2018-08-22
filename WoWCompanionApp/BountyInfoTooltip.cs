@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 using WowStatConstants;
@@ -25,15 +26,7 @@ namespace WoWCompanionApp
 
 		public Transform m_bountyQuestIconArea;
 
-		public Image m_lootIcon;
-
-		public Text m_lootIconInvalidFileDataID;
-
-		public Text m_lootName;
-
-		public Text m_lootDescription;
-
-		public Text m_rewardsLabel;
+		public RewardInfoPopup m_rewardInfo;
 
 		private WrapperWorldQuestBounty m_bounty;
 
@@ -43,9 +36,10 @@ namespace WoWCompanionApp
 
 		public void SetBounty(WrapperWorldQuestBounty bounty)
 		{
+			Sprite sprite;
 			this.m_bounty = bounty;
-			Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, bounty.IconFileDataID);
-			if (sprite == null)
+			Sprite sprite1 = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, bounty.IconFileDataID);
+			if (sprite1 == null)
 			{
 				this.m_bountyIconInvalidFileDataID.gameObject.SetActive(true);
 				this.m_bountyIconInvalidFileDataID.text = string.Concat(string.Empty, bounty.IconFileDataID);
@@ -53,7 +47,7 @@ namespace WoWCompanionApp
 			else
 			{
 				this.m_bountyIconInvalidFileDataID.gameObject.SetActive(false);
-				this.m_bountyIcon.sprite = sprite;
+				this.m_bountyIcon.sprite = sprite1;
 			}
 			QuestV2Rec record = StaticDB.questDB.GetRecord(bounty.QuestID);
 			if (record == null)
@@ -73,6 +67,7 @@ namespace WoWCompanionApp
 				RectTransform rectTransform = componentsInChildren[i];
 				if (rectTransform != null && rectTransform.gameObject != this.m_bountyQuestIconArea.gameObject)
 				{
+					rectTransform.SetParent(null);
 					UnityEngine.Object.Destroy(rectTransform.gameObject);
 				}
 			}
@@ -87,38 +82,47 @@ namespace WoWCompanionApp
 				gameObject1.transform.SetParent(this.m_bountyQuestIconArea.transform, false);
 			}
 			this.UpdateTimeRemaining();
-			if (bounty.Items.Count <= 0)
+			bounty.Items.RemoveAll((WrapperWorldQuestReward item) => (item.RecordID == 157831 ? true : item.RecordID == 1500));
+			if (bounty.Items.Count > 0 && StaticDB.itemDB.GetRecord(bounty.Items[0].RecordID) != null)
 			{
-				this.m_lootName.text = "ERROR: Loot Not Specified";
-				this.m_lootDescription.text = "ERROR: Loot Not Specified";
+				WrapperWorldQuestReward wrapperWorldQuestReward = bounty.Items[0];
+				Sprite sprite2 = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, wrapperWorldQuestReward.FileDataID);
+				this.m_rewardInfo.SetReward(MissionRewardDisplay.RewardType.item, wrapperWorldQuestReward.RecordID, wrapperWorldQuestReward.Quantity, sprite2, wrapperWorldQuestReward.ItemContext);
 			}
-			else
+			else if (bounty.Money > 1000000)
 			{
-				ItemDB itemDB = StaticDB.itemDB;
-				WrapperWorldQuestReward item = bounty.Items[0];
-				ItemRec itemRec = itemDB.GetRecord(item.RecordID);
-				if (itemRec == null)
+				Sprite sprite3 = Resources.Load<Sprite>("MiscIcons/INV_Misc_Coin_01");
+				this.m_rewardInfo.SetGold(bounty.Money / 10000, sprite3);
+			}
+			else if (bounty.Currencies.Count > 1)
+			{
+				int num = 0;
+				foreach (WrapperWorldQuestReward currency in bounty.Currencies)
 				{
-					Text mLootName = this.m_lootName;
-					WrapperWorldQuestReward wrapperWorldQuestReward = bounty.Items[0];
-					mLootName.text = string.Concat("Unknown item ", wrapperWorldQuestReward.RecordID);
-					Text mLootDescription = this.m_lootDescription;
-					WrapperWorldQuestReward item1 = bounty.Items[0];
-					mLootDescription.text = string.Concat("Unknown item ", item1.RecordID);
-				}
-				else
-				{
-					this.m_lootName.text = itemRec.Display;
-					this.m_lootDescription.text = GeneralHelpers.GetItemDescription(itemRec);
-					Sprite sprite1 = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, itemRec.IconFileDataID);
-					if (sprite1 != null)
+					CurrencyTypesRec currencyTypesRec = StaticDB.currencyTypesDB.GetRecord(currency.RecordID);
+					if (currency.RecordID == 1553 && currencyTypesRec != null)
 					{
-						this.m_lootIcon.sprite = sprite1;
-					}
-					else if (this.m_lootIconInvalidFileDataID != null)
-					{
-						this.m_lootIconInvalidFileDataID.gameObject.SetActive(true);
-						this.m_lootIconInvalidFileDataID.text = string.Concat(string.Empty, itemRec.IconFileDataID);
+						if (CurrencyContainerDB.CheckAndGetValidCurrencyContainer(currency.RecordID, currency.Quantity) == null)
+						{
+							sprite = GeneralHelpers.LoadCurrencyIcon(currency.RecordID);
+							int quantity = currency.Quantity / ((currencyTypesRec.Flags & 8) == 0 ? 1 : 100);
+							if (quantity <= num)
+							{
+								continue;
+							}
+							num = quantity;
+							this.m_rewardInfo.SetCurrency(currency.RecordID, num, sprite);
+						}
+						else
+						{
+							sprite = CurrencyContainerDB.LoadCurrencyContainerIcon(currency.RecordID, currency.Quantity);
+							int quantity1 = currency.Quantity / ((currencyTypesRec.Flags & 8) == 0 ? 1 : 100);
+							if (quantity1 > num)
+							{
+								num = quantity1;
+								this.m_rewardInfo.SetCurrency(currency.RecordID, num, sprite);
+							}
+						}
 					}
 				}
 			}

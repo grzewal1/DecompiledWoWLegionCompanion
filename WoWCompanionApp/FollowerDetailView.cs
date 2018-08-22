@@ -123,7 +123,7 @@ namespace WoWCompanionApp
 							Debug.Log(string.Concat(new object[] { "New ability is ", abilityID, " replacing ability ID ", abilityDisplay.GetAbilityID() }));
 							abilityDisplay.SetAbility(abilityID, true, true, this);
 							Main.instance.m_UISound.Play_UpgradeEquipment();
-							UiAnimMgr.instance.PlayAnim("FlameGlowPulse", abilityDisplay.transform, Vector3.zero, 2f, 0f);
+							UiAnimMgr.instance.PlayAnim("FlameGlowPulse", abilityDisplay.transform, Vector3.zero, 1f, 0f);
 						}
 					}
 				}
@@ -138,7 +138,6 @@ namespace WoWCompanionApp
 				UnityEngine.Object.Destroy(componentsInChildren[i].gameObject);
 			}
 			bool flag = false;
-			bool flag1 = true;
 			for (int j = 0; j < follower.AbilityIDs.Count; j++)
 			{
 				if ((StaticDB.garrAbilityDB.GetRecord(follower.AbilityIDs[j]).Flags & 1) != 0)
@@ -150,13 +149,7 @@ namespace WoWCompanionApp
 					component.SetAbility(follower.AbilityIDs[j], true, true, this);
 				}
 			}
-			bool flags = (follower.Flags & 8) != 0;
-			GarrFollowerRec record = StaticDB.garrFollowerDB.GetRecord(follower.GarrFollowerID);
-			if (flags || follower.FollowerLevel < MissionDetailView.GarrisonFollower_GetMaxFollowerLevel((int)record.GarrFollowerTypeID))
-			{
-				flag1 = false;
-			}
-			this.m_equipmentSlotsText.gameObject.SetActive((flag ? true : flag1));
+			this.m_equipmentSlotsText.gameObject.SetActive(flag);
 		}
 
 		private void OnDisable()
@@ -310,7 +303,7 @@ namespace WoWCompanionApp
 		private void Start()
 		{
 			this.m_equipmentSlotsText.font = GeneralHelpers.LoadStandardFont();
-			this.m_equipmentSlotsText.text = StaticDB.GetString("EQUIPMENT_AND_ARMAMENTS", "Equipment and Armaments PH");
+			this.m_equipmentSlotsText.text = StaticDB.GetString("EQUIPMENT", "Equipment PH");
 			Text componentInChildren = this.m_activateChampionButton.GetComponentInChildren<Text>();
 			if (componentInChildren != null)
 			{

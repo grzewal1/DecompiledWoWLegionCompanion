@@ -15,9 +15,9 @@ namespace WoWCompanionApp
 
 		private static int s_gold;
 
-		private static int s_oil;
-
 		private static int s_resources;
+
+		private static int s_warResources;
 
 		private static int s_characterLevel;
 
@@ -57,7 +57,7 @@ namespace WoWCompanionApp
 				{
 					GarrisonStatus.LoadGarrisonConfig();
 				}
-				return GarrisonStatus.s_garrisonConfig.m_garrrisonFollowerType;
+				return GarrisonStatus.s_garrisonConfig.m_garrisonFollowerType;
 			}
 		}
 
@@ -148,11 +148,6 @@ namespace WoWCompanionApp
 			GarrisonStatus.s_garrisonConfig = AssetBundleManager.LoadAsset<GarrisonConfig>(AssetBundleManager.BundleName.ConfigBundleName, GarrisonStatus.s_garrisonConfigFileName);
 		}
 
-		public static int Oil()
-		{
-			return GarrisonStatus.s_oil;
-		}
-
 		public static int Resources()
 		{
 			return GarrisonStatus.s_resources;
@@ -182,11 +177,11 @@ namespace WoWCompanionApp
 			GarrisonStatus.s_characterName = name;
 		}
 
-		public static void SetCurrencies(int gold, int oil, int resources)
+		public static void SetCurrencies(int gold, int resources, int warResources)
 		{
 			GarrisonStatus.s_gold = gold;
-			GarrisonStatus.s_oil = oil;
 			GarrisonStatus.s_resources = resources;
+			GarrisonStatus.s_warResources = warResources;
 		}
 
 		public static void SetFaction(int faction)
@@ -209,6 +204,11 @@ namespace WoWCompanionApp
 		public static void SetMaxActiveFollowers(int maxActiveFollowers)
 		{
 			GarrisonStatus.s_maxActiveFollowers = maxActiveFollowers;
+		}
+
+		public static int WarResources()
+		{
+			return GarrisonStatus.s_warResources;
 		}
 	}
 }

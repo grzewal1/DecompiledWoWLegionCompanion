@@ -29,6 +29,12 @@ namespace WowStaticData
 			private set;
 		}
 
+		public int EnvGarrMechanicID
+		{
+			get;
+			private set;
+		}
+
 		public uint EnvGarrMechanicTypeID
 		{
 			get;
@@ -349,6 +355,11 @@ namespace WowStaticData
 				case 28:
 				{
 					this.OvermaxRewardPackID = Convert.ToInt32(valueText);
+					break;
+				}
+				case 29:
+				{
+					this.EnvGarrMechanicID = Convert.ToInt32(valueText);
 					break;
 				}
 			}

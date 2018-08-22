@@ -47,6 +47,8 @@ namespace WoWCompanionApp
 
 		private int m_itemContext;
 
+		private Color WORLD_QUEST_GLOW_COLOR_DEFAULT = new Color(255f, 210f, 0f);
+
 		public bool m_showLootIconInsteadOfMain;
 
 		public int QuestID
@@ -125,6 +127,7 @@ namespace WoWCompanionApp
 
 		public void SetQuestID(int questID)
 		{
+			Color color;
 			this.m_questID = questID;
 			base.gameObject.name = string.Concat("WorldQuest ", this.m_questID);
 			if (!WorldQuestData.WorldQuestDictionary.ContainsKey(this.m_questID))
@@ -171,7 +174,12 @@ namespace WoWCompanionApp
 					{
 						if (StaticDB.currencyTypesDB.GetRecord(currency.RecordID) != null)
 						{
-							this.m_main.sprite = GeneralHelpers.LoadCurrencyIcon(currency.RecordID);
+							this.m_main.sprite = CurrencyContainerDB.LoadCurrencyContainerIcon(currency.RecordID, currency.Quantity);
+							CurrencyContainerRec currencyContainerRec = CurrencyContainerDB.CheckAndGetValidCurrencyContainer(currency.RecordID, currency.Quantity);
+							if (currencyContainerRec != null)
+							{
+								this.m_lootQuality = (ITEM_QUALITY)currencyContainerRec.ContainerQuality;
+							}
 						}
 						if (!AdventureMapPanel.instance.IsFilterEnabled(MapFilterType.OrderResources))
 						{
@@ -212,6 +220,14 @@ namespace WoWCompanionApp
 			this.m_dragonFrame.gameObject.SetActive(modifiers);
 			bool type = questInfoRec.Type == 7;
 			this.m_normalGlow.gameObject.SetActive(!type);
+			if (this.m_lootQuality < ITEM_QUALITY.STANDARD)
+			{
+				this.m_normalGlow.color = this.WORLD_QUEST_GLOW_COLOR_DEFAULT;
+			}
+			if (this.m_lootQuality > ITEM_QUALITY.STANDARD && ColorUtility.TryParseHtmlString(string.Concat("#", GeneralHelpers.GetItemQualityColor((int)this.m_lootQuality)), out color))
+			{
+				this.m_normalGlow.color = color;
+			}
 			this.m_legionAssaultGlow.gameObject.SetActive(type);
 			if ((questInfoRec.Modifiers & 1) != 0 && questInfoRec.Type != 3)
 			{

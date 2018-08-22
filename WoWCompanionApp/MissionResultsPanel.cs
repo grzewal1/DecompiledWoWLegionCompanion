@@ -29,8 +29,6 @@ namespace WoWCompanionApp
 
 		public Text missionLocationText;
 
-		public Text missioniLevelText;
-
 		public Image missionTypeImage;
 
 		public GameObject missionFollowerSlotPrefab;
@@ -54,10 +52,6 @@ namespace WoWCompanionApp
 		public GameObject m_partyBuffGroup;
 
 		public Text m_partyBuffsText;
-
-		public GameObject m_lootBorderNormal;
-
-		public GameObject m_lootBorderLitUp;
 
 		public GameObject m_missionSuccessMessage;
 
@@ -298,8 +292,6 @@ namespace WoWCompanionApp
 				this.missionPercentChanceText.text = "%";
 				this.m_missionChanceSpinner.SetActive(true);
 			}
-			this.m_lootBorderNormal.SetActive(chance < 100);
-			this.m_lootBorderLitUp.SetActive(chance >= 100);
 			GarrMissionRec record = StaticDB.garrMissionDB.GetRecord(this.m_garrMissionID);
 			if (record == null)
 			{
@@ -442,7 +434,6 @@ namespace WoWCompanionApp
 			}
 			this.missionNameText.text = record.Name;
 			this.missionLocationText.text = record.Location;
-			this.missioniLevelText.text = string.Concat(StaticDB.GetString("ITEM_LEVEL_ABBREVIATION", null), " ", record.TargetItemLevel);
 			GarrMissionTypeRec garrMissionTypeRec = StaticDB.garrMissionTypeDB.GetRecord((int)record.GarrMissionTypeID);
 			this.missionTypeImage.overrideSprite = TextureAtlas.instance.GetAtlasSprite((int)garrMissionTypeRec.UiTextureAtlasMemberID);
 			if (this.missionFollowerSlotGroup != null)
@@ -469,7 +460,12 @@ namespace WoWCompanionApp
 				if (uITextureAtlasMemberID > 0)
 				{
 					Sprite atlasSprite = TextureAtlas.instance.GetAtlasSprite(uITextureAtlasMemberID);
-					if (atlasSprite != null)
+					if (atlasSprite == null)
+					{
+						uint uiTextureKitID = record.UiTextureKitID;
+						Debug.Log(string.Concat("Missing expected Back sprite from UiTextureKitID: [", uiTextureKitID.ToString(), "]"));
+					}
+					else
 					{
 						this.m_scrollingEnvironment_Back.enabled = true;
 						this.m_scrollingEnvironment_Back.sprite = atlasSprite;
@@ -479,7 +475,12 @@ namespace WoWCompanionApp
 				if (uITextureAtlasMemberID1 > 0)
 				{
 					Sprite sprite = TextureAtlas.instance.GetAtlasSprite(uITextureAtlasMemberID1);
-					if (sprite != null)
+					if (sprite == null)
+					{
+						uint uiTextureKitID1 = record.UiTextureKitID;
+						Debug.Log(string.Concat("Missing expected Mid sprite from UiTextureKitID: [", uiTextureKitID1.ToString(), "]"));
+					}
+					else
 					{
 						this.m_scrollingEnvironment_Mid.enabled = true;
 						this.m_scrollingEnvironment_Mid.sprite = sprite;
@@ -489,7 +490,12 @@ namespace WoWCompanionApp
 				if (num1 > 0)
 				{
 					Sprite atlasSprite1 = TextureAtlas.instance.GetAtlasSprite(num1);
-					if (atlasSprite1 != null)
+					if (atlasSprite1 == null)
+					{
+						uint uiTextureKitID2 = record.UiTextureKitID;
+						Debug.Log(string.Concat("Missing expected Fore sprite from UiTextureKitID: [", uiTextureKitID2.ToString(), "]"));
+					}
+					else
 					{
 						this.m_scrollingEnvironment_Fore.enabled = true;
 						this.m_scrollingEnvironment_Fore.sprite = atlasSprite1;
@@ -505,7 +511,6 @@ namespace WoWCompanionApp
 			{
 				if (missionRewardDisplayArray[m] != null)
 				{
-					missionRewardDisplayArray[m].gameObject.transform.SetParent(null);
 					UnityEngine.Object.Destroy(missionRewardDisplayArray[m].gameObject);
 				}
 			}
@@ -658,9 +663,7 @@ namespace WoWCompanionApp
 				FollowerExperienceDisplay[] followerExperienceDisplayArray = this.m_followerExperienceDisplayArea.GetComponentsInChildren<FollowerExperienceDisplay>(true);
 				for (int q = 0; q < (int)followerExperienceDisplayArray.Length; q++)
 				{
-					FollowerExperienceDisplay followerExperienceDisplay = followerExperienceDisplayArray[q];
-					followerExperienceDisplay.gameObject.transform.SetParent(null);
-					UnityEngine.Object.Destroy(followerExperienceDisplay.gameObject);
+					UnityEngine.Object.Destroy(followerExperienceDisplayArray[q].gameObject);
 				}
 			}
 			if (this.m_partyBuffGroup == null)
@@ -670,9 +673,7 @@ namespace WoWCompanionApp
 			AbilityDisplay[] abilityDisplayArray = this.m_partyBuffGroup.GetComponentsInChildren<AbilityDisplay>(true);
 			for (int r = 0; r < (int)abilityDisplayArray.Length; r++)
 			{
-				AbilityDisplay abilityDisplay = abilityDisplayArray[r];
-				abilityDisplay.gameObject.transform.SetParent(null);
-				UnityEngine.Object.Destroy(abilityDisplay.gameObject);
+				UnityEngine.Object.Destroy(abilityDisplayArray[r].gameObject);
 			}
 			int adjustedMissionDuration = GeneralHelpers.GetAdjustedMissionDuration(record, wrapperGarrisonFollowers, this.enemyPortraitsGroup);
 			int length = 0;

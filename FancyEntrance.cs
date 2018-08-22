@@ -43,13 +43,21 @@ public class FancyEntrance : MonoBehaviour
 
 	private bool m_calledStartCallback;
 
+	public bool m_useOriginalScale;
+
+	private Vector3 m_originalScale;
+
 	public FancyEntrance()
 	{
 	}
 
 	public void Activate()
 	{
-		base.gameObject.transform.localScale = Vector3.one;
+		this.m_originalScale = base.gameObject.transform.localScale;
+		if (!this.m_useOriginalScale)
+		{
+			base.gameObject.transform.localScale = Vector3.one;
+		}
 		this.m_entranceDelayDuration = this.m_timeToDelayEntrance;
 		this.m_fadeInTimeElapsed = 0f;
 		this.m_fadeInCanvasGroup.alpha = 0f;
@@ -65,12 +73,12 @@ public class FancyEntrance : MonoBehaviour
 
 	private void OnPunchScaleComplete()
 	{
-		base.gameObject.transform.localScale = Vector3.one;
+		base.gameObject.transform.localScale = (!this.m_useOriginalScale ? Vector3.one : this.m_originalScale);
 	}
 
 	private void OnScaleUpComplete()
 	{
-		base.gameObject.transform.localScale = Vector3.one;
+		base.gameObject.transform.localScale = (!this.m_useOriginalScale ? Vector3.one : this.m_originalScale);
 	}
 
 	public void Reset()

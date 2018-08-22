@@ -16,6 +16,8 @@ namespace WoWCompanionApp
 
 		public bool @dynamic;
 
+		public bool overrideFont;
+
 		private bool waitingForDB;
 
 		public LocalizedText()
@@ -24,7 +26,10 @@ namespace WoWCompanionApp
 
 		protected override void Awake()
 		{
-			base.font = FontLoader.LoadFont(this.fontType);
+			if (!this.overrideFont)
+			{
+				base.font = FontLoader.LoadFont(this.fontType);
+			}
 			this.waitingForDB = !StaticDB.StringsAvailable();
 			this.LoadStringFromDB();
 		}

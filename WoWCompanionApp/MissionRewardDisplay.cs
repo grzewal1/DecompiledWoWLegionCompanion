@@ -36,6 +36,8 @@ namespace WoWCompanionApp
 
 		public Image m_redX;
 
+		public Image m_qualityBorder;
+
 		public Transform m_greenCheckEffectRootTransform;
 
 		public Transform m_redFailXEffectRootTransform;
@@ -80,10 +82,6 @@ namespace WoWCompanionApp
 			if (this.m_collectingSpinner != null)
 			{
 				this.m_collectingSpinner.SetActive(false);
-			}
-			if (this.m_rewardName != null)
-			{
-				this.m_rewardName.font = GeneralHelpers.LoadStandardFont();
 			}
 			if (this.m_useItemMessage != null)
 			{
@@ -313,7 +311,7 @@ namespace WoWCompanionApp
 				}
 				case MissionRewardDisplay.RewardType.currency:
 				{
-					Sprite sprite1 = GeneralHelpers.LoadCurrencyIcon(this.m_rewardID);
+					Sprite sprite1 = CurrencyContainerDB.LoadCurrencyContainerIcon(this.m_rewardID, this.m_rewardQuantity);
 					if (sprite1 == null)
 					{
 						this.m_iconErrorText.gameObject.SetActive(true);
@@ -329,19 +327,45 @@ namespace WoWCompanionApp
 						if (currencyTypesRec == null)
 						{
 							this.m_rewardName.text = string.Empty;
+							this.m_rewardQuantityText.text = (this.m_rewardQuantity <= 1 ? string.Empty : this.m_rewardQuantity.ToString("N0"));
 						}
 						else
 						{
-							this.m_rewardName.text = currencyTypesRec.Name;
+							CurrencyContainerRec currencyContainerRec = CurrencyContainerDB.CheckAndGetValidCurrencyContainer(this.m_rewardID, this.m_rewardQuantity);
+							if (currencyContainerRec == null)
+							{
+								this.m_rewardName.text = currencyTypesRec.Name;
+								this.m_rewardQuantityText.text = (this.m_rewardQuantity <= 1 ? string.Empty : this.m_rewardQuantity.ToString("N0"));
+							}
+							else
+							{
+								this.m_rewardName.text = currencyContainerRec.ContainerName;
+								this.m_rewardName.color = GeneralHelpers.GetQualityColor(currencyContainerRec.ContainerQuality);
+								this.m_rewardQuantityText.text = string.Empty;
+							}
 						}
-						this.m_rewardQuantityText.text = (this.m_rewardQuantity <= 1 ? string.Empty : this.m_rewardQuantity.ToString("N0"));
+					}
+					else if (StaticDB.currencyTypesDB.GetRecord(rewardID) != null)
+					{
+						CurrencyContainerRec currencyContainerRec1 = CurrencyContainerDB.CheckAndGetValidCurrencyContainer(this.m_rewardID, this.m_rewardQuantity);
+						if (currencyContainerRec1 != null && currencyContainerRec1.ContainerQuality > 0 && this.m_qualityBorder != null)
+						{
+							this.m_qualityBorder.color = GeneralHelpers.GetQualityColor(currencyContainerRec1.ContainerQuality);
+						}
 					}
 					break;
 				}
 			}
 			if (!this.m_isExpandedDisplay)
 			{
-				this.m_rewardQuantityText.text = (this.m_rewardQuantity <= 1 ? string.Empty : this.m_rewardQuantity.ToString("N0"));
+				if (CurrencyContainerDB.CheckAndGetValidCurrencyContainer(this.m_rewardID, rewardQuantity) == null)
+				{
+					this.m_rewardQuantityText.text = (this.m_rewardQuantity <= 1 ? string.Empty : this.m_rewardQuantity.ToString("N0"));
+				}
+				else
+				{
+					this.m_rewardQuantityText.text = string.Empty;
+				}
 			}
 		}
 

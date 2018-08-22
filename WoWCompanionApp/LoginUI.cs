@@ -1,5 +1,7 @@
 using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.UI;
 using WowJamMessages;
 using WowJamMessages.JSONRealmList;
 
@@ -8,6 +10,8 @@ namespace WoWCompanionApp
 	public class LoginUI : MonoBehaviour
 	{
 		public ConnectingPanel m_connectingPanel;
+
+		public Button m_connectingPanelCancelButton;
 
 		public RealmListPanel m_realmListPanel;
 
@@ -26,10 +30,6 @@ namespace WoWCompanionApp
 		public RecentCharacterArea m_recentCharacterArea;
 
 		public GenericPopup m_genericPopup;
-
-		public LogoutConfirmation m_logoutConfirmation;
-
-		public RegionConfirmation m_regionConfirmation;
 
 		public GameObject m_commonLegionWallpaper;
 
@@ -105,10 +105,6 @@ namespace WoWCompanionApp
 			{
 				this.m_webAuthPanel.gameObject.SetActive(false);
 			}
-			if (this.m_regionConfirmation != null)
-			{
-				this.m_regionConfirmation.gameObject.SetActive(false);
-			}
 			if (hideConnecting)
 			{
 				if (this.m_connectingPanel != null)
@@ -130,7 +126,6 @@ namespace WoWCompanionApp
 				this.CloseCharacterListDialog();
 			}
 			this.m_genericPopup.gameObject.SetActive(false);
-			this.m_logoutConfirmation.gameObject.SetActive(false);
 		}
 
 		public void HideConnectingPanel()
@@ -188,6 +183,14 @@ namespace WoWCompanionApp
 		{
 			Singleton<Login>.Instance.ReturnToCharacterList = true;
 			Singleton<Login>.Instance.ReturnToTitleScene();
+		}
+
+		public void SetConnectingPanelCancelButtonEnabled(bool enabled)
+		{
+			if (this.m_connectingPanelCancelButton != null)
+			{
+				this.m_connectingPanelCancelButton.gameObject.SetActive(enabled);
+			}
 		}
 
 		public void SetRecentCharacter(int index, RecentCharacter recentChar)
@@ -270,8 +273,7 @@ namespace WoWCompanionApp
 
 		public void ShowLogoutConfirmationPopup(bool goToWebAuth)
 		{
-			this.m_logoutConfirmation.GoToWebAuth = goToWebAuth;
-			this.m_logoutConfirmation.gameObject.SetActive(true);
+			Singleton<DialogFactory>.Instance.CreateOKCancelDialog((!goToWebAuth ? "LOG_OUT" : "ACCOUNT_SELECTION"), "ARE_YOU_SURE", () => Singleton<Login>.instance.OnLogoutConfirmed(goToWebAuth), new Action(Singleton<Login>.instance.OnLogoutCancel));
 		}
 
 		public void ShowRealmListPanel()
@@ -283,7 +285,7 @@ namespace WoWCompanionApp
 
 		public void ShowRegionConfirmationPopup(int index)
 		{
-			this.m_regionConfirmation.gameObject.SetActive(true);
+			Singleton<DialogFactory>.Instance.CreateOKCancelDialog("RESTART_REQUIRED", "ARE_YOU_SURE", new Action(Singleton<Login>.instance.SetRegionIndex), new Action(Singleton<Login>.instance.CancelRegionIndex));
 		}
 
 		public void ShowTitlePanel()
@@ -317,6 +319,10 @@ namespace WoWCompanionApp
 
 		private void Start()
 		{
+			if (this.m_connectingPanel != null)
+			{
+				this.m_connectingPanelCancelButton = this.m_connectingPanel.GetComponentInChildren<Button>();
+			}
 		}
 
 		private void Update()
@@ -325,6 +331,7 @@ namespace WoWCompanionApp
 			{
 				this.ShowConnectingPanel();
 			}
+			this.SetConnectingPanelCancelButtonEnabled(Singleton<Login>.Instance.CanCancelNow());
 		}
 	}
 }

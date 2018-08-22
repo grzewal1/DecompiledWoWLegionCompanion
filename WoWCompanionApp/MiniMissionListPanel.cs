@@ -22,13 +22,13 @@ namespace WoWCompanionApp
 
 		public Text m_availableMissionsTabLabel;
 
-		public Image m_availableMissionsTabSelectedImage;
+		public Image m_availableMissionNotSelectedImage;
 
 		public Button m_inProgressMissionsTabButton;
 
 		public Text m_inProgressMissionsTabLabel;
 
-		public Image m_inProgressMissionsTabSelectedImage;
+		public Image m_inProgressMissionNotSelectedImage;
 
 		public Text m_noMissionsAvailableLabel;
 
@@ -44,19 +44,12 @@ namespace WoWCompanionApp
 
 		private GameObject m_currentMissionStartedEffectObj;
 
-		[Header("Notched Screen")]
-		public GameObject m_missionScrollViewport;
-
-		public GameObject m_tabsArea;
-
 		public MiniMissionListPanel()
 		{
 		}
 
 		private void Awake()
 		{
-			this.m_availableMissionsTabLabel.font = GeneralHelpers.LoadFancyFont();
-			this.m_inProgressMissionsTabLabel.font = GeneralHelpers.LoadFancyFont();
 			this.m_noMissionsAvailableLabel.font = GeneralHelpers.LoadStandardFont();
 			this.m_noMissionsAvailableLabel.text = StaticDB.GetString("NO_MISSIONS_AVAILABLE", "No missions are currently available.");
 			this.m_noMissionsInProgressLabel.font = GeneralHelpers.LoadStandardFont();
@@ -154,7 +147,7 @@ namespace WoWCompanionApp
 					{
 						Debug.LogWarning(string.Concat("Mission Not Found: ID ", value.MissionRecID));
 					}
-					else if (record.GarrFollowerTypeID == 4)
+					else if (record.GarrFollowerTypeID == (uint)GarrisonStatus.GarrisonFollowerType)
 					{
 						if ((record.Flags & 16) == 0)
 						{
@@ -187,10 +180,6 @@ namespace WoWCompanionApp
 			this.m_noMissionsInProgressLabel.gameObject.SetActive(num2 == 0);
 		}
 
-		private void NarrowScreenAdjust()
-		{
-		}
-
 		private void OnDisable()
 		{
 			Main.instance.GarrisonDataResetFinishedAction -= new Action(this.HandleGarrisonDataResetFinished);
@@ -210,16 +199,16 @@ namespace WoWCompanionApp
 		{
 			this.m_availableMissionListScrollView.SetActive(true);
 			this.m_inProgressMissionListScrollView.SetActive(false);
-			this.m_availableMissionsTabSelectedImage.gameObject.SetActive(true);
-			this.m_inProgressMissionsTabSelectedImage.gameObject.SetActive(false);
+			this.m_availableMissionNotSelectedImage.gameObject.SetActive(false);
+			this.m_inProgressMissionNotSelectedImage.gameObject.SetActive(true);
 		}
 
 		public void ShowInProgressMissionList()
 		{
 			this.m_availableMissionListScrollView.SetActive(false);
 			this.m_inProgressMissionListScrollView.SetActive(true);
-			this.m_availableMissionsTabSelectedImage.gameObject.SetActive(false);
-			this.m_inProgressMissionsTabSelectedImage.gameObject.SetActive(true);
+			this.m_availableMissionNotSelectedImage.gameObject.SetActive(true);
+			this.m_inProgressMissionNotSelectedImage.gameObject.SetActive(false);
 		}
 
 		private void ShowMissionStartedAnim()
@@ -231,18 +220,6 @@ namespace WoWCompanionApp
 			this.m_currentMissionStartedEffectObj = UnityEngine.Object.Instantiate<GameObject>(this.m_missionStartedEffectObjPrefab);
 			this.m_currentMissionStartedEffectObj.transform.SetParent(this.m_inProgressMissionsTabButton.transform, false);
 			this.m_currentMissionStartedEffectObj.transform.localPosition = Vector3.zero;
-		}
-
-		private void Start()
-		{
-			if (Main.instance.IsNarrowScreen())
-			{
-				this.NarrowScreenAdjust();
-			}
-		}
-
-		private void Update()
-		{
 		}
 	}
 }

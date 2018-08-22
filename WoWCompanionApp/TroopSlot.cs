@@ -13,10 +13,6 @@ namespace WoWCompanionApp
 
 		public Image m_troopBuildEmptyRing;
 
-		public Image m_troopBuildProgressRing;
-
-		public Image m_troopBuildProgressFill;
-
 		public Image m_troopOwnedCheckmark;
 
 		public Text m_timeRemainingText;
@@ -80,8 +76,6 @@ namespace WoWCompanionApp
 				UiAnimMgr.instance.PlayAnim("GreenCheckRound", this.m_greenCheckEffectRoot, Vector3.zero, 1.8f, 0f);
 				Main.instance.m_UISound.Play_GreenCheck();
 				this.m_training = false;
-				this.m_troopBuildProgressRing.gameObject.SetActive(false);
-				this.m_troopBuildProgressFill.gameObject.SetActive(false);
 				this.m_troopOwnedCheckmark.gameObject.SetActive(true);
 				this.m_troopPortraitImage.gameObject.SetActive(true);
 				this.m_timeRemainingText.gameObject.SetActive(false);
@@ -156,6 +150,7 @@ namespace WoWCompanionApp
 			CharShipmentRec record = StaticDB.charShipmentDB.GetRecord(charShipmentID);
 			if (record == null)
 			{
+				Debug.LogError(string.Concat("Invalid Shipment ID: ", charShipmentID));
 				return;
 			}
 			if (this.m_glowLoopHandle != null)
@@ -184,6 +179,7 @@ namespace WoWCompanionApp
 				else
 				{
 					training = false;
+					Debug.LogWarning(string.Concat("Shipment not found in Persistent: ", charShipmentID));
 				}
 			}
 			if (record.GarrFollowerID > 0)
@@ -196,9 +192,7 @@ namespace WoWCompanionApp
 			}
 			if (ownedGarrFollowerID != 0)
 			{
-				this.m_troopBuildProgressRing.gameObject.SetActive(false);
 				this.m_troopBuildEmptyRing.gameObject.SetActive(false);
-				this.m_troopBuildProgressFill.gameObject.SetActive(false);
 				this.m_troopOwnedCheckmark.gameObject.SetActive(true);
 				this.m_troopPortraitImage.gameObject.SetActive(true);
 				this.m_timeRemainingText.gameObject.SetActive(false);
@@ -207,8 +201,6 @@ namespace WoWCompanionApp
 			if (!training)
 			{
 				this.m_troopBuildEmptyRing.gameObject.SetActive(false);
-				this.m_troopBuildProgressRing.gameObject.SetActive(false);
-				this.m_troopBuildProgressFill.gameObject.SetActive(false);
 				this.m_troopOwnedCheckmark.gameObject.SetActive(false);
 				this.m_troopPortraitImage.gameObject.SetActive(false);
 				this.m_timeRemainingText.gameObject.SetActive(false);
@@ -216,10 +208,6 @@ namespace WoWCompanionApp
 			else
 			{
 				this.m_troopBuildEmptyRing.gameObject.SetActive(true);
-				this.m_troopBuildProgressRing.gameObject.SetActive(true);
-				this.m_troopBuildProgressRing.fillAmount = 0f;
-				this.m_troopBuildProgressFill.gameObject.SetActive(true);
-				this.m_troopBuildProgressFill.fillAmount = 0f;
 				this.m_troopOwnedCheckmark.gameObject.SetActive(false);
 				this.m_troopPortraitImage.gameObject.SetActive(true);
 				this.m_timeRemainingText.gameObject.SetActive(true);
@@ -237,6 +225,7 @@ namespace WoWCompanionApp
 			ItemRec record = StaticDB.itemDB.GetRecord(charShipmentRec.DummyItemID);
 			if (record == null)
 			{
+				Debug.LogError(string.Concat("Invalid Item ID: ", charShipmentRec.DummyItemID));
 				return;
 			}
 			Sprite sprite = GeneralHelpers.LoadIconAsset(AssetBundleType.Icons, record.IconFileDataID);
@@ -251,6 +240,7 @@ namespace WoWCompanionApp
 			GarrFollowerRec record = StaticDB.garrFollowerDB.GetRecord((int)charShipmentRec.GarrFollowerID);
 			if (record == null)
 			{
+				Debug.LogError(string.Concat("Invalid Follower ID: ", charShipmentRec.GarrFollowerID));
 				return;
 			}
 			if (iconFileDataID <= 0)
@@ -270,19 +260,12 @@ namespace WoWCompanionApp
 			this.m_collectingSpinner.SetActive(true);
 		}
 
-		private void Start()
-		{
-			this.m_timeRemainingText.font = GeneralHelpers.LoadStandardFont();
-		}
-
 		private void Update()
 		{
 			if (this.m_training)
 			{
 				TimeSpan timeSpan = GarrisonStatus.CurrentTime() - this.m_shipmentCreationTime;
-				float single = Mathf.Clamp((float)timeSpan.TotalSeconds / (float)this.m_shipmentDuration.TotalSeconds, 0f, 1f);
-				this.m_troopBuildProgressRing.fillAmount = single;
-				this.m_troopBuildProgressFill.fillAmount = single;
+				Mathf.Clamp((float)timeSpan.TotalSeconds / (float)this.m_shipmentDuration.TotalSeconds, 0f, 1f);
 				TimeSpan mShipmentDuration = this.m_shipmentDuration - timeSpan;
 				if (mShipmentDuration.TotalSeconds < 0)
 				{

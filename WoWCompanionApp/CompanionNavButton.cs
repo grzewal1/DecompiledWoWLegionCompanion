@@ -11,6 +11,12 @@ namespace WoWCompanionApp
 
 		public GameObject m_notificationImage;
 
+		public GameObject m_comingSoonEffectPrefab;
+
+		public GameObject m_comingSoonPivot;
+
+		private GameObject m_currentComingSoonEffect;
+
 		private bool m_isSelected;
 
 		public CompanionNavButton()
@@ -29,6 +35,16 @@ namespace WoWCompanionApp
 			Main.instance.CompanionNavButtonSelectionAction += new Action<CompanionNavButton>(this.HandleCompanionNavButtonSelected);
 			this.UpdateSelectedState();
 			this.UpdateNotificationState();
+		}
+
+		public void PlayComingSoonEffect()
+		{
+			if (this.m_currentComingSoonEffect == null && this.m_comingSoonEffectPrefab != null && this.m_comingSoonPivot != null)
+			{
+				this.m_currentComingSoonEffect = UnityEngine.Object.Instantiate<GameObject>(this.m_comingSoonEffectPrefab);
+				this.m_currentComingSoonEffect.transform.SetParent(this.m_comingSoonPivot.transform, false);
+				this.m_currentComingSoonEffect.transform.localPosition = Vector3.zero;
+			}
 		}
 
 		public void SelectMe()

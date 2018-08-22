@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 using WowStatConstants;
@@ -16,6 +17,8 @@ namespace WoWCompanionApp
 		public Text m_rewardQuantity;
 
 		public Image m_rewardIcon;
+
+		public GameObject m_azeriteFrame;
 
 		private int m_rewardID;
 
@@ -68,13 +71,24 @@ namespace WoWCompanionApp
 		public void SetCurrency(int currencyID, int quantity, Sprite iconSprite)
 		{
 			CurrencyTypesRec record = StaticDB.currencyTypesDB.GetRecord(currencyID);
-			if (record != null)
+			CurrencyContainerRec currencyContainerRec = CurrencyContainerDB.CheckAndGetValidCurrencyContainer(currencyID, quantity);
+			if (currencyContainerRec == null)
 			{
-				this.m_rewardName.text = record.Name;
-				this.m_rewardDescription.text = record.Description;
+				if (record != null)
+				{
+					this.m_rewardName.text = record.Name;
+					this.m_rewardDescription.text = record.Description;
+				}
+				this.m_rewardQuantity.text = (quantity <= 1 ? string.Empty : string.Concat(string.Empty, quantity));
+				this.m_rewardIcon.sprite = iconSprite;
 			}
-			this.m_rewardQuantity.text = (quantity <= 1 ? string.Empty : string.Concat(string.Empty, quantity));
-			this.m_rewardIcon.sprite = iconSprite;
+			else
+			{
+				this.m_rewardName.text = string.Concat(GeneralHelpers.GetItemQualityColorTag(currencyContainerRec.ContainerQuality), currencyContainerRec.ContainerName, "</color>");
+				this.m_rewardDescription.text = GeneralHelpers.QuantityRule(currencyContainerRec.ContainerDescription, quantity);
+				this.m_rewardQuantity.text = string.Empty;
+				this.m_rewardIcon.sprite = iconSprite;
+			}
 		}
 
 		public void SetFaction(int factionID, int quantity, Sprite iconSprite)
@@ -102,7 +116,7 @@ namespace WoWCompanionApp
 		{
 			this.m_rewardName.text = StaticDB.GetString("GOLD", null);
 			this.m_rewardDescription.text = StaticDB.GetString("GOLD_DESCRIPTION", null);
-			this.m_rewardQuantity.text = (quantity <= 1 ? string.Empty : string.Concat(string.Empty, quantity));
+			this.m_rewardQuantity.text = (quantity <= 1 ? string.Empty : string.Concat(string.Empty, quantity.ToString(MobileDeviceLocale.GetCultureInfoLocale())));
 			this.m_rewardIcon.sprite = iconSprite;
 		}
 
@@ -114,8 +128,8 @@ namespace WoWCompanionApp
 			this.m_rewardName.text = string.Empty;
 			this.m_rewardDescription.text = string.Empty;
 			this.m_rewardIcon.sprite = iconSprite;
-			ItemRec record = StaticDB.itemDB.GetRecord(itemID);
-			if (record == null)
+			ItemRec itemRec = StaticDB.itemDB.GetRecord(itemID);
+			if (itemRec == null)
 			{
 				this.m_rewardName.text = string.Concat("Unknown Item", itemID);
 				this.m_rewardDescription.text = string.Empty;
@@ -125,18 +139,18 @@ namespace WoWCompanionApp
 				WrapperItemStats? itemStats = ItemStatCache.instance.GetItemStats(itemID, itemContext);
 				if (!itemStats.HasValue)
 				{
-					this.m_rewardName.text = string.Concat(GeneralHelpers.GetItemQualityColorTag(record.OverallQualityID), record.Display, "</color>");
+					this.m_rewardName.text = string.Concat(GeneralHelpers.GetItemQualityColorTag(itemRec.OverallQualityID), itemRec.Display, "</color>");
 				}
 				else
 				{
 					Text mRewardName = this.m_rewardName;
 					WrapperItemStats value = itemStats.Value;
-					mRewardName.text = string.Concat(GeneralHelpers.GetItemQualityColorTag(value.Quality), record.Display, "</color>");
+					mRewardName.text = string.Concat(GeneralHelpers.GetItemQualityColorTag(value.Quality), itemRec.Display, "</color>");
 				}
 				this.m_rewardName.supportRichText = true;
-				if (record.ItemNameDescriptionID > 0)
+				if (itemRec.ItemNameDescriptionID > 0)
 				{
-					ItemNameDescriptionRec itemNameDescriptionRec = StaticDB.itemNameDescriptionDB.GetRecord(record.ItemNameDescriptionID);
+					ItemNameDescriptionRec itemNameDescriptionRec = StaticDB.itemNameDescriptionDB.GetRecord(itemRec.ItemNameDescriptionID);
 					if (itemNameDescriptionRec != null)
 					{
 						Text text = this.m_rewardName;
@@ -144,9 +158,13 @@ namespace WoWCompanionApp
 						text.text = string.Concat(new string[] { str, "\n<color=#", GeneralHelpers.GetColorFromInt(itemNameDescriptionRec.Color), "ff>", itemNameDescriptionRec.Description, "</color>" });
 					}
 				}
-				if (record.ClassID == 2 || record.ClassID == 3 || record.ClassID == 4 || record.ClassID == 5 || record.ClassID == 6)
+				if (this.m_azeriteFrame != null)
 				{
-					int itemLevel = record.ItemLevel;
+					this.m_azeriteFrame.SetActive(StaticDB.azeriteEmpoweredItemDB.GetRecordFirstOrDefault((AzeriteEmpoweredItemRec record) => record.ItemID == itemID) != null);
+				}
+				if (itemRec.ClassID == 2 || itemRec.ClassID == 3 || itemRec.ClassID == 4 || itemRec.ClassID == 5 || itemRec.ClassID == 6)
+				{
+					int itemLevel = itemRec.ItemLevel;
 					if (itemStats.HasValue)
 					{
 						itemLevel = itemStats.Value.ItemLevel;
@@ -155,26 +173,26 @@ namespace WoWCompanionApp
 					str = mRewardName1.text;
 					mRewardName1.text = string.Concat(new string[] { str, "\n<color=#", GeneralHelpers.s_defaultColor, ">", StaticDB.GetString("ITEM_LEVEL", null), " ", itemLevel.ToString(), "</color>" });
 				}
-				if (record.Bonding > 0)
+				if (itemRec.Bonding > 0)
 				{
 					string empty = string.Empty;
-					if ((record.Flags[0] & 134217728) != 0)
+					if ((itemRec.Flags[0] & 134217728) != 0)
 					{
-						empty = ((record.Flags[1] & 131072) == 0 ? StaticDB.GetString("ITEM_BIND_TO_ACCOUNT", null) : StaticDB.GetString("ITEM_BIND_TO_BNETACCOUNT", null));
+						empty = ((itemRec.Flags[1] & 131072) == 0 ? StaticDB.GetString("ITEM_BIND_TO_ACCOUNT", null) : StaticDB.GetString("ITEM_BIND_TO_BNETACCOUNT", null));
 					}
-					else if (record.Bonding == 1)
+					else if (itemRec.Bonding == 1)
 					{
 						empty = StaticDB.GetString("ITEM_BIND_ON_PICKUP", null);
 					}
-					else if (record.Bonding == 4)
+					else if (itemRec.Bonding == 4)
 					{
 						empty = StaticDB.GetString("ITEM_BIND_QUEST", null);
 					}
-					else if (record.Bonding == 2)
+					else if (itemRec.Bonding == 2)
 					{
 						empty = StaticDB.GetString("ITEM_BIND_ON_EQUIP", null);
 					}
-					else if (record.Bonding == 3)
+					else if (itemRec.Bonding == 3)
 					{
 						empty = StaticDB.GetString("ITEM_BIND_ON_USE", null);
 					}
@@ -185,8 +203,8 @@ namespace WoWCompanionApp
 						text1.text = string.Concat(new string[] { str, "\n<color=#", GeneralHelpers.s_normalColor, ">", empty, "</color>" });
 					}
 				}
-				ItemSubClassRec itemSubclass = StaticDB.GetItemSubclass(record.ClassID, record.SubclassID);
-				if (itemSubclass != null && itemSubclass.DisplayName != null && itemSubclass.DisplayName != string.Empty && (itemSubclass.DisplayFlags & 1) == 0 && record.InventoryType != 16)
+				ItemSubClassRec itemSubclass = StaticDB.GetItemSubclass(itemRec.ClassID, itemRec.SubclassID);
+				if (itemSubclass != null && itemSubclass.DisplayName != null && itemSubclass.DisplayName != string.Empty && (itemSubclass.DisplayFlags & 1) == 0 && itemRec.InventoryType != 16)
 				{
 					if (this.m_rewardDescription.text != string.Empty)
 					{
@@ -197,7 +215,7 @@ namespace WoWCompanionApp
 					str = mRewardDescription1.text;
 					mRewardDescription1.text = string.Concat(new string[] { str, "<color=#", GeneralHelpers.s_normalColor, ">", itemSubclass.DisplayName, "</color>" });
 				}
-				string inventoryTypeString = GeneralHelpers.GetInventoryTypeString((INVENTORY_TYPE)record.InventoryType);
+				string inventoryTypeString = GeneralHelpers.GetInventoryTypeString((INVENTORY_TYPE)itemRec.InventoryType);
 				if (inventoryTypeString != null && inventoryTypeString != string.Empty)
 				{
 					if (this.m_rewardDescription.text != string.Empty)
@@ -267,7 +285,7 @@ namespace WoWCompanionApp
 						text6.text = string.Concat(text6.text, GeneralHelpers.TextOrderString(string.Concat(str1, bonusStat.BonusAmount.ToString()), GeneralHelpers.GetBonusStatString((BonusStatIndex)bonusStat.StatID)), "</color>");
 					}
 				}
-				int requiredLevel = record.RequiredLevel;
+				int requiredLevel = itemRec.RequiredLevel;
 				if (itemStats.HasValue)
 				{
 					requiredLevel = itemStats.Value.RequiredLevel;
@@ -288,7 +306,7 @@ namespace WoWCompanionApp
 					str = text7.text;
 					text7.text = string.Concat(new object[] { str, "<color=#", mobileStatColorString, ">", StaticDB.GetString("ITEM_MIN_LEVEL", null), " ", requiredLevel, "</color>" });
 				}
-				string itemDescription = GeneralHelpers.GetItemDescription(record);
+				string itemDescription = GeneralHelpers.GetItemDescription(itemRec);
 				if (itemDescription != null && itemDescription != string.Empty)
 				{
 					if (this.m_rewardDescription.text != string.Empty)
@@ -316,6 +334,10 @@ namespace WoWCompanionApp
 		{
 			this.m_rewardType = rewardType;
 			this.m_rewardID = rewardID;
+			if (this.m_azeriteFrame != null)
+			{
+				this.m_azeriteFrame.SetActive(false);
+			}
 			switch (rewardType)
 			{
 				case MissionRewardDisplay.RewardType.item:

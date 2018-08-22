@@ -40,7 +40,7 @@ namespace WoWCompanionApp
 
 		public static int GetAbilityToCounterMechanicType(int garrMechanicTypeID)
 		{
-			Func<GarrFollowerRec, bool> garrFollowerTypeID = (GarrFollowerRec rec) => rec.GarrFollowerTypeID == 4;
+			Func<GarrFollowerRec, bool> garrFollowerTypeID = (GarrFollowerRec rec) => rec.GarrFollowerTypeID == (uint)GarrisonStatus.GarrisonFollowerType;
 			Func<GarrFollowerRec, bool> func = (GarrFollowerRec rec) => (rec.ChrClassID == GarrisonStatus.CharacterClassID() ? true : rec.ChrClassID == 0);
 			HashSet<int> nums = new HashSet<int>(StaticDB.garrFollowerDB.GetRecordsWhere((GarrFollowerRec rec) => (!garrFollowerTypeID(rec) ? false : func(rec))).SelectMany<GarrFollowerRec, int>((GarrFollowerRec garrFollowerRec) => 
 				from followerXAbilityRec in StaticDB.garrFollowerXAbilityDB.GetRecordsByParentID(garrFollowerRec.ID)

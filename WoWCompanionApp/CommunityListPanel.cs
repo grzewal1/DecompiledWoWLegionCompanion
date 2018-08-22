@@ -25,10 +25,22 @@ namespace WoWCompanionApp
 
 		private void AddCommunitiesToContent()
 		{
-			GameObject gameObject = this.m_scrollContent.AddAsChildObject(this.m_scrollSectionHeaderPrefab);
-			string str = MobileClient.FormatString("%s'S COMMUNITIES", Singleton<CharacterData>.Instance.CharacterName.ToUpper());
-			gameObject.GetComponentInChildren<Text>().text = str;
-			CommunityData.Instance.ForEachCommunity((Community community) => this.m_scrollContent.AddAsChildObject(this.m_communityButtonPrefab).GetComponent<CommunityButton>().SetCommunity(community));
+			if (CommunityData.Instance.HasGuild())
+			{
+				GameObject gameObject = this.m_scrollContent.AddAsChildObject(this.m_scrollSectionHeaderPrefab);
+				string str = StaticDB.GetString("SOCIAL_CHARACTERS_GUILD", "%s'S GUILD");
+				string str1 = MobileClient.FormatString(str, Singleton<CharacterData>.Instance.CharacterName.ToUpper());
+				gameObject.GetComponentInChildren<Text>().text = str1;
+				CommunityData.Instance.ForGuild((Community guild) => this.m_scrollContent.AddAsChildObject(this.m_communityButtonPrefab).GetComponent<CommunityButton>().SetCommunity(guild));
+			}
+			if (CommunityData.Instance.HasCommunities())
+			{
+				GameObject gameObject1 = this.m_scrollContent.AddAsChildObject(this.m_scrollSectionHeaderPrefab);
+				string str2 = StaticDB.GetString("SOCIAL_CHARACTERS_COMMUNITIES", "%s'S COMMUNITIES");
+				string str3 = MobileClient.FormatString(str2, Singleton<CharacterData>.Instance.CharacterName.ToUpper());
+				gameObject1.GetComponentInChildren<Text>().text = str3;
+				CommunityData.Instance.ForEachCommunity((Community community) => this.m_scrollContent.AddAsChildObject(this.m_communityButtonPrefab).GetComponent<CommunityButton>().SetCommunity(community));
+			}
 		}
 
 		private void AddInvitationsToContent()
@@ -39,9 +51,8 @@ namespace WoWCompanionApp
 				GameObject gameObject = this.m_scrollContent.AddAsChildObject(this.m_scrollSectionHeaderPrefab);
 				gameObject.GetComponentInChildren<Text>().text = "PENDING INVITATIONS";
 				GameObject gameObject1 = this.m_scrollContent.AddAsChildObject(this.m_inviteButtonPrefab);
-				string str = (pendingInvites.Count <= 1 ? "1 INVITE" : "%s INVITATIONS");
-				int count = pendingInvites.Count;
-				str = MobileClient.FormatString(str, count.ToString());
+				string str = StaticDB.GetString("COMMUNITIES_MULTIPLE_INVITATIONS", null);
+				str = GeneralHelpers.QuantityRule(str, pendingInvites.Count);
 				gameObject1.GetComponentInChildren<Text>().text = str;
 				gameObject1.GetComponentInChildren<Button>().onClick.AddListener(new UnityAction(this.OpenPendingInvitesDialog));
 			}

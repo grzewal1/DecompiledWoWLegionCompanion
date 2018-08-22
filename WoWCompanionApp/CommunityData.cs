@@ -15,6 +15,8 @@ namespace WoWCompanionApp
 
 		private static List<CommunityPendingInvite> m_pendingInvites;
 
+		private static Community m_guildCommunity;
+
 		public static CommunityData Instance
 		{
 			get
@@ -32,6 +34,7 @@ namespace WoWCompanionApp
 			CommunityData.m_instance = null;
 			CommunityData.m_communityDictionary = new Dictionary<ulong, Community>();
 			CommunityData.m_pendingInvites = new List<CommunityPendingInvite>();
+			CommunityData.m_guildCommunity = null;
 		}
 
 		private CommunityData()
@@ -102,7 +105,19 @@ namespace WoWCompanionApp
 		{
 			foreach (Community value in CommunityData.m_communityDictionary.Values)
 			{
+				if (value.IsGuild())
+				{
+					continue;
+				}
 				action(value);
+			}
+		}
+
+		public void ForGuild(Action<Community> action)
+		{
+			if (CommunityData.m_guildCommunity != null)
+			{
+				action(CommunityData.m_guildCommunity);
 			}
 		}
 
@@ -117,6 +132,16 @@ namespace WoWCompanionApp
 			{
 				CommunityData.m_communityDictionary[messageEvent.ClubID].HandleMessageAddedEvent(messageEvent);
 			}
+		}
+
+		public bool HasCommunities()
+		{
+			return CommunityData.m_communityDictionary.Count > (CommunityData.m_guildCommunity != null ? 1 : 0);
+		}
+
+		public bool HasGuild()
+		{
+			return CommunityData.m_guildCommunity != null;
 		}
 
 		public bool HasUnreadCommunityMessages(Community ignoreCommunity = null)
@@ -248,6 +273,11 @@ namespace WoWCompanionApp
 			foreach (ClubInfo subscribedClub in Club.GetSubscribedClubs())
 			{
 				CommunityData.Instance.AddCommunity(subscribedClub);
+				if (subscribedClub.clubType != ClubType.Guild)
+				{
+					continue;
+				}
+				CommunityData.m_guildCommunity = CommunityData.m_communityDictionary[subscribedClub.clubId];
 			}
 		}
 
